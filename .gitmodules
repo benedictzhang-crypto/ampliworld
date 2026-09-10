@@ -1,0 +1,3 @@
+[submodule "vendor/MatrAIx-Persona-8B"]
+	path = vendor/MatrAIx-Persona-8B
+	url = https://github.com/MatrAIx-ai/MatrAIx-Persona-8B.git
