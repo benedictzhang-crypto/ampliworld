@@ -64,9 +64,10 @@ These assets already live in the City Kit (Roads) directory. The shared
 | `car-kit/models/race-future.glb` | 1.200 × 0.833 × 2.660 | 2,068 | Rare aspirational vehicle; keep spawn frequency low. |
 
 The vehicles are authored with their longer axis on Z. In the current world,
-rotate them around Y to align with road direction. Their native scale is much
-larger than the building module scale; start around `0.35–0.45` and compare
-against the player avatar before final placement.
+rotate them around Y to align with road direction. Their native dimensions are
+already close to human-scale vehicle proportions; start around `0.85–0.95`
+against the current player avatars. With the road surface at roughly `Y=0.04`,
+place the vehicle root near `Y=0.045` so the wheels sit on the surface.
 
 ## Loading paths and performance
 
