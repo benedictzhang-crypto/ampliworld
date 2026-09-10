@@ -391,12 +391,12 @@ function World({ onEnter, onNotice, netWorth }: { onEnter: (place: Place) => voi
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[50, 44]} /><meshStandardMaterial color="#091511" roughness={0.84} /></mesh>
       <mesh receiveShadow position={[0, 0.015, 1]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[9, 42]} /><meshStandardMaterial color="#14201e" /></mesh>
       <Suspense fallback={null}>
-        {[-15, -10, -5, 0, 5, 10, 15].map((z) => <StaticAsset key={z} url={`${ROAD_ASSET_ROOT}/road-straight.glb`} position={[0, 0.005, z]} rotation={[0, Math.PI / 2, 0]} scale={[5.02, 1, 9]} shadows={false} />)}
-        <StaticAsset url={`${CAR_ASSET_ROOT}/sedan.glb`} position={[-1.4, 0.11, -4]} scale={0.4} />
-        <StaticAsset url={`${CAR_ASSET_ROOT}/taxi.glb`} position={[1.45, 0.11, 6.2]} rotation={[0, Math.PI, 0]} scale={0.4} />
-        <StaticAsset url={`${CAR_ASSET_ROOT}/race-future.glb`} position={[-1.45, 0.11, 12.2]} scale={0.42} />
+        {[-15, -10, -5, 0, 5, 10, 15].map((z) => <StaticAsset key={z} url={`${ROAD_ASSET_ROOT}/road-straight.glb`} position={[0, 0.018, z]} rotation={[0, Math.PI / 2, 0]} scale={[5.02, 1, 5]} shadows={false} />)}
+        <StaticAsset url={`${CAR_ASSET_ROOT}/sedan.glb`} position={[-1.4, 0.045, -4]} scale={0.88} />
+        <StaticAsset url={`${CAR_ASSET_ROOT}/taxi.glb`} position={[1.45, 0.045, 6.2]} rotation={[0, Math.PI, 0]} scale={0.9} />
+        <StaticAsset url={`${CAR_ASSET_ROOT}/race-future.glb`} position={[-1.45, 0.045, 12.2]} scale={0.92} />
       </Suspense>
-      {[-2.5, 0, 2.5].map((x) => <mesh key={x} position={[x, 0.03, 1]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.08, 42]} /><meshBasicMaterial color="#36eaa5" /></mesh>)}
+      {[-1.5, 0, 1.5].map((x) => <mesh key={x} position={[x, 0.045, 1]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.08, 42]} /><meshBasicMaterial color="#36eaa5" /></mesh>)}
       {towers.map((tower) => <Building key={`${tower.position[0]}-${tower.position[2]}`} position={tower.position} size={[2.8, tower.height - 0.45, 2.8]} color="#112722" glow="#1d9c72" label={tower.label} assetUrl={`${COMMERCIAL_ASSET_ROOT}/${tower.model}`} assetScale={tower.scale} labelHeight={tower.height} />)}
       <Building position={[-4, 0, 1]} size={[3.3, 3.4, 3]} color="#162b27" glow="#22e69e" label="STOCK EXCHANGE" place="market" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-n.glb`} assetScale={1.45} labelHeight={3.95} />
       <Building position={[4, 0, 2]} size={[3.7, 2.8, 2.8]} color="#291b36" glow="#c366ff" label="NEON ATELIER" place="fashion" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-k.glb`} assetScale={1.75} labelHeight={3.1} />
