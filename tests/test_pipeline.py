@@ -8,6 +8,7 @@ from ampliworld.personas import load_personas
 from ampliworld.pipeline import SimulationPipeline
 from ampliworld.portfolio import construct_portfolio
 from ampliworld.simulation import aggregate_signals, simulate_agents
+from ampliworld.world import WorldMemory, classify_domains
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -58,6 +59,17 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(state.observations, 2)
         self.assertGreater(state.return_scale, 1.0)
         self.assertEqual(state.directional_accuracy, 1.0)
+
+    def test_world_memory_persists_decays_and_deduplicates(self):
+        event = load_event(EVENT)
+        memory = WorldMemory()
+        self.assertEqual(memory.advance([event]), [event])
+        first_pressure = memory.sector_pressure["consumer_technology"]
+        self.assertEqual(memory.advance([event]), [])
+        self.assertEqual(memory.turn, 2)
+        self.assertAlmostEqual(memory.sector_pressure["consumer_technology"], first_pressure * 0.92)
+        self.assertIn("electronics", classify_domains("New semiconductor device demand rises"))
+        self.assertTrue(memory.composite_event().affected_sectors)
 
 
 if __name__ == "__main__":

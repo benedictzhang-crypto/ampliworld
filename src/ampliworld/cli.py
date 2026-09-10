@@ -6,10 +6,11 @@ from pathlib import Path
 
 from .calibration import CalibrationState
 from .evaluation import evaluate_result
-from .io import write_json
+from .io import load_events, write_json
 from .models import AssetSignal
-from .news import fetch_google_news
+from .news import fetch_google_news, fetch_world_news
 from .pipeline import SimulationPipeline
+from .world import WorldMemory
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -34,6 +35,10 @@ def build_parser() -> argparse.ArgumentParser:
     news.add_argument("--limit", type=int, default=10)
     news.add_argument("--output", type=Path, default=Path("runs/news.json"))
 
+    world_news = sub.add_parser("world-news", help="Fetch evidence across the full world-news ontology")
+    world_news.add_argument("--limit-per-domain", type=int, default=5)
+    world_news.add_argument("--output", type=Path, default=Path("runs/world-news.json"))
+
     evaluate = sub.add_parser("evaluate", help="Compare a simulation with realized asset returns")
     evaluate.add_argument("simulation", type=Path)
     evaluate.add_argument("realized_returns", type=Path)
@@ -43,6 +48,16 @@ def build_parser() -> argparse.ArgumentParser:
     calibrate.add_argument("simulation", type=Path)
     calibrate.add_argument("realized_returns", type=Path)
     calibrate.add_argument("--state", type=Path, default=Path("data/cache/calibration.json"))
+
+    day = sub.add_parser("day", help="Advance the persistent world by one daily turn")
+    day.add_argument("events", type=Path, help="JSON event or event bundle for the day")
+    day.add_argument("--memory", type=Path, default=Path("data/cache/world_memory.json"))
+    day.add_argument("--universe", type=Path, default=DEFAULT_UNIVERSE)
+    day.add_argument("--personas", type=Path, default=DEFAULT_PERSONAS)
+    day.add_argument("--calibration", type=Path, default=Path("data/cache/calibration.json"))
+    day.add_argument("--sample-size", type=int, default=200)
+    day.add_argument("--seed", type=int, default=7)
+    day.add_argument("--output", type=Path, default=Path("runs/world-latest.json"))
     return parser
 
 
@@ -50,6 +65,11 @@ def main() -> None:
     args = build_parser().parse_args()
     if args.command == "news":
         items = fetch_google_news(args.query, args.limit)
+        write_json(args.output, items)
+        print(json.dumps(items, indent=2))
+        return
+    if args.command == "world-news":
+        items = fetch_world_news(args.limit_per_domain)
         write_json(args.output, items)
         print(json.dumps(items, indent=2))
         return
@@ -68,6 +88,24 @@ def main() -> None:
         state.update(signals, realized)
         state.save(args.state)
         print(json.dumps(state.to_dict(), indent=2))
+        return
+    if args.command == "day":
+        memory = WorldMemory.load(args.memory)
+        accepted = memory.advance(load_events(args.events))
+        memory.save(args.memory)
+        pipeline = SimulationPipeline(args.personas, args.universe, args.calibration)
+        result = pipeline.run_event(memory.composite_event(), args.sample_size, args.seed)
+        payload = result.to_dict()
+        payload["world_memory"] = {
+            "turn": memory.turn,
+            "as_of": memory.as_of,
+            "new_events": len(accepted),
+            "remembered_events": len(memory.recent_events),
+            "domain_pressure": memory.domain_pressure,
+            "sector_pressure": memory.sector_pressure,
+        }
+        write_json(args.output, payload)
+        print(json.dumps(payload, indent=2))
         return
     pipeline = SimulationPipeline(args.personas, args.universe, args.calibration)
     result = pipeline.run_to_file(args.event, args.output, args.sample_size, args.seed)

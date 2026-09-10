@@ -4,7 +4,7 @@ from pathlib import Path
 
 from .calibration import CalibrationState
 from .io import load_event, load_universe, write_json
-from .models import SimulationResult
+from .models import Event, SimulationResult
 from .personas import load_personas
 from .portfolio import construct_portfolio
 from .simulation import DEFAULT_SCENARIOS, aggregate_signals, simulate_agents
@@ -17,7 +17,9 @@ class SimulationPipeline:
         self.calibration_path = calibration_path
 
     def run(self, event_path: Path, sample_size: int = 200, seed: int = 7) -> SimulationResult:
-        event = load_event(event_path)
+        return self.run_event(load_event(event_path), sample_size, seed)
+
+    def run_event(self, event: Event, sample_size: int = 200, seed: int = 7) -> SimulationResult:
         personas = load_personas(self.persona_dir, sample_size=sample_size, seed=seed)
         assets = load_universe(self.universe_path)
         responses = simulate_agents(event, personas)
@@ -53,4 +55,3 @@ class SimulationPipeline:
         result = self.run(event_path, sample_size=sample_size, seed=seed)
         write_json(output_path, result.to_dict())
         return result
-

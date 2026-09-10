@@ -1,0 +1,40 @@
+{
+  "events": [
+    {
+      "event_id": "world-demo-war-001",
+      "timestamp": "2026-09-10T06:00:00-04:00",
+      "headline": "Regional ceasefire negotiations reduce immediate shipping risk",
+      "summary": "A hypothetical geopolitical event used only to test world memory.",
+      "sentiment": 0.35,
+      "surprise": 0.55,
+      "confidence": 0.70,
+      "affected_sectors": {"defense": -0.25, "energy": -0.18, "travel": 0.30},
+      "channels": ["war_security", "politics_policy"],
+      "source_urls": []
+    },
+    {
+      "event_id": "world-demo-consumer-001",
+      "timestamp": "2026-09-10T07:15:00-04:00",
+      "headline": "Luxury bookings and international restaurant traffic rise",
+      "summary": "A hypothetical consumer event used only to test world memory.",
+      "sentiment": 0.62,
+      "surprise": 0.48,
+      "confidence": 0.76,
+      "affected_sectors": {"luxury": 0.65, "restaurants": 0.38, "travel": 0.42},
+      "channels": ["fashion_luxury", "food_dining", "travel"],
+      "source_urls": []
+    },
+    {
+      "event_id": "world-demo-fx-001",
+      "timestamp": "2026-09-10T08:05:00-04:00",
+      "headline": "Dollar weakens as rate expectations shift",
+      "summary": "A hypothetical currency event used only to test world memory.",
+      "sentiment": -0.30,
+      "surprise": 0.40,
+      "confidence": 0.72,
+      "affected_sectors": {"currency": -0.70, "gold": 0.25},
+      "channels": ["currency", "finance_credit"],
+      "source_urls": []
+    }
+  ]
+}

@@ -10,7 +10,18 @@
     {"symbol": "DNN", "sector": "uranium", "event_beta": 1.25, "volatility": 0.61, "liquidity": 0.55, "max_weight": 0.08},
     {"symbol": "TMC", "sector": "critical_minerals", "event_beta": 1.40, "volatility": 0.82, "liquidity": 0.35, "max_weight": 0.05},
     {"symbol": "ITA", "sector": "defense", "event_beta": 0.90, "volatility": 0.21, "liquidity": 0.78, "max_weight": 0.14},
-    {"symbol": "XLV", "sector": "healthcare", "event_beta": 0.70, "volatility": 0.17, "liquidity": 0.91, "max_weight": 0.16}
+    {"symbol": "XLV", "sector": "healthcare", "event_beta": 0.70, "volatility": 0.17, "liquidity": 0.91, "max_weight": 0.16},
+    {"symbol": "SPY", "sector": "broad_market", "event_beta": 0.75, "volatility": 0.18, "liquidity": 1.00, "max_weight": 0.20},
+    {"symbol": "XLF", "sector": "banks", "event_beta": 0.85, "volatility": 0.22, "liquidity": 0.95, "max_weight": 0.16},
+    {"symbol": "UUP", "sector": "currency", "event_beta": 0.65, "volatility": 0.09, "liquidity": 0.74, "max_weight": 0.12},
+    {"symbol": "JETS", "sector": "travel", "event_beta": 1.10, "volatility": 0.35, "liquidity": 0.70, "max_weight": 0.10},
+    {"symbol": "NKE", "sector": "apparel", "event_beta": 0.95, "volatility": 0.31, "liquidity": 0.90, "max_weight": 0.12},
+    {"symbol": "LVMUY", "sector": "luxury", "event_beta": 1.00, "volatility": 0.29, "liquidity": 0.42, "max_weight": 0.07},
+    {"symbol": "XLY", "sector": "consumer_discretionary", "event_beta": 0.90, "volatility": 0.23, "liquidity": 0.92, "max_weight": 0.14},
+    {"symbol": "SOXX", "sector": "semiconductors", "event_beta": 1.10, "volatility": 0.34, "liquidity": 0.91, "max_weight": 0.14},
+    {"symbol": "IGV", "sector": "software", "event_beta": 1.00, "volatility": 0.30, "liquidity": 0.75, "max_weight": 0.12},
+    {"symbol": "IBB", "sector": "biotechnology", "event_beta": 0.90, "volatility": 0.27, "liquidity": 0.82, "max_weight": 0.12},
+    {"symbol": "DBA", "sector": "agriculture", "event_beta": 0.75, "volatility": 0.18, "liquidity": 0.65, "max_weight": 0.10},
+    {"symbol": "KIE", "sector": "insurance", "event_beta": 0.75, "volatility": 0.21, "liquidity": 0.58, "max_weight": 0.09}
   ]
 }
-
