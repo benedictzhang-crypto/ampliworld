@@ -4,8 +4,10 @@ import argparse
 import json
 from pathlib import Path
 
+from .calibration import CalibrationState
 from .evaluation import evaluate_result
 from .io import write_json
+from .models import AssetSignal
 from .news import fetch_google_news
 from .pipeline import SimulationPipeline
 
@@ -25,6 +27,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--sample-size", type=int, default=200)
     run.add_argument("--seed", type=int, default=7)
     run.add_argument("--output", type=Path, default=Path("runs/latest.json"))
+    run.add_argument("--calibration", type=Path, default=Path("data/cache/calibration.json"))
 
     news = sub.add_parser("news", help="Fetch a Google News RSS evidence batch")
     news.add_argument("query")
@@ -35,6 +38,11 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate.add_argument("simulation", type=Path)
     evaluate.add_argument("realized_returns", type=Path)
     evaluate.add_argument("--output", type=Path, default=Path("runs/evaluation.json"))
+
+    calibrate = sub.add_parser("calibrate", help="Update model calibration after returns are realized")
+    calibrate.add_argument("simulation", type=Path)
+    calibrate.add_argument("realized_returns", type=Path)
+    calibrate.add_argument("--state", type=Path, default=Path("data/cache/calibration.json"))
     return parser
 
 
@@ -52,7 +60,16 @@ def main() -> None:
         write_json(args.output, evaluation)
         print(json.dumps(evaluation, indent=2))
         return
-    pipeline = SimulationPipeline(args.personas, args.universe)
+    if args.command == "calibrate":
+        simulation = json.loads(args.simulation.read_text(encoding="utf-8"))
+        realized = json.loads(args.realized_returns.read_text(encoding="utf-8"))
+        signals = [AssetSignal(**signal) for signal in simulation.get("signals", [])]
+        state = CalibrationState.load(args.state)
+        state.update(signals, realized)
+        state.save(args.state)
+        print(json.dumps(state.to_dict(), indent=2))
+        return
+    pipeline = SimulationPipeline(args.personas, args.universe, args.calibration)
     result = pipeline.run_to_file(args.event, args.output, args.sample_size, args.seed)
     print(json.dumps(result.to_dict(), indent=2))
 

@@ -2,6 +2,7 @@ import unittest
 from pathlib import Path
 
 from ampliworld.evaluation import evaluate_result
+from ampliworld.calibration import CalibrationState
 from ampliworld.io import load_event, load_universe
 from ampliworld.personas import load_personas
 from ampliworld.pipeline import SimulationPipeline
@@ -49,6 +50,14 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(evaluation.observations, 4)
         self.assertTrue(0.0 <= evaluation.directional_accuracy <= 1.0)
         self.assertTrue(-1.0 <= evaluation.rank_information_coefficient <= 1.0)
+
+    def test_calibration_updates_from_realized_returns(self):
+        result = SimulationPipeline(PERSONAS, UNIVERSE).run(EVENT, sample_size=20, seed=5)
+        state = CalibrationState()
+        state.update(result.signals, {"AAPL": 0.011, "NVDA": 0.018})
+        self.assertEqual(state.observations, 2)
+        self.assertGreater(state.return_scale, 1.0)
+        self.assertEqual(state.directional_accuracy, 1.0)
 
 
 if __name__ == "__main__":

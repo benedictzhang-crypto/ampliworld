@@ -50,11 +50,15 @@ python3 -m venv .venv
 pip install -e .
 ampliworld run examples/events/ev_demand_shock.json --output runs/demo.json
 ampliworld evaluate runs/demo.json examples/realized_returns.json
+ampliworld calibrate runs/demo.json examples/realized_returns.json
 ```
 
 Each run records the source event, weighted population, scenario probabilities,
 asset-level evidence, expected return, uncertainty, confidence, portfolio weight,
 stop, take-profit and thesis invalidation condition.
+After returns become observable, `calibrate` updates a local state file. Future
+`run` calls load that state to rescale expected returns and confidence. This is
+the first daily learning loop; richer cohort-level calibration remains planned.
 
 ## What is real today
 

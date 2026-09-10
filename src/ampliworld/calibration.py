@@ -15,6 +15,9 @@ class CalibrationState:
     mean_absolute_error: float = 0.0
     directional_accuracy: float = 0.0
 
+    def to_dict(self) -> dict[str, float | int]:
+        return asdict(self)
+
     @classmethod
     def load(cls, path: Path) -> "CalibrationState":
         if not path.exists():
@@ -39,5 +42,4 @@ class CalibrationState:
 
     def save(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(asdict(self), indent=2), encoding="utf-8")
-
+        path.write_text(json.dumps(self.to_dict(), indent=2), encoding="utf-8")
