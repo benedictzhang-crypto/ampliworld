@@ -1,0 +1,18 @@
+{
+  "event_id": "demo-demand-001",
+  "timestamp": "2026-09-10T08:15:00-04:00",
+  "headline": "Consumer electronics demand guidance rises before the market open",
+  "summary": "A hypothetical demonstration event for the AmpliWorld pipeline.",
+  "sentiment": 0.72,
+  "surprise": 0.65,
+  "confidence": 0.78,
+  "affected_sectors": {
+    "consumer_technology": 0.90,
+    "semiconductors": 0.55,
+    "restaurants": -0.08,
+    "consumer_staples": -0.05
+  },
+  "channels": ["consumer", "earnings", "supply_chain"],
+  "source_urls": []
+}
+

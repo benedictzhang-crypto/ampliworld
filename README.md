@@ -31,9 +31,42 @@ engine and evaluation suite live in this repository.
 git submodule update --init --recursive
 ```
 
-The full Persona 1M dataset is intentionally excluded from Git history. A
-download command and data contract will be included with the financial persona
-adapter.
+The repository includes the upstream 200-person development sample. The public
+Persona 1M dataset is excluded from Git history; download it locally with:
+
+```bash
+./scripts/download_persona_1m.sh
+```
+
+## Run the research prototype
+
+The first working vertical slice uses deterministic cohort behavior so that the
+entire decision path is inspectable and testable. It does not claim that the
+synthetic population is already a calibrated market forecast.
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -e .
+ampliworld run examples/events/ev_demand_shock.json --output runs/demo.json
+ampliworld evaluate runs/demo.json examples/realized_returns.json
+```
+
+Each run records the source event, weighted population, scenario probabilities,
+asset-level evidence, expected return, uncertainty, confidence, portfolio weight,
+stop, take-profit and thesis invalidation condition.
+
+## What is real today
+
+- Public Persona 8B source and the 200-person development sample are vendored as
+  a pinned submodule.
+- The official Persona 1M sample can be downloaded into ignored local storage.
+- A reproducible event-to-portfolio pipeline and outcome evaluator run locally.
+- Google News RSS can be collected as evidence with `ampliworld news`.
+
+The next research layer is empirical calibration: replace hand-initialized
+behavioral priors with measured consumer, attention and market outcomes; enforce
+point-in-time data; then evaluate walk-forward performance including costs.
 
 ## Project principles
 
