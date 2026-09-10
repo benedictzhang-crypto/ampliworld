@@ -8,6 +8,34 @@
       "when": 1789074203035,
       "tag": "0000_tidy_namora",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789075985838,
+      "tag": "0001_smooth_spacker_dave",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789076746053,
+      "tag": "0002_even_marvel_apes",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1789077956979,
+      "tag": "0003_wide_whirlwind",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1789078196103,
+      "tag": "0004_sudden_mach_iv",
+      "breakpoints": true
     }
   ]
 }

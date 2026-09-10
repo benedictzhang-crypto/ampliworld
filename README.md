@@ -92,6 +92,26 @@ The next research layer is empirical calibration: replace hand-initialized
 behavioral priors with measured consumer, attention and market outcomes; enforce
 point-in-time data; then evaluate walk-forward performance including costs.
 
+## Playable world prototype
+
+The `web` application turns the research loop into a persistent third-person
+virtual city. A player starts with $10,000 in virtual cash, reads the current
+world event, trades a paper market with 1×–5× exposure, and converts progress
+into lifestyle goods and property. Account-level cross-margin clearing,
+idempotent actions, city taxes, limited bankruptcy relief, gated districts,
+representative NPCs and persistent world turns are implemented as game systems;
+none of them connects to real-money brokerage execution.
+
+The browser does not attempt to render 8.3 billion autonomous processes. It
+uses a hierarchical simulation: the Persona 8B population frame informs
+weighted cohorts, a smaller active agent layer carries memory and decisions,
+and a representative visible population makes the world legible to the player.
+
+The prototype includes CC0 3D assets from
+[Kenney](https://kenney.nl/) and [Quaternius](https://quaternius.com/). Original
+license files, official source URLs and package hashes are retained under
+`web/public/assets/3d/vendor/`.
+
 ## Project principles
 
 - Simulation produces hypotheses, not ground truth.
