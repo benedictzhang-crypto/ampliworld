@@ -29,6 +29,33 @@ const MAX_RELIEF_CLAIMS = 2;
 const RELIEF_COOLDOWN_TURNS = 30;
 const MAX_IDEMPOTENCY_KEY_LENGTH = 128;
 const IDEMPOTENCY_HISTORY_LIMIT = 200;
+const STARTER_TOWER_COUNT = 1_000;
+const STARTER_TOWER_FLOORS = 50;
+const STARTER_UNITS_PER_FLOOR = 200;
+const STARTER_STUDIO_AREA_SQM = 10;
+const STARTER_RESIDENTS_PER_TOWER =
+  STARTER_TOWER_FLOORS * STARTER_UNITS_PER_FLOOR;
+const STARTER_DISTRICT_CAPACITY =
+  STARTER_TOWER_COUNT * STARTER_RESIDENTS_PER_TOWER;
+
+const DISTRICTS = ['STARTER_ARCOLOGY', 'CBD'] as const;
+type District = (typeof DISTRICTS)[number];
+
+const TRANSIT_OPTIONS = {
+  METRO: {
+    fare: 5,
+    durationGameMinutes: 28,
+    minimumCashBeforeTrip: 0,
+    minimumCashAfterTrip: -5,
+  },
+  TAXI: {
+    fare: 45,
+    durationGameMinutes: 11,
+    minimumCashBeforeTrip: 45,
+    minimumCashAfterTrip: 0,
+  },
+} as const;
+type TransitMode = keyof typeof TRANSIT_OPTIONS;
 
 type JsonObject = Record<string, unknown>;
 
@@ -50,6 +77,17 @@ interface PlayerRow {
   lastSettlementTurn: number;
   lastOperationId: string;
   apartmentLeaseDays: number;
+  currentDistrict: string;
+  starterTower: number;
+  starterFloor: number;
+  starterUnit: number;
+  transitSpend: number;
+  transitTrips: number;
+  metroRides: number;
+  taxiRides: number;
+  lastTransitMode: string;
+  lastTransitFare: number;
+  lastTransitAt: string;
   careerStatus: string;
   turn: number;
   marketSeed: string;
@@ -105,6 +143,17 @@ interface MarginEventRow {
   createdAt: string;
 }
 
+interface TransitTripRow {
+  id: number;
+  turn: number;
+  fromDistrict: string;
+  toDistrict: string;
+  mode: TransitMode;
+  fare: number;
+  durationGameMinutes: number;
+  createdAt: string;
+}
+
 let databasePreparation: Promise<void> | undefined;
 
 function roundMoney(value: number) {
@@ -115,8 +164,33 @@ function roundQuantity(value: number) {
   return Math.round((value + Number.EPSILON) * 100_000_000) / 100_000_000;
 }
 
+function playerDistrict(value: string): District {
+  return DISTRICTS.includes(value as District)
+    ? (value as District)
+    : 'STARTER_ARCOLOGY';
+}
+
+function starterResidenceAssignment() {
+  const values = new Uint32Array(1);
+  crypto.getRandomValues(values);
+  const residenceIndex = values[0]! % STARTER_DISTRICT_CAPACITY;
+  const tower = Math.floor(residenceIndex / STARTER_RESIDENTS_PER_TOWER) + 1;
+  const withinTower = residenceIndex % STARTER_RESIDENTS_PER_TOWER;
+  const floor = Math.floor(withinTower / STARTER_UNITS_PER_FLOOR) + 1;
+  const unit = (withinTower % STARTER_UNITS_PER_FLOOR) + 1;
+  return { tower, floor, unit };
+}
+
 function errorResponse(error: string, code: string, status = 400) {
   return Response.json({ error, code, virtualOnly: true }, { status });
+}
+
+function cbdTravelRequiredResponse() {
+  return errorResponse(
+    'Travel to the CBD by metro or taxi before using this city service',
+    'CBD_TRAVEL_REQUIRED',
+    403,
+  );
 }
 
 async function prepareDatabaseInternal() {
@@ -125,7 +199,11 @@ async function prepareDatabaseInternal() {
   try {
     await env.DB.batch([
       env.DB.prepare(
-        'SELECT user_id, market_seed, last_operation_id FROM players LIMIT 0',
+        `SELECT user_id, market_seed, last_operation_id, current_district,
+          starter_tower, starter_floor, starter_unit, transit_spend,
+          transit_trips, metro_rides, taxi_rides, last_transit_mode,
+          last_transit_fare, last_transit_at
+         FROM players LIMIT 0`,
       ),
       env.DB.prepare(
         'SELECT user_id, leverage, margin_posted FROM holdings LIMIT 0',
@@ -137,6 +215,10 @@ async function prepareDatabaseInternal() {
       env.DB.prepare('SELECT user_id, event_type FROM margin_events LIMIT 0'),
       env.DB.prepare(
         'SELECT user_id, request_id, completed FROM game_idempotency LIMIT 0',
+      ),
+      env.DB.prepare(
+        `SELECT user_id, from_district, to_district, mode, fare,
+          duration_game_minutes, created_at FROM transit_trips LIMIT 0`,
       ),
       env.DB.prepare('SELECT id, market_seed FROM game_world LIMIT 0'),
     ]);
@@ -162,14 +244,30 @@ async function prepareDatabase() {
 async function ensurePlayer(userId: string) {
   const now = new Date().toISOString();
   const marketSeed = crypto.randomUUID();
+  const residence = starterResidenceAssignment();
   await env.DB.prepare(
     `INSERT OR IGNORE INTO players (
       user_id, cash, portfolio_value, realized_pnl, unrealized_pnl, happiness,
       city_tax_paid, apartment_lease_days, career_status, turn, market_seed,
-      last_operation_id, created_at, updated_at
-    ) VALUES (?, ?, 0, 0, 0, 52, 0, 365, 'UNEMPLOYED', 1, ?, '', ?, ?)`,
+      current_district, starter_tower, starter_floor, starter_unit,
+      transit_spend, transit_trips, metro_rides, taxi_rides,
+      last_transit_mode, last_transit_fare,
+      last_transit_at, last_operation_id, created_at, updated_at
+    ) VALUES (
+      ?, ?, 0, 0, 0, 52, 0, 365, 'UNEMPLOYED', 1, ?,
+      'STARTER_ARCOLOGY', ?, ?, ?, 0, 0, 0, 0, '', 0, '', '', ?, ?
+    )`,
   )
-    .bind(userId, STARTING_CASH, marketSeed, now, now)
+    .bind(
+      userId,
+      STARTING_CASH,
+      marketSeed,
+      residence.tower,
+      residence.floor,
+      residence.unit,
+      now,
+      now,
+    )
     .run();
 }
 
@@ -293,7 +391,14 @@ async function readPlayer(userId: string) {
       relief_claims AS reliefClaims, last_relief_turn AS lastReliefTurn,
       last_settlement_turn AS lastSettlementTurn,
       last_operation_id AS lastOperationId,
-      apartment_lease_days AS apartmentLeaseDays, career_status AS careerStatus,
+      apartment_lease_days AS apartmentLeaseDays,
+      current_district AS currentDistrict,
+      starter_tower AS starterTower, starter_floor AS starterFloor,
+      starter_unit AS starterUnit, transit_spend AS transitSpend,
+      transit_trips AS transitTrips, metro_rides AS metroRides,
+      taxi_rides AS taxiRides, last_transit_mode AS lastTransitMode,
+      last_transit_fare AS lastTransitFare,
+      last_transit_at AS lastTransitAt, career_status AS careerStatus,
       turn,
       (SELECT market_seed FROM game_world WHERE id = 'MAIN') AS marketSeed,
       updated_at AS updatedAt
@@ -354,26 +459,35 @@ async function getSnapshot(userId: string, retry = 0) {
   const metrics = accountMetrics(player.cash, markedHoldings);
   const now = new Date().toISOString();
 
-  const [inventory, tradesResult, marginEventsResult] = await Promise.all([
-    readInventory(userId),
-    env.DB.prepare(
-      `SELECT id, symbol, side, quantity, notional, price, fee, tax,
+  const [inventory, tradesResult, marginEventsResult, transitTripsResult] =
+    await Promise.all([
+      readInventory(userId),
+      env.DB.prepare(
+        `SELECT id, symbol, side, quantity, notional, price, fee, tax,
         realized_pnl AS realizedPnl, leverage, margin_required AS marginRequired,
         created_at AS createdAt
        FROM trades WHERE user_id = ? ORDER BY id DESC`,
-    )
-      .bind(userId)
-      .all<TradeRow>(),
-    env.DB.prepare(
-      `SELECT id, turn, event_type AS eventType, symbol, daily_pnl AS dailyPnl,
+      )
+        .bind(userId)
+        .all<TradeRow>(),
+      env.DB.prepare(
+        `SELECT id, turn, event_type AS eventType, symbol, daily_pnl AS dailyPnl,
         account_equity AS accountEquity,
         maintenance_required AS maintenanceRequired, details,
         created_at AS createdAt
        FROM margin_events WHERE user_id = ? ORDER BY id DESC LIMIT 100`,
-    )
-      .bind(userId)
-      .all<MarginEventRow>(),
-  ]);
+      )
+        .bind(userId)
+        .all<MarginEventRow>(),
+      env.DB.prepare(
+        `SELECT id, turn, from_district AS fromDistrict,
+        to_district AS toDistrict, mode, fare,
+        duration_game_minutes AS durationGameMinutes, created_at AS createdAt
+       FROM transit_trips WHERE user_id = ? ORDER BY id DESC LIMIT 50`,
+      )
+        .bind(userId)
+        .all<TransitTripRow>(),
+    ]);
   const latestPlayer = await readPlayer(userId);
   if (
     latestPlayer &&
@@ -402,6 +516,7 @@ async function getSnapshot(userId: string, retry = 0) {
     reliefCooldownRemaining === 0;
   const { marketSeed: privateMarketSeed, ...publicPlayer } = player;
   void privateMarketSeed;
+  const currentDistrict = playerDistrict(player.currentDistrict);
   const normalizedPlayer = {
     ...publicPlayer,
     ...metrics,
@@ -413,6 +528,9 @@ async function getSnapshot(userId: string, retry = 0) {
     realizedPnl: roundMoney(player.realizedPnl),
     cityTaxPaid: roundMoney(player.cityTaxPaid),
     cityTax: roundMoney(player.cityTaxPaid),
+    currentDistrict,
+    transitSpend: roundMoney(player.transitSpend),
+    lastTransitFare: roundMoney(player.lastTransitFare),
     totalTradingPnl: roundMoney(player.realizedPnl + metrics.unrealizedPnl),
     updatedAt: player.updatedAt,
     mansionEligible,
@@ -436,6 +554,7 @@ async function getSnapshot(userId: string, retry = 0) {
     }),
     trades: tradesResult.results,
     marginEvents: marginEventsResult.results,
+    transitHistory: transitTripsResult.results,
     market: Object.keys(VIRTUAL_MARKET).map((symbol) =>
       virtualQuoteAtTurn(
         symbol as keyof typeof VIRTUAL_MARKET,
@@ -471,10 +590,55 @@ async function getSnapshot(userId: string, retry = 0) {
       currency: 'VIRTUAL_USD',
     },
     access: {
+      cbd: {
+        present: currentDistrict === 'CBD',
+        travelRequired: currentDistrict !== 'CBD',
+        requirement: 'PAID_TRANSIT' as const,
+      },
       millionaireVillaDistrict: {
         eligible: mansionEligible,
         requiredNetWorth: MANSION_NET_WORTH_REQUIREMENT,
       },
+    },
+    residence: {
+      district: 'STARTER_ARCOLOGY' as const,
+      label: 'Outer Ring Starter Arcology',
+      cityRelation: 'REMOTE_OUTSKIRTS' as const,
+      studioAreaSqm: STARTER_STUDIO_AREA_SQM,
+      tower: player.starterTower,
+      floor: player.starterFloor,
+      unit: player.starterUnit,
+      leaseDaysRemaining: player.apartmentLeaseDays,
+      towerFloors: STARTER_TOWER_FLOORS,
+      unitsPerFloor: STARTER_UNITS_PER_FLOOR,
+      residentsPerTower: STARTER_RESIDENTS_PER_TOWER,
+      towerCount: STARTER_TOWER_COUNT,
+      districtCapacity: STARTER_DISTRICT_CAPACITY,
+    },
+    mobility: {
+      currentDistrict,
+      faresAreServerAuthoritative: true,
+      travelIsImmediateAfterPayment: true,
+      options: Object.entries(TRANSIT_OPTIONS).map(([mode, option]) => ({
+        mode: mode as TransitMode,
+        fare: option.fare,
+        durationGameMinutes: option.durationGameMinutes,
+        minimumCashBeforeTrip: option.minimumCashBeforeTrip,
+        minimumCashAfterTrip: option.minimumCashAfterTrip,
+        currency: 'VIRTUAL_USD' as const,
+      })),
+      totalTrips: player.transitTrips,
+      metroRides: player.metroRides,
+      taxiRides: player.taxiRides,
+      totalSpend: roundMoney(player.transitSpend),
+      lastTrip:
+        player.lastTransitMode && player.lastTransitAt
+          ? {
+              mode: player.lastTransitMode,
+              fare: roundMoney(player.lastTransitFare),
+              at: player.lastTransitAt,
+            }
+          : null,
     },
     virtualOnly: true as const,
     snapshotAt: now,
@@ -492,6 +656,18 @@ function readPositiveNumber(payload: JsonObject, key: string) {
 function readString(payload: JsonObject, key: string, fallback = '') {
   const value = payload[key];
   return typeof value === 'string' ? value : fallback;
+}
+
+function readDistrict(payload: JsonObject, key: string) {
+  const value = readString(payload, key).trim().toUpperCase();
+  return DISTRICTS.includes(value as District)
+    ? (value as District)
+    : undefined;
+}
+
+function readTransitMode(payload: JsonObject) {
+  const value = readString(payload, 'mode').trim().toUpperCase();
+  return value in TRANSIT_OPTIONS ? (value as TransitMode) : undefined;
 }
 
 function readIdempotencyKey(payload: JsonObject) {
@@ -637,6 +813,9 @@ async function executeTrade(
 
   const player = await readPlayer(userId);
   if (!player) throw new Error('Player initialization failed');
+  if (playerDistrict(player.currentDistrict) !== 'CBD') {
+    return cbdTravelRequiredResponse();
+  }
   const price = virtualQuoteAtTurn(
     symbol,
     player.turn,
@@ -715,7 +894,8 @@ async function executeTrade(
          SET cash = cash - ?, realized_pnl = realized_pnl + ?,
              city_tax_paid = city_tax_paid + ?,
              account_status = 'ACTIVE', last_operation_id = ?, updated_at = ?
-         WHERE user_id = ? AND cash >= ? AND turn = ? AND (
+         WHERE user_id = ? AND cash >= ? AND turn = ?
+           AND current_district = 'CBD' AND (
            NOT EXISTS (SELECT 1 FROM holdings WHERE user_id = ? AND symbol = ?)
            OR EXISTS (
              SELECT 1 FROM holdings
@@ -835,7 +1015,7 @@ async function executeTrade(
         `UPDATE players
          SET cash = cash + ?, realized_pnl = realized_pnl + ?,
              city_tax_paid = city_tax_paid + ?, last_operation_id = ?, updated_at = ?
-         WHERE user_id = ? AND EXISTS (
+         WHERE user_id = ? AND current_district = 'CBD' AND EXISTS (
            SELECT 1 FROM holdings
            WHERE user_id = ? AND symbol = ? AND quantity >= ?
              AND ABS(average_price - ?) < 0.0000001
@@ -910,6 +1090,13 @@ async function executeTrade(
     .bind(userId, operationId)
     .first<{ completed: number }>();
   if (!completed) {
+    const latestPlayer = await readPlayer(userId);
+    if (
+      latestPlayer &&
+      playerDistrict(latestPlayer.currentDistrict) !== 'CBD'
+    ) {
+      return cbdTravelRequiredResponse();
+    }
     return errorResponse(
       side === 'BUY'
         ? 'Insufficient virtual cash'
@@ -963,6 +1150,153 @@ async function executeTrade(
   });
 }
 
+async function commute(
+  userId: string,
+  payload: JsonObject,
+  idempotencyAction: string,
+) {
+  const requestId = readIdempotencyKey(payload);
+  if (typeof requestId !== 'string') {
+    return errorResponse(
+      'COMMUTE requires a valid requestId',
+      'IDEMPOTENCY_KEY_REQUIRED',
+    );
+  }
+  const destination = readDistrict(payload, 'destination');
+  if (!destination) {
+    return errorResponse(
+      'destination must be CBD or STARTER_ARCOLOGY',
+      'INVALID_DESTINATION',
+    );
+  }
+
+  const mode = readTransitMode(payload);
+  if (!mode) {
+    return errorResponse('mode must be METRO or TAXI', 'INVALID_TRANSIT_MODE');
+  }
+
+  const player = await readPlayer(userId);
+  if (!player) throw new Error('Player initialization failed');
+  const fromDistrict = playerDistrict(player.currentDistrict);
+  if (fromDistrict === destination) {
+    return errorResponse(
+      `Player is already in ${destination}`,
+      'ALREADY_AT_DESTINATION',
+      409,
+    );
+  }
+
+  const option = TRANSIT_OPTIONS[mode];
+  if (player.cash < option.minimumCashBeforeTrip) {
+    return errorResponse(
+      mode === 'METRO'
+        ? 'Metro costs $5 virtual cash; the emergency ride is unavailable once cash is already negative'
+        : 'Taxi costs $45 virtual cash and requires full fare',
+      'INSUFFICIENT_TRANSIT_FUNDS',
+      409,
+    );
+  }
+
+  const now = new Date().toISOString();
+  const operationId = crypto.randomUUID();
+  const results = await env.DB.batch([
+    env.DB.prepare(
+      `UPDATE players
+       SET cash = cash - ?, current_district = ?,
+           transit_spend = transit_spend + ?, transit_trips = transit_trips + 1,
+           metro_rides = metro_rides + CASE WHEN ? = 'METRO' THEN 1 ELSE 0 END,
+           taxi_rides = taxi_rides + CASE WHEN ? = 'TAXI' THEN 1 ELSE 0 END,
+           last_transit_mode = ?, last_transit_fare = ?, last_transit_at = ?,
+           last_operation_id = ?, updated_at = ?
+       WHERE user_id = ? AND cash >= ? AND cash = ?
+         AND current_district = ? AND turn = ?
+         AND EXISTS (
+           SELECT 1 FROM game_idempotency
+           WHERE user_id = ? AND request_id = ? AND action = ?
+             AND completed = 0
+         )`,
+    ).bind(
+      option.fare,
+      destination,
+      option.fare,
+      mode,
+      mode,
+      mode,
+      option.fare,
+      now,
+      operationId,
+      now,
+      userId,
+      option.minimumCashBeforeTrip,
+      player.cash,
+      fromDistrict,
+      player.turn,
+      userId,
+      requestId,
+      idempotencyAction,
+    ),
+    env.DB.prepare(
+      `INSERT INTO transit_trips (
+        user_id, turn, from_district, to_district, mode, fare,
+        duration_game_minutes, created_at
+      )
+      SELECT ?, ?, ?, ?, ?, ?, ?, ?
+      FROM players WHERE user_id = ? AND last_operation_id = ?`,
+    ).bind(
+      userId,
+      player.turn,
+      fromDistrict,
+      destination,
+      mode,
+      option.fare,
+      option.durationGameMinutes,
+      now,
+      userId,
+      operationId,
+    ),
+    env.DB.prepare(
+      `UPDATE game_idempotency
+       SET completed = 1, completed_at = ?
+       WHERE user_id = ? AND request_id = ? AND action = ? AND completed = 0
+         AND EXISTS (
+           SELECT 1 FROM players
+           WHERE user_id = ? AND last_operation_id = ?
+         )`,
+    ).bind(now, userId, requestId, idempotencyAction, userId, operationId),
+  ]);
+
+  if ((results[0]?.meta.changes ?? 0) !== 1) {
+    const latestPlayer = await readPlayer(userId);
+    if (latestPlayer && latestPlayer.cash < option.minimumCashBeforeTrip) {
+      return errorResponse(
+        'Insufficient virtual cash for this trip',
+        'INSUFFICIENT_TRANSIT_FUNDS',
+        409,
+      );
+    }
+    return errorResponse(
+      'Player state changed; transit fare was not charged',
+      'PLAYER_STATE_CONFLICT',
+      409,
+    );
+  }
+
+  return Response.json({
+    ...(await getSnapshot(userId)),
+    commute: {
+      fromDistrict,
+      toDistrict: destination,
+      mode,
+      fare: option.fare,
+      durationGameMinutes: option.durationGameMinutes,
+      cashAfter: roundMoney(player.cash - option.fare),
+      currency: 'VIRTUAL_USD',
+      chargedBy: 'SERVER',
+      arrival: 'IMMEDIATE_AFTER_PAYMENT',
+    },
+  });
+}
+
 async function purchaseItem(userId: string, payload: JsonObject) {
   const requestedItem = readString(
     payload,
@@ -980,6 +1314,9 @@ async function purchaseItem(userId: string, payload: JsonObject) {
   }
   const purchasePlayer = await readPlayer(userId);
   if (!purchasePlayer) throw new Error('Player initialization failed');
+  if (playerDistrict(purchasePlayer.currentDistrict) !== 'CBD') {
+    return cbdTravelRequiredResponse();
+  }
 
   if (isVirtualPropertyCode(itemCode)) {
     const metrics = accountMetrics(
@@ -1014,7 +1351,8 @@ async function purchaseItem(userId: string, payload: JsonObject) {
        SET cash = cash - ?, happiness = MIN(100, happiness + ?),
            city_tax_paid = city_tax_paid + ?, account_status = 'ACTIVE',
            last_operation_id = ?, updated_at = ?
-       WHERE user_id = ? AND cash >= ? AND cash = ? AND turn = ?`,
+       WHERE user_id = ? AND cash >= ? AND cash = ? AND turn = ?
+         AND current_district = 'CBD'`,
     ).bind(
       totalDebit,
       item.happiness,
@@ -1056,6 +1394,13 @@ async function purchaseItem(userId: string, payload: JsonObject) {
     .bind(userId, operationId)
     .first<{ completed: number }>();
   if (!completed) {
+    const latestPlayer = await readPlayer(userId);
+    if (
+      latestPlayer &&
+      playerDistrict(latestPlayer.currentDistrict) !== 'CBD'
+    ) {
+      return cbdTravelRequiredResponse();
+    }
     return errorResponse(
       'Insufficient virtual cash',
       'INSUFFICIENT_VIRTUAL_CASH',
@@ -1078,13 +1423,36 @@ async function acceptJob(userId: string, payload: JsonObject) {
     return errorResponse('Unknown AmpliWorld career', 'UNKNOWN_CAREER');
   }
 
+  const player = await readPlayer(userId);
+  if (!player) throw new Error('Player initialization failed');
+  if (playerDistrict(player.currentDistrict) !== 'CBD') {
+    return cbdTravelRequiredResponse();
+  }
+
   const now = new Date().toISOString();
-  await env.DB.prepare(
-    `UPDATE players SET career_status = 'MARKET_DATA_ASSISTANT', updated_at = ?
-     WHERE user_id = ?`,
+  const operationId = crypto.randomUUID();
+  const update = await env.DB.prepare(
+    `UPDATE players
+     SET career_status = 'MARKET_DATA_ASSISTANT', last_operation_id = ?,
+         updated_at = ?
+     WHERE user_id = ? AND current_district = 'CBD' AND turn = ?`,
   )
-    .bind(now, userId)
+    .bind(operationId, now, userId, player.turn)
     .run();
+  if ((update.meta.changes ?? 0) === 0) {
+    const latestPlayer = await readPlayer(userId);
+    if (
+      latestPlayer &&
+      playerDistrict(latestPlayer.currentDistrict) !== 'CBD'
+    ) {
+      return cbdTravelRequiredResponse();
+    }
+    return errorResponse(
+      'Player state changed; interview was not recorded',
+      'PLAYER_STATE_CONFLICT',
+      409,
+    );
+  }
   return Response.json({
     ...(await getSnapshot(userId)),
     career: {
@@ -1510,8 +1878,25 @@ export async function POST(request: Request) {
     return runIdempotent(user.userId, action, payload, () =>
       claimRelief(user.userId),
     );
+  if (action === 'COMMUTE') {
+    if (readIdempotencyKey(payload) === null) {
+      return errorResponse(
+        'COMMUTE requires requestId so a retry cannot charge the fare twice',
+        'IDEMPOTENCY_KEY_REQUIRED',
+      );
+    }
+    const destination = readDistrict(payload, 'destination');
+    const mode = readTransitMode(payload);
+    const idempotencyAction =
+      destination && mode
+        ? `${action}:${destination}:${mode}`
+        : `${action}:INVALID`;
+    return runIdempotent(user.userId, idempotencyAction, payload, () =>
+      commute(user.userId, payload, idempotencyAction),
+    );
+  }
   return errorResponse(
-    'Supported actions are BUY, SELL, PURCHASE, SPEND, HIRE, END_DAY, and CLAIM_RELIEF',
+    'Supported actions are BUY, SELL, PURCHASE, SPEND, HIRE, END_DAY, CLAIM_RELIEF, and COMMUTE',
     'INVALID_ACTION',
   );
 }

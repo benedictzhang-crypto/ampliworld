@@ -27,6 +27,19 @@ export const players = sqliteTable('players', {
   lastReliefTurn: integer('last_relief_turn').notNull().default(-100000),
   lastSettlementTurn: integer('last_settlement_turn').notNull().default(1),
   apartmentLeaseDays: integer('apartment_lease_days').notNull().default(365),
+  currentDistrict: text('current_district')
+    .notNull()
+    .default('STARTER_ARCOLOGY'),
+  starterTower: integer('starter_tower').notNull().default(1),
+  starterFloor: integer('starter_floor').notNull().default(1),
+  starterUnit: integer('starter_unit').notNull().default(1),
+  transitSpend: real('transit_spend').notNull().default(0),
+  transitTrips: integer('transit_trips').notNull().default(0),
+  metroRides: integer('metro_rides').notNull().default(0),
+  taxiRides: integer('taxi_rides').notNull().default(0),
+  lastTransitMode: text('last_transit_mode').notNull().default(''),
+  lastTransitFare: real('last_transit_fare').notNull().default(0),
+  lastTransitAt: text('last_transit_at').notNull().default(''),
   careerStatus: text('career_status').notNull().default('UNEMPLOYED'),
   turn: integer('turn').notNull().default(1),
   marketSeed: text('market_seed').notNull().default(''),
@@ -151,5 +164,25 @@ export const gameIdempotency = sqliteTable(
       table.userId,
       table.createdAt,
     ),
+  ],
+);
+
+export const transitTrips = sqliteTable(
+  'transit_trips',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => players.userId, { onDelete: 'cascade' }),
+    turn: integer('turn').notNull(),
+    fromDistrict: text('from_district').notNull(),
+    toDistrict: text('to_district').notNull(),
+    mode: text('mode').$type<'METRO' | 'TAXI'>().notNull(),
+    fare: real('fare').notNull(),
+    durationGameMinutes: integer('duration_game_minutes').notNull(),
+    createdAt: text('created_at').notNull(),
+  },
+  (table) => [
+    index('transit_trips_user_created_idx').on(table.userId, table.createdAt),
   ],
 );

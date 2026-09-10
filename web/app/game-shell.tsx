@@ -12,12 +12,12 @@ import {
   ChevronUp,
   Clock3,
   Home,
-  Map as MapIcon,
   Menu,
   Newspaper,
   Shirt,
   ShoppingBag,
   Smile,
+  TrainFront,
   Trophy,
   WalletCards,
   X,
@@ -26,7 +26,15 @@ import Image from 'next/image';
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 
-type Place = 'market' | 'fashion' | 'restaurant' | 'property' | 'career' | 'news' | 'map' | 'inventory' | 'menu' | 'villa' | null;
+type Place = 'market' | 'fashion' | 'restaurant' | 'property' | 'career' | 'news' | 'map' | 'inventory' | 'menu' | 'villa' | 'studio' | null;
+type WorldDistrict = 'STARTER_ARCOLOGY' | 'CBD';
+type TransitMode = 'METRO' | 'TAXI';
+type Journey = {
+  destination: WorldDistrict;
+  mode: TransitMode;
+  fare: number;
+  durationGameMinutes: number;
+};
 type Stock = {
   symbol: string;
   name: string;
@@ -71,6 +79,14 @@ type PlayerSnapshot = {
   accountStatus?: unknown;
   reliefEligible?: unknown;
   reliefClaimsRemaining?: unknown;
+  currentDistrict?: unknown;
+  starterTower?: unknown;
+  starterFloor?: unknown;
+  starterUnit?: unknown;
+  transitSpend?: unknown;
+  transitTrips?: unknown;
+  metroRides?: unknown;
+  taxiRides?: unknown;
 };
 type GameApiResponse = PlayerSnapshot & {
   player?: PlayerSnapshot;
@@ -83,8 +99,17 @@ type GameApiResponse = PlayerSnapshot & {
   dayClose?: unknown;
   worldEvent?: unknown;
   relief?: unknown;
+  residence?: unknown;
+  mobility?: unknown;
+  commute?: unknown;
   error?: unknown;
 };
+
+const CBD_ONLY_PLACES: Place[] = ['market', 'fashion', 'restaurant', 'property', 'career', 'villa'];
+const TRANSIT = {
+  METRO: { fare: 5, durationGameMinutes: 28, realDurationMs: 1700 },
+  TAXI: { fare: 45, durationGameMinutes: 11, realDurationMs: 900 },
+} as const;
 
 const INITIAL_STOCKS: Stock[] = [
   { symbol: 'NVDA', name: 'Nvidia', price: 184.26, open: 179.17, volatility: 0.006, signal: 'AI infrastructure demand rising', sector: 'Technology' },
@@ -106,11 +131,22 @@ const WORLD_EVENTS: WorldEvent[] = [
   { id: 'risk-off-session', domain: 'GLOBAL ECONOMY', headline: 'Growth concerns trigger a broad risk-off session', impacts: ['Equity risk appetite falls', 'Defensive dollar demand rises'], marketImpacts: { NVDA: -0.065, AAPL: -0.035, LVMUY: -0.05, JETS: -0.045, ITA: -0.006, UUP: 0.011 } },
 ];
 
-const PLAYER_BLOCKERS = [
+const CBD_PLAYER_BLOCKERS = [
   [-8, -6, 1.8, 1.8], [-5, -10, 1.8, 1.8], [5, -9, 1.8, 1.8], [9, -5, 1.8, 1.8],
   [-11, 2, 1.8, 1.8], [11, 2, 1.8, 1.8], [-4, 1, 2.1, 2], [4, 2, 2, 1.9],
   [-4, 8, 2, 1.9], [5, 9, 2.2, 2], [0, -13, 2.7, 2],
 ] as const;
+
+const STARTER_PLAYER_BLOCKERS = [
+  [-9.5, -4.8, 3.7, 4.1], [9.5, -4.8, 3.7, 4.1],
+  [-11.5, 11, 3.5, 3.7], [11.5, 11, 3.5, 3.7],
+  [0, -14.7, 3.2, 2.1],
+] as const;
+
+const ARCOLOGY_TOWER_TOTAL = 1000;
+const DETAILED_ARCOLOGY_TOWER_TOTAL = 4;
+const ARCOLOGY_FLOORS = 50;
+const ARCOLOGY_TOWER_HEIGHT = 29.7;
 
 function readableString(value: unknown, fallback = ''): string {
   return typeof value === 'string' || typeof value === 'number' ? String(value) : fallback;
@@ -318,7 +354,164 @@ function PopulationLayer() {
   return <group>{Array.from({ length: 32 }, (_, seed) => <Citizen key={seed} seed={seed} />)}</group>;
 }
 
-function Player() {
+function TowerFloorBands({ width, depth, floors = ARCOLOGY_FLOORS }: { width: number; depth: number; floors?: number }) {
+  const front = useRef<THREE.InstancedMesh>(null);
+  const side = useRef<THREE.InstancedMesh>(null);
+  useEffect(() => {
+    const matrix = new THREE.Matrix4();
+    for (let floor = 0; floor < floors; floor += 1) {
+      const y = 0.37 + floor * 0.58;
+      matrix.makeTranslation(0, y, depth / 2 + 0.012);
+      front.current?.setMatrixAt(floor, matrix);
+      matrix.makeRotationY(Math.PI / 2);
+      matrix.setPosition(width / 2 + 0.012, y, 0);
+      side.current?.setMatrixAt(floor, matrix);
+    }
+    if (front.current) front.current.instanceMatrix.needsUpdate = true;
+    if (side.current) side.current.instanceMatrix.needsUpdate = true;
+  }, [depth, floors, width]);
+  return (
+    <>
+      <instancedMesh ref={front} args={[undefined, undefined, floors]} frustumCulled>
+        <planeGeometry args={[width * 0.86, 0.055]} />
+        <meshBasicMaterial color="#8aa9a4" toneMapped={false} transparent opacity={0.5} />
+      </instancedMesh>
+      <instancedMesh ref={side} args={[undefined, undefined, floors]} frustumCulled>
+        <planeGeometry args={[depth * 0.86, 0.055]} />
+        <meshBasicMaterial color="#5f7f7b" toneMapped={false} transparent opacity={0.4} />
+      </instancedMesh>
+    </>
+  );
+}
+
+function ArcologyTower({ position, block, home = false, onEnter }: {
+  position: [number, number, number];
+  block: string;
+  home?: boolean;
+  onEnter: (place: Place) => void;
+}) {
+  const width = home ? 6.4 : 6;
+  const depth = home ? 6.7 : 6.2;
+  return (
+    <group position={position}>
+      <mesh castShadow receiveShadow position={[0, ARCOLOGY_TOWER_HEIGHT / 2, 0]}>
+        <boxGeometry args={[width, ARCOLOGY_TOWER_HEIGHT, depth]} />
+        <meshStandardMaterial color={home ? '#18211f' : '#151d1d'} roughness={0.82} metalness={0.24} emissive={home ? '#193b31' : '#1e2a29'} emissiveIntensity={0.17} />
+      </mesh>
+      <TowerFloorBands width={width} depth={depth} />
+      <mesh receiveShadow position={[0, 0.22, depth / 2 + 0.42]}>
+        <boxGeometry args={[width + 0.8, 0.44, 1.15]} />
+        <meshStandardMaterial color="#222927" roughness={0.94} />
+      </mesh>
+      <mesh position={[0, 1.36, depth / 2 + 0.04]}>
+        <planeGeometry args={[1.65, 1.95]} />
+        <meshStandardMaterial color="#0c1111" metalness={0.72} roughness={0.3} emissive={home ? '#42f5af' : '#6b7f79'} emissiveIntensity={home ? 0.42 : 0.1} />
+      </mesh>
+      <mesh castShadow position={[0, 30.2, 0]}>
+        <boxGeometry args={[1.3, 1, 1.3]} />
+        <meshStandardMaterial color="#262f2c" roughness={0.68} />
+      </mesh>
+      <Html position={[0, home ? 4.7 : 3.5, depth / 2 + 0.65]} center distanceFactor={13} zIndexRange={[3, 0]}>
+        {home
+          ? <button className="world-label enterable residence-label" onClick={() => onEnter('studio')}>{`YOUR 10 m² STUDIO · ${block}`}</button>
+          : <span className="world-label arcology-label">{`${block} · 10,000 RESIDENTS`}</span>}
+      </Html>
+    </group>
+  );
+}
+
+function ArcologyTowerField() {
+  const towers = useRef<THREE.InstancedMesh>(null);
+  const beacons = useRef<THREE.InstancedMesh>(null);
+  const layout = useMemo(() => Array.from({ length: ARCOLOGY_TOWER_TOTAL - DETAILED_ARCOLOGY_TOWER_TOTAL }, (_, index) => {
+    const column = index % 40;
+    const row = Math.floor(index / 40);
+    const height = ARCOLOGY_TOWER_HEIGHT;
+    const width = 4.45 + ((index * 7) % 4) * 0.18;
+    return {
+      position: new THREE.Vector3((column - 19.5) * 6.85, height / 2, -25 - row * 7.35),
+      scale: new THREE.Vector3(width, height, 4.75 + ((index * 11) % 3) * 0.18),
+      color: new THREE.Color().setHSL(0.43 + (index % 7) * 0.005, 0.11, 0.12 + (index % 5) * 0.009),
+    };
+  }), []);
+  useEffect(() => {
+    const matrix = new THREE.Matrix4();
+    const quaternion = new THREE.Quaternion();
+    for (let index = 0; index < layout.length; index += 1) {
+      const tower = layout[index];
+      matrix.compose(tower.position, quaternion, tower.scale);
+      towers.current?.setMatrixAt(index, matrix);
+      towers.current?.setColorAt(index, tower.color);
+      matrix.compose(
+        new THREE.Vector3(tower.position.x, tower.scale.y + 0.28, tower.position.z),
+        quaternion,
+        new THREE.Vector3(0.16, 0.55, 0.16),
+      );
+      beacons.current?.setMatrixAt(index, matrix);
+    }
+    if (towers.current) {
+      towers.current.instanceMatrix.needsUpdate = true;
+      if (towers.current.instanceColor) towers.current.instanceColor.needsUpdate = true;
+    }
+    if (beacons.current) beacons.current.instanceMatrix.needsUpdate = true;
+  }, [layout]);
+  return (
+    <group>
+      <instancedMesh ref={towers} args={[undefined, undefined, layout.length]} castShadow={false} receiveShadow frustumCulled>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color="#26312f" vertexColors roughness={0.9} metalness={0.08} emissive="#172522" emissiveIntensity={0.2} />
+      </instancedMesh>
+      <instancedMesh ref={beacons} args={[undefined, undefined, layout.length]} frustumCulled>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial color="#d05b3e" toneMapped={false} />
+      </instancedMesh>
+    </group>
+  );
+}
+
+function StarterArcology({ onEnter, onNotice, residenceBlock }: { onEnter: (place: Place) => void; onNotice: (message: string) => void; residenceBlock: string }) {
+  return (
+    <>
+      <fog attach="fog" args={['#0b1010', 35, 205]} />
+      <Sky sunPosition={[-2, 0.08, -4]} turbidity={13} rayleigh={3.1} mieCoefficient={0.02} mieDirectionalG={0.82} />
+      <ambientLight intensity={0.42} color="#9db4aa" />
+      <directionalLight castShadow position={[8, 19, 9]} intensity={1.65} color="#b6c7bd" shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[290, 410]} />
+        <meshStandardMaterial color="#111716" roughness={0.98} />
+      </mesh>
+      <ArcologyTowerField />
+      <ArcologyTower position={[-9.5, 0, -4.8]} block={`BLOCK ${residenceBlock}`} home onEnter={onEnter} />
+      <ArcologyTower position={[9.5, 0, -4.8]} block="BLOCK 072" onEnter={onEnter} />
+      <ArcologyTower position={[-11.5, 0, 11]} block="BLOCK 070" onEnter={onEnter} />
+      <ArcologyTower position={[11.5, 0, 11]} block="BLOCK 073" onEnter={onEnter} />
+      <mesh receiveShadow position={[0, 0.025, 1.5]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[7, 36]} />
+        <meshStandardMaterial color="#202827" roughness={0.96} />
+      </mesh>
+      {[-2.2, 2.2].map((x) => <mesh key={x} position={[x, 0.05, 1.5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.07, 36]} /><meshBasicMaterial color="#8f9c8d" transparent opacity={0.48} /></mesh>)}
+      <group position={[0, 0, -14.7]} onClick={() => onEnter('map')}>
+        <mesh castShadow receiveShadow position={[0, 1, 0]}><boxGeometry args={[6.2, 2, 3.7]} /><meshStandardMaterial color="#1d2625" metalness={0.33} roughness={0.63} /></mesh>
+        <mesh position={[0, 1.15, 1.87]}><planeGeometry args={[4.8, 0.92]} /><meshStandardMaterial color="#07100e" emissive="#43a987" emissiveIntensity={0.36} /></mesh>
+        <mesh position={[-2.15, 2.45, 0]}><cylinderGeometry args={[0.42, 0.42, 2.3, 20]} /><meshStandardMaterial color="#d05b3e" emissive="#c84332" emissiveIntensity={0.42} /></mesh>
+        <Html position={[0, 3.15, 0]} center distanceFactor={12} zIndexRange={[3, 0]}><button className="world-label enterable transit-label" onClick={() => onEnter('map')}>METRO TO CBD · $5 · 28 MIN</button></Html>
+      </group>
+      <Suspense fallback={null}>
+        <StaticAsset url={`${CAR_ASSET_ROOT}/taxi.glb`} position={[3.75, 0.05, -11.2]} rotation={[0, Math.PI, 0]} scale={0.9} />
+      </Suspense>
+      <Html position={[4.1, 2.35, -11.2]} center distanceFactor={12} zIndexRange={[3, 0]}><button className="world-label enterable taxi-label" onClick={() => { onNotice('CBD IS 18.4 KM AWAY · CHOOSE YOUR PAID RIDE'); onEnter('map'); }}>TAXI TO CBD · $45 · 11 MIN</button></Html>
+      <group position={[0, 0, -23]}>
+        <mesh position={[0, 0.16, 0]}><boxGeometry args={[20, 0.3, 0.22]} /><meshStandardMaterial color="#414a45" metalness={0.56} /></mesh>
+        {[-9.5, -6.3, -3.1, 0, 3.1, 6.3, 9.5].map((x) => <mesh key={x} position={[x, 1.15, 0]}><boxGeometry args={[0.12, 2.2, 0.12]} /><meshStandardMaterial color="#343e39" /></mesh>)}
+      </group>
+      <Html position={[0, 10.8, -24]} center distanceFactor={17} zIndexRange={[3, 0]}>
+        <span className="zone-label arcology-scale">STARTER ARCOLOGY · 1,000 TOWERS · 10,000,000 RESIDENTS</span>
+      </Html>
+    </>
+  );
+}
+
+function Player({ district }: { district: WorldDistrict }) {
   const body = useRef<THREE.Group>(null);
   const keys = useRef<Record<string, boolean>>({});
   const [movementAction, setMovementAction] = useState<'idle' | 'walk'>('idle');
@@ -356,7 +549,8 @@ function Player() {
       const next = body.current.position.clone().add(movement);
       next.x = THREE.MathUtils.clamp(next.x, -19, 19);
       next.z = THREE.MathUtils.clamp(next.z, -16, 18);
-      const blocked = PLAYER_BLOCKERS.some(([x, z, halfX, halfZ]) => Math.abs(next.x - x) < halfX && Math.abs(next.z - z) < halfZ);
+      const blockers = district === 'CBD' ? CBD_PLAYER_BLOCKERS : STARTER_PLAYER_BLOCKERS;
+      const blocked = blockers.some(([x, z, halfX, halfZ]) => Math.abs(next.x - x) < halfX && Math.abs(next.z - z) < halfZ);
       if (!blocked) body.current.position.copy(next);
       body.current.rotation.y = Math.atan2(movement.x, movement.z);
     } else if (movementAction !== 'idle') {
@@ -366,7 +560,7 @@ function Player() {
     camera.lookAt(body.current.position.clone().add(new THREE.Vector3(0, 1, 0)));
   });
   return (
-    <group ref={body} position={[0, 0, 5]}>
+    <group ref={body} position={district === 'CBD' ? [0, 0, 5] : [0, 0, 7]}>
       <Suspense fallback={<mesh castShadow position={[0, 0.8, 0]}><capsuleGeometry args={[0.38, 0.9, 6, 12]} /><meshStandardMaterial color="#e7fff5" metalness={0.65} roughness={0.22} emissive="#27e8a1" emissiveIntensity={0.25} /></mesh>}>
         <CharacterAsset url={`${HERO_CHARACTER_ASSET_ROOT}/male-casual-hoodie.glb`} animation={movementAction === 'walk' ? 'Walk' : 'Idle'} scale={0.98} />
       </Suspense>
@@ -375,7 +569,7 @@ function Player() {
   );
 }
 
-function World({ onEnter, onNotice, netWorth }: { onEnter: (place: Place) => void; onNotice: (message: string) => void; netWorth: number }) {
+function CyberCBD({ onEnter, onNotice, netWorth }: { onEnter: (place: Place) => void; onNotice: (message: string) => void; netWorth: number }) {
   const towers = [
     { position: [-8, 0, -6] as [number, number, number], model: 'building-skyscraper-c.glb', scale: 1.45, label: 'CYBER CBD', height: 6.25 },
     { position: [-5, 0, -10] as [number, number, number], model: 'building-skyscraper-e.glb', scale: 1.55, label: 'WORLD EXCHANGE', height: 6.5 },
@@ -407,7 +601,25 @@ function World({ onEnter, onNotice, netWorth }: { onEnter: (place: Place) => voi
       <group position={[15, 0, -11]}><mesh position={[0, 0.04, 0]}><boxGeometry args={[8, 0.08, 7]} /><meshStandardMaterial color="#172d35" /></mesh><Suspense fallback={null}><StaticAsset url={`${INDUSTRIAL_ASSET_ROOT}/building-t.glb`} position={[0, 0.08, 0]} scale={2.25} /><StaticAsset url={`${INDUSTRIAL_ASSET_ROOT}/solar-panel-landscape-group.glb`} position={[2.7, 0.08, 1.7]} scale={1.5} /></Suspense><Html position={[0, 3, 0]} center distanceFactor={14} zIndexRange={[3, 0]}><span className="zone-label signal">GLOBAL EVENT LAB · PREVIEW</span></Html></group>
       <group position={[-14, 0, 13]}>{[-2, 0, 2].map((x) => <mesh key={x} position={[x, 0.5, 0]}><coneGeometry args={[1.1, 2.3, 8]} /><meshStandardMaterial color="#25452c" /></mesh>)}<Html position={[0, 2.5, 0]} center distanceFactor={14} zIndexRange={[3, 0]}><span className="zone-label unlocked">COUNTRYSIDE · OPEN</span></Html></group>
       <VillaDistrict netWorth={netWorth} onEnter={onEnter} onDenied={onNotice} />
-      <PopulationLayer /><Player /><Environment preset="night" />
+      <PopulationLayer /><Player district="CBD" /><Environment preset="night" />
+    </>
+  );
+}
+
+function World({ onEnter, onNotice, netWorth, district = 'STARTER_ARCOLOGY', residenceBlock = '071' }: {
+  onEnter: (place: Place) => void;
+  onNotice: (message: string) => void;
+  netWorth: number;
+  district?: WorldDistrict;
+  residenceBlock?: string;
+}) {
+  if (district === 'CBD') return <CyberCBD onEnter={onEnter} onNotice={onNotice} netWorth={netWorth} />;
+  return (
+    <>
+      <StarterArcology onEnter={onEnter} onNotice={onNotice} residenceBlock={residenceBlock} />
+      <PopulationLayer />
+      <Player district="STARTER_ARCOLOGY" />
+      <Environment preset="night" />
     </>
   );
 }
@@ -435,7 +647,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
   const [place, setPlace] = useState<Place>(null);
   const [inventory, setInventory] = useState<string[]>([]);
   const [tax, setTax] = useState(0);
-  const [notice, setNotice] = useState('WASD TO MOVE · CLICK A BUILDING TO ENTER');
+  const [notice, setNotice] = useState('HOME: 10 m² STUDIO · CBD IS 18.4 KM AWAY · EVERY TRIP COSTS VIRTUAL CASH');
   const [stocks, setStocks] = useState(INITIAL_STOCKS);
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [day, setDay] = useState(1);
@@ -444,6 +656,16 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
   const [leverage, setLeverage] = useState<1 | 2 | 3 | 5>(1);
   const [reliefEligible, setReliefEligible] = useState(false);
   const [reliefClaimsRemaining, setReliefClaimsRemaining] = useState(2);
+  const [currentDistrict, setCurrentDistrict] = useState<WorldDistrict>('STARTER_ARCOLOGY');
+  const [starterTower, setStarterTower] = useState(71);
+  const [starterFloor, setStarterFloor] = useState(38);
+  const [starterUnit, setStarterUnit] = useState(184);
+  const [transitSpend, setTransitSpend] = useState(0);
+  const [transitTrips, setTransitTrips] = useState(0);
+  const [metroRides, setMetroRides] = useState(0);
+  const [taxiRides, setTaxiRides] = useState(0);
+  const [pendingDestination, setPendingDestination] = useState<Place>(null);
+  const [journey, setJourney] = useState<Journey | null>(null);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
   const [missions, setMissions] = useState({ firstTrade: false, firstPurchase: false, firstJob: false });
   const actionLock = useRef(false);
@@ -464,6 +686,8 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
 
   const applySnapshot = (data: GameApiResponse) => {
     const player = data.player ?? data;
+    const residence = recordOf(data.residence);
+    const district = readableString(player.currentDistrict);
     setCash(readableNumber(player.cash, 10000));
     setHappiness(readableNumber(player.happiness, 52));
     setTax(readableNumber(player.cityTaxPaid ?? player.cityTax));
@@ -473,6 +697,14 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
     setPropertyValue(readableNumber(player.propertyValue));
     setReliefEligible(Boolean(player.reliefEligible));
     setReliefClaimsRemaining(readableNumber(player.reliefClaimsRemaining, 2));
+    if (district === 'STARTER_ARCOLOGY' || district === 'CBD') setCurrentDistrict(district);
+    setStarterTower(readableNumber(residence?.tower ?? player.starterTower, 71));
+    setStarterFloor(readableNumber(residence?.floor ?? player.starterFloor, 38));
+    setStarterUnit(readableNumber(residence?.unit ?? player.starterUnit, 184));
+    setTransitSpend(readableNumber(player.transitSpend));
+    setTransitTrips(readableNumber(player.transitTrips));
+    setMetroRides(readableNumber(player.metroRides));
+    setTaxiRides(readableNumber(player.taxiRides));
     if (data.holdings !== undefined) setHoldings(normalizeHoldings(data.holdings));
     if (data.inventory !== undefined) setInventory(normalizeInventory(data.inventory));
     if (data.market !== undefined) setStocks((current) => mergeMarket(current, data.market));
@@ -521,6 +753,80 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
     return () => window.removeEventListener('keydown', closeOnEscape);
   }, [place]);
 
+  const openPlace = (target: Place) => {
+    if (!target) {
+      setPlace(null);
+      return;
+    }
+    const requiresCbd = CBD_ONLY_PLACES.includes(target);
+    const requiresHome = target === 'studio';
+    if ((requiresCbd && currentDistrict !== 'CBD') || (requiresHome && currentDistrict !== 'STARTER_ARCOLOGY')) {
+      setPendingDestination(target);
+      setPlace('map');
+      setNotice(requiresCbd
+        ? 'PAID TRAVEL REQUIRED · CHOOSE METRO $5 OR TAXI $45 TO ENTER THE CBD'
+        : 'HOME IS 18.4 KM AWAY · THE RETURN TRIP ALSO COSTS VIRTUAL CASH');
+      return;
+    }
+    setPendingDestination(null);
+    setPlace(target);
+  };
+
+  const commute = async (mode: TransitMode) => {
+    if (actionLock.current) return;
+    const option = TRANSIT[mode];
+    const destination: WorldDistrict = currentDistrict === 'CBD' ? 'STARTER_ARCOLOGY' : 'CBD';
+    if (mode === 'METRO' && cash < 0) {
+      setNotice('METRO EMERGENCY CREDIT IS UNAVAILABLE ONCE CASH IS ALREADY NEGATIVE');
+      return;
+    }
+    if (mode === 'TAXI' && cash < option.fare) {
+      setNotice('TAXI REQUIRES THE FULL $45 VIRTUAL FARE');
+      return;
+    }
+
+    actionLock.current = true;
+    setPendingAction(`commute:${mode}`);
+    setJourney({ destination, mode, fare: option.fare, durationGameMinutes: option.durationGameMinutes });
+    const startedAt = Date.now();
+    try {
+      let fare: number = option.fare;
+      let gameMinutes: number = option.durationGameMinutes;
+      let cashAfter = cash - fare;
+      if (signedIn) {
+        const data = await runCloudAction({ action: 'commute', destination, mode });
+        const result = recordOf(data.commute);
+        fare = readableNumber(result?.fare, fare);
+        gameMinutes = readableNumber(result?.durationGameMinutes, gameMinutes);
+        cashAfter = readableNumber(result?.cashAfter, cashAfter);
+      } else {
+        setCash(cashAfter);
+        setTransitSpend((value) => Number((value + fare).toFixed(2)));
+        setTransitTrips((value) => value + 1);
+        if (mode === 'METRO') setMetroRides((value) => value + 1);
+        else setTaxiRides((value) => value + 1);
+      }
+
+      const remaining = Math.max(250, option.realDurationMs - (Date.now() - startedAt));
+      await new Promise<void>((resolve) => window.setTimeout(resolve, remaining));
+      if (!signedIn) setCurrentDistrict(destination);
+      const nextPlace = pendingDestination;
+      setPendingDestination(null);
+      setPlace(destination === 'CBD' && nextPlace && CBD_ONLY_PLACES.includes(nextPlace)
+        ? nextPlace
+        : destination === 'STARTER_ARCOLOGY' && nextPlace === 'studio'
+          ? 'studio'
+          : null);
+      setNotice(`${mode} ARRIVED · $${fare.toFixed(2)} VIRTUAL FARE PAID · ${gameMinutes} GAME MINUTES · CASH $${cashAfter.toFixed(2)}`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message.toUpperCase() : 'TRANSIT UNAVAILABLE');
+    } finally {
+      setJourney(null);
+      actionLock.current = false;
+      setPendingAction(null);
+    }
+  };
+
   const addGuestHolding = (symbol: string, quantity: number, price: number, level: number, marginPosted: number, borrowedAmount: number) => setHoldings((current) => {
     const existing = current.find((holding) => holding.symbol === symbol);
     if (!existing) return [...current, { symbol, quantity, avgPrice: price, leverage: level, marginPosted, borrowedAmount }];
@@ -531,6 +837,10 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
 
   const order = async (symbol: string, side: 'buy' | 'sell') => {
     if (actionLock.current) return;
+    if (currentDistrict !== 'CBD') {
+      openPlace('market');
+      return;
+    }
     const stock = stocks.find((item) => item.symbol === symbol);
     if (!stock) return;
     const currentHolding = holdings.find((holding) => holding.symbol === symbol);
@@ -584,6 +894,10 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
 
   const spend = async (price: number, item: string, joy: number) => {
     if (actionLock.current) return;
+    if (currentDistrict !== 'CBD') {
+      openPlace('fashion');
+      return;
+    }
     const shoppingTax = Number((price * 0.02).toFixed(2));
     if (cash < price + shoppingTax) return setNotice('YOU NEED MORE CASH · RETURN TO THE MARKET');
     actionLock.current = true;
@@ -610,6 +924,10 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
 
   const acceptJob = async () => {
     if (actionLock.current) return;
+    if (currentDistrict !== 'CBD') {
+      openPlace('career');
+      return;
+    }
     actionLock.current = true;
     setPendingAction('hire');
     try {
@@ -707,34 +1025,66 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
   };
 
   const marketMove = (stock: Stock) => ((stock.price / stock.open - 1) * 100);
-  const completed = Object.values(missions).filter(Boolean).length;
   const visibleNews = [worldEvent, ...WORLD_EVENTS.filter((event) => event.id !== worldEvent.id)].slice(0, 3);
   const canClaimRelief = signedIn ? reliefEligible : netWorth < 500 && holdings.length === 0 && reliefClaimsRemaining > 0;
+  const residenceBlock = String(starterTower).padStart(3, '0');
+  const atCbd = currentDistrict === 'CBD';
+  const transitDestinationLabel = atCbd ? 'Starter Arcology' : 'Cyber CBD';
+  const locationLabel = atCbd ? 'CYBER CBD' : 'OUTER RING · STARTER ARCOLOGY';
 
   return (
     <main className="game">
-      <header><div className="logo">A</div><div><b>AMPLIWORLD</b><small>THE LIVING MARKET</small></div><div className="day">DAY {String(day).padStart(3, '0')} · 20:42 · CYBER CITY · VIRTUAL MARKET</div><div className="player"><span>{playerName}</span>{signedIn ? <i>ONLINE</i> : <a href={signInPath} target="_top">SIGN IN TO SAVE</a>}</div></header>
+      <header><div className="logo">A</div><div><b>AMPLIWORLD</b><small>THE LIVING MARKET</small></div><div className="day">DAY {String(day).padStart(3, '0')} · 20:42 · {locationLabel}</div><div className="player"><span>{playerName}</span>{signedIn ? <i>ONLINE</i> : <a href={signInPath} target="_top">SIGN IN TO SAVE</a>}</div></header>
       <section className="playfield">
-        <Canvas aria-label="Playable AmpliWorld city" tabIndex={0} shadows dpr={[1, 1.5]} camera={{ position: [0, 6, 13], fov: 50 }}><World onEnter={setPlace} onNotice={setNotice} netWorth={netWorth} /></Canvas>
-        <div className="mission"><small>PRIMARY MISSION · {completed}/3</small><b>Turn $10,000 into a life worth living</b><span aria-live="polite">{notice}</span><div className="mission-track"><i className={missions.firstTrade ? 'done' : ''}>TRADE</i><i className={missions.firstJob ? 'done' : ''}>JOB</i><i className={missions.firstPurchase ? 'done' : ''}>LIFE</i></div></div>
+        <Canvas aria-label="Playable AmpliWorld city" tabIndex={0} shadows dpr={[1, 1.5]} camera={{ position: [0, 6, 13], fov: 50 }}><World onEnter={openPlace} onNotice={setNotice} netWorth={netWorth} district={currentDistrict} residenceBlock={residenceBlock} /></Canvas>
+        <div className={`mission ${atCbd ? '' : 'arcology-mission'}`}><small>{atCbd ? 'CYBER CBD · 18.4 KM FROM HOME' : `BLOCK ${residenceBlock} · FLOOR ${starterFloor} · UNIT ${starterUnit}`}</small><b>{atCbd ? 'Make every paid trip count' : 'Turn $10,000 into a way out'}</b><span aria-live="polite">{notice}</span><div className="mission-track"><i className={missions.firstTrade ? 'done' : ''}>TRADE</i><i className={missions.firstJob ? 'done' : ''}>JOB</i><i className={missions.firstPurchase ? 'done' : ''}>MOVE UP</i></div></div>
         <div className="controls"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> MOVE · CLICK A LOCATION TO ENTER</div><TouchControls />
-        <aside className="hud"><div><WalletCards /><span>CASH<big>${cash.toLocaleString(undefined, { maximumFractionDigits: 0 })}</big></span></div><div><Banknote /><span>MARKET EQUITY<big>${portfolioEquity.toLocaleString(undefined, { maximumFractionDigits: 0 })}</big></span></div><div><Smile /><span>HAPPINESS<big>{happiness}%</big></span></div><div><Trophy /><span>CITY STATUS<big>{netWorth >= 1_000_000 ? 'RIDGE VERIFIED' : netWorth >= 100_000 ? 'ISLAND ELIGIBLE' : 'STARTER'}</big></span></div></aside>
-        <nav><button onClick={() => setPlace('map')}><MapIcon />MAP</button><button onClick={() => setPlace('market')}><Banknote />TRADE</button><button onClick={() => setPlace('news')}><Newspaper />WORLD</button><button onClick={() => setPlace('career')}><BriefcaseBusiness />JOB</button><button onClick={() => setPlace('inventory')}><ShoppingBag />ITEMS <em>{inventory.length}</em></button><button disabled={pendingAction !== null} onClick={() => void closeDay()}><Clock3 />{pendingAction === 'end-day' ? 'CLOSING…' : 'END DAY'}</button><button onClick={() => setPlace('menu')}><Menu />MENU</button></nav>
+        <aside className="hud"><div><WalletCards /><span>CASH<big>${cash.toLocaleString(undefined, { maximumFractionDigits: 0 })}</big></span></div><div><Banknote /><span>MARKET EQUITY<big>${portfolioEquity.toLocaleString(undefined, { maximumFractionDigits: 0 })}</big></span></div><div><Smile /><span>HAPPINESS<big>{happiness}%</big></span></div><div><Trophy /><span>CITY STATUS<big>{netWorth >= 1_000_000 ? 'RIDGE VERIFIED' : netWorth >= 100_000 ? 'ISLAND ELIGIBLE' : 'ARCOLOGY RESIDENT'}</big></span></div></aside>
+        <nav><button onClick={() => openPlace('studio')}><Home />HOME</button><button onClick={() => openPlace('map')}><TrainFront />TRANSIT</button><button onClick={() => openPlace('market')}><Banknote />TRADE</button><button onClick={() => openPlace('news')}><Newspaper />WORLD</button><button onClick={() => openPlace('career')}><BriefcaseBusiness />JOB</button><button onClick={() => openPlace('inventory')}><ShoppingBag />ITEMS <em>{inventory.length}</em></button><button disabled={pendingAction !== null} onClick={() => void closeDay()}><Clock3 />{pendingAction === 'end-day' ? 'CLOSING…' : 'END DAY'}</button><button onClick={() => openPlace('menu')}><Menu />MENU</button></nav>
+
+        {journey && <output className="journey-overlay" aria-live="assertive"><div className="journey-card">{journey.mode === 'METRO' ? <TrainFront /> : <Car />}<small>PAID TRANSIT IN PROGRESS</small><h2>{journey.mode === 'METRO' ? 'Metro' : 'Taxi'} to {journey.destination === 'CBD' ? 'Cyber CBD' : 'Starter Arcology'}</h2><p>${journey.fare.toFixed(2)} virtual fare charged · {journey.durationGameMinutes} game minutes</p><div className={`journey-progress ${journey.mode.toLowerCase()}`}><i /></div><span>{journey.mode === 'METRO' ? '≈ 2 seconds of real time' : '≈ 1 second of real time'}</span></div></output>}
 
         {place && <dialog open className="modal" aria-label="AmpliWorld location panel"><button className="close" onClick={() => setPlace(null)} aria-label="Close"><X /></button>
           {place === 'market' && <><small>CYBER CITY EXCHANGE · EXECUTABLE VIRTUAL QUOTES</small><VisionPanel image="/visuals/ampliworld-trading-terminal.jpg" label="PRODUCT VISION · LIVE TRADING LOOP" alt="Concept visualization of the AmpliWorld trading terminal" /><h1>Trade the living world</h1><p>Every order is virtual. Allocate $500 of margin, choose 1×–5× exposure, and manage the risk of server-enforced liquidation.</p><div className="leverage-desk"><span><b>LEVERAGE</b>{([1, 2, 3, 5] as const).map((level) => <button key={level} className={leverage === level ? 'active' : ''} onClick={() => setLeverage(level)}>{level}×</button>)}</span><i>$500 margin → ${(500 * leverage).toLocaleString()} gross exposure</i></div><div className="market-table"><div className="market-row header"><span>Asset</span><span>Price</span><span>Day</span><span>Position</span><span>Order</span></div>{stocks.map((stock) => { const move = marketMove(stock); const holding = holdings.find((item) => item.symbol === stock.symbol); const buyPending = pendingAction === `buy:${stock.symbol}`; const sellPending = pendingAction === `sell:${stock.symbol}`; return <div className="market-row" key={stock.symbol}><span><b>{stock.symbol}</b><small>{stock.name}</small></span><span>${stock.price.toFixed(2)}</span><span className={move >= 0 ? 'gain' : 'loss'}>{move >= 0 ? '+' : ''}{move.toFixed(2)}%</span><span>{holding ? `${holding.quantity.toFixed(2)} sh · ${holding.leverage}×` : '—'}</span><span className="order-buttons"><button disabled={pendingAction !== null} onClick={() => void order(stock.symbol, 'buy')}>{buyPending ? '…' : `BUY ${leverage}×`}</button><button disabled={pendingAction !== null || !holding} onClick={() => void order(stock.symbol, 'sell')}>{sellPending ? '…' : 'SELL ALL'}</button></span></div>; })}</div><div className="portfolio-summary risk"><span>Gross exposure <b>${portfolio.toFixed(2)}</b></span><span>Account equity <b>${portfolioEquity.toFixed(2)}</b></span><span>Borrowed <b>${borrowedExposure.toFixed(2)}</b></span><span>Margin excess <b className={marginExcess >= 0 ? 'gain' : 'loss'}>${marginExcess.toFixed(2)}</b><small>Maintenance ${maintenanceMargin.toFixed(2)}</small></span></div>{canClaimRelief && <div className="relief-panel"><span><b>Paper-account relief available</b>Up to $1,000 virtual cash · {reliefClaimsRemaining} lifetime claim{reliefClaimsRemaining === 1 ? '' : 's'} remaining</span><button disabled={pendingAction !== null} onClick={() => void claimRelief()}>{pendingAction === 'relief' ? 'ISSUING…' : 'CLAIM VIRTUAL RELIEF'}</button></div>}</>}
           {place === 'news' && <><small>AMPLIWORLD NEWSWIRE · DAY {String(day).padStart(3, '0')}</small><VisionPanel image="/visuals/ampliworld-population-simulation.jpg" label="WORLD ENGINE · POPULATION TO SIGNAL" alt="Concept visualization of the AmpliWorld population simulation engine" /><h1>Today&apos;s world state</h1><p>The lead event is part of the active simulation state: close the day and its asset impacts settle into tomorrow&apos;s prices.</p><div className="population-strip"><span><b>8.3B</b>population frame</span><span><b>1M</b>weighted core</span><span><b>4,096</b>active cohorts</span><span><b>32</b>visible NPCs</span></div><div className="news-list">{visibleNews.map((event, index) => <article className={index === 0 ? 'lead' : ''} key={event.id}><i>{index === 0 ? `LIVE · ${event.domain}` : event.domain}</i><b>{event.headline}</b><span>{event.impacts.join(' · ')}</span></article>)}</div></>}
-          {place === 'map' && <><small>CYBER CITY DIRECTORY</small><VisionPanel image="/visuals/ampliworld-city-gameplay.jpg" label="CITY VISION · TRADE, LIVE, ADVANCE" alt="Concept visualization of Cyber City and its trading lifestyle districts" /><h1>Choose what wealth unlocks</h1><p>The exchange is the economic core. Lifestyle districts give every virtual return a purpose.</p><div className="district-grid"><article><b>Cyber CBD</b><span>Exchange, career, fashion and dining</span><i>OPEN</i></article><article><b>Countryside</b><span>Lower-cost living and future local commerce</span><i>PREVIEW</i></article><article><b>Island District</b><span>Waterfront homes, clubs and premium travel</span><i>{netWorth >= 100000 ? 'PREVIEW' : '$100K NET WORTH'}</i></article><article><b>Millionaire Ridge</b><span>Gated detached-villa community with proof-of-wealth access</span><i>{netWorth >= 1_000_000 ? 'VERIFIED' : '$1M NET WORTH'}</i></article></div></>}
+          {place === 'map' && <>
+            <small>PAID TRANSIT · 18.4 KM BETWEEN HOME AND MARKET</small>
+            <VisionPanel image="/visuals/ampliworld-city-gameplay.jpg" label="THE CITY IS CLOSE IN TIME · EXPENSIVE IN CASH" alt="Concept visualization of Cyber City and its trading lifestyle districts" />
+            <h1>{atCbd ? 'Going home still has a price' : 'Leaving home has a price'}</h1>
+            <p>You are in {atCbd ? 'Cyber CBD' : 'Starter Arcology'}. Every trip in either direction consumes virtual cash. Travel is compressed to seconds for the player, while the simulation records the full fare and game time.</p>
+            <div className="district-grid">
+              <article className={!atCbd ? 'current-district' : ''}><b>Starter Arcology</b><span>1,000 towers · 10 million residents · your 10 m² studio</span><i>{!atCbd ? 'YOU ARE HERE' : 'HOME · 18.4 KM'}</i></article>
+              <article className={atCbd ? 'current-district' : ''}><b>Cyber CBD</b><span>Exchange, career, fashion and dining · orders execute here</span><i>{atCbd ? 'YOU ARE HERE' : 'PAID ENTRY ROUTE'}</i></article>
+              <article><b>Island District</b><span>Waterfront homes, clubs and premium travel</span><i>{netWorth >= 100000 ? 'PREVIEW' : '$100K NET WORTH'}</i></article>
+              <article><b>Millionaire Ridge</b><span>Gated detached-villa community with proof-of-wealth access</span><i>{netWorth >= 1_000_000 ? 'VERIFIED' : '$1M NET WORTH'}</i></article>
+            </div>
+            <section className="transit-desk">
+              <div className="transit-route"><span>CURRENT <b>{atCbd ? 'CYBER CBD' : 'STARTER ARCOLOGY'}</b></span><i>18.4 KM</i><span>DESTINATION <b>{transitDestinationLabel.toUpperCase()}</b></span></div>
+              <div className="transit-options">
+                <button disabled={pendingAction !== null || cash < 0} onClick={() => void commute('METRO')}><TrainFront /><span><small>PUBLIC TRANSIT</small><b>{pendingAction === 'commute:METRO' ? 'BOARDING…' : `METRO TO ${transitDestinationLabel.toUpperCase()}`}</b><i>$5 virtual · 28 game min · ≈ 2 sec</i></span><em>{cash < 0 ? 'UNAVAILABLE' : 'PAY $5'}</em></button>
+                <button disabled={pendingAction !== null || cash < 45} onClick={() => void commute('TAXI')}><Car /><span><small>EXPRESS TRANSIT</small><b>{pendingAction === 'commute:TAXI' ? 'DEPARTING…' : `TAXI TO ${transitDestinationLabel.toUpperCase()}`}</b><i>$45 virtual · 11 game min · ≈ 1 sec</i></span><em>{cash < 45 ? 'NEED $45' : 'PAY $45'}</em></button>
+              </div>
+              <div className="transit-ledger"><span>TRIPS <b>{transitTrips}</b></span><span>METRO <b>{metroRides}</b></span><span>TAXI <b>{taxiRides}</b></span><span>LIFETIME FARES <b>${transitSpend.toFixed(2)}</b></span></div>
+            </section>
+          </>}
+          {place === 'studio' && <>
+            <small>STARTER ARCOLOGY · BLOCK {residenceBlock} · FLOOR {starterFloor} · UNIT {starterUnit}</small>
+            <h1>Your first ten square meters</h1>
+            <p>Every player starts here: one room, one terminal and a one-year right to stay. Fifty floors share this tower with 10,000 residents. Beyond the courtyard stand 1,000 identical towers—ten million people trying to move up.</p>
+            <div className="studio-plan"><div className="studio-room"><span>FOLDING BED</span><span>MARKET TERMINAL</span><span>LOCKER</span><b>10 m²</b></div><div className="studio-facts"><span><b>50</b>floors</span><span><b>10,000</b>residents per tower</span><span><b>1,000</b>towers in the district</span><span><b>{leaseDays}</b>lease days remaining</span></div></div>
+            <section className="home-terminal"><header><span><small>HOME MARKET TERMINAL</small><b>Quotes are visible. Orders execute in the CBD.</b></span><i>VIEW ONLY</i></header>{stocks.slice(0, 3).map((stock) => { const move = marketMove(stock); return <div key={stock.symbol}><span><b>{stock.symbol}</b><small>{stock.name}</small></span><b>${stock.price.toFixed(2)}</b><i className={move >= 0 ? 'gain' : 'loss'}>{move >= 0 ? '+' : ''}{move.toFixed(2)}%</i></div>; })}<button onClick={() => openPlace('market')}><TrainFront />COMMUTE TO CYBER CBD TO TRADE</button></section>
+            <div className="residence-note"><Home /><span><b>No shortcut is hidden here.</b>Your portfolio is the route from this room to the skyline.</span></div>
+          </>}
           {place === 'inventory' && <><small>OWNED GOODS</small><h1>Your life, made visible</h1><p>Trading performance becomes clothing, experiences and eventually property that other players can see.</p><div className="inventory-grid">{inventory.length ? inventory.map((item, index) => <article key={`${item}-${index}`}><ShoppingBag /><span><b>{item}</b><small>Owned · tradable marketplace support planned</small></span></article>) : <article className="empty"><ShoppingBag /><span><b>No items yet</b><small>Visit Neon Atelier or Nova Dining after your first trade.</small></span></article>}</div></>}
-          {place === 'menu' && <><small>HOW TO PLAY</small><h1>Trade first. Build a life second.</h1><p>Use WASD or the touch pad to explore. Read world events, place virtual trades, then turn progress into choices across the city.</p><div className="menu-list"><span><kbd>1</kbd><b>Read</b> world news and company events</span><span><kbd>2</kbd><b>Trade</b> a $500 virtual order and manage risk</span><span><kbd>3</kbd><b>Live</b> through goods, dining, travel and property</span><span><kbd>4</kbd><b>Close day</b> to advance persistent world memory</span></div><p className="save-state">{signedIn ? 'Cloud save is connected for this player.' : 'Guest mode is playable now. Sign in to retain progress across sessions.'}<small>CC0 3D assets by Kenney and Quaternius.</small></p></>}
+          {place === 'menu' && <><small>HOW TO PLAY</small><h1>Trade your way out.</h1><p>Everybody begins with $10,000 and a 10 m² studio in a remote high-density district. Study the world, protect your capital and decide when a paid metro or taxi trip into the CBD is worthwhile.</p><div className="menu-list"><span><kbd>1</kbd><b>Read</b> world news and company events</span><span><kbd>2</kbd><b>Travel</b> to the CBD by paid metro or taxi</span><span><kbd>3</kbd><b>Trade</b> a virtual position and manage risk</span><span><kbd>4</kbd><b>Move up</b> through property, goods and status</span></div><p className="save-state">{signedIn ? 'Cloud save is connected for this player.' : 'Guest mode is playable now. Sign in to retain progress across sessions.'}<small>CC0 3D assets by Kenney and Quaternius.</small></p></>}
           {place === 'villa' && <><small>MILLIONAIRE RIDGE · VERIFIED ACCESS</small><VisionPanel image="/visuals/ampliworld-millionaire-ridge.jpg" label="MILLIONAIRE RIDGE · CONCEPT ENVIRONMENT" alt="Concept visualization of the gated AmpliWorld detached-villa community" /><h1>A community earned through the market</h1><p>Most residences are bought with virtual dollars earned in the market. The final estate offers either an extreme virtual-money path or a premium cosmetic edition—never a trading advantage.</p><div className="villa-ledger"><span><b>Your verified net worth</b>${netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span><span><b>Entry requirement</b>$1,000,000</span><span><b>Premium exchange</b>$1 = 100 Credits</span></div><div className="real-estate-grid"><article><small>GARDEN SERIES</small><h2>Parkside Villa</h2><p>Detached home, private garden and two-car garage.</p><b>$1,200,000 virtual</b><button disabled={pendingAction !== null} onClick={() => void spend(1_200_000, 'Parkside Villa', 20)}>BUY WITH VIRTUAL CASH</button></article><article><small>COURTYARD SERIES</small><h2>Glass Courtyard Villa</h2><p>Pool courtyard, gallery wing and city membership.</p><b>$4,800,000 virtual</b><button disabled={pendingAction !== null} onClick={() => void spend(4_800_000, 'Glass Courtyard Villa', 30)}>BUY WITH VIRTUAL CASH</button></article><article><small>ESTATE SERIES</small><h2>Helix Estate</h2><p>Hilltop grounds, guest house and private showroom.</p><b>$25,000,000 virtual</b><button disabled={pendingAction !== null} onClick={() => void spend(25_000_000, 'Helix Estate', 40)}>BUY WITH VIRTUAL CASH</button></article><article className="premium-estate"><small>FOUNDERS&apos; EDITION</small><h2>Sky Estate</h2><p>The same status can be earned through extraordinary play or purchased as a cosmetic world edition.</p><b>$250,000,000 virtual <em>or</em> 49,900 Credits</b><div><button disabled={pendingAction !== null} onClick={() => void spend(250_000_000, 'Founders Sky Estate', 50)}>EARN IN GAME</button><button disabled>PREMIUM CHECKOUT NOT CONNECTED</button></div></article></div></>}
           {place === 'fashion' && <><small>NEON ATELIER</small><h1>Wear your success</h1><p>Skins are visible status. Purchases increase happiness and fund the city treasury.</p><div className="goods"><button disabled={pendingAction !== null} onClick={() => void spend(180, 'Midnight Trader Jacket', 8)}><Shirt /><span><b>Midnight Trader Jacket</b><small>$180 + 2% tax</small></span></button><button disabled={pendingAction !== null} onClick={() => void spend(480, 'Founder Skin', 15)}><Shirt /><span><b>Founder Skin</b><small>$480 + 2% tax</small></span></button></div></>}
           {place === 'restaurant' && <><small>NOVA DINING</small><h1>Tonight&apos;s table</h1><p>Celebrate a green day or spend carefully after a red one.</p><div className="goods"><button disabled={pendingAction !== null} aria-label="Buy Skyline Dinner" onClick={() => void spend(42, 'Skyline Dinner', 6)}><span><b>Skyline Dinner</b><small>$42 + 2% tax</small></span></button><button disabled={pendingAction !== null} aria-label="Buy Investor Tasting Menu" onClick={() => void spend(160, 'Investor Tasting Menu', 12)}><span><b>Investor Tasting Menu</b><small>$160 + 2% tax</small></span></button></div></>}
-          {place === 'property' && <><small>SKYLINE REALTY</small><h1>Turn returns into a skyline</h1><p>Your starter apartment has {leaseDays} days left. Premium homes become permanent world assets.</p><div className="property"><Home /><div><b>Cloudline Penthouse</b><span>$2,500,000 · Requires City Rank 100</span></div><i>LOCKED</i></div><div className="property"><Car /><div><b>Ion GT</b><span>$180,000 · Includes island access</span></div><i>LOCKED</i></div></>}
+          {place === 'property' && <><small>SKYLINE REALTY</small><h1>Turn returns into a skyline</h1><p>Your 10 m² Starter Arcology studio has {leaseDays} days left. Every better address makes progress visible.</p><div className="property"><Home /><div><b>Cloudline Penthouse</b><span>$2,500,000 · Requires City Rank 100</span></div><i>LOCKED</i></div><div className="property"><Car /><div><b>Ion GT</b><span>$180,000 · Includes island access</span></div><i>LOCKED</i></div></>}
           {place === 'career' && <><small>CAREER TOWER · ROLEPLAY TRACK</small><h1>Market Data Assistant</h1><p>The interview unlocks a career identity and future skill-based work tasks. There is no passive wage to farm: trading remains the route to wealth, while limited paper-account relief handles true bankruptcy.</p><div className="interview"><BriefcaseBusiness /><div><b>{career === 'UNEMPLOYED' ? 'Interview available' : career}</b><span>Future task: analyze two market briefs accurately</span></div>{career === 'UNEMPLOYED' ? <button disabled={pendingAction !== null} onClick={() => void acceptJob()}>{pendingAction === 'hire' ? 'INTERVIEWING…' : 'INTERVIEW'}</button> : <i>HIRED</i>}</div></>}
         </dialog>}
       </section>
-      <footer><span>NET WORTH <b>${netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</b></span><span>TOTAL PROGRESS <b className={netWorth >= 10000 ? 'gain' : 'loss'}>{netWorth >= 10000 ? '+' : ''}${(netWorth - 10000).toFixed(2)}</b></span><span>PROPERTY <b>${propertyValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</b></span><span>CITY TAX <b>${tax.toFixed(2)}</b></span><span>APARTMENT <b>{leaseDays} DAYS</b></span><span>SIM POPULATION <b>8.3B · 32 LOCAL NPCs</b></span></footer>
+      <footer><span>NET WORTH <b>${netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</b></span><span>TOTAL PROGRESS <b className={netWorth >= 10000 ? 'gain' : 'loss'}>{netWorth >= 10000 ? '+' : ''}${(netWorth - 10000).toFixed(2)}</b></span><span>LOCATION <b>{atCbd ? 'CYBER CBD' : `BLOCK ${residenceBlock}`}</b></span><span>TRANSIT SPEND <b>${transitSpend.toFixed(2)}</b></span><span>CITY TAX <b>${tax.toFixed(2)}</b></span><span>STUDIO <b>10 m² · {leaseDays} DAYS</b></span><span>LOCAL POPULATION <b>10M · 1,000 TOWERS</b></span></footer>
     </main>
   );
 }
