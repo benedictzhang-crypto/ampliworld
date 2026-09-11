@@ -205,6 +205,19 @@ a:focus-visible {
   box-shadow: 0 0 20px #65d8ff30;
 }
 
+.world-label.signal {
+  color: var(--cyan);
+  border-color: #4fb6d1;
+  background: #07151ae8;
+  box-shadow: 0 0 24px #65d8ff42;
+}
+
+.world-label.signal:hover {
+  border-color: #8ceaff;
+  background: #0a2229ed;
+  box-shadow: 0 0 30px #65d8ff5c;
+}
+
 .world-label.arcology-label {
   border-color: #596560;
   background: #111715e8;
@@ -253,12 +266,12 @@ a:focus-visible {
   top: 15px;
   left: 15px;
   z-index: 24;
-  width: 166px;
-  padding: 8px;
+  width: 148px;
+  padding: 7px;
   overflow: hidden;
   border: 1px solid #49685c;
   border-radius: 9px;
-  background: #07120fee;
+  background: #07120fd9;
   color: var(--ink);
   box-shadow: 0 14px 42px #0009, inset 0 1px #a3dbc426;
   text-align: left;
@@ -308,7 +321,7 @@ a:focus-visible {
 .mini-map-surface {
   position: relative;
   display: block;
-  height: 100px;
+  height: 86px;
   margin-top: 6px;
   overflow: hidden;
   border: 1px solid #5f756b;
@@ -394,14 +407,14 @@ a:focus-visible {
 .mission {
   position: absolute;
   top: 18px;
-  left: 198px;
+  left: 178px;
   z-index: 12;
-  width: min(330px, calc(100% - 410px));
-  min-width: 250px;
-  padding: 11px 13px 12px;
+  width: min(286px, calc(100% - 380px));
+  min-width: 230px;
+  padding: 9px 11px 10px;
   border: 1px solid #203b31;
   border-left: 2px solid var(--green);
-  background: linear-gradient(110deg, #07120ff2, #091b15dc);
+  background: linear-gradient(110deg, #07120fde, #091b15c2);
   box-shadow: 0 15px 45px #0007, 0 0 24px #19d78b18;
   backdrop-filter: blur(10px);
 }
@@ -427,7 +440,7 @@ a:focus-visible {
 .mission b {
   display: block;
   margin: 5px 0;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.25;
 }
 
@@ -445,7 +458,7 @@ a:focus-visible {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 5px;
-  margin-top: 10px;
+  margin-top: 7px;
 }
 
 .mission-track::before {
@@ -463,7 +476,7 @@ a:focus-visible {
   z-index: 1;
   display: grid;
   place-items: center;
-  min-height: 22px;
+  min-height: 19px;
   border: 1px solid #2a493d;
   background: #0c1915;
   color: #71887e;
@@ -573,9 +586,9 @@ a:focus-visible {
   top: 15px;
   right: 15px;
   z-index: 12;
-  width: 174px;
+  width: 158px;
   border: 1px solid var(--line);
-  background: var(--glass);
+  background: #07130fdb;
   box-shadow: 0 15px 45px #0007;
   backdrop-filter: blur(10px);
 }
@@ -585,7 +598,7 @@ a:focus-visible {
   align-items: center;
   gap: 9px;
   min-width: 0;
-  padding: 9px 11px;
+  padding: 7px 9px;
   border-bottom: 1px solid #1b2d26;
 }
 
@@ -611,7 +624,7 @@ a:focus-visible {
   margin-top: 2px;
   overflow: hidden;
   color: var(--ink);
-  font-size: 13px;
+  font-size: 12px;
   letter-spacing: 0;
   text-overflow: ellipsis;
   white-space: nowrap;

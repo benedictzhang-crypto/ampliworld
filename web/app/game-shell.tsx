@@ -1,7 +1,7 @@
 'use client';
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Clone, Environment, Html, Sky, useAnimations, useGLTF } from '@react-three/drei';
+import { Clone, Environment, Html, Sky, useAnimations, useGLTF, useTexture } from '@react-three/drei';
 import {
   Banknote,
   BriefcaseBusiness,
@@ -297,10 +297,12 @@ const WORLD_EVENTS: WorldEvent[] = [
 ];
 
 const CBD_PLAYER_BLOCKERS = [
-  [-19, -27, 4.6, 4.6], [0, -24, 4.8, 4.6], [19, -27, 4.6, 4.6], [0, -35, 4.2, 3.4],
+  [-27, -28, 4.6, 4.6], [28, -30, 5.8, 5.5], [-31, -42, 5.2, 4.8], [0, -35, 8, 8],
   [-18, -12, 3.2, 3.2], [18, -12, 3.2, 3.2], [-18, 0, 3.2, 3.2], [18, 0, 3.2, 3.2],
   [27, -14, 6.2, 5.2], [27, 3, 5.3, 4.4], [-25, 16, 8.3, 7.2], [27, 25, 8.3, 6.3],
   [-25, -3, 5.4, 4.5], [-26, 29, 11.5, 7.2], [0, 13, 3.4, 3.4],
+  [-6.9, -9, 1.2, 0.9], [6.9, -9, 1.2, 0.9], [-6.9, 4.33, 1.2, 0.9], [6.9, 4.33, 1.2, 0.9],
+  [-6.9, 17.67, 1.2, 0.9], [6.9, 17.67, 1.2, 0.9], [-6.9, 31, 1.2, 0.9], [6.9, 31, 1.2, 0.9],
 ] as const;
 
 const STARTER_PLAYER_BLOCKERS = [
@@ -314,37 +316,42 @@ const STUDIO_PLAYER_BLOCKERS = [
 ] as const;
 
 const MARINA_PLAYER_BLOCKERS = [
-  [23, -15, 3.8, 3.2], [25, 14, 4.2, 5.1],
+  [23, -15, 3.8, 3.2], [25, 14, 4.2, 5.1], [-10, 0, 10.4, 48],
 ] as const;
 
 const CROWN_PLAYER_BLOCKERS = [
   [-15, -10, 4.8, 4.8], [0, -15, 4.8, 4.8], [15, -10, 4.8, 4.8], [0, 7, 5.4, 5.4],
+  [-7.65, -10, 1.2, 0.9], [7.65, -10, 1.2, 0.9], [-7.65, 2, 1.2, 0.9], [7.65, 2, 1.2, 0.9],
+  [-7.65, 14, 1.2, 0.9], [7.65, 14, 1.2, 0.9], [-7.65, 26, 1.2, 0.9], [7.65, 26, 1.2, 0.9],
 ] as const;
 
 const RIDGE_PLAYER_BLOCKERS = [
   [-15, 18, 4.4, 4.7], [15, 18, 4.4, 4.7], [-15, 2, 4.4, 4.7], [15, 2, 4.4, 4.7],
   [-15, -14, 4.4, 4.7], [15, -14, 4.4, 4.7], [0, -31, 5.2, 5.2],
   [-2.1, 18, 1.4, 2.4], [2.1, 5, 1.4, 2.4], [-2.1, -13, 1.4, 2.4],
+  [-9.5, -14, 0.25, 6.2], [9.5, -14, 0.25, 6.2], [-9.5, 2, 0.25, 6.2], [9.5, 2, 0.25, 6.2],
+  [-9.5, 18, 0.25, 6.2], [9.5, 18, 0.25, 6.2], [0, -34.8, 9, 1.1],
 ] as const;
 
 const ARCOLOGY_TOWER_TOTAL = 1000;
 const DETAILED_ARCOLOGY_TOWER_TOTAL = 4;
 const ARCOLOGY_FLOORS = 50;
-const ARCOLOGY_TOWER_HEIGHT = 29.7;
+const ARCOLOGY_TOWER_HEIGHT = 78;
 
 const SCENE_PROFILES: Record<SceneProfileId, {
   spawn: [number, number, number];
   bounds: { minX: number; maxX: number; minZ: number; maxZ: number };
   cameraOffset: [number, number, number];
+  heading: number;
   speed: number;
   blockers: readonly (readonly [number, number, number, number])[];
 }> = {
-  STARTER_ARCOLOGY: { spawn: [0, 0, 9], bounds: { minX: -26, maxX: 26, minZ: -25, maxZ: 26 }, cameraOffset: [0, 3.5, 6.4], speed: 5.2, blockers: STARTER_PLAYER_BLOCKERS },
-  CBD: { spawn: [0, 0, 34], bounds: { minX: -36, maxX: 37, minZ: -39, maxZ: 38 }, cameraOffset: [0, 3.5, 6.4], speed: 5.8, blockers: CBD_PLAYER_BLOCKERS },
-  AZURE_YACHT_MARINA: { spawn: [3, 0, 22], bounds: { minX: -9, maxX: 34, minZ: -34, maxZ: 34 }, cameraOffset: [0, 3.5, 6.4], speed: 5.4, blockers: MARINA_PLAYER_BLOCKERS },
-  CROWN_RESIDENTIAL_TOWERS: { spawn: [0, 0, 27], bounds: { minX: -28, maxX: 28, minZ: -22, maxZ: 30 }, cameraOffset: [0, 3.5, 6.4], speed: 5.2, blockers: CROWN_PLAYER_BLOCKERS },
-  MILLIONAIRE_RIDGE: { spawn: [0, 0, 34], bounds: { minX: -34, maxX: 34, minZ: -39, maxZ: 37 }, cameraOffset: [0, 3.5, 6.4], speed: 5.2, blockers: RIDGE_PLAYER_BLOCKERS },
-  STUDIO_INTERIOR: { spawn: [0, 0, 2.8], bounds: { minX: -3.8, maxX: 3.8, minZ: -3.7, maxZ: 4 }, cameraOffset: [0, 2.8, 4.7], speed: 3.8, blockers: STUDIO_PLAYER_BLOCKERS },
+  STARTER_ARCOLOGY: { spawn: [0, 0, 9], bounds: { minX: -26, maxX: 26, minZ: -25, maxZ: 26 }, cameraOffset: [0, 3.5, 6.4], heading: Math.PI, speed: 5.2, blockers: STARTER_PLAYER_BLOCKERS },
+  CBD: { spawn: [0, 0, 34], bounds: { minX: -36, maxX: 37, minZ: -52, maxZ: 38 }, cameraOffset: [0, 3.5, 6.4], heading: Math.PI, speed: 5.8, blockers: CBD_PLAYER_BLOCKERS },
+  AZURE_YACHT_MARINA: { spawn: [3, 0, 22], bounds: { minX: -9, maxX: 34, minZ: -34, maxZ: 34 }, cameraOffset: [-2.15, 3.5, 6.4], heading: Math.PI, speed: 5.4, blockers: MARINA_PLAYER_BLOCKERS },
+  CROWN_RESIDENTIAL_TOWERS: { spawn: [0, 0, 27], bounds: { minX: -28, maxX: 28, minZ: -22, maxZ: 30 }, cameraOffset: [0, 3.5, 6.4], heading: Math.PI, speed: 5.2, blockers: CROWN_PLAYER_BLOCKERS },
+  MILLIONAIRE_RIDGE: { spawn: [0, 0, 34], bounds: { minX: -34, maxX: 34, minZ: -39, maxZ: 37 }, cameraOffset: [0, 3.5, 6.4], heading: Math.PI, speed: 5.2, blockers: RIDGE_PLAYER_BLOCKERS },
+  STUDIO_INTERIOR: { spawn: [0, 0, 2.8], bounds: { minX: -3.8, maxX: 3.8, minZ: -3.7, maxZ: 4 }, cameraOffset: [0, 2.8, 4.7], heading: Math.PI, speed: 3.8, blockers: STUDIO_PLAYER_BLOCKERS },
 };
 
 function readableString(value: unknown, fallback = ''): string {
@@ -421,6 +428,21 @@ function Building({ position, size, color, glow, label, place, onEnter, assetUrl
   assetUrl?: string; assetScale?: number; assetRotation?: [number, number, number]; labelHeight?: number;
 }) {
   const resolvedLabelHeight = labelHeight ?? size[1] + 0.45;
+  const labelAnchor = useRef<THREE.Group>(null);
+  const labelWorldPosition = useRef(new THREE.Vector3());
+  const labelVisibility = useRef(false);
+  const [labelVisible, setLabelVisible] = useState(false);
+  useFrame(() => {
+    if (!labelAnchor.current) return;
+    labelAnchor.current.getWorldPosition(labelWorldPosition.current);
+    const dx = labelWorldPosition.current.x - ACTIVE_PLAYER_POSITION.x;
+    const dz = labelWorldPosition.current.z - ACTIVE_PLAYER_POSITION.z;
+    const nextVisible = dx * dx + dz * dz < 30 * 30;
+    if (nextVisible !== labelVisibility.current) {
+      labelVisibility.current = nextVisible;
+      setLabelVisible(nextVisible);
+    }
+  });
   const proceduralBody = <>
     <mesh castShadow receiveShadow position={[0, size[1] / 2, 0]}>
       <boxGeometry args={size} />
@@ -439,9 +461,9 @@ function Building({ position, size, color, glow, label, place, onEnter, assetUrl
         ? <Suspense fallback={proceduralBody}><StaticAsset url={assetUrl} scale={assetScale} rotation={assetRotation} /></Suspense>
         : proceduralBody}
       {assetUrl && <pointLight position={[0, Math.min(resolvedLabelHeight, 3), 1]} intensity={0.22} distance={5} color={glow} />}
-      <Html position={[0, resolvedLabelHeight, 0]} center distanceFactor={13} zIndexRange={[3, 0]}>
+      <group ref={labelAnchor} position={[0, resolvedLabelHeight, 0]}>{labelVisible && <Html center distanceFactor={13} zIndexRange={[3, 0]}>
         <button className={place ? 'world-label enterable' : 'world-label'} onClick={() => place && onEnter?.(place)}>{label}</button>
-      </Html>
+      </Html>}</group>
     </group>
   );
 }
@@ -551,8 +573,8 @@ function Citizen({ seed }: { seed: number }) {
   );
 }
 
-function PopulationLayer({ count = 32 }: { count?: number }) {
-  return <group>{Array.from({ length: count }, (_, seed) => <Citizen key={seed} seed={seed} />)}</group>;
+function PopulationLayer({ count = 32, position = [0, 0, 0] }: { count?: number; position?: [number, number, number] }) {
+  return <group position={position}>{Array.from({ length: count }, (_, seed) => <Citizen key={seed} seed={seed} />)}</group>;
 }
 
 function TowerFloorBands({ width, depth, floors = ARCOLOGY_FLOORS }: { width: number; depth: number; floors?: number }) {
@@ -560,8 +582,9 @@ function TowerFloorBands({ width, depth, floors = ARCOLOGY_FLOORS }: { width: nu
   const side = useRef<THREE.InstancedMesh>(null);
   useEffect(() => {
     const matrix = new THREE.Matrix4();
+    const floorHeight = ARCOLOGY_TOWER_HEIGHT / floors;
     for (let floor = 0; floor < floors; floor += 1) {
-      const y = 0.37 + floor * 0.58;
+      const y = floorHeight * 0.52 + floor * floorHeight;
       matrix.makeTranslation(0, y, depth / 2 + 0.012);
       front.current?.setMatrixAt(floor, matrix);
       matrix.makeRotationY(Math.PI / 2);
@@ -597,9 +620,11 @@ function ArcologyTower({ position, block, home = false, onEnter }: {
     <group position={position}>
       <mesh castShadow receiveShadow position={[0, ARCOLOGY_TOWER_HEIGHT / 2, 0]}>
         <boxGeometry args={[width, ARCOLOGY_TOWER_HEIGHT, depth]} />
-        <meshStandardMaterial color={home ? '#18211f' : '#151d1d'} roughness={0.82} metalness={0.24} emissive={home ? '#193b31' : '#1e2a29'} emissiveIntensity={0.17} />
+        <meshStandardMaterial color={home ? '#34433f' : '#303c3b'} roughness={0.74} metalness={0.28} emissive={home ? '#214d40' : '#263a37'} emissiveIntensity={0.23} />
       </mesh>
       <TowerFloorBands width={width} depth={depth} />
+      {[-0.34, -0.11, 0.11, 0.34].map((ratio, index) => <mesh key={`front-window-${ratio}`} position={[ratio * width, ARCOLOGY_TOWER_HEIGHT * 0.51, depth / 2 + 0.018]}><planeGeometry args={[0.32, ARCOLOGY_TOWER_HEIGHT * 0.92]} /><meshBasicMaterial color={index % 2 ? '#d6ad7c' : home ? '#70e6bf' : '#83b7af'} toneMapped={false} transparent opacity={home ? 0.24 : 0.14} /></mesh>)}
+      {[-0.28, 0, 0.28].map((ratio, index) => <mesh key={`side-window-${ratio}`} position={[width / 2 + 0.018, ARCOLOGY_TOWER_HEIGHT * 0.51, ratio * depth]} rotation={[0, Math.PI / 2, 0]}><planeGeometry args={[0.3, ARCOLOGY_TOWER_HEIGHT * 0.92]} /><meshBasicMaterial color={index === 1 ? '#d19d73' : '#6fa69d'} toneMapped={false} transparent opacity={0.13} /></mesh>)}
       <mesh receiveShadow position={[0, 0.22, depth / 2 + 0.42]}>
         <boxGeometry args={[width + 0.8, 0.44, 1.15]} />
         <meshStandardMaterial color="#222927" roughness={0.94} />
@@ -608,7 +633,7 @@ function ArcologyTower({ position, block, home = false, onEnter }: {
         <planeGeometry args={[1.65, 1.95]} />
         <meshStandardMaterial color="#0c1111" metalness={0.72} roughness={0.3} emissive={home ? '#42f5af' : '#6b7f79'} emissiveIntensity={home ? 0.42 : 0.1} />
       </mesh>
-      <mesh castShadow position={[0, 30.2, 0]}>
+      <mesh castShadow position={[0, ARCOLOGY_TOWER_HEIGHT + 0.5, 0]}>
         <boxGeometry args={[1.3, 1, 1.3]} />
         <meshStandardMaterial color="#262f2c" roughness={0.68} />
       </mesh>
@@ -660,7 +685,7 @@ function ArcologyTowerField() {
     <group>
       <instancedMesh ref={towers} args={[undefined, undefined, layout.length]} castShadow={false} receiveShadow frustumCulled>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#26312f" vertexColors roughness={0.9} metalness={0.08} emissive="#172522" emissiveIntensity={0.2} />
+        <meshStandardMaterial color="#46534f" vertexColors roughness={0.76} metalness={0.14} emissive="#233b35" emissiveIntensity={0.26} />
       </instancedMesh>
       <instancedMesh ref={beacons} args={[undefined, undefined, layout.length]} frustumCulled>
         <boxGeometry args={[1, 1, 1]} />
@@ -673,23 +698,21 @@ function ArcologyTowerField() {
 function StarterArcology({ onEnter, onNotice, residenceBlock }: { onEnter: EnterPlace; onNotice: (message: string) => void; residenceBlock: string }) {
   return (
     <>
-      <fog attach="fog" args={['#0b1010', 45, 245]} />
-      <Sky sunPosition={[-2, 0.08, -4]} turbidity={13} rayleigh={3.1} mieCoefficient={0.02} mieDirectionalG={0.82} />
-      <ambientLight intensity={0.42} color="#9db4aa" />
-      <directionalLight castShadow position={[8, 19, 9]} intensity={1.65} color="#b6c7bd" shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
+      <fog attach="fog" args={['#35423e', 62, 360]} />
+      <Sky sunPosition={[-8, 4.6, -10]} turbidity={7.4} rayleigh={1.48} mieCoefficient={0.009} mieDirectionalG={0.8} />
+      <ambientLight intensity={0.46} color="#c8d8d0" />
+      <hemisphereLight intensity={0.34} color="#c7ddd5" groundColor="#29332f" />
+      <directionalLight castShadow position={[8, 27, 12]} intensity={2.65} color="#ffd0a2" shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[380, 520]} />
-        <meshStandardMaterial color="#111716" roughness={0.98} />
+        <meshPhysicalMaterial color="#252d2b" roughness={0.58} metalness={0.17} clearcoat={0.22} clearcoatRoughness={0.3} />
       </mesh>
       <ArcologyTowerField />
       <ArcologyTower position={[-15, 0, -6]} block={`BLOCK ${residenceBlock}`} home onEnter={onEnter} />
       <ArcologyTower position={[15, 0, -6]} block="BLOCK 072" onEnter={onEnter} />
       <ArcologyTower position={[-15, 0, 14]} block="BLOCK 070" onEnter={onEnter} />
       <ArcologyTower position={[15, 0, 14]} block="BLOCK 073" onEnter={onEnter} />
-      <mesh receiveShadow position={[0, 0.025, 1.5]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[12, 44]} />
-        <meshStandardMaterial color="#202827" roughness={0.96} />
-      </mesh>
+      <ArrivalSpine tone="STARTER" position={[0, 0, 1.5]} length={44} width={11.6} />
       {[-3.2, 0, 3.2].map((x) => <mesh key={x} position={[x, 0.05, 1.5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.07, 44]} /><meshBasicMaterial color="#8f9c8d" transparent opacity={0.48} /></mesh>)}
       <group position={[0, 0, -18]} onClick={() => onEnter('map')}>
         <mesh castShadow receiveShadow position={[0, 1, 0]}><boxGeometry args={[6.2, 2, 3.7]} /><meshStandardMaterial color="#1d2625" metalness={0.33} roughness={0.63} /></mesh>
@@ -723,7 +746,7 @@ function Player({ scene, onPositionChange, enabled = true }: {
   const body = useRef<THREE.Group>(null);
   const keys = useRef<Record<string, boolean>>({});
   const queuedKeys = useRef<string[]>([]);
-  const facingAngle = useRef(Math.PI);
+  const facingAngle = useRef(SCENE_PROFILES[scene].heading);
   const lastPositionReport = useRef(0);
   const lastReportedPosition = useRef(new THREE.Vector2(Number.NaN, Number.NaN));
   const cameraTarget = useRef(new THREE.Vector3());
@@ -732,16 +755,17 @@ function Player({ scene, onPositionChange, enabled = true }: {
   const profile = SCENE_PROFILES[scene];
   useEffect(() => {
     lastReportedPosition.current.set(profile.spawn[0], profile.spawn[2]);
-    facingAngle.current = Math.PI;
-    cameraTarget.current.set(profile.spawn[0], profile.spawn[1] + 1.3, profile.spawn[2] - 1.6);
-    camera.position.set(
-      profile.spawn[0] - profile.cameraOffset[0],
-      profile.spawn[1] + profile.cameraOffset[1],
-      profile.spawn[2] + profile.cameraOffset[2],
-    );
+    facingAngle.current = profile.heading;
+    const initialForward = new THREE.Vector3(Math.sin(profile.heading), 0, Math.cos(profile.heading));
+    const initialRight = new THREE.Vector3(initialForward.z, 0, -initialForward.x);
+    cameraTarget.current.set(profile.spawn[0], profile.spawn[1] + 1.3, profile.spawn[2]).addScaledVector(initialForward, 1.6);
+    camera.position.set(profile.spawn[0], profile.spawn[1], profile.spawn[2])
+      .addScaledVector(initialForward, -profile.cameraOffset[2])
+      .addScaledVector(initialRight, profile.cameraOffset[0])
+      .add(new THREE.Vector3(0, profile.cameraOffset[1], 0));
     camera.lookAt(cameraTarget.current);
     onPositionChange?.({ scene, x: profile.spawn[0], z: profile.spawn[2] });
-  }, [camera, onPositionChange, profile.cameraOffset, profile.spawn, scene]);
+  }, [camera, onPositionChange, profile.cameraOffset, profile.heading, profile.spawn, scene]);
   useEffect(() => {
     const normalizeControlKey = (key: string) => {
       const normalized = key.toLowerCase();
@@ -870,7 +894,7 @@ function Player({ scene, onPositionChange, enabled = true }: {
     camera.lookAt(cameraTarget.current);
   });
   return (
-    <group ref={body} position={profile.spawn} rotation={[0, Math.PI, 0]}>
+    <group ref={body} position={profile.spawn} rotation={[0, profile.heading, 0]}>
       <Suspense fallback={<mesh castShadow position={[0, 0.8, 0]}><capsuleGeometry args={[0.38, 0.9, 6, 12]} /><meshStandardMaterial color="#e7fff5" metalness={0.65} roughness={0.22} emissive="#27e8a1" emissiveIntensity={0.25} /></mesh>}>
         <CharacterAsset url={`${HERO_CHARACTER_ASSET_ROOT}/male-casual-hoodie.glb`} animation={movementAction === 'walk' ? 'Walk' : 'Idle'} scale={0.98} />
       </Suspense>
@@ -888,6 +912,125 @@ function ParkTree({ position, scale = 1 }: { position: [number, number, number];
   );
 }
 
+type ArrivalSpineTone = 'STARTER' | 'CBD' | 'MARINA' | 'CROWN' | 'RIDGE';
+
+function CinematicHorizon({ src, position, size = [132, 70], opacity = 0.88 }: {
+  src: string;
+  position: [number, number, number];
+  size?: [number, number];
+  opacity?: number;
+}) {
+  const sourceTexture = useTexture(src);
+  const texture = useMemo(() => {
+    const clone = sourceTexture.clone();
+    clone.colorSpace = THREE.SRGBColorSpace;
+    clone.anisotropy = 8;
+    clone.needsUpdate = true;
+    return clone;
+  }, [sourceTexture]);
+  useEffect(() => () => texture.dispose(), [texture]);
+  return (
+    <mesh position={position} renderOrder={-2}>
+      <planeGeometry args={size} />
+      <meshBasicMaterial map={texture} transparent opacity={opacity} toneMapped={false} fog depthWrite={false} />
+    </mesh>
+  );
+}
+
+function ArrivalSpine({ tone, position, length = 48, width = 12 }: {
+  tone: ArrivalSpineTone;
+  position: [number, number, number];
+  length?: number;
+  width?: number;
+}) {
+  const isStarter = tone === 'STARTER';
+  const isRidge = tone === 'RIDGE';
+  const isMarina = tone === 'MARINA';
+  const hasWaterRills = tone === 'CBD' || tone === 'CROWN';
+  const accent = isStarter ? '#c6764f' : isRidge ? '#ffd391' : isMarina ? '#74ddf2' : '#6ff5d4';
+  const stone = isStarter ? '#303735' : isRidge ? '#8d887c' : isMarina ? '#b9b2a3' : tone === 'CROWN' ? '#687370' : '#596765';
+  const treeModel = isRidge ? 'tree_oak.glb' : isMarina || tone === 'CBD' || tone === 'CROWN' ? 'tree_palmDetailedTall.glb' : null;
+  const stationCount = Math.max(4, Math.floor(length / 10));
+  const stations = Array.from({ length: stationCount }, (_, index) => -length / 2 + 4 + index * ((length - 8) / Math.max(1, stationCount - 1)));
+  const planterSides = isMarina ? [1] : [-1, 1];
+  const pavingSeams = Array.from({ length: Math.floor(length / 3.2) }, (_, index) => -length / 2 + 1.6 + index * 3.2);
+  return (
+    <group position={position}>
+      <mesh receiveShadow position={[0, 0.075, 0]}>
+        <boxGeometry args={[width, 0.15, length]} />
+        <meshPhysicalMaterial color={stone} metalness={isStarter ? 0.18 : 0.42} roughness={isStarter ? 0.58 : 0.2} clearcoat={isStarter ? 0.12 : 0.72} clearcoatRoughness={0.13} />
+      </mesh>
+      {[-width / 2 + 0.3, width / 2 - 0.3].map((x) => <mesh key={`edge-${x}`} position={[x, 0.18, 0]}><boxGeometry args={[0.11, 0.07, length - 0.8]} /><meshBasicMaterial color={accent} toneMapped={false} /></mesh>)}
+      {!isStarter && pavingSeams.map((z) => <mesh key={`seam-${z}`} position={[0, 0.158, z]}><boxGeometry args={[width - 0.55, 0.012, 0.025]} /><meshBasicMaterial color="#21312f" transparent opacity={isRidge ? 0.28 : 0.5} /></mesh>)}
+      {!isStarter && [-0.26, 0, 0.26].map((ratio) => <mesh key={`long-seam-${ratio}`} position={[width * ratio, 0.159, 0]}><boxGeometry args={[0.025, 0.013, length - 0.55]} /><meshBasicMaterial color="#233331" transparent opacity={0.42} /></mesh>)}
+      {hasWaterRills && [-1, 1].map((side) => <group key={`rill-${side}`} position={[side * width * 0.34, 0.17, -2]}>
+        <mesh receiveShadow><boxGeometry args={[0.72, 0.035, length - 8]} /><meshPhysicalMaterial color="#4ac1d1" metalness={0.08} roughness={0.06} transmission={0.3} transparent opacity={0.72} clearcoat={0.85} /></mesh>
+        {[-0.28, 0.28].map((edge) => <mesh key={edge} position={[edge, 0.035, 0]}><boxGeometry args={[0.035, 0.04, length - 7.7]} /><meshBasicMaterial color="#b9fff4" toneMapped={false} transparent opacity={0.72} /></mesh>)}
+        {[-12, -4, 4, 12].filter((z) => Math.abs(z) < (length - 10) / 2).map((z) => <mesh key={z} position={[0, 0.12, z]}><cylinderGeometry args={[0.055, 0.09, 0.18, 10]} /><meshBasicMaterial color="#d8ffff" toneMapped={false} transparent opacity={0.88} /></mesh>)}
+      </group>)}
+      {!isStarter && stations.flatMap((z, index) => planterSides.map((side) => {
+        const insetPlanters = tone === 'CBD' || tone === 'CROWN';
+        const inset = tone === 'CROWN' ? 1.35 : 0.9;
+        const x = side * (insetPlanters ? width / 2 - inset : width / 2 + 1.65);
+        return <group key={`${side}-${z}`} position={[x, 0, z]}>
+          <mesh castShadow receiveShadow position={[0, 0.34, 0]}><boxGeometry args={[2.15, 0.68, 1.35]} /><meshPhysicalMaterial color={isRidge ? '#d8d0bd' : '#d9ddd5'} roughness={0.42} clearcoat={0.25} /></mesh>
+          <mesh position={[0, 0.7, 0]}><boxGeometry args={[1.7, 0.08, 0.92]} /><meshStandardMaterial color={index % 2 ? '#45664b' : '#587950'} roughness={0.9} /></mesh>
+          <Suspense fallback={null}>{treeModel && <StaticAsset url={`${NATURE_ASSET_ROOT}/${treeModel}`} position={[0, 0.7, 0]} scale={isRidge ? 2.35 : 2.65} shadows={index < 1} />}</Suspense>
+          {[-0.55, 0, 0.55].map((offset, flower) => <mesh key={offset} position={[offset, 0.8, 0.15 * (flower % 2 ? 1 : -1)]}><sphereGeometry args={[0.11, 8, 6]} /><meshStandardMaterial color={flower === 1 ? '#f8d48c' : tone === 'CBD' ? '#f5a9b8' : '#d9edba'} emissive={flower === 1 ? '#6f4518' : '#3c4936'} emissiveIntensity={0.16} roughness={0.82} /></mesh>)}
+          <mesh position={[-side * 1.18, 0.48, 0]}><boxGeometry args={[0.12, 0.96, 0.12]} /><meshStandardMaterial color="#252d2c" metalness={0.7} roughness={0.32} /></mesh>
+          <mesh position={[-side * 1.18, 0.98, 0]}><sphereGeometry args={[0.12, 10, 8]} /><meshBasicMaterial color="#ffd7a0" toneMapped={false} /></mesh>
+        </group>;
+      }))}
+      {!isStarter && [-length * 0.24, length * 0.08, length * 0.34].map((z, index) => <mesh key={`reflection-${z}`} position={[index % 2 ? -1.8 : 2.1, 0.158, z]} rotation={[-Math.PI / 2, 0, index * 0.18]}><planeGeometry args={[2.7, 5.6]} /><meshPhysicalMaterial color="#b9d9d5" metalness={0.35} roughness={0.08} transparent opacity={0.18} depthWrite={false} /></mesh>)}
+      {isStarter && <Suspense fallback={null}>
+        {[-length * 0.32, -length * 0.04, length * 0.27].map((z, index) => <StaticAsset key={`utility-${z}`} url={`${ROAD_ASSET_ROOT}/${index === 1 ? 'dumpster.glb' : 'electricity-pole-single.glb'}`} position={[index % 2 ? width / 2 + 1.5 : -width / 2 - 1.4, 0.06, z]} scale={index === 1 ? 1.2 : 1.75} shadows={false} />)}
+        {[-length * 0.18, length * 0.18].map((z) => <StaticAsset key={`barrier-${z}`} url={`${ROAD_ASSET_ROOT}/construction-barrier.glb`} position={[width / 2 + 0.9, 0.08, z]} rotation={[0, Math.PI / 2, 0]} scale={1.25} shadows={false} />)}
+      </Suspense>}
+    </group>
+  );
+}
+
+function WaterfrontRailing({ x, length = 68 }: { x: number; length?: number }) {
+  const posts = Array.from({ length: Math.floor(length / 5) + 1 }, (_, index) => -length / 2 + index * 5);
+  return (
+    <group>
+      {posts.map((z) => <group key={z} position={[x, 0, z]}><mesh castShadow position={[0, 0.66, 0]}><cylinderGeometry args={[0.055, 0.075, 1.32, 10]} /><meshStandardMaterial color="#d4e1df" metalness={0.84} roughness={0.22} /></mesh><mesh position={[0, 0.22, 0]}><sphereGeometry args={[0.085, 10, 8]} /><meshBasicMaterial color="#ffd08c" toneMapped={false} /></mesh></group>)}
+      {[0.48, 1.08].map((y) => <mesh key={y} position={[x, y, 0]}><boxGeometry args={[0.065, 0.065, length]} /><meshPhysicalMaterial color="#bdeaf0" metalness={0.65} roughness={0.12} transparent opacity={0.82} /></mesh>)}
+    </group>
+  );
+}
+
+function WayfindingPylon({ position, label, onEnter, accent = '#79f6da' }: {
+  position: [number, number, number];
+  label: string;
+  onEnter: EnterPlace;
+  accent?: string;
+}) {
+  return (
+    <group position={position} onClick={() => onEnter('map')}>
+      <mesh castShadow position={[0, 1.08, 0]}><boxGeometry args={[0.24, 2.16, 0.3]} /><meshStandardMaterial color="#26302f" metalness={0.72} roughness={0.27} /></mesh>
+      <mesh castShadow position={[0.74, 1.95, 0]}><boxGeometry args={[1.72, 0.78, 0.18]} /><meshPhysicalMaterial color="#17211f" metalness={0.58} roughness={0.22} clearcoat={0.64} /></mesh>
+      <mesh position={[0.74, 1.95, 0.105]}><planeGeometry args={[1.54, 0.58]} /><meshBasicMaterial color={accent} toneMapped={false} transparent opacity={0.38} /></mesh>
+      <mesh position={[0, 2.3, 0]}><sphereGeometry args={[0.11, 10, 8]} /><meshBasicMaterial color={accent} toneMapped={false} /></mesh>
+      <Html position={[0.74, 2.72, 0]} center distanceFactor={6.2} zIndexRange={[3, 0]}><button className="world-label enterable transit-label" onClick={(event) => { event.stopPropagation(); onEnter('map'); }}>{label}</button></Html>
+    </group>
+  );
+}
+
+function RidgeTerraces() {
+  const lots = [-14, 2, 18];
+  return (
+    <group>
+      {lots.flatMap((z, row) => [-1, 1].map((side) => <group key={`${side}-${z}`} position={[side * 15, 0, z]}>
+        <mesh castShadow receiveShadow position={[-side * 5.5, 0.72, 0]}><boxGeometry args={[0.42, 1.45 + row * 0.18, 12.4]} /><meshStandardMaterial color={row % 2 ? '#b8ae99' : '#d0c6b1'} roughness={0.72} /></mesh>
+        <mesh position={[-side * 5.76, 1.48 + row * 0.09, 0]}><boxGeometry args={[0.12, 0.18, 11.8]} /><meshBasicMaterial color="#ffcd86" toneMapped={false} /></mesh>
+        {[-4.8, -1.6, 1.6, 4.8].map((offset) => <mesh key={offset} position={[-side * 5.9, 1.72, offset]}><sphereGeometry args={[0.48, 10, 8]} /><meshStandardMaterial color={row === 1 ? '#48633e' : '#3d5a3c'} roughness={0.96} /></mesh>)}
+      </group>))}
+      <mesh receiveShadow position={[0, 0.18, -34.8]}><boxGeometry args={[18, 0.36, 2.2]} /><meshStandardMaterial color="#777269" roughness={0.82} /></mesh>
+    </group>
+  );
+}
+
 function LandmarkLabel({ position, label, place, atlasId, onEnter, tone = '' }: {
   position: [number, number, number];
   label: string;
@@ -896,7 +1039,44 @@ function LandmarkLabel({ position, label, place, atlasId, onEnter, tone = '' }: 
   onEnter: EnterPlace;
   tone?: string;
 }) {
-  return <Html position={position} center distanceFactor={13} zIndexRange={[3, 0]}><button className={`world-label enterable ${tone}`} onClick={(event) => { event.stopPropagation(); onEnter(place, atlasId); }}>{label}</button></Html>;
+  const anchor = useRef<THREE.Group>(null);
+  const worldPosition = useRef(new THREE.Vector3());
+  const visibility = useRef(false);
+  const [visible, setVisible] = useState(false);
+  useFrame(() => {
+    if (!anchor.current) return;
+    anchor.current.getWorldPosition(worldPosition.current);
+    const dx = worldPosition.current.x - ACTIVE_PLAYER_POSITION.x;
+    const dz = worldPosition.current.z - ACTIVE_PLAYER_POSITION.z;
+    const nextVisible = dx * dx + dz * dz < 32 * 32;
+    if (nextVisible !== visibility.current) {
+      visibility.current = nextVisible;
+      setVisible(nextVisible);
+    }
+  });
+  return <group ref={anchor} position={position}>{visible && <Html center distanceFactor={13} zIndexRange={[3, 0]}><button className={`world-label enterable ${tone}`} onClick={(event) => { event.stopPropagation(); onEnter(place, atlasId); }}>{label}</button></Html>}</group>;
+}
+
+function StockExchangeRotunda({ onEnter }: { onEnter: EnterPlace }) {
+  const columns = Array.from({ length: 14 }, (_, index) => {
+    const angle = index / 14 * Math.PI * 2;
+    return { x: Math.sin(angle) * 5.25, z: Math.cos(angle) * 5.25, angle };
+  });
+  const bars = [1.1, 2.2, 1.7, 3.1, 2.65, 3.8, 3.3, 4.25, 4.8];
+  return (
+    <group position={[0, 0, -35]} onClick={() => onEnter('market')}>
+      <mesh castShadow receiveShadow position={[0, 0.32, 0]}><cylinderGeometry args={[7.2, 7.7, 0.64, 64]} /><meshPhysicalMaterial color="#e9e5da" roughness={0.3} clearcoat={0.45} /></mesh>
+      <mesh receiveShadow position={[0, 0.68, 0]}><cylinderGeometry args={[6.5, 6.8, 0.18, 64]} /><meshPhysicalMaterial color="#182c31" metalness={0.52} roughness={0.15} clearcoat={0.7} /></mesh>
+      {columns.map((column, index) => <mesh key={index} castShadow={index < 5} position={[column.x, 3.85, column.z]}><cylinderGeometry args={[0.23, 0.3, 6.3, 18]} /><meshPhysicalMaterial color="#f1eee5" metalness={0.18} roughness={0.28} clearcoat={0.45} /></mesh>)}
+      <mesh castShadow position={[0, 7.15, 0]}><cylinderGeometry args={[6.75, 6.2, 0.85, 64]} /><meshPhysicalMaterial color="#f4f0e6" metalness={0.2} roughness={0.24} clearcoat={0.6} /></mesh>
+      <mesh position={[0, 5.25, 0]}><cylinderGeometry args={[5.45, 5.45, 3.25, 64, 1, true]} /><meshPhysicalMaterial color="#5fc6d2" metalness={0.28} roughness={0.08} transmission={0.32} transparent opacity={0.58} side={THREE.DoubleSide} depthWrite={false} /></mesh>
+      <mesh position={[0, 8.25, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[6.25, 0.13, 12, 96]} /><meshBasicMaterial color="#83fff0" toneMapped={false} /></mesh>
+      <mesh position={[0, 9.25, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[5.35, 0.08, 10, 96]} /><meshBasicMaterial color="#63cfee" toneMapped={false} transparent opacity={0.82} /></mesh>
+      <mesh castShadow position={[0, 2.35, 0]} rotation={[0.15, 0.35, 0]}><torusKnotGeometry args={[1.15, 0.28, 96, 14]} /><meshPhysicalMaterial color="#d6a74f" metalness={0.86} roughness={0.18} clearcoat={0.55} /></mesh>
+      {bars.map((height, index) => <mesh key={index} position={[-3.45 + index * 0.86, 5.4 + height * 0.22, 5.48]}><boxGeometry args={[0.42, height * 0.44, 0.08]} /><meshBasicMaterial color={index % 3 === 0 ? '#ffd29a' : '#67f5d4'} toneMapped={false} transparent opacity={0.9} /></mesh>)}
+      <LandmarkLabel position={[0, 11.2, 0]} label="AMPLIWORLD EXCHANGE · ENTER MARKET" place="market" onEnter={onEnter} tone="signal" />
+    </group>
+  );
 }
 
 function CivicHospital({ onEnter }: { onEnter: EnterPlace }) {
@@ -1012,13 +1192,28 @@ function SciFiResidenceTower({ position, variant, label, onEnter }: {
   label: string;
   onEnter: EnterPlace;
 }) {
+  const labelHeight = variant === 'BRIDGE' ? 53 : variant === 'HELIX' ? 44 : 42;
   return (
     <group position={position} onClick={() => onEnter('residences', 'crown-residences')}>
-      {variant === 'HELIX' && Array.from({ length: 9 }, (_, floor) => <group key={floor} position={[0, 1.05 + floor * 1.35, 0]} rotation={[0, floor * 0.13, 0]}><mesh castShadow receiveShadow><boxGeometry args={[5.6, 1.2, 4.1]} /><meshStandardMaterial color={floor % 2 ? '#26383d' : '#d9dfdc'} metalness={0.42} roughness={0.28} /></mesh><mesh position={[0, 0, 2.07]}><boxGeometry args={[4.5, 0.48, 0.06]} /><meshStandardMaterial color="#66d7e7" emissive="#2d8e9c" emissiveIntensity={0.34} /></mesh></group>)}
-      {variant === 'BRIDGE' && <><mesh castShadow receiveShadow position={[-2.15, 6.4, 0]}><boxGeometry args={[3.4, 12.8, 4]} /><meshStandardMaterial color="#d7dbd7" metalness={0.3} roughness={0.34} /></mesh><mesh castShadow receiveShadow position={[2.15, 7.6, 0]}><boxGeometry args={[3.4, 15.2, 4]} /><meshStandardMaterial color="#222f38" metalness={0.52} roughness={0.26} /></mesh>{[2.1, 5.2, 8.3, 11.4].map((y) => <mesh key={y} position={[0, y, 2.04]}><boxGeometry args={[6.5, 0.38, 0.06]} /><meshStandardMaterial color="#7cf0c3" emissive="#31b887" emissiveIntensity={0.42} /></mesh>)}<mesh castShadow position={[0, 10, 0]}><boxGeometry args={[2.8, 0.8, 3.2]} /><meshStandardMaterial color="#a7bbc0" metalness={0.6} roughness={0.22} /></mesh></>}
-      {variant === 'PRISM' && Array.from({ length: 6 }, (_, tier) => <group key={tier} position={[0, 1.1 + tier * 2.15, 0]} rotation={[0, tier * 0.08, 0]}><mesh castShadow receiveShadow><cylinderGeometry args={[3.45 - tier * 0.2, 3.7 - tier * 0.2, 2, 8]} /><meshStandardMaterial color={tier % 2 ? '#1d3230' : '#cad6d0'} metalness={0.48} roughness={0.3} /></mesh><mesh position={[0, 0, 3.2 - tier * 0.18]}><boxGeometry args={[3.2, 0.45, 0.06]} /><meshStandardMaterial color="#d5a8ff" emissive="#9454ce" emissiveIntensity={0.4} /></mesh></group>)}
-      <mesh receiveShadow position={[0, 0.08, 0]}><cylinderGeometry args={[4.2, 4.6, 0.16, 12]} /><meshStandardMaterial color="#47514e" roughness={0.88} /></mesh>
-      <LandmarkLabel position={[0, 15.8, 0]} label={`${label} · FULL-FLOOR HOMES`} place="residences" atlasId="crown-residences" onEnter={onEnter} tone="residential-label" />
+      {variant === 'HELIX' && Array.from({ length: 15 }, (_, floor) => <group key={floor} position={[0, 1.55 + floor * 2.72, 0]} rotation={[0, floor * 0.105, 0]}>
+        <mesh castShadow={floor < 6} receiveShadow><boxGeometry args={[7.15, 2.38, 5.25]} /><meshPhysicalMaterial color={floor % 3 ? '#26383d' : '#dce2de'} metalness={0.48} roughness={0.22} clearcoat={0.42} /></mesh>
+        <mesh position={[0, 0, 2.66]}><boxGeometry args={[5.9, 1.32, 0.08]} /><meshStandardMaterial color={floor % 4 === 0 ? '#ffd095' : '#65dce9'} emissive={floor % 4 === 0 ? '#d78b43' : '#2d8e9c'} emissiveIntensity={0.42} metalness={0.25} roughness={0.18} /></mesh>
+        <mesh position={[0, 1.24, 0]}><boxGeometry args={[7.8, 0.12, 5.8]} /><meshStandardMaterial color="#eef3ef" metalness={0.4} roughness={0.28} /></mesh>
+      </group>)}
+      {variant === 'BRIDGE' && <>
+        <mesh castShadow receiveShadow position={[-2.9, 21, 0]}><boxGeometry args={[4.8, 42, 5.4]} /><meshPhysicalMaterial color="#e1e5e1" metalness={0.32} roughness={0.25} clearcoat={0.5} /></mesh>
+        <mesh castShadow receiveShadow position={[2.9, 25, 0]}><boxGeometry args={[4.8, 50, 5.4]} /><meshPhysicalMaterial color="#20313b" metalness={0.55} roughness={0.2} clearcoat={0.62} /></mesh>
+        {Array.from({ length: 14 }, (_, floor) => 2.1 + floor * 3.15).map((y, index) => <mesh key={y} position={[0, y, 2.74]}><boxGeometry args={[9.7, 0.48, 0.08]} /><meshStandardMaterial color={index % 5 === 0 ? '#ffd39a' : '#7cf0c3'} emissive={index % 5 === 0 ? '#d58e4e' : '#31b887'} emissiveIntensity={0.46} /></mesh>)}
+        <mesh castShadow position={[0, 31.5, 0]}><boxGeometry args={[5.4, 2.15, 4.4]} /><meshPhysicalMaterial color="#b6cbd0" metalness={0.58} roughness={0.16} clearcoat={0.55} /></mesh>
+        <mesh position={[0, 31.5, 2.24]}><boxGeometry args={[4.45, 1.25, 0.08]} /><meshBasicMaterial color="#c8fff0" toneMapped={false} /></mesh>
+      </>}
+      {variant === 'PRISM' && Array.from({ length: 12 }, (_, tier) => <group key={tier} position={[0, 1.7 + tier * 3.25, 0]} rotation={[0, tier * 0.075, 0]}>
+        <mesh castShadow={tier < 5} receiveShadow><cylinderGeometry args={[5.05 - tier * 0.16, 5.35 - tier * 0.16, 3, 8]} /><meshPhysicalMaterial color={tier % 3 ? '#203533' : '#d7e0da'} metalness={0.5} roughness={0.2} clearcoat={0.48} /></mesh>
+        <mesh position={[0, 0, 4.52 - tier * 0.145]}><boxGeometry args={[4.4, 1.45, 0.08]} /><meshStandardMaterial color={tier % 4 === 0 ? '#ffd19b' : '#d5a8ff'} emissive={tier % 4 === 0 ? '#c98447' : '#9454ce'} emissiveIntensity={0.42} /></mesh>
+        <mesh position={[0, 1.55, 0]}><cylinderGeometry args={[5.25 - tier * 0.16, 5.45 - tier * 0.16, 0.1, 8]} /><meshStandardMaterial color="#edf3ee" metalness={0.38} roughness={0.3} /></mesh>
+      </group>)}
+      <mesh receiveShadow position={[0, 0.12, 0]}><cylinderGeometry args={[5.6, 6.2, 0.24, 20]} /><meshPhysicalMaterial color="#777e78" roughness={0.5} clearcoat={0.28} /></mesh>
+      <LandmarkLabel position={[0, labelHeight, 0]} label={`${label} · FULL-FLOOR HOMES`} place="residences" atlasId="crown-residences" onEnter={onEnter} tone="residential-label" />
     </group>
   );
 }
@@ -1151,21 +1346,20 @@ function CatalogVilla({ id, name, style, position, rotation, onEnter }: {
 }
 
 function AzureYachtMarinaScene({ onEnter, onPositionChange, playerEnabled = true }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean }) {
-  const palms = [
-    [8, -27, 'tree_palmDetailedTall.glb', 3.4], [9, -16, 'tree_palmBend.glb', 3.1], [7.5, -4, 'tree_palmDetailedShort.glb', 3.5],
-    [8.5, 9, 'tree_palmDetailedTall.glb', 3.3], [7.2, 22, 'tree_palmBend.glb', 3.2], [10, 30, 'tree_palmDetailedShort.glb', 3.6],
-  ] as const;
   return (
     <>
-      <fog attach="fog" args={['#a9cad3', 62, 180]} />
+      <fog attach="fog" args={['#b8c8c9', 76, 200]} />
       <Sky sunPosition={[-18, 7, -25]} turbidity={4.2} rayleigh={1.08} mieCoefficient={0.006} mieDirectionalG={0.8} />
-      <ambientLight intensity={0.88} color="#e6f6ff" />
-      <hemisphereLight intensity={0.72} color="#d8f4ff" groundColor="#6d5c44" />
-      <directionalLight castShadow position={[-18, 28, 12]} intensity={2.7} color="#ffd6a1" shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
-      <mesh receiveShadow position={[-28, -0.18, 0]}><boxGeometry args={[56, 0.3, 96]} /><meshPhysicalMaterial color="#1e7f9f" roughness={0.12} metalness={0.04} transmission={0.16} transparent opacity={0.92} /></mesh>
+      <ambientLight intensity={0.38} color="#e6f6ff" />
+      <hemisphereLight intensity={0.44} color="#d8f4ff" groundColor="#6d5c44" />
+      <directionalLight castShadow position={[-18, 28, 12]} intensity={3.1} color="#ffd6a1" shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-42} shadow-camera-right={42} shadow-camera-top={42} shadow-camera-bottom={-42} />
+      <Suspense fallback={null}><CinematicHorizon src="/visuals/ampliworld-world-asset-master-v1.png" position={[11, 32, -86]} size={[158, 75]} opacity={0.82} /></Suspense>
+      <mesh receiveShadow position={[-28, -0.18, 0]}><boxGeometry args={[56, 0.3, 96]} /><meshPhysicalMaterial color="#197d9e" roughness={0.09} metalness={0.08} transmission={0.16} transparent opacity={0.94} clearcoat={0.62} /></mesh>
       <mesh receiveShadow position={[-4.5, 0.015, 0]}><boxGeometry args={[11, 0.08, 84]} /><meshStandardMaterial color="#d8c59b" roughness={0.98} /></mesh>
       <mesh receiveShadow position={[4, 0.035, 0]}><boxGeometry args={[6, 0.1, 84]} /><meshStandardMaterial color="#c7c1b0" roughness={0.88} /></mesh>
       <mesh receiveShadow position={[21, 0.015, 0]}><boxGeometry args={[28, 0.08, 84]} /><meshStandardMaterial color="#6d7868" roughness={0.96} /></mesh>
+      <ArrivalSpine tone="MARINA" position={[4, 0.02, 1]} length={66} width={5.8} />
+      <WaterfrontRailing x={0.35} length={72} />
       {[-24, -8, 8, 24].map((z) => <group key={z} position={[-4.5, 0.12, z]}>{[-8, -4, 0].map((x) => <Suspense fallback={null} key={x}><StaticAsset url={`${NATURE_ASSET_ROOT}/bridge_center_wood.glb`} position={[x, 0, 0]} rotation={[0, Math.PI / 2, 0]} scale={3.1} shadows={false} /></Suspense>)}</group>)}
       <FloatingWatercraft model="boat-sail-a" position={[-22, 0.08, -17]} rotation={Math.PI / 2} scale={3.4} phase={1} />
       <FloatingWatercraft model="boat-speed-a" position={[-22, 0.08, 5.5]} rotation={Math.PI / 2} scale={4.05} phase={2} />
@@ -1178,7 +1372,6 @@ function AzureYachtMarinaScene({ onEnter, onPositionChange, playerEnabled = true
         <StaticAsset url={`${COMMERCIAL_ASSET_ROOT}/building-h.glb`} position={[23, 0.1, -15]} rotation={[0, -Math.PI / 2, 0]} scale={3.4} />
         <StaticAsset url={`${COMMERCIAL_ASSET_ROOT}/building-j.glb`} position={[25, 0.1, 14]} rotation={[0, -Math.PI / 2, 0]} scale={3.1} />
         {[-19, -16, -13].map((z) => <StaticAsset key={z} url={`${COMMERCIAL_ASSET_ROOT}/detail-parasol-a.glb`} position={[15, 0.12, z]} scale={2.1} shadows={false} />)}
-        {palms.map(([x, z, model, scale]) => <StaticAsset key={`${x}-${z}`} url={`${NATURE_ASSET_ROOT}/${model}`} position={[x, 0.08, z]} scale={scale} shadows={false} />)}
       </Suspense>
       <LandmarkLabel position={[-10, 4.3, -17]} label="SAI-C42 · 42 FT SAILING YACHT" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
       <LandmarkLabel position={[-10, 4.3, 5.5]} label="YHT-A45 · 45 FT SPORT CRUISER" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
@@ -1188,8 +1381,8 @@ function AzureYachtMarinaScene({ onEnter, onPositionChange, playerEnabled = true
       <LandmarkLabel position={[-19, 6.1, -32]} label="YHT-A80 · 80 FT SKYLOUNGE" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
       <LandmarkLabel position={[-19, 6.1, 22.5]} label="YHT-A100 · 100+ FT FLAGSHIP" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
       <LandmarkLabel position={[23, 7.2, -15]} label="AZURE YACHT CLUB" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
-      <Html position={[4, 3.4, 32]} center distanceFactor={13} zIndexRange={[3, 0]}><button className="world-label enterable transit-label" onClick={() => onEnter('map')}>CITY MAP · CBD · RESIDENCES</button></Html>
-      <PopulationLayer count={18} />
+      <WayfindingPylon position={[8, 0.08, 28]} label="MAP · CBD · RESIDENCES" onEnter={onEnter} accent="#8deaff" />
+      <PopulationLayer count={22} position={[4, 0, 10]} />
       <Player scene="AZURE_YACHT_MARINA" onPositionChange={onPositionChange} enabled={playerEnabled} />
       <Environment preset="sunset" />
     </>
@@ -1199,21 +1392,24 @@ function AzureYachtMarinaScene({ onEnter, onPositionChange, playerEnabled = true
 function CrownResidentialScene({ onEnter, onPositionChange, playerEnabled = true }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean }) {
   return (
     <>
-      <fog attach="fog" args={['#99b8bf', 55, 150]} />
+      <fog attach="fog" args={['#a9b9b7', 72, 188]} />
       <Sky sunPosition={[-10, 8, -20]} turbidity={4.8} rayleigh={1.12} mieCoefficient={0.006} mieDirectionalG={0.82} />
-      <ambientLight intensity={0.82} color="#e4f4ff" />
-      <directionalLight castShadow position={[-16, 27, 16]} intensity={2.75} color="#ffd7a2" shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
-      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[72, 74]} /><meshStandardMaterial color="#777d74" roughness={0.94} /></mesh>
-      <mesh receiveShadow position={[0, 0.035, 5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[25, 45]} /><meshStandardMaterial color="#d3cdbd" roughness={0.84} /></mesh>
+      <ambientLight intensity={0.36} color="#e4f4ff" />
+      <hemisphereLight intensity={0.4} color="#dff5ff" groundColor="#5b5140" />
+      <directionalLight castShadow position={[-16, 27, 16]} intensity={3.1} color="#ffd7a2" shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-36} shadow-camera-right={36} shadow-camera-top={48} shadow-camera-bottom={-32} />
+      <Suspense fallback={null}><CinematicHorizon src="/visuals/ampliworld-cbd-skyline-matte-v1.jpg" position={[0, 32, -84]} size={[148, 78]} opacity={0.78} /></Suspense>
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[72, 74]} /><meshStandardMaterial color="#7d8378" roughness={0.74} /></mesh>
+      <mesh receiveShadow position={[0, 0.035, 5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[25, 45]} /><meshPhysicalMaterial color="#c7c3b8" metalness={0.22} roughness={0.3} clearcoat={0.45} /></mesh>
       <mesh receiveShadow position={[0, 0.02, -32]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[72, 18]} /><meshPhysicalMaterial color="#288ca7" roughness={0.12} transparent opacity={0.88} /></mesh>
       <SciFiResidenceTower position={[-15, 0, -10]} variant="HELIX" label="BLD-A01 · HELIX ONE" onEnter={onEnter} />
       <SciFiResidenceTower position={[0, 0, -15]} variant="PRISM" label="BLD-A02 · PRISM HOUSE" onEnter={onEnter} />
       <SciFiResidenceTower position={[15, 0, -10]} variant="BRIDGE" label="BLD-A03 · SKYBRIDGE" onEnter={onEnter} />
-      <mesh receiveShadow position={[0, 0.1, 7]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[5.2, 48]} /><meshPhysicalMaterial color="#50bfd0" transmission={0.32} transparent opacity={0.86} roughness={0.1} /></mesh>
-      {[-8, -4, 4, 8].flatMap((x) => [-1, 14].map((z) => <ParkTree key={`${x}-${z}`} position={[x, 0.06, z]} scale={1.1} />))}
+      <ArrivalSpine tone="CROWN" position={[0, 0.02, 8]} length={44} width={18} />
+      <mesh receiveShadow position={[0, 0.2, 7]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[5.2, 48]} /><meshPhysicalMaterial color="#50bfd0" transmission={0.32} transparent opacity={0.86} roughness={0.1} /></mesh>
+      {[-5, -2.5, 2.5, 5].flatMap((x) => [-1, 14].map((z) => <ParkTree key={`${x}-${z}`} position={[x, 0.06, z]} scale={1.1} />))}
       <LandmarkLabel position={[0, 4.4, 7]} label="RESIDENT SKY POOL · SEA VIEW" place="residences" atlasId="crown-residences" onEnter={onEnter} tone="residential-label" />
-      <Html position={[0, 3.2, 27]} center distanceFactor={13} zIndexRange={[3, 0]}><button className="world-label enterable transit-label" onClick={() => onEnter('map')}>CITY MAP · MARINA · VILLA RIDGE</button></Html>
-      <PopulationLayer count={20} />
+      <WayfindingPylon position={[-11, 0.08, 24]} label="MAP · MARINA · RIDGE" onEnter={onEnter} accent="#ffd598" />
+      <PopulationLayer count={24} position={[0, 0, 14]} />
       <Player scene="CROWN_RESIDENTIAL_TOWERS" onPositionChange={onPositionChange} enabled={playerEnabled} />
       <Environment preset="sunset" />
     </>
@@ -1232,15 +1428,19 @@ function MillionaireRidgeScene({ onEnter, onPositionChange, playerEnabled = true
   ];
   return (
     <>
-      <fog attach="fog" args={['#aeb8ae', 62, 170]} />
+      <fog attach="fog" args={['#b8b5a7', 76, 205]} />
       <Sky sunPosition={[-15, 9, -22]} turbidity={5.5} rayleigh={1.15} mieCoefficient={0.006} mieDirectionalG={0.8} />
-      <ambientLight intensity={0.86} color="#f2ead7" />
-      <directionalLight castShadow position={[-18, 28, 15]} intensity={2.6} color="#ffd3a0" shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
-      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[84, 94]} /><meshStandardMaterial color="#63785e" roughness={0.98} /></mesh>
-      <mesh receiveShadow position={[0, 0.035, 8]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[9, 66]} /><meshStandardMaterial color="#323838" roughness={0.95} /></mesh>
+      <ambientLight intensity={0.4} color="#f2ead7" />
+      <hemisphereLight intensity={0.34} color="#daeefe" groundColor="#554b3c" />
+      <directionalLight castShadow position={[-18, 28, 15]} intensity={3.05} color="#ffd3a0" shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-44} shadow-camera-right={44} shadow-camera-top={44} shadow-camera-bottom={-44} />
+      <Suspense fallback={null}><CinematicHorizon src="/visuals/ampliworld-millionaire-ridge.jpg" position={[0, 31, -83]} size={[150, 80]} opacity={0.88} /></Suspense>
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[84, 94]} /><meshStandardMaterial color="#687b60" roughness={0.76} /></mesh>
+      <mesh receiveShadow position={[0, 0.035, 8]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[9, 66]} /><meshPhysicalMaterial color="#343b3b" metalness={0.24} roughness={0.44} clearcoat={0.35} /></mesh>
       {[-6.1, 6.1].map((x) => <mesh key={x} receiveShadow position={[x, 0.045, 8]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[2.1, 66]} /><meshStandardMaterial color="#bbb8aa" roughness={0.9} /></mesh>)}
       {[-22, -6, 10, 26].map((z) => <mesh key={z} receiveShadow position={[0, 0.04, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[70, 5]} /><meshStandardMaterial color="#393f3e" roughness={0.94} /></mesh>)}
       {[-22, -6, 10, 26].flatMap((z) => [-20, -12, 12, 20].map((x) => <mesh key={`${x}-${z}`} position={[x, 0.06, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[3.2, 0.08]} /><meshBasicMaterial color="#d8c979" /></mesh>))}
+      <ArrivalSpine tone="RIDGE" position={[0, 0.02, 8]} length={66} width={8.5} />
+      <RidgeTerraces />
       {villas.map((villa) => <CatalogVilla key={villa.id} {...villa} onEnter={onEnter} />)}
       <Suspense fallback={null}>
         {([-7.2, 7.2] as const).flatMap((x) => [-24, -8, 8, 24, 34].map((z) => <StaticAsset key={`${x}-${z}`} url={`${ROAD_ASSET_ROOT}/light-square.glb`} position={[x, 0.06, z]} scale={3.15} shadows={false} />))}
@@ -1249,7 +1449,8 @@ function MillionaireRidgeScene({ onEnter, onPositionChange, playerEnabled = true
         <StaticAsset url={`${CAR_ASSET_ROOT}/suv-luxury.glb`} position={[2.1, 0.12, 5]} rotation={[0, Math.PI, 0]} scale={0.92} shadows={false} />
         <StaticAsset url={`${CAR_ASSET_ROOT}/race-future.glb`} position={[-2.1, 0.12, -13]} scale={0.92} shadows={false} />
       </Suspense>
-      <Html position={[0, 3.3, 34]} center distanceFactor={13} zIndexRange={[3, 0]}><button className="world-label enterable transit-label" onClick={() => onEnter('map')}>VILLA DIRECTORY · CITY MAP</button></Html>
+      <WayfindingPylon position={[-6.2, 0.08, 30]} label="VILLA DIRECTORY · MAP" onEnter={onEnter} accent="#ffd598" />
+      <PopulationLayer count={14} position={[0, 0, 15]} />
       <Player scene="MILLIONAIRE_RIDGE" onPositionChange={onPositionChange} enabled={playerEnabled} />
       <Environment preset="sunset" />
     </>
@@ -1296,26 +1497,28 @@ function StudioInterior({ onEnter, onPositionChange, playerEnabled = true }: { o
 }
 
 function CyberCBD({ onEnter, onPositionChange, playerEnabled = true }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean }) {
-  const streetLights = [-30, -18, -6, 6, 18, 30];
+  const streetLights = [-30, -18, -4, 10, 24, 36];
   return (
     <>
-      <fog attach="fog" args={['#c79b70', 58, 155]} />
+      <fog attach="fog" args={['#c89b72', 72, 185]} />
       <Sky sunPosition={[-11, 6, -16]} turbidity={5.2} rayleigh={1.18} mieCoefficient={0.008} mieDirectionalG={0.82} />
-      <ambientLight intensity={0.78} color="#ffe3bd" />
-      <hemisphereLight intensity={0.52} color="#cce9ff" groundColor="#504737" />
-      <directionalLight castShadow position={[-14, 24, 13]} intensity={2.55} color="#ffd29a" shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-42} shadow-camera-right={42} shadow-camera-top={42} shadow-camera-bottom={-42} />
+      <ambientLight intensity={0.34} color="#ffe3bd" />
+      <hemisphereLight intensity={0.4} color="#cce9ff" groundColor="#504737" />
+      <directionalLight castShadow position={[-14, 28, 13]} intensity={3.05} color="#ffd29a" shadow-mapSize-width={2048} shadow-mapSize-height={2048} shadow-camera-left={-42} shadow-camera-right={42} shadow-camera-top={42} shadow-camera-bottom={-42} />
 
-      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[112, 96]} /><meshStandardMaterial color="#73776d" roughness={0.94} /></mesh>
-      <mesh receiveShadow position={[0, 0.018, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[17.5, 88]} /><meshStandardMaterial color="#c9c2b0" roughness={0.87} /></mesh>
-      {[-12, 12].map((x) => <mesh key={x} receiveShadow position={[x, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[6.5, 88]} /><meshStandardMaterial color="#272e30" roughness={0.95} /></mesh>)}
-      {[-9.25, 9.25].map((x) => <mesh key={x} position={[x, 0.046, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.72, 86]} /><meshStandardMaterial color="#318e9b" metalness={0.18} roughness={0.22} transparent opacity={0.88} /></mesh>)}
+      <Suspense fallback={null}><CinematicHorizon src="/visuals/ampliworld-cbd-skyline-matte-v1.jpg" position={[0, 34, -92]} size={[154, 82]} opacity={0.9} /></Suspense>
+
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[112, 112]} /><meshStandardMaterial color="#74796f" roughness={0.76} /></mesh>
+      <mesh receiveShadow position={[0, 0.018, -5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[17.5, 104]} /><meshPhysicalMaterial color="#aaa79e" metalness={0.26} roughness={0.28} clearcoat={0.48} clearcoatRoughness={0.24} /></mesh>
+      {[-12, 12].map((x) => <mesh key={x} receiveShadow position={[x, 0.025, -5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[6.5, 104]} /><meshStandardMaterial color="#272e30" roughness={0.78} /></mesh>)}
+      {[-9.25, 9.25].map((x) => <mesh key={x} position={[x, 0.046, -5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.72, 102]} /><meshStandardMaterial color="#318e9b" metalness={0.18} roughness={0.22} transparent opacity={0.88} /></mesh>)}
       {[-8, 19].map((z) => <group key={z}><mesh receiveShadow position={[2, 0.031, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[76, 6.5]} /><meshStandardMaterial color="#2a3032" roughness={0.96} /></mesh>{[-31, -17, -3, 11, 25, 36].map((x) => <mesh key={x} position={[x, 0.052, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[5.5, 0.09]} /><meshBasicMaterial color="#ddc878" /></mesh>)}</group>)}
 
       <WaterfrontMarina onEnter={onEnter} />
-      <SciFiResidenceTower position={[-19, 0, -27]} variant="HELIX" label="HELIX ONE" onEnter={onEnter} />
-      <SciFiResidenceTower position={[0, 0, -24]} variant="PRISM" label="PRISM HOUSE" onEnter={onEnter} />
-      <SciFiResidenceTower position={[19, 0, -27]} variant="BRIDGE" label="SKYBRIDGE RESIDENCES" onEnter={onEnter} />
-      <Building position={[0, 0, -35]} size={[5.8, 6.2, 4.4]} color="#162b27" glow="#22e69e" label="STOCK EXCHANGE" place="market" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-n.glb`} assetScale={2.25} labelHeight={6.5} />
+      <SciFiResidenceTower position={[-27, 0, -28]} variant="HELIX" label="HELIX ONE" onEnter={onEnter} />
+      <SciFiResidenceTower position={[28, 0, -30]} variant="PRISM" label="PRISM HOUSE" onEnter={onEnter} />
+      <SciFiResidenceTower position={[-31, 0, -42]} variant="BRIDGE" label="SKYBRIDGE RESIDENCES" onEnter={onEnter} />
+      <StockExchangeRotunda onEnter={onEnter} />
       <Building position={[-18, 0, -12]} size={[4.4, 5.1, 3.5]} color="#1d2434" glow="#718cff" label="CAREER TOWER" place="career" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-skyscraper-d.glb`} assetScale={1.12} labelHeight={5.7} />
       <Building position={[18, 0, -12]} size={[4.2, 3.3, 3.4]} color="#291b36" glow="#c366ff" label="NEON ATELIER" place="fashion" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-k.glb`} assetScale={2.05} labelHeight={3.8} />
       <Building position={[-18, 0, 0]} size={[4.1, 3.2, 3.5]} color="#36241a" glow="#ff9d45" label="NOVA DINING" place="restaurant" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-h.glb`} assetScale={2.2} labelHeight={3.65} />
@@ -1330,20 +1533,22 @@ function CyberCBD({ onEnter, onPositionChange, playerEnabled = true }: { onEnter
 
       <group position={[0, 0, 13]}>
         <mesh receiveShadow position={[0, 0.04, 0]}><boxGeometry args={[15, 0.08, 15]} /><meshStandardMaterial color="#657f5e" roughness={0.98} /></mesh>
-        <mesh position={[0, 0.1, 0.9]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[3.25, 36]} /><meshStandardMaterial color="#4ca7b2" metalness={0.08} roughness={0.18} transparent opacity={0.91} /></mesh>
+        <mesh position={[0, 0.2, 0.9]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[3.25, 36]} /><meshStandardMaterial color="#4ca7b2" metalness={0.08} roughness={0.18} transparent opacity={0.91} /></mesh>
         {([[-5, -5], [-2, -5], [3, -5.5], [5, -2.5], [-5, 3.5], [-2.5, 5], [3, 4.8], [5.2, 2.5]] as [number, number][]).map(([x, z], index) => <ParkTree key={`${x}-${z}`} position={[x, 0.08, z]} scale={0.9 + (index % 3) * 0.12} />)}
         <Html position={[-3.7, 2.8, -1]} center distanceFactor={13} zIndexRange={[3, 0]}><button className="world-label enterable" onClick={() => onEnter('wellness')}>CENTRAL PARK · DAILY LIFE</button></Html>
         <Html position={[3.9, 2.8, -1]} center distanceFactor={13} zIndexRange={[3, 0]}><button className="world-label enterable" onClick={() => onEnter('social')}>SOCIAL PLAZA · PREVIEW</button></Html>
       </group>
+
+      <ArrivalSpine tone="CBD" position={[0, 0.02, 11]} length={48} width={15.6} />
 
       <Suspense fallback={null}>
         {streetLights.flatMap((z) => [-7.7, 7.7].map((x) => <StaticAsset key={`${x}-${z}`} url={`${ROAD_ASSET_ROOT}/light-curved.glb`} position={[x, 0.05, z]} rotation={[0, x < 0 ? 0 : Math.PI, 0]} scale={1.3} shadows={false} />))}
         <StaticAsset url={`${ROAD_ASSET_ROOT}/traffic-light-object-vertical.glb`} position={[-8.4, 0.05, -8]} scale={1.4} shadows={false} />
         <StaticAsset url={`${ROAD_ASSET_ROOT}/traffic-light-object-vertical.glb`} position={[8.4, 0.05, 19]} rotation={[0, Math.PI, 0]} scale={1.4} shadows={false} />
       </Suspense>
-      <Html position={[0, 2.5, 35]} center distanceFactor={12} zIndexRange={[3, 0]}><button className="world-label enterable transit-label" onClick={() => onEnter('map')}>CITY DIRECTORY · OPEN LIVE MAP</button></Html>
+      <WayfindingPylon position={[-7.7, 0.08, 26.5]} label="CITY DIRECTORY · MAP" onEnter={onEnter} />
       <CityTraffic />
-      <PopulationLayer count={32} />
+      <PopulationLayer count={36} position={[0, 0, 18]} />
       <Player scene="CBD" onPositionChange={onPositionChange} enabled={playerEnabled} />
       <Environment preset="sunset" />
     </>
@@ -1367,9 +1572,9 @@ function World({ onEnter, onNotice, onPositionChange, scene = 'STARTER_ARCOLOGY'
   return (
     <>
       <StarterArcology onEnter={onEnter} onNotice={onNotice} residenceBlock={residenceBlock} />
-      <PopulationLayer />
+      <PopulationLayer position={[0, 0, 4]} />
       <Player scene="STARTER_ARCOLOGY" onPositionChange={onPositionChange} enabled={controlsEnabled} />
-      <Environment preset="night" />
+      <Environment preset="dawn" />
     </>
   );
 }
@@ -2101,7 +2306,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
         : selectedRequiresTravel
           ? 'PAID ROUTE · METRO $5 / TAXI $45'
           : selectedAtlasNode.scene
-            ? 'LIVE · INDEPENDENT WALKABLE 3D SCENE'
+            ? 'LIVE · WALKABLE 3D DISTRICT'
             : 'INTERACTIVE NODE IN THE CURRENT ECONOMIC DISTRICT';
   const activeMarinaNode = selectedAtlasNode.place === 'marina'
     ? selectedAtlasNode
@@ -2163,7 +2368,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
           {place === 'map' && <>
             <small>LIVE CITY ATLAS · PRESS M ANYWHERE · 20 × 30 KM</small>
             <h1>Your position inside the city plan.</h1>
-            <p>The 20 × 30 km atlas links five independent playable 3D scenes. The pulsing marker identifies the scene you occupy, while the corner minimap tracks your actual walking position inside it. Select a live destination to enter its world, or open a city-service panel.</p>
+            <p>The 20 × 30 km atlas connects five playable 3D districts through the city&apos;s metro, taxi and waterfront network. The pulsing marker identifies your district, while the corner minimap tracks your actual walking position. Select a live destination to travel there, or open a city-service panel.</p>
             <div className="atlas-layout">
               <CityAtlas selectedId={selectedAtlasId} playerNodeId={playerAtlasId} onSelect={selectAtlasNode} />
               <aside className="atlas-inspector">
@@ -2185,7 +2390,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
               <article><Car /><b>MOBILITY CITY</b><span>Metro · taxi · 4S auto district</span></article>
               <article><Ship /><b>WATERFRONT CITY</b><span>Public boats · yachts · cargo · liners</span></article>
             </div>
-            <div className="population-strip"><span><b>{WORLD_ASSET_COUNTS.buildings}</b>numbered buildings</span><span><b>{WORLD_ASSET_COUNTS.watercraft}</b>numbered watercraft</span><span><b>{WORLD_ASSET_COUNTS.vehicles}</b>numbered vehicles</span><span><b>5</b>walkable 3D scenes</span></div>
+            <div className="population-strip"><span><b>{WORLD_ASSET_COUNTS.buildings}</b>numbered buildings</span><span><b>{WORLD_ASSET_COUNTS.watercraft}</b>numbered watercraft</span><span><b>{WORLD_ASSET_COUNTS.vehicles}</b>numbered vehicles</span><span><b>5</b>playable 3D districts</span></div>
             <section className="transit-desk">
               <div className="transit-route"><span>CURRENT <b>{locationLabel}</b></span><i>18.4 KM</i><span>DESTINATION <b>{transitTargetLabel.toUpperCase()}</b></span></div>
               <div className="transit-options">
