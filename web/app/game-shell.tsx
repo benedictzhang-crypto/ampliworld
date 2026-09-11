@@ -39,11 +39,13 @@ import {
 import Image from 'next/image';
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { WORLD_ASSET_COUNTS } from './world-asset-catalog';
 
 type Place = 'market' | 'fashion' | 'restaurant' | 'property' | 'career' | 'news' | 'map' | 'inventory' | 'menu' | 'villa' | 'studio' | 'wellness' | 'social' | 'hospital' | 'police' | 'academy' | 'dealership' | 'grocer' | 'marina' | 'residences' | null;
 type EnterPlace = (place: Place, atlasId?: string) => void;
 type WorldDistrict = 'STARTER_ARCOLOGY' | 'CBD';
-type SceneProfileId = WorldDistrict | 'STUDIO_INTERIOR';
+type WorldSceneId = WorldDistrict | 'AZURE_YACHT_MARINA' | 'CROWN_RESIDENTIAL_TOWERS' | 'MILLIONAIRE_RIDGE';
+type SceneProfileId = WorldSceneId | 'STUDIO_INTERIOR';
 type PlayerLocation = { scene: SceneProfileId; x: number; z: number };
 type AtlasKind = 'HOME' | 'PARK' | 'MARKET' | 'SEA' | 'VILLAS' | 'MOUNTAINS' | 'HOSPITAL' | 'POLICE' | 'SCHOOL' | 'AUTO' | 'MARINA' | 'PORT' | 'GROCER' | 'RESIDENTIAL';
 type AtlasNode = {
@@ -55,11 +57,13 @@ type AtlasNode = {
   zone: string;
   detail: string;
   place?: Exclude<Place, null>;
+  scene?: WorldSceneId;
   availability: 'PLAYABLE' | 'ACTIVITY' | 'GATED' | 'PLANNED';
 };
 type TransitMode = 'METRO' | 'TAXI';
 type Journey = {
   destination: WorldDistrict;
+  targetLabel: string;
   mode: TransitMode;
   fare: number;
   durationGameMinutes: number;
@@ -203,7 +207,7 @@ const JOB_OPTIONS: JobOption[] = [
 ];
 
 const WORLD_ATLAS = [
-  { id: 'starter', name: 'Starter Arcology', x: 2, y: 4, kind: 'HOME', zone: 'SOUTH RESIDENTIAL', detail: '1,000 residential towers · your 10 m² studio', place: 'studio', availability: 'PLAYABLE' },
+  { id: 'starter', name: 'Starter Arcology', x: 2, y: 4, kind: 'HOME', zone: 'SOUTH RESIDENTIAL', detail: '1,000 residential towers · your 10 m² studio', place: 'studio', scene: 'STARTER_ARCOLOGY', availability: 'PLAYABLE' },
   { id: 'academy', name: 'AmpliWorld Academy', x: 5.5, y: 8, kind: 'SCHOOL', zone: 'EDUCATION BELT', detail: 'School campus, learning commons and sports court', place: 'academy', availability: 'PLAYABLE' },
   { id: 'deepwater', name: 'South Deepwater Port', x: 1, y: 10, kind: 'PORT', zone: 'INDUSTRIAL COAST', detail: 'Cargo handling, ocean liners, tugs and port employment', place: 'marina', availability: 'PLAYABLE' },
   { id: 'hospital', name: 'Meridian General Hospital', x: 8, y: 11, kind: 'HOSPITAL', zone: 'PUBLIC SERVICES', detail: 'Emergency department, inpatient towers and healing garden', place: 'hospital', availability: 'PLAYABLE' },
@@ -212,11 +216,11 @@ const WORLD_ATLAS = [
   { id: 'public-marina', name: 'Harbor Steps Marina', x: 2, y: 15, kind: 'MARINA', zone: 'PUBLIC WATERFRONT', detail: 'Public slips, fishing boats, speedboats and city ferries', place: 'marina', availability: 'PLAYABLE' },
   { id: 'fresh-market', name: 'Verdant Fresh Market', x: 12.5, y: 15, kind: 'GROCER', zone: 'CENTRAL MARKET', detail: 'Fruit, vegetables and everyday nutrition for the daily-care loop', place: 'grocer', availability: 'PLAYABLE' },
   { id: 'park', name: 'Central Park', x: 11, y: 16, kind: 'PARK', zone: 'CENTRAL GREEN AXIS', detail: 'Lakes, trails and free daily recovery', place: 'wellness', availability: 'PLAYABLE' },
-  { id: 'cbd', name: 'Cyber CBD', x: 14, y: 18, kind: 'MARKET', zone: 'CITY CORE', detail: 'Exchange, work, dining, social plaza and luxury residences', place: 'market', availability: 'PLAYABLE' },
-  { id: 'crown-residences', name: 'Crown Residential Towers', x: 15, y: 20.5, kind: 'RESIDENTIAL', zone: 'CITY CORE', detail: 'Distinctive sci-fi towers with one luxury full-floor home per level', place: 'residences', availability: 'PLAYABLE' },
+  { id: 'cbd', name: 'Cyber CBD', x: 14, y: 18, kind: 'MARKET', zone: 'CITY CORE', detail: 'Exchange, work, dining, social plaza and luxury residences', place: 'market', scene: 'CBD', availability: 'PLAYABLE' },
+  { id: 'crown-residences', name: 'Crown Residential Towers', x: 15, y: 20.5, kind: 'RESIDENTIAL', zone: 'CITY CORE', detail: 'Distinctive sci-fi towers with one luxury full-floor home per level', place: 'residences', scene: 'CROWN_RESIDENTIAL_TOWERS', availability: 'PLAYABLE' },
   { id: 'auto-4s', name: 'Apex Motors 4S', x: 18, y: 9.5, kind: 'AUTO', zone: 'EAST AUTO DISTRICT', detail: 'Vehicle sales, service, spare parts and owner support', place: 'dealership', availability: 'PLAYABLE' },
-  { id: 'yacht-marina', name: 'Azure Yacht Marina', x: 2.8, y: 21, kind: 'MARINA', zone: 'NORTH WATERFRONT', detail: 'Sailing boats, private yachts and large passenger vessels', place: 'marina', availability: 'PLAYABLE' },
-  { id: 'ridge', name: 'Millionaire Ridge', x: 16.5, y: 24.5, kind: 'VILLAS', zone: 'NORTHEAST RIDGE', detail: 'Detached homes behind virtual-net-worth gates', place: 'villa', availability: 'GATED' },
+  { id: 'yacht-marina', name: 'Azure Yacht Marina', x: 2.8, y: 21, kind: 'MARINA', zone: 'NORTH WATERFRONT', detail: 'Sailing boats, private yachts and large passenger vessels', place: 'marina', scene: 'AZURE_YACHT_MARINA', availability: 'PLAYABLE' },
+  { id: 'ridge', name: 'Millionaire Ridge', x: 16.5, y: 24.5, kind: 'VILLAS', zone: 'NORTHEAST RIDGE', detail: 'Visit seven detached-home styles; ownership remains net-worth gated', place: 'villa', scene: 'MILLIONAIRE_RIDGE', availability: 'PLAYABLE' },
   { id: 'highlands', name: 'North Highlands', x: 9, y: 28, kind: 'MOUNTAINS', zone: 'NORTH HIGHLANDS', detail: 'Mountain trails, overlooks and research stations', availability: 'PLANNED' },
 ] as const satisfies readonly AtlasNode[];
 
@@ -229,6 +233,48 @@ const CBD_LOCAL_LANDMARKS = [
   { id: 'police', label: 'POLICE', x: 27, z: 3, kind: 'police' },
   { id: 'dealer', label: '4S', x: 27, z: 25, kind: 'auto' },
 ] as const;
+
+const MARINA_LOCAL_LANDMARKS = [
+  { id: 'marina-promenade', label: 'PROMENADE', x: 6, z: 0, kind: 'marina' },
+  { id: 'marina-club', label: 'YACHT CLUB', x: 23, z: -15, kind: 'market' },
+  { id: 'marina-hotel', label: 'COAST HOTEL', x: 25, z: 14, kind: 'home' },
+  { id: 'marina-piers', label: 'PIERS', x: -5, z: 5, kind: 'marina' },
+] as const;
+
+const CROWN_LOCAL_LANDMARKS = [
+  { id: 'crown-helix', label: 'A01 HELIX', x: -15, z: -10, kind: 'home' },
+  { id: 'crown-prism', label: 'A02 PRISM', x: 0, z: -15, kind: 'home' },
+  { id: 'crown-bridge', label: 'A03 SKYBRIDGE', x: 15, z: -10, kind: 'home' },
+  { id: 'crown-pool', label: 'RESIDENT POOL', x: 0, z: 7, kind: 'marina' },
+] as const;
+
+const RIDGE_LOCAL_LANDMARKS = [
+  { id: 'ridge-cn', label: 'B01 HUA COURT', x: -15, z: 18, kind: 'home' },
+  { id: 'ridge-gb', label: 'B02 COTSWOLD', x: 15, z: 18, kind: 'home' },
+  { id: 'ridge-us', label: 'B03 PACIFIC', x: -15, z: 2, kind: 'home' },
+  { id: 'ridge-concrete', label: 'B04 ATLAS', x: 15, z: 2, kind: 'home' },
+  { id: 'ridge-whitewood', label: 'B05 WHITEWOOD', x: -15, z: -14, kind: 'home' },
+  { id: 'ridge-meadow', label: 'B06 MEADOW', x: 15, z: -14, kind: 'home' },
+  { id: 'ridge-cyber', label: 'B07 NEON CLIFF', x: 0, z: -31, kind: 'home' },
+] as const;
+
+const SCENE_ATLAS_IDS: Record<WorldSceneId, string> = {
+  STARTER_ARCOLOGY: 'starter',
+  CBD: 'cbd',
+  AZURE_YACHT_MARINA: 'yacht-marina',
+  CROWN_RESIDENTIAL_TOWERS: 'crown-residences',
+  MILLIONAIRE_RIDGE: 'ridge',
+};
+
+const SCENE_LABELS: Record<WorldSceneId, string> = {
+  STARTER_ARCOLOGY: 'OUTER RING · STARTER ARCOLOGY',
+  CBD: 'CYBER CBD',
+  AZURE_YACHT_MARINA: 'NORTH WATERFRONT · AZURE YACHT MARINA',
+  CROWN_RESIDENTIAL_TOWERS: 'CITY CORE · CROWN RESIDENTIAL TOWERS',
+  MILLIONAIRE_RIDGE: 'NORTHEAST RIDGE · VILLA DISTRICT',
+};
+
+const sceneDistrict = (scene: WorldSceneId): WorldDistrict => scene === 'STARTER_ARCOLOGY' ? 'STARTER_ARCOLOGY' : 'CBD';
 
 const INITIAL_STOCKS: Stock[] = [
   { symbol: 'NVDA', name: 'Nvidia', price: 184.26, open: 179.17, volatility: 0.006, signal: 'AI infrastructure demand rising', sector: 'Technology' },
@@ -252,9 +298,9 @@ const WORLD_EVENTS: WorldEvent[] = [
 
 const CBD_PLAYER_BLOCKERS = [
   [-19, -27, 4.6, 4.6], [0, -24, 4.8, 4.6], [19, -27, 4.6, 4.6], [0, -35, 4.2, 3.4],
-  [-13, -12, 3.2, 3.2], [13, -12, 3.2, 3.2], [-13, 0, 3.2, 3.2], [13, 0, 3.2, 3.2],
+  [-18, -12, 3.2, 3.2], [18, -12, 3.2, 3.2], [-18, 0, 3.2, 3.2], [18, 0, 3.2, 3.2],
   [27, -14, 6.2, 5.2], [27, 3, 5.3, 4.4], [-25, 16, 8.3, 7.2], [27, 25, 8.3, 6.3],
-  [-25, -3, 5.4, 4.5], [-17, 29, 11.5, 7.2], [0, 13, 3.4, 3.4],
+  [-25, -3, 5.4, 4.5], [-26, 29, 11.5, 7.2], [0, 13, 3.4, 3.4],
 ] as const;
 
 const STARTER_PLAYER_BLOCKERS = [
@@ -265,6 +311,20 @@ const STARTER_PLAYER_BLOCKERS = [
 
 const STUDIO_PLAYER_BLOCKERS = [
   [-2.6, -0.8, 1.05, 2.1], [2.55, -1.4, 0.8, 1.2], [2.5, 2.2, 0.85, 0.85],
+] as const;
+
+const MARINA_PLAYER_BLOCKERS = [
+  [23, -15, 3.8, 3.2], [25, 14, 4.2, 5.1],
+] as const;
+
+const CROWN_PLAYER_BLOCKERS = [
+  [-15, -10, 4.8, 4.8], [0, -15, 4.8, 4.8], [15, -10, 4.8, 4.8], [0, 7, 5.4, 5.4],
+] as const;
+
+const RIDGE_PLAYER_BLOCKERS = [
+  [-15, 18, 4.4, 4.7], [15, 18, 4.4, 4.7], [-15, 2, 4.4, 4.7], [15, 2, 4.4, 4.7],
+  [-15, -14, 4.4, 4.7], [15, -14, 4.4, 4.7], [0, -31, 5.2, 5.2],
+  [-2.1, 18, 1.4, 2.4], [2.1, 5, 1.4, 2.4], [-2.1, -13, 1.4, 2.4],
 ] as const;
 
 const ARCOLOGY_TOWER_TOTAL = 1000;
@@ -281,6 +341,9 @@ const SCENE_PROFILES: Record<SceneProfileId, {
 }> = {
   STARTER_ARCOLOGY: { spawn: [0, 0, 9], bounds: { minX: -26, maxX: 26, minZ: -25, maxZ: 26 }, cameraOffset: [0, 6.4, 10.5], speed: 5.2, blockers: STARTER_PLAYER_BLOCKERS },
   CBD: { spawn: [0, 0, 34], bounds: { minX: -36, maxX: 37, minZ: -39, maxZ: 38 }, cameraOffset: [0, 7.2, 12.5], speed: 5.8, blockers: CBD_PLAYER_BLOCKERS },
+  AZURE_YACHT_MARINA: { spawn: [3, 0, 22], bounds: { minX: -9, maxX: 34, minZ: -34, maxZ: 34 }, cameraOffset: [0, 8.2, 15], speed: 5.4, blockers: MARINA_PLAYER_BLOCKERS },
+  CROWN_RESIDENTIAL_TOWERS: { spawn: [0, 0, 27], bounds: { minX: -28, maxX: 28, minZ: -22, maxZ: 30 }, cameraOffset: [0, 10, 18], speed: 5.2, blockers: CROWN_PLAYER_BLOCKERS },
+  MILLIONAIRE_RIDGE: { spawn: [0, 0, 34], bounds: { minX: -34, maxX: 34, minZ: -39, maxZ: 37 }, cameraOffset: [0, 8.4, 16], speed: 5.2, blockers: RIDGE_PLAYER_BLOCKERS },
   STUDIO_INTERIOR: { spawn: [0, 0, 2.8], bounds: { minX: -3.8, maxX: 3.8, minZ: -3.7, maxZ: 4 }, cameraOffset: [0, 4.2, 7], speed: 3.8, blockers: STUDIO_PLAYER_BLOCKERS },
 };
 
@@ -390,6 +453,7 @@ const ROAD_ASSET_ROOT = '/assets/3d/vendor/kenney/city-kit-roads/models';
 const CAR_ASSET_ROOT = '/assets/3d/vendor/kenney/car-kit/models';
 const WATERCRAFT_ASSET_ROOT = '/assets/3d/vendor/kenney/watercraft-kit/models';
 const HERO_CHARACTER_ASSET_ROOT = '/assets/3d/vendor/quaternius/ultimate-modular-citizens/models';
+const NATURE_ASSET_ROOT = '/assets/3d/vendor/kenney/nature-kit/models';
 
 function StaticAsset({ url, position = [0, 0, 0], rotation = [0, 0, 0], scale = 1, shadows = true }: {
   url: string;
@@ -430,9 +494,9 @@ function Villa({ position, accent, rotation = 0 }: { position: [number, number, 
   );
 }
 
-export function VillaDistrict({ netWorth, onEnter, onDenied }: { netWorth: number; onEnter: EnterPlace; onDenied: (message: string) => void }) {
+export function VillaDistrict({ netWorth, onEnter }: { netWorth: number; onEnter: EnterPlace; onDenied: (message: string) => void }) {
   const verified = netWorth >= 1_000_000;
-  const approach = () => verified ? onEnter('villa') : onDenied('MILLIONAIRE RIDGE REQUIRES $1,000,000 VIRTUAL NET WORTH');
+  const approach = () => onEnter('villa');
   return (
     <group position={[13, 0, 13]}>
       <mesh receiveShadow position={[0, 0.04, 0]}><boxGeometry args={[18, 0.08, 12]} /><meshStandardMaterial color="#40584b" roughness={0.94} /></mesh>
@@ -458,7 +522,7 @@ export function VillaDistrict({ netWorth, onEnter, onDenied }: { netWorth: numbe
       {[-2.1, 2.1].map((x) => <mesh key={x} castShadow position={[x, 1.2, -5.7]}><boxGeometry args={[0.42, 2.4, 0.42]} /><meshStandardMaterial color="#2b3d35" metalness={0.65} /></mesh>)}
       <mesh position={[0, 1.1, -5.7]}><boxGeometry args={[3.8, 1.05, 0.16]} /><meshStandardMaterial color={verified ? '#174c37' : '#442523'} metalness={0.72} transparent opacity={0.94} /></mesh>
       <Html position={[0, 2.4, -5.7]} center distanceFactor={13} zIndexRange={[3, 0]}>
-        <button className={verified ? 'world-label enterable prestige' : 'world-label prestige locked'} onClick={approach}>MILLIONAIRE RIDGE · {verified ? 'VIRTUAL NET WORTH VERIFIED' : '$1M VIRTUAL NET WORTH REQUIRED'}</button>
+        <button className="world-label enterable prestige" onClick={approach}>MILLIONAIRE RIDGE · {verified ? 'PURCHASE STATUS VERIFIED' : 'VISITOR ACCESS'}</button>
       </Html>
     </group>
   );
@@ -648,32 +712,49 @@ function StarterArcology({ onEnter, onNotice, residenceBlock }: { onEnter: Enter
   );
 }
 
+const ACTIVE_PLAYER_POSITION = new THREE.Vector3(9999, 0, 9999);
+const ACTIVE_TRAFFIC_POSITIONS = Array.from({ length: 4 }, () => new THREE.Vector3(9999, 0, 9999));
+
 function Player({ scene, onPositionChange }: { scene: SceneProfileId; onPositionChange?: (location: PlayerLocation) => void }) {
   const body = useRef<THREE.Group>(null);
   const keys = useRef<Record<string, boolean>>({});
+  const queuedKeys = useRef<string[]>([]);
   const lastPositionReport = useRef(0);
   const lastReportedPosition = useRef(new THREE.Vector2(Number.NaN, Number.NaN));
+  const cameraTarget = useRef(new THREE.Vector3());
   const [movementAction, setMovementAction] = useState<'idle' | 'walk'>('idle');
   const { camera } = useThree();
   const profile = SCENE_PROFILES[scene];
   useEffect(() => {
     lastReportedPosition.current.set(profile.spawn[0], profile.spawn[2]);
+    cameraTarget.current.set(profile.spawn[0], profile.spawn[1] + 1, profile.spawn[2]);
+    camera.position.set(
+      profile.spawn[0] + profile.cameraOffset[0],
+      profile.spawn[1] + profile.cameraOffset[1],
+      profile.spawn[2] + profile.cameraOffset[2],
+    );
+    camera.lookAt(cameraTarget.current);
     onPositionChange?.({ scene, x: profile.spawn[0], z: profile.spawn[2] });
-  }, [onPositionChange, profile.spawn, scene]);
+  }, [camera, onPositionChange, profile.cameraOffset, profile.spawn, scene]);
   useEffect(() => {
     const update = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
       const pressed = event.type === 'keydown';
-      keys.current[event.key.toLowerCase()] = pressed;
-      if (['w', 'a', 's', 'd'].includes(event.key.toLowerCase())) event.preventDefault();
+      const wasPressed = Boolean(keys.current[key]);
+      keys.current[key] = pressed;
+      if (pressed && !wasPressed && ['w', 'a', 's', 'd'].includes(key)) queuedKeys.current.push(key);
+      if (['w', 'a', 's', 'd'].includes(key)) event.preventDefault();
     };
     const virtual = (event: Event) => {
       const detail = (event as CustomEvent<{ key: string; pressed: boolean }>).detail;
+      const wasPressed = Boolean(keys.current[detail.key]);
       keys.current[detail.key] = detail.pressed;
+      if (detail.pressed && !wasPressed) queuedKeys.current.push(detail.key);
     };
     window.addEventListener('keydown', update);
     window.addEventListener('keyup', update);
     window.addEventListener('ampliworld-move', virtual);
-    const release = () => { keys.current = {}; };
+    const release = () => { keys.current = {}; queuedKeys.current = []; };
     window.addEventListener('blur', release);
     return () => {
       window.removeEventListener('keydown', update);
@@ -685,21 +766,53 @@ function Player({ scene, onPositionChange }: { scene: SceneProfileId; onPosition
   useFrame(({ clock }, delta) => {
     if (!body.current) return;
     const keysDown = keys.current;
-    const dx = (keysDown.d ? 1 : 0) - (keysDown.a ? 1 : 0);
-    const dz = (keysDown.s ? 1 : 0) - (keysDown.w ? 1 : 0);
+    const heldDx = (keysDown.d ? 1 : 0) - (keysDown.a ? 1 : 0);
+    const heldDz = (keysDown.s ? 1 : 0) - (keysDown.w ? 1 : 0);
+    const pendingKeys = queuedKeys.current;
+    queuedKeys.current = [];
+    const movementKeys = new Set<string>();
+    (['w', 'a', 's', 'd'] as const).forEach((key) => { if (keysDown[key]) movementKeys.add(key); });
+    pendingKeys.forEach((key) => movementKeys.add(key));
+    const dx = (movementKeys.has('d') ? 1 : 0) - (movementKeys.has('a') ? 1 : 0);
+    const dz = (movementKeys.has('s') ? 1 : 0) - (movementKeys.has('w') ? 1 : 0);
+    const usingTap = !heldDx && !heldDz && pendingKeys.length > 0;
+    const appliedMovement = new THREE.Vector3();
     if (dx || dz) {
-      if (movementAction !== 'walk') setMovementAction('walk');
-      const movement = new THREE.Vector3(dx, 0, dz).normalize().multiplyScalar(delta * profile.speed);
-      const next = body.current.position.clone().add(movement);
-      next.x = THREE.MathUtils.clamp(next.x, profile.bounds.minX, profile.bounds.maxX);
-      next.z = THREE.MathUtils.clamp(next.z, profile.bounds.minZ, profile.bounds.maxZ);
-      const blocked = profile.blockers.some(([x, z, halfX, halfZ]) => Math.abs(next.x - x) < halfX && Math.abs(next.z - z) < halfZ);
-      if (!blocked) body.current.position.copy(next);
-      body.current.rotation.y = Math.atan2(movement.x, movement.z);
+      const movement = new THREE.Vector3(dx, 0, dz).normalize().multiplyScalar(usingTap ? 0.42 : Math.min(delta, 1 / 30) * profile.speed);
+      const blocked = (next: THREE.Vector3) => (
+        profile.blockers.some(([x, z, halfX, halfZ]) => Math.abs(next.x - x) < halfX && Math.abs(next.z - z) < halfZ)
+        || (scene === 'CBD' && ACTIVE_TRAFFIC_POSITIONS.some((vehicle) => next.distanceToSquared(vehicle) < 4))
+      );
+      const clamp = (next: THREE.Vector3) => {
+        next.x = THREE.MathUtils.clamp(next.x, profile.bounds.minX, profile.bounds.maxX);
+        next.z = THREE.MathUtils.clamp(next.z, profile.bounds.minZ, profile.bounds.maxZ);
+        return next;
+      };
+      const start = body.current.position.clone();
+      const substeps = Math.max(1, Math.ceil(movement.length() / 0.18));
+      const step = movement.clone().divideScalar(substeps);
+      for (let index = 0; index < substeps; index += 1) {
+        const combined = clamp(body.current.position.clone().add(step));
+        if (!blocked(combined)) {
+          body.current.position.copy(combined);
+        } else {
+          const xOnly = clamp(body.current.position.clone().add(new THREE.Vector3(step.x, 0, 0)));
+          if (step.x && !blocked(xOnly)) body.current.position.copy(xOnly);
+          const zOnly = clamp(body.current.position.clone().add(new THREE.Vector3(0, 0, step.z)));
+          if (step.z && !blocked(zOnly)) body.current.position.copy(zOnly);
+        }
+      }
+      appliedMovement.copy(body.current.position).sub(start);
+      if (appliedMovement.lengthSq() > 0.000001) {
+        if (movementAction !== 'walk') setMovementAction('walk');
+        body.current.rotation.y = Math.atan2(appliedMovement.x, appliedMovement.z);
+      } else if (movementAction !== 'idle') {
+        setMovementAction('idle');
+      }
       const reportedDx = body.current.position.x - lastReportedPosition.current.x;
       const reportedDz = body.current.position.z - lastReportedPosition.current.y;
       const reportedDistance = reportedDx * reportedDx + reportedDz * reportedDz;
-      if (clock.elapsedTime - lastPositionReport.current >= 0.32 && reportedDistance >= 0.08) {
+      if ((usingTap || clock.elapsedTime - lastPositionReport.current >= 0.1) && reportedDistance >= 0.0025) {
         lastPositionReport.current = clock.elapsedTime;
         lastReportedPosition.current.set(body.current.position.x, body.current.position.z);
         onPositionChange?.({
@@ -711,8 +824,13 @@ function Player({ scene, onPositionChange }: { scene: SceneProfileId; onPosition
     } else if (movementAction !== 'idle') {
       setMovementAction('idle');
     }
-    camera.position.lerp(body.current.position.clone().add(new THREE.Vector3(...profile.cameraOffset)), 0.07);
-    camera.lookAt(body.current.position.clone().add(new THREE.Vector3(0, 1, 0)));
+    ACTIVE_PLAYER_POSITION.copy(body.current.position);
+    const cameraAlpha = 1 - Math.exp(-delta * 2.2);
+    const targetAlpha = 1 - Math.exp(-delta * 2.8);
+    camera.position.lerp(body.current.position.clone().add(new THREE.Vector3(...profile.cameraOffset)), cameraAlpha);
+    const viewLead = appliedMovement.lengthSq() > 0.000001 ? appliedMovement.clone().normalize().multiplyScalar(2.2) : new THREE.Vector3();
+    cameraTarget.current.lerp(body.current.position.clone().add(new THREE.Vector3(0, 1, 0)).add(viewLead), targetAlpha);
+    camera.lookAt(cameraTarget.current);
   });
   return (
     <group ref={body} position={profile.spawn}>
@@ -836,7 +954,7 @@ function MidriseCommunity({ onEnter }: { onEnter: EnterPlace }) {
     { x: 6.3, z: 0, floors: 5, label: '2B' },
   ];
   return (
-    <group position={[-17, 0, 29]} onClick={() => onEnter('residences', 'midrise')}>
+    <group position={[-26, 0, 29]} onClick={() => onEnter('residences', 'midrise')}>
       <mesh receiveShadow position={[0, 0.05, 0]}><boxGeometry args={[22.5, 0.1, 14]} /><meshStandardMaterial color="#71816e" roughness={0.96} /></mesh>
       {buildings.map((building) => <group key={building.label} position={[building.x, 0, building.z]}>
         <mesh castShadow receiveShadow position={[0, building.floors * 0.72, 0]}><boxGeometry args={[5.4, building.floors * 1.44, 5.2]} /><meshStandardMaterial color={building.label === '1B' ? '#d7d0c0' : '#e1ddd2'} roughness={0.78} /></mesh>
@@ -905,24 +1023,200 @@ function WaterfrontMarina({ onEnter }: { onEnter: EnterPlace }) {
   );
 }
 
-function MovingTraffic({ model, lane, phase, direction = 1 }: { model: string; lane: number; phase: number; direction?: 1 | -1 }) {
-  const vehicle = useRef<THREE.Group>(null);
-  useFrame(({ clock }) => {
-    if (!vehicle.current) return;
-    const travel = ((clock.elapsedTime * 3.1 + phase) % 78) - 39;
-    vehicle.current.position.set(lane, 0.08, travel * direction);
-    vehicle.current.rotation.y = direction > 0 ? 0 : Math.PI;
+const LEFT_CITY_TRAFFIC_CURVE = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(-13.35, 0.08, -18),
+  new THREE.Vector3(-10.65, 0.08, -18),
+  new THREE.Vector3(-10.65, 0.08, 36),
+  new THREE.Vector3(-13.35, 0.08, 36),
+], true, 'catmullrom', 0.08);
+
+const RIGHT_CITY_TRAFFIC_CURVE = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(10.65, 0.08, -18),
+  new THREE.Vector3(13.35, 0.08, -18),
+  new THREE.Vector3(13.35, 0.08, 36),
+  new THREE.Vector3(10.65, 0.08, 36),
+], true, 'catmullrom', 0.08);
+
+function TrafficConvoy({ curve, vehicles: specs, slotOffset, initialProgress = 0 }: {
+  curve: THREE.Curve<THREE.Vector3>;
+  vehicles: readonly { model: string; phase: number }[];
+  slotOffset: number;
+  initialProgress?: number;
+}) {
+  const vehicles = useRef<Array<THREE.Group | null>>([]);
+  const progress = useRef(initialProgress);
+  useFrame((_, delta) => {
+    const nextProgress = (progress.current + Math.min(delta, 0.05) * 0.025) % 1;
+    const proposedPoints = specs.map((spec) => curve.getPointAt((nextProgress + spec.phase) % 1));
+    const playerClear = proposedPoints.every((point) => point.distanceToSquared(ACTIVE_PLAYER_POSITION) > 12.25);
+    if (playerClear) progress.current = nextProgress;
+    specs.forEach((spec, index) => {
+      const vehicle = vehicles.current[index];
+      if (!vehicle) return;
+      const vehicleProgress = (progress.current + spec.phase) % 1;
+      const point = curve.getPointAt(vehicleProgress);
+      const tangent = curve.getTangentAt(vehicleProgress);
+      vehicle.position.copy(point);
+      vehicle.rotation.y = Math.atan2(tangent.x, tangent.z);
+      ACTIVE_TRAFFIC_POSITIONS[slotOffset + index].copy(point);
+    });
   });
-  return <group ref={vehicle}><Suspense fallback={null}><StaticAsset url={`${CAR_ASSET_ROOT}/${model}.glb`} scale={0.85} shadows={false} /></Suspense></group>;
+  return <group>{specs.map((spec, index) => <group ref={(node) => { vehicles.current[index] = node; }} key={`${spec.model}-${spec.phase}`}><Suspense fallback={null}><StaticAsset url={`${CAR_ASSET_ROOT}/${spec.model}.glb`} scale={0.85} shadows={false} /></Suspense></group>)}</group>;
 }
 
 function CityTraffic() {
   return <group>
-    <MovingTraffic model="sedan" lane={-10.5} phase={4} />
-    <MovingTraffic model="taxi" lane={-13.2} phase={28} direction={-1} />
-    <MovingTraffic model="delivery" lane={10.5} phase={15} />
-    <MovingTraffic model="suv-luxury" lane={13.2} phase={42} direction={-1} />
+    <TrafficConvoy curve={LEFT_CITY_TRAFFIC_CURVE} slotOffset={0} vehicles={[{ model: 'sedan', phase: 0 }, { model: 'taxi', phase: 0.5 }]} />
+    <TrafficConvoy curve={RIGHT_CITY_TRAFFIC_CURVE} slotOffset={2} initialProgress={0.25} vehicles={[{ model: 'delivery', phase: 0 }, { model: 'race-future', phase: 0.5 }]} />
   </group>;
+}
+
+type VillaStyle = 'CHINESE' | 'ENGLISH' | 'AMERICAN' | 'CONCRETE' | 'WHITEWOOD' | 'PASTORAL' | 'CYBER';
+
+const VILLA_STYLE_MODELS: Record<VillaStyle, { model: string; scale: number; accent: string }> = {
+  CHINESE: { model: 'building-type-p.glb', scale: 2.65, accent: '#d5aa72' },
+  ENGLISH: { model: 'building-type-d.glb', scale: 2.55, accent: '#bba487' },
+  AMERICAN: { model: 'building-type-b.glb', scale: 2.6, accent: '#63cbd1' },
+  CONCRETE: { model: 'building-type-q.glb', scale: 2.7, accent: '#acb4ae' },
+  WHITEWOOD: { model: 'building-type-t.glb', scale: 2.65, accent: '#dfb070' },
+  PASTORAL: { model: 'building-type-e.glb', scale: 2.6, accent: '#b7cf83' },
+  CYBER: { model: 'building-type-u.glb', scale: 2.8, accent: '#52f2dc' },
+};
+
+function CatalogVilla({ id, name, style, position, rotation, onEnter }: {
+  id: string;
+  name: string;
+  style: VillaStyle;
+  position: [number, number, number];
+  rotation: number;
+  onEnter: EnterPlace;
+}) {
+  const asset = VILLA_STYLE_MODELS[style];
+  const isCyber = style === 'CYBER';
+  const hasPool = ['AMERICAN', 'CONCRETE', 'WHITEWOOD', 'CYBER'].includes(style);
+  return (
+    <group position={position} rotation={[0, rotation, 0]} onClick={() => onEnter('villa', 'ridge')}>
+      <mesh receiveShadow position={[0, 0.055, 0]}><boxGeometry args={[11.8, 0.11, 11]} /><meshStandardMaterial color={style === 'PASTORAL' ? '#607354' : '#77786f'} roughness={0.96} /></mesh>
+      <Suspense fallback={null}><StaticAsset url={`${SUBURBAN_ASSET_ROOT}/${asset.model}`} position={[0, 0.11, -0.7]} scale={asset.scale} /></Suspense>
+      {style === 'CHINESE' && <>
+        <mesh position={[0, 1.05, 3.7]}><boxGeometry args={[8.6, 0.13, 0.18]} /><meshStandardMaterial color="#382a22" roughness={0.74} /></mesh>
+        {[-4.2, 4.2].map((x) => <mesh key={x} castShadow position={[x, 1.15, 1.2]}><boxGeometry args={[0.22, 2.3, 5.3]} /><meshStandardMaterial color="#efe8da" roughness={0.82} /></mesh>)}
+        <mesh position={[0, 0.12, 2.2]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[3.7, 2.2]} /><meshPhysicalMaterial color="#315f68" transparent opacity={0.82} roughness={0.16} /></mesh>
+      </>}
+      {style === 'ENGLISH' && <>{[-2.3, 2.25].map((x) => <mesh key={x} castShadow position={[x, 4.9, -1.4]}><boxGeometry args={[0.6, 2.8, 0.6]} /><meshStandardMaterial color="#665247" roughness={0.9} /></mesh>)}</>}
+      {style === 'CONCRETE' && <mesh castShadow position={[0, 1.65, 2.9]}><boxGeometry args={[7.7, 2.8, 0.4]} /><meshStandardMaterial color="#999e99" roughness={0.98} /></mesh>}
+      {(style === 'WHITEWOOD' || isCyber) && <>{[-3.5, -2.3, -1.1, 1.1, 2.3, 3.5].map((x) => <mesh key={x} position={[x, 2.25, 3.35]}><boxGeometry args={[0.12, 4.4, 0.22]} /><meshStandardMaterial color={isCyber ? '#5ff4df' : '#9b6b3f'} emissive={isCyber ? '#2ddfca' : '#000000'} emissiveIntensity={isCyber ? 0.5 : 0} /></mesh>)}</>}
+      {hasPool && <mesh position={[3.5, 0.14, -3.7]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[3.6, 2.35]} /><meshPhysicalMaterial color="#57b9d0" transmission={0.28} transparent opacity={0.86} roughness={0.12} /></mesh>}
+      <pointLight position={[0, 2.8, 2.8]} intensity={isCyber ? 1.1 : 0.45} distance={8} color={asset.accent} />
+      <Html position={[0, 7.4, 0]} center distanceFactor={14} zIndexRange={[3, 0]}><button className={`world-label enterable residential-label ${isCyber ? 'prestige' : ''}`} onClick={(event) => { event.stopPropagation(); onEnter('villa', 'ridge'); }}>{id} · {name}</button></Html>
+    </group>
+  );
+}
+
+function AzureYachtMarinaScene({ onEnter, onPositionChange }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void }) {
+  const palms = [
+    [8, -27, 'tree_palmDetailedTall.glb', 3.4], [9, -16, 'tree_palmBend.glb', 3.1], [7.5, -4, 'tree_palmDetailedShort.glb', 3.5],
+    [8.5, 9, 'tree_palmDetailedTall.glb', 3.3], [7.2, 22, 'tree_palmBend.glb', 3.2], [10, 30, 'tree_palmDetailedShort.glb', 3.6],
+  ] as const;
+  return (
+    <>
+      <fog attach="fog" args={['#a9cad3', 62, 180]} />
+      <Sky sunPosition={[-18, 7, -25]} turbidity={4.2} rayleigh={1.08} mieCoefficient={0.006} mieDirectionalG={0.8} />
+      <ambientLight intensity={0.88} color="#e6f6ff" />
+      <hemisphereLight intensity={0.72} color="#d8f4ff" groundColor="#6d5c44" />
+      <directionalLight castShadow position={[-18, 28, 12]} intensity={2.7} color="#ffd6a1" shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
+      <mesh receiveShadow position={[-28, -0.18, 0]}><boxGeometry args={[56, 0.3, 96]} /><meshPhysicalMaterial color="#1e7f9f" roughness={0.12} metalness={0.04} transmission={0.16} transparent opacity={0.92} /></mesh>
+      <mesh receiveShadow position={[-4.5, 0.015, 0]}><boxGeometry args={[11, 0.08, 84]} /><meshStandardMaterial color="#d8c59b" roughness={0.98} /></mesh>
+      <mesh receiveShadow position={[4, 0.035, 0]}><boxGeometry args={[6, 0.1, 84]} /><meshStandardMaterial color="#c7c1b0" roughness={0.88} /></mesh>
+      <mesh receiveShadow position={[21, 0.015, 0]}><boxGeometry args={[28, 0.08, 84]} /><meshStandardMaterial color="#6d7868" roughness={0.96} /></mesh>
+      {[-24, -8, 8, 24].map((z) => <group key={z} position={[-4.5, 0.12, z]}>{[-8, -4, 0].map((x) => <Suspense fallback={null} key={x}><StaticAsset url={`${NATURE_ASSET_ROOT}/bridge_center_wood.glb`} position={[x, 0, 0]} rotation={[0, Math.PI / 2, 0]} scale={3.1} shadows={false} /></Suspense>)}</group>)}
+      <FloatingWatercraft model="boat-sail-a" position={[-22, 0.08, -17]} rotation={Math.PI / 2} scale={3.4} phase={1} />
+      <FloatingWatercraft model="boat-speed-a" position={[-22, 0.08, 5.5]} rotation={Math.PI / 2} scale={4.05} phase={2} />
+      <FloatingWatercraft model="boat-speed-f" position={[-30, 0.08, -6]} rotation={Math.PI / 2} scale={5.85} phase={3} />
+      <FloatingWatercraft model="boat-speed-f" position={[-29, 0.08, -29]} rotation={Math.PI / 2} scale={6.35} phase={3.6} />
+      <FloatingWatercraft model="boat-fishing-small" position={[-28, 0.08, 13.5]} rotation={Math.PI / 2} scale={3} phase={4} />
+      <FloatingWatercraft model="ship-large" position={[-40, 0.08, -42]} rotation={Math.PI / 2} scale={1.86} phase={5} shadows={false} />
+      <FloatingWatercraft model="ship-ocean-liner-small" position={[-40.5, 0.06, 22.5]} rotation={Math.PI / 2} scale={2} phase={6} shadows={false} />
+      <Suspense fallback={null}>
+        <StaticAsset url={`${COMMERCIAL_ASSET_ROOT}/building-h.glb`} position={[23, 0.1, -15]} rotation={[0, -Math.PI / 2, 0]} scale={3.4} />
+        <StaticAsset url={`${COMMERCIAL_ASSET_ROOT}/building-j.glb`} position={[25, 0.1, 14]} rotation={[0, -Math.PI / 2, 0]} scale={3.1} />
+        {[-19, -16, -13].map((z) => <StaticAsset key={z} url={`${COMMERCIAL_ASSET_ROOT}/detail-parasol-a.glb`} position={[15, 0.12, z]} scale={2.1} shadows={false} />)}
+        {palms.map(([x, z, model, scale]) => <StaticAsset key={`${x}-${z}`} url={`${NATURE_ASSET_ROOT}/${model}`} position={[x, 0.08, z]} scale={scale} shadows={false} />)}
+      </Suspense>
+      <LandmarkLabel position={[-10, 4.3, -17]} label="SAI-C42 · 42 FT SAILING YACHT" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
+      <LandmarkLabel position={[-10, 4.3, 5.5]} label="YHT-A45 · 45 FT SPORT CRUISER" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
+      <LandmarkLabel position={[-11, 5.1, -6]} label="YHT-A55 · 55 FT FLYBRIDGE" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
+      <LandmarkLabel position={[-11, 5.1, -29]} label="YHT-A60 · 60 FT OPEN YACHT" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
+      <LandmarkLabel position={[-11, 4.5, 13.5]} label="FSH-B38 · 38 FT SPORT FISHER" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
+      <LandmarkLabel position={[-19, 6.1, -32]} label="YHT-A80 · 80 FT SKYLOUNGE" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
+      <LandmarkLabel position={[-19, 6.1, 22.5]} label="YHT-A100 · 100+ FT FLAGSHIP" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
+      <LandmarkLabel position={[23, 7.2, -15]} label="AZURE YACHT CLUB" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
+      <Html position={[4, 3.4, 32]} center distanceFactor={13} zIndexRange={[3, 0]}><button className="world-label enterable transit-label" onClick={() => onEnter('map')}>CITY MAP · CBD · RESIDENCES</button></Html>
+      <PopulationLayer count={18} />
+      <Player scene="AZURE_YACHT_MARINA" onPositionChange={onPositionChange} />
+      <Environment preset="sunset" />
+    </>
+  );
+}
+
+function CrownResidentialScene({ onEnter, onPositionChange }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void }) {
+  return (
+    <>
+      <fog attach="fog" args={['#99b8bf', 55, 150]} />
+      <Sky sunPosition={[-10, 8, -20]} turbidity={4.8} rayleigh={1.12} mieCoefficient={0.006} mieDirectionalG={0.82} />
+      <ambientLight intensity={0.82} color="#e4f4ff" />
+      <directionalLight castShadow position={[-16, 27, 16]} intensity={2.75} color="#ffd7a2" shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[72, 74]} /><meshStandardMaterial color="#777d74" roughness={0.94} /></mesh>
+      <mesh receiveShadow position={[0, 0.035, 5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[25, 45]} /><meshStandardMaterial color="#d3cdbd" roughness={0.84} /></mesh>
+      <mesh receiveShadow position={[0, 0.02, -32]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[72, 18]} /><meshPhysicalMaterial color="#288ca7" roughness={0.12} transparent opacity={0.88} /></mesh>
+      <SciFiResidenceTower position={[-15, 0, -10]} variant="HELIX" label="BLD-A01 · HELIX ONE" onEnter={onEnter} />
+      <SciFiResidenceTower position={[0, 0, -15]} variant="PRISM" label="BLD-A02 · PRISM HOUSE" onEnter={onEnter} />
+      <SciFiResidenceTower position={[15, 0, -10]} variant="BRIDGE" label="BLD-A03 · SKYBRIDGE" onEnter={onEnter} />
+      <mesh receiveShadow position={[0, 0.1, 7]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[5.2, 48]} /><meshPhysicalMaterial color="#50bfd0" transmission={0.32} transparent opacity={0.86} roughness={0.1} /></mesh>
+      {[-8, -4, 4, 8].flatMap((x) => [-1, 14].map((z) => <ParkTree key={`${x}-${z}`} position={[x, 0.06, z]} scale={1.1} />))}
+      <LandmarkLabel position={[0, 4.4, 7]} label="RESIDENT SKY POOL · SEA VIEW" place="residences" atlasId="crown-residences" onEnter={onEnter} tone="residential-label" />
+      <Html position={[0, 3.2, 27]} center distanceFactor={13} zIndexRange={[3, 0]}><button className="world-label enterable transit-label" onClick={() => onEnter('map')}>CITY MAP · MARINA · VILLA RIDGE</button></Html>
+      <PopulationLayer count={20} />
+      <Player scene="CROWN_RESIDENTIAL_TOWERS" onPositionChange={onPositionChange} />
+      <Environment preset="sunset" />
+    </>
+  );
+}
+
+function MillionaireRidgeScene({ onEnter, onPositionChange }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void }) {
+  const villas = [
+    { id: 'BLD-B01', name: 'HUA COURT', style: 'CHINESE' as const, position: [-15, 0, 18] as [number, number, number], rotation: Math.PI / 2 },
+    { id: 'BLD-B02', name: 'COTSWOLD HOUSE', style: 'ENGLISH' as const, position: [15, 0, 18] as [number, number, number], rotation: -Math.PI / 2 },
+    { id: 'BLD-B03', name: 'PACIFIC TERRACE', style: 'AMERICAN' as const, position: [-15, 0, 2] as [number, number, number], rotation: Math.PI / 2 },
+    { id: 'BLD-B04', name: 'ATLAS CONCRETE', style: 'CONCRETE' as const, position: [15, 0, 2] as [number, number, number], rotation: -Math.PI / 2 },
+    { id: 'BLD-B05', name: 'WHITEWOOD HOUSE', style: 'WHITEWOOD' as const, position: [-15, 0, -14] as [number, number, number], rotation: Math.PI / 2 },
+    { id: 'BLD-B06', name: 'MEADOW HOUSE', style: 'PASTORAL' as const, position: [15, 0, -14] as [number, number, number], rotation: -Math.PI / 2 },
+    { id: 'BLD-B07', name: 'NEON CLIFF HOUSE', style: 'CYBER' as const, position: [0, 0, -31] as [number, number, number], rotation: 0 },
+  ];
+  return (
+    <>
+      <fog attach="fog" args={['#aeb8ae', 62, 170]} />
+      <Sky sunPosition={[-15, 9, -22]} turbidity={5.5} rayleigh={1.15} mieCoefficient={0.006} mieDirectionalG={0.8} />
+      <ambientLight intensity={0.86} color="#f2ead7" />
+      <directionalLight castShadow position={[-18, 28, 15]} intensity={2.6} color="#ffd3a0" shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[84, 94]} /><meshStandardMaterial color="#63785e" roughness={0.98} /></mesh>
+      <mesh receiveShadow position={[0, 0.035, 8]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[9, 66]} /><meshStandardMaterial color="#323838" roughness={0.95} /></mesh>
+      {[-6.1, 6.1].map((x) => <mesh key={x} receiveShadow position={[x, 0.045, 8]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[2.1, 66]} /><meshStandardMaterial color="#bbb8aa" roughness={0.9} /></mesh>)}
+      {[-22, -6, 10, 26].map((z) => <mesh key={z} receiveShadow position={[0, 0.04, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[70, 5]} /><meshStandardMaterial color="#393f3e" roughness={0.94} /></mesh>)}
+      {[-22, -6, 10, 26].flatMap((z) => [-20, -12, 12, 20].map((x) => <mesh key={`${x}-${z}`} position={[x, 0.06, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[3.2, 0.08]} /><meshBasicMaterial color="#d8c979" /></mesh>))}
+      {villas.map((villa) => <CatalogVilla key={villa.id} {...villa} onEnter={onEnter} />)}
+      <Suspense fallback={null}>
+        {([-7.2, 7.2] as const).flatMap((x) => [-24, -8, 8, 24, 34].map((z) => <StaticAsset key={`${x}-${z}`} url={`${ROAD_ASSET_ROOT}/light-square.glb`} position={[x, 0.06, z]} scale={3.15} shadows={false} />))}
+        {([-29, 29] as const).flatMap((x) => [-20, 0, 20].map((z) => <StaticAsset key={`${x}-${z}`} url={`${NATURE_ASSET_ROOT}/${z === 0 ? 'tree_oak.glb' : 'tree_detailed.glb'}`} position={[x, 0.05, z]} scale={3.1} shadows={false} />))}
+        <StaticAsset url={`${CAR_ASSET_ROOT}/sedan.glb`} position={[-2.1, 0.12, 18]} scale={0.88} shadows={false} />
+        <StaticAsset url={`${CAR_ASSET_ROOT}/suv-luxury.glb`} position={[2.1, 0.12, 5]} rotation={[0, Math.PI, 0]} scale={0.92} shadows={false} />
+        <StaticAsset url={`${CAR_ASSET_ROOT}/race-future.glb`} position={[-2.1, 0.12, -13]} scale={0.92} shadows={false} />
+      </Suspense>
+      <Html position={[0, 3.3, 34]} center distanceFactor={13} zIndexRange={[3, 0]}><button className="world-label enterable transit-label" onClick={() => onEnter('map')}>VILLA DIRECTORY · CITY MAP</button></Html>
+      <Player scene="MILLIONAIRE_RIDGE" onPositionChange={onPositionChange} />
+      <Environment preset="sunset" />
+    </>
+  );
 }
 
 function StudioInterior({ onEnter, onPositionChange }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void }) {
@@ -985,10 +1279,10 @@ function CyberCBD({ onEnter, onPositionChange }: { onEnter: EnterPlace; onPositi
       <SciFiResidenceTower position={[0, 0, -24]} variant="PRISM" label="PRISM HOUSE" onEnter={onEnter} />
       <SciFiResidenceTower position={[19, 0, -27]} variant="BRIDGE" label="SKYBRIDGE RESIDENCES" onEnter={onEnter} />
       <Building position={[0, 0, -35]} size={[5.8, 6.2, 4.4]} color="#162b27" glow="#22e69e" label="STOCK EXCHANGE" place="market" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-n.glb`} assetScale={2.25} labelHeight={6.5} />
-      <Building position={[-13, 0, -12]} size={[4.4, 5.1, 3.5]} color="#1d2434" glow="#718cff" label="CAREER TOWER" place="career" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-skyscraper-d.glb`} assetScale={1.12} labelHeight={5.7} />
-      <Building position={[13, 0, -12]} size={[4.2, 3.3, 3.4]} color="#291b36" glow="#c366ff" label="NEON ATELIER" place="fashion" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-k.glb`} assetScale={2.05} labelHeight={3.8} />
-      <Building position={[-13, 0, 0]} size={[4.1, 3.2, 3.5]} color="#36241a" glow="#ff9d45" label="NOVA DINING" place="restaurant" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-h.glb`} assetScale={2.2} labelHeight={3.65} />
-      <Building position={[13, 0, 0]} size={[4.4, 5.3, 3.7]} color="#172b36" glow="#4dbdff" label="SKYLINE REALTY" place="property" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-skyscraper-a.glb`} assetScale={1.65} labelHeight={5.8} />
+      <Building position={[-18, 0, -12]} size={[4.4, 5.1, 3.5]} color="#1d2434" glow="#718cff" label="CAREER TOWER" place="career" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-skyscraper-d.glb`} assetScale={1.12} labelHeight={5.7} />
+      <Building position={[18, 0, -12]} size={[4.2, 3.3, 3.4]} color="#291b36" glow="#c366ff" label="NEON ATELIER" place="fashion" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-k.glb`} assetScale={2.05} labelHeight={3.8} />
+      <Building position={[-18, 0, 0]} size={[4.1, 3.2, 3.5]} color="#36241a" glow="#ff9d45" label="NOVA DINING" place="restaurant" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-h.glb`} assetScale={2.2} labelHeight={3.65} />
+      <Building position={[18, 0, 0]} size={[4.4, 5.3, 3.7]} color="#172b36" glow="#4dbdff" label="SKYLINE REALTY" place="property" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-skyscraper-a.glb`} assetScale={1.65} labelHeight={5.8} />
 
       <CivicHospital onEnter={onEnter} />
       <CivicSafetyHQ onEnter={onEnter} />
@@ -1019,16 +1313,19 @@ function CyberCBD({ onEnter, onPositionChange }: { onEnter: EnterPlace; onPositi
   );
 }
 
-function World({ onEnter, onNotice, onPositionChange, district = 'STARTER_ARCOLOGY', residenceBlock = '071', place }: {
+function World({ onEnter, onNotice, onPositionChange, scene = 'STARTER_ARCOLOGY', residenceBlock = '071', place }: {
   onEnter: EnterPlace;
   onNotice: (message: string) => void;
   onPositionChange?: (location: PlayerLocation) => void;
-  district?: WorldDistrict;
+  scene?: WorldSceneId;
   residenceBlock?: string;
   place?: Place;
 }) {
-  if (district === 'STARTER_ARCOLOGY' && place === 'studio') return <StudioInterior onEnter={onEnter} onPositionChange={onPositionChange} />;
-  if (district === 'CBD') return <CyberCBD onEnter={onEnter} onPositionChange={onPositionChange} />;
+  if (scene === 'STARTER_ARCOLOGY' && place === 'studio') return <StudioInterior onEnter={onEnter} onPositionChange={onPositionChange} />;
+  if (scene === 'CBD') return <CyberCBD onEnter={onEnter} onPositionChange={onPositionChange} />;
+  if (scene === 'AZURE_YACHT_MARINA') return <AzureYachtMarinaScene onEnter={onEnter} onPositionChange={onPositionChange} />;
+  if (scene === 'CROWN_RESIDENTIAL_TOWERS') return <CrownResidentialScene onEnter={onEnter} onPositionChange={onPositionChange} />;
+  if (scene === 'MILLIONAIRE_RIDGE') return <MillionaireRidgeScene onEnter={onEnter} onPositionChange={onPositionChange} />;
   return (
     <>
       <StarterArcology onEnter={onEnter} onNotice={onNotice} residenceBlock={residenceBlock} />
@@ -1039,28 +1336,42 @@ function World({ onEnter, onNotice, onPositionChange, district = 'STARTER_ARCOLO
   );
 }
 
-function MiniMap({ district, residenceBlock, location, onOpen }: {
-  district: WorldDistrict;
+function MiniMap({ scene, residenceBlock, location, onOpen }: {
+  scene: WorldSceneId;
   residenceBlock: string;
   location: PlayerLocation;
   onOpen: () => void;
 }) {
-  const effectiveLocation = location.scene === district
+  const effectiveLocation = location.scene === scene
     ? location
-    : { scene: district, x: SCENE_PROFILES[district].spawn[0], z: SCENE_PROFILES[district].spawn[2] };
+    : { scene, x: SCENE_PROFILES[scene].spawn[0], z: SCENE_PROFILES[scene].spawn[2] };
   const profile = SCENE_PROFILES[effectiveLocation.scene];
   const markerX = THREE.MathUtils.clamp((effectiveLocation.x - profile.bounds.minX) / (profile.bounds.maxX - profile.bounds.minX) * 100, 4, 96);
   const markerY = THREE.MathUtils.clamp((profile.bounds.maxZ - effectiveLocation.z) / (profile.bounds.maxZ - profile.bounds.minZ) * 100, 4, 96);
-  const label = district === 'CBD' ? 'CYBER CBD' : `BLOCK ${residenceBlock}`;
-  const landmarks = district === 'CBD'
+  const label = scene === 'STARTER_ARCOLOGY'
+    ? `BLOCK ${residenceBlock}`
+    : scene === 'CBD'
+      ? 'CYBER CBD'
+      : scene === 'AZURE_YACHT_MARINA'
+        ? 'AZURE MARINA'
+        : scene === 'CROWN_RESIDENTIAL_TOWERS'
+          ? 'CROWN TOWERS'
+          : 'MILLIONAIRE RIDGE';
+  const landmarks = scene === 'CBD'
     ? CBD_LOCAL_LANDMARKS
-    : [
-      { id: 'home', label: 'HOME', x: -15, z: -6, kind: 'home' },
-      { id: 'metro', label: 'METRO', x: 0, z: -18, kind: 'market' },
-    ];
+    : scene === 'AZURE_YACHT_MARINA'
+      ? MARINA_LOCAL_LANDMARKS
+      : scene === 'CROWN_RESIDENTIAL_TOWERS'
+        ? CROWN_LOCAL_LANDMARKS
+        : scene === 'MILLIONAIRE_RIDGE'
+          ? RIDGE_LOCAL_LANDMARKS
+          : [
+            { id: 'home', label: 'HOME', x: -15, z: -6, kind: 'home' },
+            { id: 'metro', label: 'METRO', x: 0, z: -18, kind: 'market' },
+          ];
   return (
     <button
-      className={`mini-map ${district === 'CBD' ? 'city' : 'arcology'}`}
+      className={`mini-map ${scene === 'STARTER_ARCOLOGY' ? 'arcology' : 'city'}`}
       onClick={onOpen}
       aria-label={`Open city map. Current local position ${effectiveLocation.x.toFixed(1)} east, ${effectiveLocation.z.toFixed(1)} north in ${label}`}
       aria-controls="city-map-dialog"
@@ -1149,6 +1460,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
   const [reliefEligible, setReliefEligible] = useState(false);
   const [reliefClaimsRemaining, setReliefClaimsRemaining] = useState(2);
   const [currentDistrict, setCurrentDistrict] = useState<WorldDistrict>('STARTER_ARCOLOGY');
+  const [activeScene, setActiveScene] = useState<WorldSceneId>('STARTER_ARCOLOGY');
   const [starterTower, setStarterTower] = useState(71);
   const [starterFloor, setStarterFloor] = useState(38);
   const [starterUnit, setStarterUnit] = useState(184);
@@ -1194,7 +1506,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
   }, 0);
   const marginExcess = cash + portfolioEquity - maintenanceMargin;
 
-  const applySnapshot = (data: GameApiResponse) => {
+  const applySnapshot = (data: GameApiResponse, syncActiveScene = true) => {
     const player = data.player ?? data;
     const residence = recordOf(data.residence);
     const wellbeing = recordOf(data.wellbeing);
@@ -1212,6 +1524,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
     setReliefClaimsRemaining(readableNumber(player.reliefClaimsRemaining, 2));
     if (district === 'STARTER_ARCOLOGY' || district === 'CBD') {
       setCurrentDistrict(district);
+      if (syncActiveScene) setActiveScene((current) => sceneDistrict(current) === district ? current : district);
     }
     setStarterTower(readableNumber(residence?.tower ?? player.starterTower, 71));
     setStarterFloor(readableNumber(residence?.floor ?? player.starterFloor, 38));
@@ -1242,7 +1555,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
     if (data.worldEvent !== undefined) setWorldEvent((current) => normalizeWorldEvent(data.worldEvent, current));
   };
 
-  const runCloudAction = async (payload: Record<string, unknown>) => {
+  const runCloudAction = async (payload: Record<string, unknown>, syncActiveScene = true) => {
     const response = await fetch('/api/game', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -1250,7 +1563,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
     });
     const data = await response.json() as GameApiResponse;
     if (!response.ok) throw new Error(readableString(data.error, 'ACTION REJECTED'));
-    applySnapshot(data);
+    applySnapshot(data, syncActiveScene);
     return data;
   };
 
@@ -1290,7 +1603,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
             setPendingAtlasId(null);
             return null;
           }
-          setSelectedAtlasId(currentDistrict === 'CBD' ? 'cbd' : 'starter');
+          setSelectedAtlasId(SCENE_ATLAS_IDS[activeScene]);
           setPendingDestination(null);
           setPendingAtlasId(null);
           return 'map';
@@ -1299,7 +1612,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
     };
     window.addEventListener('keydown', handleMapKeys);
     return () => window.removeEventListener('keydown', handleMapKeys);
-  }, [currentDistrict, place]);
+  }, [activeScene, place]);
 
   const openPlace: EnterPlace = (target, atlasId) => {
     if (!target) {
@@ -1308,16 +1621,26 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
       setPendingAtlasId(null);
       return;
     }
-    if (atlasId && WORLD_ATLAS.some((node) => node.id === atlasId)) setSelectedAtlasId(atlasId);
+    const atlasNode: AtlasNode | undefined = atlasId ? WORLD_ATLAS.find((node) => node.id === atlasId) : undefined;
+    if (atlasNode) setSelectedAtlasId(atlasNode.id);
+    if (atlasNode?.scene && atlasNode.scene !== activeScene && sceneDistrict(atlasNode.scene) === currentDistrict) {
+      setActiveScene(atlasNode.scene);
+      setPlace(null);
+      setPendingDestination(null);
+      setPendingAtlasId(null);
+      setNotice(`${atlasNode.name.toUpperCase()} · LIVE 3D SCENE ENTERED`);
+      return;
+    }
     if (target === 'map') {
-      setSelectedAtlasId(currentDistrict === 'CBD' ? 'cbd' : 'starter');
+      setSelectedAtlasId(SCENE_ATLAS_IDS[activeScene]);
       setPendingDestination(null);
       setPendingAtlasId(null);
     }
     const requiresCbd = CBD_ONLY_PLACES.includes(target);
     const requiresHome = target === 'studio';
     if ((requiresCbd && currentDistrict !== 'CBD') || (requiresHome && currentDistrict !== 'STARTER_ARCOLOGY')) {
-      setPendingAtlasId(null);
+      if (requiresHome) setSelectedAtlasId('starter');
+      setPendingAtlasId(requiresCbd && atlasNode?.scene ? atlasNode.id : null);
       setPendingDestination(target);
       setPlace('map');
       setNotice(requiresCbd
@@ -1345,14 +1668,21 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
 
     actionLock.current = true;
     setPendingAction(`commute:${mode}`);
-    setJourney({ destination, mode, fare: option.fare, durationGameMinutes: option.durationGameMinutes });
+    const targetNode = pendingAtlasId ? WORLD_ATLAS.find((node) => node.id === pendingAtlasId) : undefined;
+    setJourney({
+      destination,
+      targetLabel: targetNode?.name ?? (destination === 'CBD' ? 'Cyber CBD' : 'Starter Arcology'),
+      mode,
+      fare: option.fare,
+      durationGameMinutes: option.durationGameMinutes,
+    });
     const startedAt = Date.now();
     try {
       let fare: number = option.fare;
       let gameMinutes: number = option.durationGameMinutes;
       let cashAfter = cash - fare;
       if (signedIn) {
-        const data = await runCloudAction({ action: 'commute', destination, mode });
+        const data = await runCloudAction({ action: 'commute', destination, mode }, false);
         const result = recordOf(data.commute);
         fare = readableNumber(result?.fare, fare);
         gameMinutes = readableNumber(result?.durationGameMinutes, gameMinutes);
@@ -1370,14 +1700,19 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
       if (!signedIn) setCurrentDistrict(destination);
       const nextPlace = pendingDestination;
       const nextAtlasId = pendingAtlasId;
+      const nextAtlasNode: AtlasNode | undefined = nextAtlasId ? WORLD_ATLAS.find((node) => node.id === nextAtlasId) : undefined;
+      const nextScene = nextAtlasNode?.scene ?? destination;
       setPendingDestination(null);
       setPendingAtlasId(null);
       setSelectedAtlasId(nextAtlasId ?? (destination === 'CBD' ? 'cbd' : 'starter'));
-      setPlace(destination === 'CBD' && nextPlace && CBD_ARRIVAL_PLACES.includes(nextPlace)
-        ? nextPlace
-        : destination === 'STARTER_ARCOLOGY' && nextPlace === 'studio'
-          ? 'studio'
-          : null);
+      setActiveScene(nextScene);
+      setPlace(nextAtlasNode?.scene
+        ? null
+        : destination === 'CBD' && nextPlace && CBD_ARRIVAL_PLACES.includes(nextPlace)
+          ? nextPlace
+          : destination === 'STARTER_ARCOLOGY' && nextPlace === 'studio'
+            ? 'studio'
+            : null);
       setNotice(`${mode} ARRIVED · $${fare.toFixed(2)} VIRTUAL FARE PAID · ${gameMinutes} GAME MINUTES · CASH $${cashAfter.toFixed(2)}`);
     } catch (error) {
       setNotice(error instanceof Error ? error.message.toUpperCase() : 'TRANSIT UNAVAILABLE');
@@ -1709,8 +2044,8 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
   const residenceBlock = String(starterTower).padStart(3, '0');
   const atCbd = currentDistrict === 'CBD';
   const transitDestinationLabel = atCbd ? 'Starter Arcology' : 'Cyber CBD';
-  const locationLabel = atCbd ? 'CYBER CBD' : 'OUTER RING · STARTER ARCOLOGY';
-  const playerAtlasId = atCbd ? 'cbd' : 'starter';
+  const locationLabel = SCENE_LABELS[activeScene];
+  const playerAtlasId = SCENE_ATLAS_IDS[activeScene];
   const selectedAtlasNode: AtlasNode = WORLD_ATLAS.find((node) => node.id === selectedAtlasId) ?? WORLD_ATLAS[0];
   const selectedIsCurrent = selectedAtlasNode.id === playerAtlasId;
   const selectedRequiredDistrict: WorldDistrict | null = selectedAtlasNode.availability === 'PLANNED'
@@ -1727,7 +2062,9 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
         ? '$1M VIRTUAL NET WORTH GATE'
         : selectedRequiresTravel
           ? 'PAID ROUTE · METRO $5 / TAXI $45'
-          : 'INTERACTIVE NODE IN THE CENTRAL 3D PREVIEW SLICE';
+          : selectedAtlasNode.scene
+            ? 'LIVE · INDEPENDENT WALKABLE 3D SCENE'
+            : 'INTERACTIVE NODE IN THE CURRENT ECONOMIC DISTRICT';
   const activeMarinaNode = selectedAtlasNode.place === 'marina'
     ? selectedAtlasNode
     : WORLD_ATLAS.find((node) => node.id === 'public-marina')!;
@@ -1758,6 +2095,14 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
       setNotice(`${selectedAtlasNode.name.toUpperCase()} REQUIRES PAID TRANSIT · CHOOSE METRO $5 OR TAXI $45`);
       return;
     }
+    if (selectedAtlasNode.scene) {
+      setActiveScene(selectedAtlasNode.scene);
+      setPlace(null);
+      setPendingDestination(null);
+      setPendingAtlasId(null);
+      setNotice(`${selectedAtlasNode.name.toUpperCase()} · LIVE 3D SCENE ENTERED`);
+      return;
+    }
     openPlace(selectedAtlasNode.place, selectedAtlasNode.id);
   };
 
@@ -1765,14 +2110,14 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
     <main className="game">
       <header><div className="logo">A</div><div><b>AMPLIWORLD</b><small>THE LIVING MARKET</small></div><div className="day">DAY {String(day).padStart(3, '0')} · 20:42 · {locationLabel}</div><div className="player"><span>{playerName}</span>{signedIn ? <i>CLOUD SAVE</i> : <a href={signInPath} target="_top">SIGN IN TO SAVE</a>}</div></header>
       <section className="playfield">
-        <Canvas aria-label="Playable AmpliWorld city" tabIndex={0} shadows dpr={[1, 1.5]} camera={{ position: [0, 6, 13], fov: 46 }}><World onEnter={openPlace} onNotice={setNotice} onPositionChange={setLocalPosition} district={currentDistrict} residenceBlock={residenceBlock} place={place} /></Canvas>
-        {!place && <MiniMap district={currentDistrict} residenceBlock={residenceBlock} location={localPosition} onOpen={() => openPlace('map')} />}
-        <div className={`mission ${atCbd ? '' : 'arcology-mission'}`}><small>{atCbd ? 'CYBER CBD · 18.4 KM FROM HOME' : `BLOCK ${residenceBlock} · FLOOR ${starterFloor} · UNIT ${starterUnit}`}</small><b>{atCbd ? 'Make every paid trip count' : 'Turn $10,000 into a way out'}</b><span aria-live="polite">{notice}</span><div className="mission-track"><i className={missions.firstTrade ? 'done' : ''}>TRADE</i><i className={missions.firstJob ? 'done' : ''}>JOB</i><i className={missions.firstPurchase ? 'done' : ''}>MOVE UP</i></div></div>
+        <Canvas aria-label="Playable AmpliWorld city" tabIndex={0} shadows dpr={[1, 1.5]} camera={{ position: [0, 6, 13], fov: 52 }}><World key={activeScene} onEnter={openPlace} onNotice={setNotice} onPositionChange={setLocalPosition} scene={activeScene} residenceBlock={residenceBlock} place={place} /></Canvas>
+        {!place && <MiniMap scene={activeScene} residenceBlock={residenceBlock} location={localPosition} onOpen={() => openPlace('map')} />}
+        <div className={`mission ${activeScene === 'STARTER_ARCOLOGY' ? 'arcology-mission' : ''}`}><small>{activeScene === 'STARTER_ARCOLOGY' ? `BLOCK ${residenceBlock} · FLOOR ${starterFloor} · UNIT ${starterUnit}` : locationLabel}</small><b>{activeScene === 'STARTER_ARCOLOGY' ? 'Turn $10,000 into a way out' : activeScene === 'CBD' ? 'Make every paid trip count' : 'Walk the district · learn the living market'}</b><span aria-live="polite">{notice}</span><div className="mission-track"><i className={missions.firstTrade ? 'done' : ''}>TRADE</i><i className={missions.firstJob ? 'done' : ''}>JOB</i><i className={missions.firstPurchase ? 'done' : ''}>MOVE UP</i></div></div>
         <div className="controls"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> MOVE · <kbd>M</kbd> MAP · CLICK A LOCATION TO ENTER</div><TouchControls />
         <aside className="hud"><div><WalletCards /><span>CASH<big>${cash.toLocaleString(undefined, { maximumFractionDigits: 0 })}</big></span></div><div><Banknote /><span>MARKET EQUITY<big>${portfolioEquity.toLocaleString(undefined, { maximumFractionDigits: 0 })}</big></span></div><div><Smile /><span>HAPPINESS<big>{happiness}%</big></span></div><div><Leaf /><span>NUTRITION · FEE<big>{nutrition}% · {tradingFeeBps} bps</big></span></div><div><Trophy /><span>CITY STATUS<big>{netWorth >= 1_000_000 ? 'VIRTUAL RIDGE' : netWorth >= 100_000 ? 'ISLAND ELIGIBLE' : 'ARCOLOGY RESIDENT'}</big></span></div></aside>
         <nav><button onClick={() => openPlace('studio')}><Home />HOME</button><button onClick={() => openPlace('map')}><MapIcon />MAP</button><button onClick={() => openPlace('market')}><Banknote />TRADE</button><button onClick={() => openPlace('news')}><Newspaper />WORLD</button><button onClick={() => openPlace('wellness')}><Heart />LIFE</button><button onClick={() => openPlace('career')}><BriefcaseBusiness />WORK</button><button onClick={() => openPlace('social')}><Users />SOCIAL</button><button onClick={() => openPlace('inventory')}><ShoppingBag />ITEMS <em>{inventory.length}</em></button><button disabled={pendingAction !== null} onClick={() => void closeDay()}><Clock3 />{pendingAction === 'end-day' ? 'CLOSING…' : 'END DAY'}</button><button onClick={() => openPlace('menu')}><Menu />MENU</button></nav>
 
-        {journey && <output className="journey-overlay" aria-live="assertive"><div className="journey-card">{journey.mode === 'METRO' ? <TrainFront /> : <Car />}<small>PAID TRANSIT IN PROGRESS</small><h2>{journey.mode === 'METRO' ? 'Metro' : 'Taxi'} to {journey.destination === 'CBD' ? 'Cyber CBD' : 'Starter Arcology'}</h2><p>${journey.fare.toFixed(2)} virtual fare charged · {journey.durationGameMinutes} game minutes</p><div className={`journey-progress ${journey.mode.toLowerCase()}`}><i /></div><span>{journey.mode === 'METRO' ? '≈ 2 seconds of real time' : '≈ 1 second of real time'}</span></div></output>}
+        {journey && <output className="journey-overlay" aria-live="assertive"><div className="journey-card">{journey.mode === 'METRO' ? <TrainFront /> : <Car />}<small>PAID TRANSIT IN PROGRESS</small><h2>{journey.mode === 'METRO' ? 'Metro' : 'Taxi'} to {journey.targetLabel}</h2><p>${journey.fare.toFixed(2)} virtual fare charged · {journey.durationGameMinutes} game minutes</p><div className={`journey-progress ${journey.mode.toLowerCase()}`}><i /></div><span>{journey.mode === 'METRO' ? '≈ 2 seconds of real time' : '≈ 1 second of real time'}</span></div></output>}
 
         {place && <dialog id="city-map-dialog" open className={`modal ${place === 'studio' ? 'studio-modal' : ''} ${place === 'map' ? 'map-modal' : ''}`} aria-label="AmpliWorld location panel"><button className="close" onClick={() => openPlace(null)} aria-label="Close"><X /></button>
           {place === 'market' && <><small>CYBER CITY EXCHANGE · EXECUTABLE VIRTUAL QUOTES</small><VisionPanel image="/visuals/ampliworld-trading-terminal.jpg" label="PRODUCT VISION · PLAYABLE VIRTUAL TRADING LOOP" alt="Concept visualization of the AmpliWorld trading terminal" /><h1>Trade the living world</h1><p>Every order is virtual. Allocate $500 of margin, choose 1×–5× exposure, and manage the risk of server-enforced liquidation.</p><div className="fee-banner"><Heart /><span><b>{tradingFeeBps} BPS CURRENT TRADING FEE</b>Today&apos;s lifestyle settles only at END DAY. City trading tax remains 5 bps; forced liquidation remains 10 bps.</span><button onClick={() => setPlace('wellness')}>IMPROVE NEXT DAY</button></div><div className="leverage-desk"><span><b>LEVERAGE</b>{([1, 2, 3, 5] as const).map((level) => <button key={level} className={leverage === level ? 'active' : ''} onClick={() => setLeverage(level)}>{level}×</button>)}</span><i>$500 margin → ${(500 * leverage).toLocaleString()} gross exposure</i></div><div className="market-table"><div className="market-row header"><span>Asset</span><span>Price</span><span>Day</span><span>Position</span><span>Order</span></div>{stocks.map((stock) => { const move = marketMove(stock); const holding = holdings.find((item) => item.symbol === stock.symbol); const buyPending = pendingAction === `buy:${stock.symbol}`; const sellPending = pendingAction === `sell:${stock.symbol}`; return <div className="market-row" key={stock.symbol}><span><b>{stock.symbol}</b><small>{stock.name}</small></span><span>${stock.price.toFixed(2)}</span><span className={move >= 0 ? 'gain' : 'loss'}>{move >= 0 ? '+' : ''}{move.toFixed(2)}%</span><span>{holding ? `${holding.quantity.toFixed(2)} sh · ${holding.leverage}×` : '—'}</span><span className="order-buttons"><button disabled={pendingAction !== null} onClick={() => void order(stock.symbol, 'buy')}>{buyPending ? '…' : `BUY ${leverage}×`}</button><button disabled={pendingAction !== null || !holding} onClick={() => void order(stock.symbol, 'sell')}>{sellPending ? '…' : 'SELL ALL'}</button></span></div>; })}</div><div className="portfolio-summary risk"><span>Gross exposure <b>${portfolio.toFixed(2)}</b></span><span>Account equity <b>${portfolioEquity.toFixed(2)}</b></span><span>Borrowed <b>${borrowedExposure.toFixed(2)}</b></span><span>Margin excess <b className={marginExcess >= 0 ? 'gain' : 'loss'}>${marginExcess.toFixed(2)}</b><small>Maintenance ${maintenanceMargin.toFixed(2)}</small></span></div>{canClaimRelief && <div className="relief-panel"><span><b>Paper-account relief available</b>Up to $1,000 virtual cash · {reliefClaimsRemaining} lifetime claim{reliefClaimsRemaining === 1 ? '' : 's'} remaining</span><button disabled={pendingAction !== null} onClick={() => void claimRelief()}>{pendingAction === 'relief' ? 'ISSUING…' : 'CLAIM VIRTUAL RELIEF'}</button></div>}</>}
@@ -1780,7 +2125,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
           {place === 'map' && <>
             <small>LIVE CITY ATLAS · PRESS M ANYWHERE · 20 × 30 KM</small>
             <h1>Your position inside the city plan.</h1>
-            <p>The 20 × 30 km atlas is the logical city plan; the pulsing marker shows your current playable district, while the left-corner minimap tracks your actual position inside its 3D scene. Select a node to inspect it, then travel to the central preview slice or open an available panel.</p>
+            <p>The 20 × 30 km atlas links five independent playable 3D scenes. The pulsing marker identifies the scene you occupy, while the corner minimap tracks your actual walking position inside it. Select a live destination to enter its world, or open a city-service panel.</p>
             <div className="atlas-layout">
               <CityAtlas selectedId={selectedAtlasId} playerNodeId={playerAtlasId} onSelect={selectAtlasNode} />
               <aside className="atlas-inspector">
@@ -1791,7 +2136,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
                 <h2>{selectedAtlasNode.name}</h2>
                 <p>{selectedAtlasNode.detail}</p>
                 <dl><div><dt>WORLD GRID</dt><dd>{selectedAtlasNode.x.toFixed(1)}E · {selectedAtlasNode.y.toFixed(1)}N</dd></div><div><dt>STATUS</dt><dd>{selectedAtlasStatus}</dd></div><div><dt>YOUR LOCAL POSITION</dt><dd>X {localPosition.x.toFixed(1)} · Z {localPosition.z.toFixed(1)}</dd></div></dl>
-                <button disabled={selectedAtlasNode.availability === 'PLANNED' || (selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000)} onClick={openSelectedAtlasNode}>{selectedAtlasNode.availability === 'PLANNED' ? 'AREA NOT PLAYABLE YET' : selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000 ? 'VIRTUAL NET WORTH REQUIRED' : selectedRequiresTravel ? `TRAVEL TO ${selectedRequiredDistrict === 'CBD' ? 'CBD' : 'HOME'} + OPEN PREVIEW` : `OPEN ${selectedAtlasNode.name.toUpperCase()}`}</button>
+                <button disabled={selectedAtlasNode.availability === 'PLANNED' || (selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000)} onClick={openSelectedAtlasNode}>{selectedAtlasNode.availability === 'PLANNED' ? 'AREA NOT PLAYABLE YET' : selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000 ? 'VIRTUAL NET WORTH REQUIRED' : selectedRequiresTravel ? `TRAVEL TO ${selectedRequiredDistrict === 'CBD' ? 'CBD' : 'HOME'} + ${selectedAtlasNode.scene ? 'ENTER 3D SCENE' : 'OPEN LOCATION'}` : selectedAtlasNode.scene ? `ENTER ${selectedAtlasNode.name.toUpperCase()} · 3D` : `OPEN ${selectedAtlasNode.name.toUpperCase()}`}</button>
               </aside>
             </div>
             <div className="atlas-legend"><span><i className="you" />YOU</span><span><i className="open" />INTERACTIVE NODE</span><span><i className="route" />TRANSIT LINE</span><span><i className="gated" />GATED</span><span><i className="planned" />PLANNED</span></div>
@@ -1802,15 +2147,16 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
               <article><Car /><b>MOBILITY CITY</b><span>Metro · taxi · 4S auto district</span></article>
               <article><Ship /><b>WATERFRONT CITY</b><span>Public boats · yachts · cargo · liners</span></article>
             </div>
+            <div className="population-strip"><span><b>{WORLD_ASSET_COUNTS.buildings}</b>numbered buildings</span><span><b>{WORLD_ASSET_COUNTS.watercraft}</b>numbered watercraft</span><span><b>{WORLD_ASSET_COUNTS.vehicles}</b>numbered vehicles</span><span><b>5</b>walkable 3D scenes</span></div>
             <section className="transit-desk">
-              <div className="transit-route"><span>CURRENT <b>{atCbd ? 'CYBER CBD' : 'STARTER ARCOLOGY'}</b></span><i>18.4 KM</i><span>DESTINATION <b>{transitTargetLabel.toUpperCase()}</b></span></div>
+              <div className="transit-route"><span>CURRENT <b>{locationLabel}</b></span><i>18.4 KM</i><span>DESTINATION <b>{transitTargetLabel.toUpperCase()}</b></span></div>
               <div className="transit-options">
                 <button disabled={pendingAction !== null || cash < 0} onClick={() => void commute('METRO')}><TrainFront /><span><small>PUBLIC TRANSIT</small><b>{pendingAction === 'commute:METRO' ? 'BOARDING…' : `METRO TO ${transitTargetLabel.toUpperCase()}`}</b><i>$5 virtual · 28 game min · ≈ 2 sec</i></span><em>{cash < 0 ? 'UNAVAILABLE' : 'PAY $5'}</em></button>
                 <button disabled={pendingAction !== null || cash < 45} onClick={() => void commute('TAXI')}><Car /><span><small>EXPRESS TRANSIT</small><b>{pendingAction === 'commute:TAXI' ? 'DEPARTING…' : `TAXI TO ${transitTargetLabel.toUpperCase()}`}</b><i>$45 virtual · 11 game min · ≈ 1 sec</i></span><em>{cash < 45 ? 'NEED $45' : 'PAY $45'}</em></button>
               </div>
               <div className="transit-ledger"><span>TRIPS <b>{transitTrips}</b></span><span>METRO <b>{metroRides}</b></span><span>TAXI <b>{taxiRides}</b></span><span>LIFETIME FARES <b>${transitSpend.toFixed(2)}</b></span></div>
             </section>
-            <VisionPanel image="/visuals/ampliworld-city-gameplay.jpg" label="20 × 30 KM LOGICAL ATLAS · CENTRAL 3D PREVIEW SLICE" alt="Concept visualization of Cyber City and its trading lifestyle districts" />
+            <VisionPanel image="/visuals/ampliworld-world-asset-master-v1.png" label="CLOUD-RENDERED WORLD ASSET DIRECTION · MARINA / CITY CORE / VILLA RIDGE" alt="Original AmpliWorld environment direction showing its marina, residential skyline, villa ridge and correctly separated traffic" />
           </>}
           {place === 'hospital' && <>
             <small>MERIDIAN GENERAL HOSPITAL · PUBLIC CITY SYSTEM</small>
@@ -1899,14 +2245,14 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
           </>}
           {place === 'inventory' && <><small>OWNED GOODS</small><h1>Your life, made visible</h1><p>Trading performance becomes clothing, experiences and property designed for future opt-in world visits.</p><div className="inventory-grid">{inventory.length ? inventory.map((item, index) => <article key={`${item}-${index}`}><ShoppingBag /><span><b>{item}</b><small>Owned · future player marketplace support is planned</small></span></article>) : <article className="empty"><ShoppingBag /><span><b>No items yet</b><small>Visit Neon Atelier or Nova Dining after your first trade.</small></span></article>}</div></>}
           {place === 'menu' && <><small>HOW TO PLAY</small><h1>Trade your way out.</h1><p>Everybody begins with $10,000 and a 10 m² studio in a remote high-density district. Study the world, protect your capital and decide when a paid metro or taxi trip into the CBD is worthwhile.</p><div className="menu-list"><span><kbd>1</kbd><b>Read</b> world news and company events</span><span><kbd>2</kbd><b>Travel</b> to the CBD by paid metro or taxi</span><span><kbd>3</kbd><b>Trade</b> a virtual position and manage risk</span><span><kbd>4</kbd><b>Move up</b> through property, goods and status</span></div><p className="save-state">{signedIn ? 'Cloud save is connected for this player.' : 'Guest mode is playable now. Sign in to retain progress across sessions.'}<small>CC0 3D assets by Kenney and Quaternius.</small></p></>}
-          {place === 'villa' && <><small>MILLIONAIRE RIDGE · VIRTUAL NET WORTH ACCESS</small><VisionPanel image="/visuals/ampliworld-millionaire-ridge.jpg" label="MILLIONAIRE RIDGE · CONCEPT ENVIRONMENT" alt="Concept visualization of the gated AmpliWorld detached-villa community" /><h1>A community earned through the market</h1><p>Most residences are bought with virtual dollars earned in the market. The final estate offers either an extreme virtual-money path or a future premium cosmetic edition—never a trading advantage.</p><div className="villa-ledger"><span><b>Your virtual net worth</b>${netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span><span><b>Virtual entry requirement</b>$1,000,000</span><span><b>Future premium exchange</b>$1 = 100 Credits</span></div><div className="real-estate-grid"><article><small>GARDEN SERIES</small><h2>Parkside Villa</h2><p>Detached home, private garden and two-car garage.</p><b>$1,200,000 virtual</b><button disabled={pendingAction !== null} onClick={() => void spend(1_200_000, 'Parkside Villa', 20)}>BUY WITH VIRTUAL CASH</button></article><article><small>COURTYARD SERIES</small><h2>Glass Courtyard Villa</h2><p>Pool courtyard, gallery wing and city membership.</p><b>$4,800,000 virtual</b><button disabled={pendingAction !== null} onClick={() => void spend(4_800_000, 'Glass Courtyard Villa', 30)}>BUY WITH VIRTUAL CASH</button></article><article><small>ESTATE SERIES</small><h2>Helix Estate</h2><p>Hilltop grounds, guest house and private showroom.</p><b>$25,000,000 virtual</b><button disabled={pendingAction !== null} onClick={() => void spend(25_000_000, 'Helix Estate', 40)}>BUY WITH VIRTUAL CASH</button></article><article className="premium-estate"><small>FOUNDERS&apos; EDITION</small><h2>Sky Estate</h2><p>The same status is designed to be earned through extraordinary play or purchased later as a cosmetic world edition.</p><b>$250,000,000 virtual <em>or</em> 49,900 Credits</b><div><button disabled={pendingAction !== null} onClick={() => void spend(250_000_000, 'Founders Sky Estate', 50)}>EARN IN GAME</button><button disabled>PREMIUM CHECKOUT NOT CONNECTED</button></div></article></div></>}
+          {place === 'villa' && <><small>MILLIONAIRE RIDGE · OPEN VISITATION · OWNERSHIP BY VIRTUAL WEALTH</small><VisionPanel image="/visuals/ampliworld-millionaire-ridge.jpg" label="MILLIONAIRE RIDGE · CONCEPT ENVIRONMENT" alt="Concept visualization of the AmpliWorld detached-villa community" /><h1>Visit freely. Earn the right to own.</h1><p>Every player may walk the district and inspect its architecture. Most residences are bought with virtual dollars earned in the market. The final estate offers either an extreme virtual-money path or a future premium cosmetic edition—never a trading advantage.</p><div className="villa-ledger"><span><b>Your virtual net worth</b>${netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span><span><b>Ownership tier begins</b>$1,000,000</span><span><b>Future premium exchange</b>$1 = 100 Credits</span></div><div className="real-estate-grid"><article><small>GARDEN SERIES</small><h2>Parkside Villa</h2><p>Detached home, private garden and two-car garage.</p><b>$1,200,000 virtual</b><button disabled={pendingAction !== null} onClick={() => void spend(1_200_000, 'Parkside Villa', 20)}>BUY WITH VIRTUAL CASH</button></article><article><small>COURTYARD SERIES</small><h2>Glass Courtyard Villa</h2><p>Pool courtyard, gallery wing and city membership.</p><b>$4,800,000 virtual</b><button disabled={pendingAction !== null} onClick={() => void spend(4_800_000, 'Glass Courtyard Villa', 30)}>BUY WITH VIRTUAL CASH</button></article><article><small>ESTATE SERIES</small><h2>Helix Estate</h2><p>Hilltop grounds, guest house and private showroom.</p><b>$25,000,000 virtual</b><button disabled={pendingAction !== null} onClick={() => void spend(25_000_000, 'Helix Estate', 40)}>BUY WITH VIRTUAL CASH</button></article><article className="premium-estate"><small>FOUNDERS&apos; EDITION</small><h2>Sky Estate</h2><p>The same status is designed to be earned through extraordinary play or purchased later as a cosmetic world edition.</p><b>$250,000,000 virtual <em>or</em> 49,900 Credits</b><div><button disabled={pendingAction !== null} onClick={() => void spend(250_000_000, 'Founders Sky Estate', 50)}>EARN IN GAME</button><button disabled>PREMIUM CHECKOUT NOT CONNECTED</button></div></article></div></>}
           {place === 'fashion' && <><small>NEON ATELIER</small><h1>Wear your success</h1><p>Skins are designed for future social spaces. Cosmetic purchases cannot reduce trading fees.</p><div className="goods"><button disabled={pendingAction !== null} onClick={() => void spend(180, 'Midnight Trader Jacket', 8)}><Shirt /><span><b>Midnight Trader Jacket</b><small>$180 + 2% tax</small></span></button><button disabled={pendingAction !== null} onClick={() => void spend(480, 'Founder Skin', 15)}><Shirt /><span><b>Founder Skin</b><small>$480 + 2% tax</small></span></button></div></>}
           {place === 'restaurant' && <><small>NOVA DINING</small><h1>Tonight&apos;s table</h1><p>A complete meal contributes to today&apos;s care record. Celebration goods remain cosmetic and cannot buy a trading-fee advantage.</p><div className="goods"><button disabled={pendingAction !== null || mealComplete} onClick={() => void performCare(LIFE_OPTIONS.find((option) => option.code === 'PROTEIN_PLATE')!)}><Utensils /><span><b>Protein Plate</b><small>$22 + 2% tax · complete daily meal</small></span></button><button disabled={pendingAction !== null} aria-label="Buy Skyline Dinner" onClick={() => void spend(42, 'Skyline Dinner', 6)}><span><b>Skyline Dinner Collectible</b><small>$42 + 2% tax · cosmetic memory</small></span></button></div></>}
           {place === 'property' && <><small>SKYLINE REALTY</small><h1>Turn returns into a skyline</h1><p>Your 10 m² Starter Arcology studio has {leaseDays} days left. Every better address makes progress visible.</p><div className="property"><Home /><div><b>Cloudline Penthouse</b><span>$2,500,000 · Requires City Rank 100</span></div><i>LOCKED</i></div><div className="property"><Car /><div><b>Ion GT</b><span>$180,000 · Includes island access</span></div><i>LOCKED</i></div></>}
           {place === 'career' && <><small>ACTIVE WORK · VIRTUAL WAGES</small><h1>Earn enough to keep moving.</h1><p>Work pays immediately when you complete a short prototype task. It can fund food and transit after a bad trading day, but it cannot build a fortune: one shift per game day, two shifts and $40 maximum per real UTC day.</p><div className="work-ledger"><span><b>{shiftsToday} / 2</b>shifts today</span><span><b>${wagesToday.toFixed(2)} / $40</b>today&apos;s wages</span><span><b>${lifetimeWages.toFixed(2)}</b>lifetime wages</span><span><b>{lastWorkTurn === day ? 'COMPLETE' : 'OPEN'}</b>game-day shift</span></div><div className="interview"><BriefcaseBusiness /><div><b>{career === 'UNEMPLOYED' ? 'Market assistant interview' : career}</b><span>Unlock the Market Brief Review role-play shift in the CBD.</span></div>{career === 'UNEMPLOYED' ? <button disabled={pendingAction !== null} onClick={() => void acceptJob()}>{pendingAction === 'hire' ? 'INTERVIEWING…' : atCbd ? 'INTERVIEW' : 'TRAVEL TO INTERVIEW'}</button> : <i>HIRED</i>}</div><div className="job-grid">{JOB_OPTIONS.map((job) => { const travel = job.district === 'CBD' && !atCbd; const locked = Boolean(job.requiresCareer && career === 'UNEMPLOYED'); const complete = lastWorkTurn === day || shiftsToday >= 2 || wagesToday >= 40; return <article key={job.code}><BriefcaseBusiness /><small>{job.district === 'CBD' ? 'CYBER CBD' : 'ANYWHERE'} · PROTOTYPE TASK</small><h2>{job.name}</h2><p>{job.description}</p><div><span>{job.durationMinutes} game min</span><b>${Math.min(job.pay, Math.max(0, 40 - wagesToday))} virtual pay</b></div><button disabled={pendingAction !== null || locked || complete} onClick={() => void completeShift(job)}>{locked ? 'INTERVIEW REQUIRED' : complete ? 'SHIFT LIMIT REACHED' : pendingAction === `work:${job.code}` ? 'WORKING…' : travel ? 'TRAVEL TO CBD' : 'COMPLETE DEMO SHIFT'}</button></article>; })}</div><p className="truth-note">Prototype shifts currently resolve through a server-validated one-click action; skill challenges and timed tasks are planned.</p></>}
         </dialog>}
       </section>
-      <footer><span>NET WORTH <b>${netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</b></span><span>TOTAL PROGRESS <b className={netWorth >= 10000 ? 'gain' : 'loss'}>{netWorth >= 10000 ? '+' : ''}${(netWorth - 10000).toFixed(2)}</b></span><span>TRADING FEE <b>{tradingFeeBps} BPS</b></span><span>LOCATION <b>{atCbd ? 'CYBER CBD' : `BLOCK ${residenceBlock}`}</b></span><span>TRANSIT SPEND <b>${transitSpend.toFixed(2)}</b></span><span>CITY TAX <b>${tax.toFixed(2)}</b></span><span>WORLD <b>20 × 30 KM</b></span><span>STUDIO <b>10 m² · {leaseDays} DAYS</b></span></footer>
+      <footer><span>NET WORTH <b>${netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</b></span><span>TOTAL PROGRESS <b className={netWorth >= 10000 ? 'gain' : 'loss'}>{netWorth >= 10000 ? '+' : ''}${(netWorth - 10000).toFixed(2)}</b></span><span>TRADING FEE <b>{tradingFeeBps} BPS</b></span><span>LOCATION <b>{activeScene === 'STARTER_ARCOLOGY' ? `BLOCK ${residenceBlock}` : SCENE_LABELS[activeScene]}</b></span><span>TRANSIT SPEND <b>${transitSpend.toFixed(2)}</b></span><span>CITY TAX <b>${tax.toFixed(2)}</b></span><span>WORLD <b>20 × 30 KM</b></span><span>STUDIO <b>10 m² · {leaseDays} DAYS</b></span></footer>
     </main>
   );
 }
