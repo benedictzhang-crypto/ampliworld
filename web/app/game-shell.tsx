@@ -42,7 +42,15 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import * as THREE from 'three';
 import { DynamicAtmosphere, formatWorldTime, getDayPhase, getHorizonVisibility } from './dynamic-atmosphere';
+import { GrandRiverSystem, MarinaHotelDistrict, MetroEntrance, ResidentialQuarter } from './urban-expansion';
 import { WORLD_ASSET_COUNTS } from './world-asset-catalog';
+import {
+  WORLD_NEIGHBORHOODS,
+  WORLD_NEIGHBORHOOD_STATS,
+  type NeighborhoodStatus,
+  type ResidentialTier as CatalogResidentialTier,
+  type ResidentialTypology as CatalogResidentialTypology,
+} from './world-neighborhoods';
 import { PLAYABLE_CORE_KM, REPRESENTED_REGION_HEIGHT_KM, REPRESENTED_REGION_KM } from './world-topology';
 
 type Place = 'market' | 'fashion' | 'restaurant' | 'property' | 'career' | 'news' | 'map' | 'inventory' | 'menu' | 'villa' | 'studio' | 'wellness' | 'social' | 'hospital' | 'police' | 'academy' | 'dealership' | 'grocer' | 'marina' | 'residences' | null;
@@ -68,6 +76,13 @@ type AtlasNode = {
   place?: Exclude<Place, null>;
   scene?: WorldSceneId;
   availability: 'PLAYABLE' | 'ACTIVITY' | 'GATED' | 'PLANNED';
+  residentialTier?: CatalogResidentialTier;
+  residentialTypology?: CatalogResidentialTypology;
+  developmentStatus?: NeighborhoodStatus;
+  households?: number;
+  floors?: number;
+  heightMeters?: number;
+  inspiration?: string;
 };
 type TransitMode = 'METRO' | 'TAXI';
 type Journey = {
@@ -225,7 +240,7 @@ const JOB_OPTIONS: JobOption[] = [
   { code: 'MARKET_BRIEF_REVIEW', name: 'Market Brief Review', pay: 30, happiness: -4, district: 'CBD', durationMinutes: 6, description: 'A focused research task unlocked by the Career Tower interview.', requiresCareer: true },
 ];
 
-const WORLD_ATLAS = [
+const LANDMARK_ATLAS = [
   { id: 'starter', name: 'Starter Arcology', x: 2, y: 4, kind: 'HOME', zone: 'SOUTH RESIDENTIAL', detail: '1,000 residential towers · your 10 m² studio', place: 'studio', scene: 'STARTER_ARCOLOGY', availability: 'PLAYABLE' },
   { id: 'academy', name: 'AmpliWorld Academy', x: 5.5, y: 8, kind: 'SCHOOL', zone: 'EDUCATION BELT', detail: 'School campus, learning commons and sports court', place: 'academy', availability: 'PLAYABLE' },
   { id: 'deepwater', name: 'South Deepwater Port', x: 1, y: 10, kind: 'PORT', zone: 'INDUSTRIAL COAST', detail: 'Cargo handling, ocean liners, tugs and port employment', place: 'marina', availability: 'PLAYABLE' },
@@ -245,6 +260,35 @@ const WORLD_ATLAS = [
   { id: 'nuclear-district', name: 'North Highlands Power District', x: 7.2, y: 27.3, kind: 'ENERGY', zone: 'NORTH HIGHLANDS', detail: 'Off-core generation campus, nuclear plant, reservoirs and regional transmission grid', availability: 'PLANNED' },
   { id: 'highlands', name: 'North Highlands', x: 9.5, y: 28.5, kind: 'MOUNTAINS', zone: 'NORTH HIGHLANDS', detail: 'Mountain trails, overlooks and research stations', availability: 'PLANNED' },
 ] as const satisfies readonly AtlasNode[];
+
+const NEIGHBORHOOD_ATLAS: readonly AtlasNode[] = WORLD_NEIGHBORHOODS.map((neighborhood) => ({
+  id: neighborhood.id,
+  name: neighborhood.name,
+  x: neighborhood.coordinates[0],
+  y: neighborhood.coordinates[1],
+  kind: 'RESIDENTIAL',
+  zone: neighborhood.district.replaceAll('_', ' '),
+  detail: neighborhood.shortDescription,
+  place: 'residences',
+  availability: neighborhood.status === 'PLANNED' ? 'PLANNED' : 'ACTIVITY',
+  residentialTier: neighborhood.tier,
+  residentialTypology: neighborhood.typology,
+  developmentStatus: neighborhood.status,
+  households: neighborhood.households,
+  floors: neighborhood.floors,
+  heightMeters: neighborhood.heightMeters,
+  inspiration: neighborhood.inspiration,
+}));
+
+const WORLD_ATLAS: readonly AtlasNode[] = [...LANDMARK_ATLAS, ...NEIGHBORHOOD_ATLAS];
+
+const RESIDENTIAL_TIER_LABELS: Record<CatalogResidentialTier, string> = {
+  VALUE: 'VALUE',
+  MID_MARKET: 'MID-MARKET',
+  MOVE_UP: 'IMPROVEMENT',
+  PREMIUM: 'PREMIUM',
+  TROPHY: 'TROPHY',
+};
 
 const CBD_LOCAL_LANDMARKS = [
   { id: 'marina', label: 'MARINA', x: -34, z: 9, kind: 'marina' },
@@ -330,6 +374,14 @@ const CBD_PLAYER_BLOCKERS = [
   [-7.4, 31.67, 1.2, 0.9], [7.4, 31.67, 1.2, 0.9], [-7.4, 42.11, 1.2, 0.9], [7.4, 42.11, 1.2, 0.9],
   [-7.4, 52.56, 1.2, 0.9], [7.4, 52.56, 1.2, 0.9], [-7.4, 63, 1.2, 0.9], [7.4, 63, 1.2, 0.9],
   [-20.7, 7, 1.15, 13], [20.7, 7, 1.15, 13],
+  // Grand River waterline. Gaps align with the five modeled crossings at
+  // x ≈ -58.5, -29.25, 0, 29.25 and 58.5, so water is never a shortcut.
+  [-69.75, 38, 7.25, 8.5], [-44, 38, 10.5, 8.5], [-21, 38, 4.5, 8.5],
+  [21, 38, 4.5, 8.5], [44, 38, 10.5, 8.5], [69.75, 38, 7.25, 8.5],
+  // Residential superblocks are facade-and-landscape shells in this pass.
+  // Broad collision keeps the player on their public perimeter streets.
+  [-48, 58, 11, 10], [54, 68, 11, 9], [60, 7, 10, 9],
+  [-53, -59, 11, 10], [51, -59, 10, 9],
 ] as const;
 
 const STARTER_PLAYER_BLOCKERS = [
@@ -344,6 +396,8 @@ const STUDIO_PLAYER_BLOCKERS = [
 
 const MARINA_PLAYER_BLOCKERS = [
   [23, -15, 3.8, 3.2], [25, 14, 4.2, 5.1], [-10, 0, 10.4, 48],
+  [11.2, 15.5, 3.5, 3.6], [11.2, 6.8, 3.5, 3.6], [11.2, -1.9, 3.5, 3.6],
+  [20.5, 13, 3.6, 3.7], [20.5, 4.3, 3.6, 3.7], [20.5, -4.3, 3.6, 3.7],
 ] as const;
 
 const CROWN_PLAYER_BLOCKERS = [
@@ -358,6 +412,7 @@ const RIDGE_PLAYER_BLOCKERS = [
   [-2.1, 18, 1.4, 2.4], [2.1, 5, 1.4, 2.4], [-2.1, -13, 1.4, 2.4],
   [-9.5, -14, 0.25, 6.2], [9.5, -14, 0.25, 6.2], [-9.5, 2, 0.25, 6.2], [9.5, 2, 0.25, 6.2],
   [-9.5, 18, 0.25, 6.2], [9.5, 18, 0.25, 6.2], [0, -34.8, 9, 1.1],
+  [-30, 18, 5, 7.5], [30, 18, 5, 7.5],
 ] as const;
 
 const ARCOLOGY_TOWER_TOTAL = 1000;
@@ -377,7 +432,7 @@ const SCENE_PROFILES: Record<SceneProfileId, {
   CBD: { spawn: [0, 0, 62], bounds: { minX: -77, maxX: 77, minZ: -77, maxZ: 77 }, cameraOffset: [0, 3.2, 5.6], heading: Math.PI, speed: 5.8, blockers: CBD_PLAYER_BLOCKERS },
   AZURE_YACHT_MARINA: { spawn: [3, 0, 22], bounds: { minX: -9, maxX: 34, minZ: -34, maxZ: 34 }, cameraOffset: [-1.8, 3.2, 5.6], heading: Math.PI, speed: 5.4, blockers: MARINA_PLAYER_BLOCKERS },
   CROWN_RESIDENTIAL_TOWERS: { spawn: [0, 0, 27], bounds: { minX: -28, maxX: 28, minZ: -22, maxZ: 30 }, cameraOffset: [0, 3.2, 5.6], heading: Math.PI, speed: 5.2, blockers: CROWN_PLAYER_BLOCKERS },
-  MILLIONAIRE_RIDGE: { spawn: [0, 0, 34], bounds: { minX: -34, maxX: 34, minZ: -39, maxZ: 37 }, cameraOffset: [0, 3.2, 5.6], heading: Math.PI, speed: 5.2, blockers: RIDGE_PLAYER_BLOCKERS },
+  MILLIONAIRE_RIDGE: { spawn: [0, 0, 34], bounds: { minX: -38, maxX: 38, minZ: -39, maxZ: 37 }, cameraOffset: [0, 3.2, 5.6], heading: Math.PI, speed: 5.2, blockers: RIDGE_PLAYER_BLOCKERS },
   STUDIO_INTERIOR: { spawn: [0, 0, 2.8], bounds: { minX: -3.8, maxX: 3.8, minZ: -3.7, maxZ: 4 }, cameraOffset: [0, 2.65, 4.4], heading: Math.PI, speed: 3.8, blockers: STUDIO_PLAYER_BLOCKERS },
 };
 
@@ -1689,6 +1744,9 @@ function AzureYachtMarinaScene({ onEnter, onPositionChange, playerEnabled = true
       <mesh receiveShadow position={[21, 0.015, 0]}><boxGeometry args={[28, 0.08, 84]} /><meshStandardMaterial color="#6d7868" roughness={0.96} /></mesh>
       <ArrivalSpine tone="MARINA" position={[4, 0.02, 1]} length={66} width={5.8} />
       <WaterfrontRailing x={0.35} length={72} />
+      <group scale={0.62}>
+        <MarinaHotelDistrict id="AZURE-BAY-HOTEL-MARINA" rotationY={-Math.PI / 2} hotelCount={6} berthCount={18} seed={811} onEnter={() => onEnter('marina', 'yacht-marina')} />
+      </group>
       {[-24, -8, 8, 24].map((z) => <group key={z} position={[-4.5, 0.12, z]}>{[-8, -4, 0].map((x) => <Suspense fallback={null} key={x}><StaticAsset url={`${NATURE_ASSET_ROOT}/bridge_center_wood.glb`} position={[x, 0, 0]} rotation={[0, Math.PI / 2, 0]} scale={3.1} shadows={false} /></Suspense>)}</group>)}
       <FloatingWatercraft model="boat-sail-a" position={[-22, 0.08, -17]} rotation={Math.PI / 2} scale={3.4} phase={1} />
       <FloatingWatercraft model="boat-speed-a" position={[-22, 0.08, 5.5]} rotation={Math.PI / 2} scale={4.05} phase={2} />
@@ -1710,7 +1768,9 @@ function AzureYachtMarinaScene({ onEnter, onPositionChange, playerEnabled = true
       <LandmarkLabel position={[-19, 6.1, -32]} label="YHT-A80 · 80 FT SKYLOUNGE" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
       <LandmarkLabel position={[-19, 6.1, 22.5]} label="YHT-A100 · 100+ FT FLAGSHIP" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
       <LandmarkLabel position={[23, 7.2, -15]} label="AZURE YACHT CLUB" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
-      <WayfindingPylon position={[8, 0.08, 28]} label="MAP · CBD · RESIDENCES" onEnter={onEnter} accent="#8deaff" />
+      <LandmarkLabel position={[14, 8.8, 5]} label="AZURE BAY YACHT HOTEL · PUBLIC PROMENADE" place="marina" atlasId="N-AZU-01" onEnter={onEnter} tone="marina-label" />
+      <group position={[8, 0, 28]} rotation={[0, Math.PI, 0]} scale={0.52}><MetroEntrance id="M2-A" name="Azure Harbor Entrance A" lineColor="#2381bd" onEnter={() => onEnter('map')} /></group>
+      <WayfindingPylon position={[13, 0.08, 28]} label="MAP · CBD · RESIDENCES" onEnter={onEnter} accent="#8deaff" />
       <PopulationLayer count={22} position={[4, 0, 10]} />
       <Player scene="AZURE_YACHT_MARINA" onPositionChange={onPositionChange} enabled={playerEnabled} spawnOverride={playerSpawn} headingOverride={playerHeading} />
     </>
@@ -1758,6 +1818,10 @@ function MillionaireRidgeScene({ onEnter, onPositionChange, playerEnabled = true
       {[-22, -6, 10, 26].flatMap((z) => [-20, -12, 12, 20].map((x) => <mesh key={`${x}-${z}`} position={[x, 0.06, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[3.2, 0.08]} /><meshBasicMaterial color="#d8c979" /></mesh>))}
       <ArrivalSpine tone="RIDGE" position={[0, 0.02, 8]} length={66} width={8.5} />
       <RidgeTerraces />
+      <group position={[-30, 0, 18]} scale={0.32}><ResidentialQuarter id="N-RDG-01" tier="UPGRADE" typology="TOWNHOMES" count={6} footprint={[28, 44]} seed={607} onEnter={() => onEnter('residences', 'N-RDG-01')} /></group>
+      <group position={[30, 0, 18]} scale={0.32}><ResidentialQuarter id="N-RDG-02" tier="PREMIUM" typology="SEMI_DETACHED" count={5} footprint={[28, 44]} seed={709} onEnter={() => onEnter('residences', 'N-RDG-02')} /></group>
+      <LandmarkLabel position={[-30, 5.2, 18]} label="N-RDG-01 · CEDAR GATE ROWS" place="residences" atlasId="N-RDG-01" onEnter={onEnter} tone="residential-label" />
+      <LandmarkLabel position={[30, 5.5, 18]} label="N-RDG-02 · TWIN OAK COMMONS" place="residences" atlasId="N-RDG-02" onEnter={onEnter} tone="residential-label" />
       {villas.map((villa) => <CatalogVilla key={villa.id} {...villa} onEnter={onEnter} />)}
       <Suspense fallback={null}>
         {([-7.2, 7.2] as const).flatMap((x) => [-24, -8, 8, 24, 34].map((z) => <StaticAsset key={`${x}-${z}`} url={`${ROAD_ASSET_ROOT}/light-square.glb`} position={[x, 0.06, z]} scale={3.15} shadows={false} />))}
@@ -1873,6 +1937,37 @@ function CBDEdgeApproaches({ onEnter }: { onEnter: EnterPlace }) {
   );
 }
 
+function MetropolitanResidentialFabric({ onEnter }: { onEnter: EnterPlace }) {
+  return (
+    <group name="Metropolitan residential shell districts">
+      <group position={[-48, 0, 58]} scale={0.48}>
+        <ResidentialQuarter id="N-RIV-01" tier="MID_MARKET" typology="TOWERS" count={10} footprint={[44, 38]} seed={101} onEnter={() => onEnter('residences', 'N-RIV-01')} />
+      </group>
+      <LandmarkLabel position={[-48, 9.2, 58]} label="N-RIV-01 · NORTHBANK GLASSWORKS" place="residences" atlasId="N-RIV-01" onEnter={onEnter} tone="residential-label" />
+
+      <group position={[54, 0, 68]} scale={0.46}>
+        <ResidentialQuarter id="N-EAS-03" tier="UPGRADE" typology="TOWERS" count={9} footprint={[46, 40]} seed={203} onEnter={() => onEnter('residences', 'N-EAS-03')} />
+      </group>
+      <LandmarkLabel position={[54, 11.4, 68]} label="N-EAS-03 · MAGNOLIA PARK" place="residences" atlasId="N-EAS-03" onEnter={onEnter} tone="residential-label" />
+
+      <group position={[60, 0, 7]} scale={0.43}>
+        <ResidentialQuarter id="N-MER-01" tier="MID_MARKET" typology="MIXED" count={8} footprint={[42, 40]} seed={307} onEnter={() => onEnter('residences', 'N-MER-01')} />
+      </group>
+      <LandmarkLabel position={[60, 8.8, 7]} label="N-MER-01 · MERIDIAN QUARTER" place="residences" atlasId="N-MER-01" onEnter={onEnter} tone="residential-label" />
+
+      <group position={[-53, 0, -59]} scale={0.45}>
+        <ResidentialQuarter id="N-CAN-02" tier="AFFORDABLE" typology="TOWERS" count={11} footprint={[45, 40]} seed={409} onEnter={() => onEnter('residences', 'N-CAN-02')} />
+      </group>
+      <LandmarkLabel position={[-53, 8, -59]} label="N-CAN-02 · LANTERN LANE" place="residences" atlasId="N-CAN-02" onEnter={onEnter} tone="residential-label" />
+
+      <group position={[51, 0, -59]} scale={0.44}>
+        <ResidentialQuarter id="N-CBD-03" tier="PREMIUM" typology="TOWERS" count={7} footprint={[43, 39]} seed={503} onEnter={() => onEnter('residences', 'N-CBD-03')} />
+      </group>
+      <LandmarkLabel position={[51, 14.8, -59]} label="N-CBD-03 · FORUM SKY GARDENS" place="residences" atlasId="N-CBD-03" onEnter={onEnter} tone="residential-label" />
+    </group>
+  );
+}
+
 function CyberCBD({ onEnter, onPositionChange, playerEnabled = true, horizonVisibility = 1, playerSpawn, playerHeading }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean; horizonVisibility?: number; playerSpawn?: [number, number, number]; playerHeading?: number }) {
   const streetLights = [-68, -52, -36, -20, -4, 12, 28, 44, 60, 72];
   const crossStreets = [-58, -8, 19, 53];
@@ -1885,6 +1980,21 @@ function CyberCBD({ onEnter, onPositionChange, playerEnabled = true, horizonVisi
       {[-12.65, 12.65].map((x) => <mesh key={x} receiveShadow position={[x, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[7.4, 154]} /><meshStandardMaterial color="#272e30" roughness={0.78} /></mesh>)}
       {[-9.75, 9.75].map((x) => <mesh key={x} position={[x, 0.046, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.74, 152]} /><meshStandardMaterial color="#318e9b" metalness={0.18} roughness={0.22} transparent opacity={0.88} /></mesh>)}
       {crossStreets.map((z) => <group key={z}><mesh receiveShadow position={[0, 0.031, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[150, 7.2]} /><meshStandardMaterial color="#2a3032" roughness={0.96} /></mesh>{streetLights.map((x) => <mesh key={x} position={[x, 0.052, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[6.1, 0.09]} /><meshBasicMaterial color="#ddc878" /></mesh>)}</group>)}
+
+      <GrandRiverSystem position={[0, 0.035, 38]} rotationY={Math.PI / 2} length={150} width={12} bridgeCount={5} />
+      <GroundRoadSegment from={[-29.25, -77]} to={[-29.25, 77]} width={6.8} accent="#8fdce5" />
+      <GroundRoadSegment from={[29.25, -77]} to={[29.25, 77]} width={6.8} accent="#8fdce5" />
+      <LandmarkLabel position={[-20, 4.2, 38]} label="GRAND RIVER · CONTINUOUS PUBLIC WATERFRONT" place="map" onEnter={onEnter} tone="marina-label" />
+
+      <group position={[-7.5, 0, 56]} scale={0.52}><MetroEntrance id="M4-A" name="Grand Exchange North Entrance A" lineColor="#2c76b8" onEnter={() => onEnter('map')} /></group>
+      <group position={[7.5, 0, 56]} rotation={[0, Math.PI, 0]} scale={0.52}><MetroEntrance id="M4-B" name="Grand Exchange North Entrance B" lineColor="#2c76b8" onEnter={() => onEnter('map')} /></group>
+      <group position={[-30, 0, 28]} rotation={[0, Math.PI / 2, 0]} scale={0.48}><MetroEntrance id="M1-A" name="South Quay Entrance A" lineColor="#2c76b8" onEnter={() => onEnter('map')} /></group>
+      <group position={[30, 0, 48]} rotation={[0, -Math.PI / 2, 0]} scale={0.48}><MetroEntrance id="M8-A" name="Meridian Medical Entrance A" lineColor="#2c76b8" onEnter={() => onEnter('map')} /></group>
+      <LandmarkLabel position={[0, 4.4, 55]} label="M4 · GRAND EXCHANGE METRO · ENTRANCES A / B" place="map" onEnter={onEnter} />
+      <LandmarkLabel position={[-30, 4, 28]} label="M1-A · SOUTH QUAY METRO" place="map" onEnter={onEnter} />
+      <LandmarkLabel position={[30, 4, 48]} label="M8-A · MERIDIAN MEDICAL METRO" place="map" onEnter={onEnter} />
+
+      <MetropolitanResidentialFabric onEnter={onEnter} />
 
       <Suspense fallback={null}><LuxuryRetailArcades /></Suspense>
       <WaterfrontMarina onEnter={onEnter} />
@@ -1996,6 +2106,14 @@ function MiniMap({ scene, residenceBlock, location, onOpen }: {
       screenY: THREE.MathUtils.clamp(50 - offsetZ / (localRadius * 2) * 100, 4, 96),
     }];
   });
+  const riverScreenY = 50 - (38 - effectiveLocation.z) / (localRadius * 2) * 100;
+  const riverVisible = scene === 'CBD' && riverScreenY > -8 && riverScreenY < 108;
+  const nearbyRiverBridges = scene === 'CBD'
+    ? [-58.5, -29.25, 0, 29.25, 58.5].flatMap((bridgeX) => {
+      const screenX = 50 + (bridgeX - effectiveLocation.x) / (localRadius * 2) * 100;
+      return screenX > -5 && screenX < 105 ? [screenX] : [];
+    })
+    : [];
   return (
     <button
       className={`mini-map ${scene === 'STARTER_ARCOLOGY' ? 'arcology' : 'city'}`}
@@ -2006,6 +2124,8 @@ function MiniMap({ scene, residenceBlock, location, onOpen }: {
     >
       <span className="mini-map-header"><MapIcon /><b>{label}</b><small>OPEN MAP</small></span>
       <span className="mini-map-surface">
+        {riverVisible && <i className="mini-river" style={{ top: `${riverScreenY}%` }} />}
+        {riverVisible && nearbyRiverBridges.map((screenX) => <i className="mini-bridge" style={{ left: `${screenX}%`, top: `${riverScreenY}%` }} key={screenX} />)}
         <i className="mini-road vertical" /><i className="mini-road horizontal" />
         {nearbyLandmarks.map((node) => <i className={`mini-landmark ${node.kind}`} style={{ left: `${node.screenX}%`, top: `${node.screenY}%` }} title={`${node.label} · nearby point of interest`} key={node.id} />)}
         <span className="mini-player" style={{ left: '50%', top: '50%' }}><MapPin /></span>
@@ -2021,6 +2141,7 @@ function CityAtlas({ selectedId, playerNodeId, onSelect }: {
   onSelect: (nodeId: string) => void;
 }) {
   const atlasNodes: readonly AtlasNode[] = WORLD_ATLAS;
+  const landmarkNodes = atlasNodes.filter((node) => !node.residentialTier);
   const playerNode = atlasNodes.find((node) => node.id === playerNodeId) ?? atlasNodes[0];
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -2032,6 +2153,14 @@ function CityAtlas({ selectedId, playerNodeId, onSelect }: {
     { id: 'M4', name: 'Grand Exchange', x: 14, y: 18, nodeId: 'cbd' },
     { id: 'M5', name: 'Crown Central', x: 15, y: 20.5, nodeId: 'crown-residences' },
     { id: 'M6', name: 'Ridge Gate', x: 16.5, y: 24.5, nodeId: 'ridge' },
+    { id: 'M1', name: 'South Quay', x: 11.75, y: 15.72, nodeId: 'N-RIV-03' },
+    { id: 'M3', name: 'Central Park East', x: 11, y: 16, nodeId: 'park' },
+    { id: 'M7', name: 'Canopy Market', x: 7.92, y: 17.18, nodeId: 'N-CAN-01' },
+    { id: 'M8', name: 'Meridian Medical', x: 13.05, y: 20.5, nodeId: 'hospital' },
+    { id: 'M9', name: 'Eastgarden', x: 15.5, y: 20.1, nodeId: 'N-EAS-01' },
+    { id: 'M10', name: 'North Grid', x: 7.2, y: 25.2, nodeId: 'grid-energy' },
+    { id: 'M11', name: 'Azure Resort', x: 4.28, y: 8.3, nodeId: 'N-AZU-01' },
+    { id: 'M12', name: 'West Harbor', x: 5.15, y: 11.65, nodeId: 'N-HBR-01' },
   ] as const;
 
   const clampPan = (next: { x: number; y: number }, nextZoom = zoom) => {
@@ -2099,9 +2228,19 @@ function CityAtlas({ selectedId, playerNodeId, onSelect }: {
             <span className="atlas-region atlas-starter"><b>SOUTH ARCOLOGY</b><i>1,000 TOWERS</i></span>
             <span className="atlas-region atlas-civic"><b>MERIDIAN CIVIC CAMPUS</b><i>HOSPITAL · SAFETY · ACADEMY</i></span>
             <span className="atlas-region atlas-cbd"><b>GREATER CYBER CBD</b><i>{PLAYABLE_CORE_KM} × {PLAYABLE_CORE_KM} KM LIVE CORE</i></span>
+            <span className="atlas-region atlas-river-district"><b>GRAND RIVER CORRIDOR</b><i>BRIDGES · PARKS · RIVER ROOMS</i></span>
+            <span className="atlas-region atlas-east-suburbs"><b>EAST GARDEN CENTRES</b><i>MALLS · SCHOOLS · MIXED HOUSING</i></span>
+            <span className="atlas-region atlas-bay-resorts"><b>AZURE BAY RESORT BELT</b><i>HOTELS · MARINA · PUBLIC BEACH</i></span>
             <span className="atlas-region atlas-ridge"><b>MILLIONAIRE RIDGE</b><i>HILLSIDE ESTATES</i></span>
             <span className="atlas-region atlas-highlands"><b>NORTH HIGHLANDS</b><i>ENERGY · RESEARCH · RESERVOIRS</i></span>
             <span className="atlas-sea">WESTERN OCEAN</span><span className="atlas-mountains">NORTH HIGHLANDS</span><span className="atlas-width">{REPRESENTED_REGION_KM} KM</span><span className="atlas-height">{REPRESENTED_REGION_HEIGHT_KM} KM</span>
+            <svg className="atlas-river" viewBox="0 0 20 30" preserveAspectRatio="none" aria-hidden="true">
+              <path className="river-water" d="M0 16 C3 14.2 5.2 16.4 8.2 14.8 S13.2 11.8 20 13.1" />
+              <path className="river-tributary" d="M8.2 14.8 C8.8 18.2 7.3 21.2 6.5 24.5" />
+              <g className="atlas-bridges">
+                {[2.2, 5.2, 8.2, 10.8, 13.4, 16.3, 18.5].map((x, index) => <line key={x} x1={x} y1={index < 3 ? 13.6 : 11.5} x2={x} y2={index < 3 ? 17.2 : 15.1} />)}
+              </g>
+            </svg>
             <svg className="atlas-roads" viewBox="0 0 20 30" preserveAspectRatio="none" aria-hidden="true">
               <path d="M2 26 C5 23 8 20 11 16 S14 13 14 12" />
               <path d="M1 20 C5 18 9 16 14 12 S17 10 18 8" />
@@ -2124,12 +2263,12 @@ function CityAtlas({ selectedId, playerNodeId, onSelect }: {
             ><TrainFront /><b>{station.id}</b></button>)}
             {atlasNodes.map((node) => <button
               type="button"
-              className={`atlas-node ${node.kind.toLowerCase()} ${node.scene ? 'hub' : 'poi'} ${selectedId === node.id ? 'selected' : ''}`}
+              className={`atlas-node ${node.kind.toLowerCase()} ${node.scene ? 'hub' : 'poi'} ${node.residentialTier ? `neighborhood tier-${node.residentialTier.toLowerCase()} development-${node.developmentStatus?.toLowerCase()}` : ''} ${selectedId === node.id ? 'selected' : ''}`}
               style={{ left: `${node.x / 20 * 100}%`, bottom: `${node.y / 30 * 100}%` }}
               onClick={() => onSelect(node.id)}
-              aria-label={`${node.name}, ${node.zone}, grid ${node.x} east ${node.y} north, ${node.scene ? 'transit district hub' : 'inspectable point of interest'}`}
+              aria-label={`${node.name}, ${node.zone}, grid ${node.x} east ${node.y} north, ${node.residentialTier ? `${RESIDENTIAL_TIER_LABELS[node.residentialTier]} residential neighborhood` : node.scene ? 'transit district hub' : 'inspectable point of interest'}`}
               aria-pressed={selectedId === node.id}
-              title={`${node.name} · ${node.scene ? 'district hub' : 'inspect only'}`}
+              title={`${node.name} · ${node.residentialTier ? RESIDENTIAL_TIER_LABELS[node.residentialTier] : node.scene ? 'district hub' : 'inspect only'}`}
               key={node.id}
             ><i /><b>{node.name}</b></button>)}
             <span className="atlas-player" style={{ left: `${playerNode.x / 20 * 100}%`, bottom: `${playerNode.y / 30 * 100}%` }}><MapPin /><b>YOU</b></span>
@@ -2138,7 +2277,11 @@ function CityAtlas({ selectedId, playerNodeId, onSelect }: {
         <span className="atlas-gesture-hint">DRAG TO PAN · SCROLL TO ZOOM · DOUBLE-CLICK TO RESET</span>
       </div>
       <div className="atlas-node-list" aria-label="District hubs and city points of interest">
-        {atlasNodes.map((node) => <button type="button" className={`${selectedId === node.id ? 'selected' : ''} ${node.scene ? 'hub' : 'poi'}`} onClick={() => onSelect(node.id)} aria-pressed={selectedId === node.id} key={`${node.id}-list`}><i>{node.scene ? 'HUB' : 'POI'}</i>{node.name}</button>)}
+        {landmarkNodes.map((node) => <button type="button" className={`${selectedId === node.id ? 'selected' : ''} ${node.scene ? 'hub' : 'poi'}`} onClick={() => onSelect(node.id)} aria-pressed={selectedId === node.id} key={`${node.id}-list`}><i>{node.scene ? 'HUB' : 'POI'}</i>{node.name}</button>)}
+      </div>
+      <div className="atlas-neighborhood-summary" aria-label={`${WORLD_NEIGHBORHOOD_STATS.totalNeighborhoods} named residential neighborhoods`}>
+        <span><b>{WORLD_NEIGHBORHOOD_STATS.totalNeighborhoods}</b> NAMED COMMUNITIES</span>
+        {(Object.keys(RESIDENTIAL_TIER_LABELS) as CatalogResidentialTier[]).map((tier) => <span className={`tier-${tier.toLowerCase()}`} key={tier}><i />{RESIDENTIAL_TIER_LABELS[tier]} {WORLD_NEIGHBORHOOD_STATS.byTier[tier]}</span>)}
       </div>
     </div>
   );
@@ -2835,17 +2978,16 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
       ? 'STARTER_ARCOLOGY'
       : 'CBD';
   const selectedRequiresTravel = selectedRequiredDistrict !== null && selectedRequiredDistrict !== currentDistrict;
-  const selectedAtlasStatus = selectedIsCurrent
-    ? 'YOU ARE HERE'
-    : selectedAtlasNode.availability === 'PLANNED'
-      ? 'PLANNED · NOT PLAYABLE YET'
-      : selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000
-        ? '$1M VIRTUAL NET WORTH GATE'
-        : selectedRequiresTravel
-          ? 'PAID ROUTE · METRO $5 / TAXI $45'
-          : selectedAtlasNode.scene
-            ? 'LIVE · WALKABLE 3D DISTRICT'
-            : 'INTERACTIVE NODE IN THE CURRENT ECONOMIC DISTRICT';
+  const selectedAtlasStatus = (() => {
+    if (selectedIsCurrent) return 'YOU ARE HERE';
+    if (selectedAtlasNode.developmentStatus === 'PLANNED' || selectedAtlasNode.availability === 'PLANNED') return 'PLANNED · NOT PLAYABLE YET';
+    if (selectedAtlasNode.developmentStatus === 'SHELL') return 'SITE / MASSING SHELL · GAMEPLAY AND INTERIORS IN DEVELOPMENT';
+    if (selectedAtlasNode.developmentStatus === 'PLAYABLE') return 'REPRESENTED IN A LIVE 3D DISTRICT · USE THE NEAREST HUB';
+    if (selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000) return '$1M VIRTUAL NET WORTH GATE';
+    if (selectedRequiresTravel) return 'PAID ROUTE · METRO $5 / TAXI $45';
+    if (selectedAtlasNode.scene) return 'LIVE · WALKABLE 3D DISTRICT';
+    return 'INTERACTIVE NODE IN THE CURRENT ECONOMIC DISTRICT';
+  })();
   const activeMarinaNode = selectedAtlasNode.place === 'marina'
     ? selectedAtlasNode
     : WORLD_ATLAS.find((node) => node.id === 'public-marina')!;
@@ -2916,8 +3058,8 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
           {place === 'news' && <><small>AMPLIWORLD NEWSWIRE · DAY {String(day).padStart(3, '0')}</small><VisionPanel image="/visuals/ampliworld-population-simulation.jpg" label="WORLD ENGINE · POPULATION TO SIGNAL" alt="Concept visualization of the AmpliWorld population simulation engine" /><h1>Today&apos;s world state</h1><p>The lead event is part of the active simulation state: close the day and its asset impacts settle into tomorrow&apos;s prices.</p><div className="population-strip"><span><b>8.3B</b>upstream population frame</span><span><b>1M</b>target weighted core</span><span><b>4,096</b>planned active cohorts</span><span><b>32</b>visible representative NPCs</span></div><div className="news-list">{visibleNews.map((event, index) => <article className={index === 0 ? 'lead' : ''} key={event.id}><i>{index === 0 ? `ACTIVE SIMULATION · ${event.domain}` : event.domain}</i><b>{event.headline}</b><span>{event.impacts.join(' · ')}</span></article>)}</div></>}
           {place === 'map' && <>
             <small>CONTINENTAL ATLAS · PRESS M ANYWHERE · {PLAYABLE_CORE_KM} × {PLAYABLE_CORE_KM} KM LIVE CORE / {REPRESENTED_REGION_KM} × {REPRESENTED_REGION_HEIGHT_KM} KM REGION</small>
-            <h1>One connected world—not a row of teleport buttons.</h1>
-            <p>The map compresses a {REPRESENTED_REGION_KM} × {REPRESENTED_REGION_HEIGHT_KM} km regional economy—coast, city, ridge and highlands—around a dense {PLAYABLE_CORE_KM} × {PLAYABLE_CORE_KM} km live core. Drag to pan, scroll to zoom and select any building to inspect it. Long-distance travel begins at a metro hub; ordinary buildings remain places you reach on foot or by road after arrival.</p>
+            <h1>An entire metropolitan economy—not a single CBD.</h1>
+            <p>The atlas combines Beijing-scale axes and residential rings, Los Angeles-style metropolitan centres, a New York-inspired vertical core, a continuous metropolitan river and a resort coast. It currently catalogs {WORLD_NEIGHBORHOOD_STATS.totalNeighborhoods} original communities across five housing tiers and seven typologies. Drag to pan, scroll to zoom and inspect any node; long-distance travel still begins at a station, while streets, bridges and waterfront paths remain physically connected inside each live district.</p>
             <div className="atlas-layout">
               <CityAtlas selectedId={selectedAtlasId} playerNodeId={playerAtlasId} onSelect={selectAtlasNode} />
               <aside className="atlas-inspector">
@@ -2927,20 +3069,26 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
                 <small>{selectedAtlasNode.zone}</small>
                 <h2>{selectedAtlasNode.name}</h2>
                 <p>{selectedAtlasNode.detail}</p>
-                <dl><div><dt>ATLAS SECTOR</dt><dd>{selectedAtlasNode.x.toFixed(1)}E · {selectedAtlasNode.y.toFixed(1)}N</dd></div><div><dt>MAP ROLE</dt><dd>{selectedAtlasNode.scene ? 'METRO / DISTRICT HUB' : 'INSPECTABLE POI'}</dd></div><div><dt>STATUS</dt><dd>{selectedAtlasStatus}</dd></div><div><dt>YOUR LOCAL POSITION</dt><dd>X {localPosition.x.toFixed(1)} · Z {localPosition.z.toFixed(1)}</dd></div></dl>
-                <button disabled={!selectedAtlasNode.scene || selectedAtlasNode.availability === 'PLANNED' || (selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000)} onClick={openSelectedAtlasNode}>{selectedAtlasNode.availability === 'PLANNED' ? 'AREA NOT PLAYABLE YET' : selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000 ? 'VIRTUAL NET WORTH REQUIRED' : !selectedAtlasNode.scene ? 'POI ONLY · USE NEAREST METRO, THEN WALK OR DRIVE' : selectedIsCurrent ? 'RETURN TO STREET' : selectedRequiresTravel ? `ROUTE VIA METRO TO ${selectedRequiredDistrict === 'CBD' ? 'CITY' : 'HOME'} HUB` : `ENTER ${selectedAtlasNode.name.toUpperCase()} DISTRICT · 3D`}</button>
+                <dl><div><dt>ATLAS SECTOR</dt><dd>{selectedAtlasNode.x.toFixed(1)}E · {selectedAtlasNode.y.toFixed(1)}N</dd></div><div><dt>MAP ROLE</dt><dd>{selectedAtlasNode.residentialTier ? 'NAMED RESIDENTIAL COMMUNITY' : selectedAtlasNode.scene ? 'METRO / DISTRICT HUB' : 'INSPECTABLE POI'}</dd></div><div><dt>STATUS</dt><dd>{selectedAtlasStatus}</dd></div><div><dt>YOUR LOCAL POSITION</dt><dd>X {localPosition.x.toFixed(1)} · Z {localPosition.z.toFixed(1)}</dd></div></dl>
+                {selectedAtlasNode.residentialTier && <section className="atlas-neighborhood-card">
+                  <header><span><small>HOUSING TIER</small><b>{RESIDENTIAL_TIER_LABELS[selectedAtlasNode.residentialTier]}</b></span><span><small>TYPOLOGY</small><b>{selectedAtlasNode.residentialTypology?.replaceAll('_', ' ')}</b></span></header>
+                  <div><span><b>{selectedAtlasNode.households?.toLocaleString()}</b> households</span><span><b>{selectedAtlasNode.floors}</b> floors</span><span><b>{selectedAtlasNode.heightMeters} m</b> reference height</span></div>
+                  {selectedAtlasNode.inspiration && <p><b>DESIGN VOCABULARY</b>{selectedAtlasNode.inspiration}</p>}
+                  <small>REAL-WORLD REFERENCES INFORM SCALE AND PROGRAM ONLY; THE IN-WORLD NAME AND ARCHITECTURE ARE ORIGINAL.</small>
+                </section>}
+                <button disabled={!selectedAtlasNode.scene || selectedAtlasNode.availability === 'PLANNED' || (selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000)} onClick={openSelectedAtlasNode}>{selectedAtlasNode.availability === 'PLANNED' ? 'AREA NOT PLAYABLE YET' : selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000 ? 'VIRTUAL NET WORTH REQUIRED' : !selectedAtlasNode.scene ? selectedAtlasNode.residentialTier ? 'COMMUNITY MODEL · ENTER THROUGH THE NEAREST DISTRICT HUB' : 'POI ONLY · USE NEAREST METRO, THEN WALK OR DRIVE' : selectedIsCurrent ? 'RETURN TO STREET' : selectedRequiresTravel ? `ROUTE VIA METRO TO ${selectedRequiredDistrict === 'CBD' ? 'CITY' : 'HOME'} HUB` : `ENTER ${selectedAtlasNode.name.toUpperCase()} DISTRICT · 3D`}</button>
               </aside>
             </div>
-            <div className="atlas-legend"><span><i className="you" />YOU</span><span><i className="hub" />METRO / DISTRICT HUB</span><span><i className="poi" />INSPECTABLE POI</span><span><i className="route" />TRANSIT LINE</span><span><i className="gated" />GATED</span><span><i className="planned" />PLANNED</span></div>
+            <div className="atlas-legend"><span><i className="you" />YOU</span><span><i className="hub" />METRO / DISTRICT HUB</span><span><i className="poi" />INSPECTABLE POI</span><span><i className="route" />TRANSIT LINE</span><span><i className="shell" />MASSING SHELL</span><span><i className="planned" />PLANNED</span></div>
             <div className="city-layer-grid">
               <article><Hospital /><b>PUBLIC CITY</b><span>Hospital · police · academy</span></article>
               <article><Store /><b>DAILY CITY</b><span>Fresh market · dining · park</span></article>
-              <article><Building2 /><b>RESIDENTIAL CITY</b><span>Studio · 1B · 2B · full-floor homes</span></article>
+              <article><Building2 /><b>HOUSING LADDER</b><span>Value · mid-market · move-up · premium · trophy</span></article>
               <article><Car /><b>MOBILITY CITY</b><span>Metro hubs · continuous roads · 4S campus</span></article>
               <article><Ship /><b>WATERFRONT CITY</b><span>Public boats · yachts · cargo · liners</span></article>
               <article><Building2 /><b>UTILITY CITY</b><span>Power campus · grid · nuclear district</span></article>
             </div>
-            <div className="population-strip"><span><b>{WORLD_ASSET_COUNTS.buildings}</b>numbered buildings</span><span><b>{WORLD_ASSET_COUNTS.watercraft}</b>numbered watercraft</span><span><b>{WORLD_ASSET_COUNTS.vehicles}</b>numbered vehicles</span><span><b>5</b>playable 3D districts</span></div>
+            <div className="population-strip"><span><b>{WORLD_NEIGHBORHOOD_STATS.totalNeighborhoods}</b>named communities</span><span><b>{WORLD_NEIGHBORHOOD_STATS.totalHouseholds.toLocaleString()}</b>cataloged households</span><span><b>{WORLD_ASSET_COUNTS.watercraft}</b>numbered watercraft</span><span><b>5</b>live 3D districts</span></div>
             <section className="transit-desk">
               <div className="transit-route"><span>CURRENT <b>{locationLabel}</b></span><i>18.4 KM</i><span>DESTINATION <b>{transitTargetLabel.toUpperCase()}</b></span></div>
               <div className="transit-options">
@@ -2949,7 +3097,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
               </div>
               <div className="transit-ledger"><span>TRIPS <b>{transitTrips}</b></span><span>METRO <b>{metroRides}</b></span><span>TAXI <b>{taxiRides}</b></span><span>LIFETIME FARES <b>${transitSpend.toFixed(2)}</b></span></div>
             </section>
-            <VisionPanel image="/visuals/ampliworld-world-asset-master-v1.png" label="CLOUD-RENDERED WORLD ASSET DIRECTION · MARINA / CITY CORE / VILLA RIDGE" alt="Original AmpliWorld environment direction showing its marina, residential skyline, villa ridge and correctly separated traffic" />
+            <VisionPanel image="/visuals/ampliworld-metropolitan-masterplan-v1.jpg" label="AMPLIWORLD METROPOLITAN MASTERPLAN · RIVER / CENTRES / HOUSING / COAST" alt="Original AmpliWorld metropolitan masterplan showing the continuous river, city core, residential belts, resort marina, coast and highlands" />
           </>}
           {place === 'hospital' && <>
             <small>MERIDIAN GENERAL HOSPITAL · PUBLIC CITY SYSTEM</small>
@@ -2998,16 +3146,26 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
           </>}
           {place === 'residences' && <>
             <small>{activeResidenceNode.name.toUpperCase()} · {activeResidenceNode.zone}</small>
-            <h1>The center of the skyline belongs to people.</h1>
-            <p>Three architecturally distinct science-fiction residential towers define the city core. Each premium level is conceived as one large full-floor home—not a stack of anonymous boxes. Around them, five- and six-floor pool communities provide the attainable next step from Starter Arcology.</p>
-            <div className="housing-ladder">
-              <article><small>ATTAINABLE MIDRISE</small><b>Canopy Studio</b><span>5 floors · shared pool · compact first upgrade</span><em>RESERVATIONS PLANNED</em></article>
-              <article><small>ATTAINABLE MIDRISE</small><b>Canopy 1B / 2B</b><span>5–6 floors · more space · central neighborhood</span><em>RESERVATIONS PLANNED</em></article>
-              <article className="helix-home"><small>CITY-CORE SIGNATURE</small><b>Helix One</b><span>Rotating floor plates · one panoramic home per level</span><em>FULL-FLOOR RESIDENCE</em></article>
-              <article className="prism-home"><small>CITY-CORE SIGNATURE</small><b>Prism House</b><span>Faceted terraces · private sky garden levels</span><em>FULL-FLOOR RESIDENCE</em></article>
-              <article className="bridge-home"><small>CITY-CORE SIGNATURE</small><b>Skybridge Residences</b><span>Twin towers · private bridge salons above the CBD</span><em>FULL-FLOOR RESIDENCE</em></article>
-            </div>
-            <p className="truth-note">The buildings are live in the 3D city. Apartment interiors, reservations, prices and ownership are deliberately marked as planned until those systems are implemented.</p>
+            <h1>{activeResidenceNode.residentialTier ? `${activeResidenceNode.name} is one rung in a complete city.` : 'The center of the skyline belongs to people.'}</h1>
+            <p>{activeResidenceNode.residentialTier ? activeResidenceNode.detail : 'Three architecturally distinct science-fiction residential towers define the city core. Each premium level is conceived as one large full-floor home—not a stack of anonymous boxes. Around them, five- and six-floor pool communities provide the attainable next step from Starter Arcology.'}</p>
+            {activeResidenceNode.residentialTier ? <>
+              <div className="community-profile">
+                <article><small>HOUSING TIER</small><b>{RESIDENTIAL_TIER_LABELS[activeResidenceNode.residentialTier]}</b><span>A distinct price and lifestyle rung</span></article>
+                <article><small>TYPOLOGY</small><b>{activeResidenceNode.residentialTypology?.replaceAll('_', ' ')}</b><span>Original AmpliWorld residential form</span></article>
+                <article><small>PLANNING CAPACITY</small><b>{activeResidenceNode.households?.toLocaleString()} homes</b><span>{activeResidenceNode.floors} floors · {activeResidenceNode.heightMeters} m reference height</span></article>
+                <article><small>DELIVERY STATUS</small><b>{activeResidenceNode.developmentStatus}</b><span>{activeResidenceNode.developmentStatus === 'PLAYABLE' ? 'Representative district space is live' : activeResidenceNode.developmentStatus === 'SHELL' ? 'Site or massing exists; gameplay is incomplete' : 'Catalog and site planning only'}</span></article>
+              </div>
+              <p className="truth-note">{activeResidenceNode.inspiration} The reference informs scale and program only; names, architecture and eventual assets remain original.</p>
+            </> : <>
+              <div className="housing-ladder">
+                <article><small>ATTAINABLE MIDRISE</small><b>Canopy Studio</b><span>5 floors · shared pool · compact first upgrade</span><em>RESERVATIONS PLANNED</em></article>
+                <article><small>ATTAINABLE MIDRISE</small><b>Canopy 1B / 2B</b><span>5–6 floors · more space · central neighborhood</span><em>RESERVATIONS PLANNED</em></article>
+                <article className="helix-home"><small>CITY-CORE SIGNATURE</small><b>Helix One</b><span>Rotating floor plates · one panoramic home per level</span><em>FULL-FLOOR RESIDENCE</em></article>
+                <article className="prism-home"><small>CITY-CORE SIGNATURE</small><b>Prism House</b><span>Faceted terraces · private sky garden levels</span><em>FULL-FLOOR RESIDENCE</em></article>
+                <article className="bridge-home"><small>CITY-CORE SIGNATURE</small><b>Skybridge Residences</b><span>Twin towers · private bridge salons above the CBD</span><em>FULL-FLOOR RESIDENCE</em></article>
+              </div>
+              <p className="truth-note">The buildings are live in the 3D city. Apartment interiors, reservations, prices and ownership are deliberately marked as planned until those systems are implemented.</p>
+            </>}
             <button className="facility-action" onClick={() => setPlace('map')}>RETURN TO CITY HOUSING MAP</button>
           </>}
           {place === 'studio' && <>

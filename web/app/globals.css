@@ -351,6 +351,30 @@ a:focus-visible {
 .mini-road.vertical { top: 0; bottom: 0; left: 51%; width: 8px; transform: translateX(-50%); }
 .mini-road.horizontal { top: 48%; right: 0; left: 0; height: 6px; transform: translateY(-50%); }
 
+.mini-river {
+  position: absolute;
+  right: -5%;
+  left: -5%;
+  z-index: 1;
+  height: 11px;
+  border-top: 1px solid #85d8e3a6;
+  border-bottom: 1px solid #1a5f76;
+  background: linear-gradient(180deg, #50b3c8, #267a96);
+  box-shadow: 0 0 7px #297f97a8;
+  transform: translateY(-50%) rotate(-1.5deg);
+}
+
+.mini-bridge {
+  position: absolute;
+  z-index: 2;
+  width: 5px;
+  height: 16px;
+  border-right: 1px solid #e5ded0;
+  border-left: 1px solid #e5ded0;
+  background: #545b5b;
+  transform: translate(-50%, -50%);
+}
+
 .mini-landmark {
   position: absolute;
   z-index: 2;
@@ -2155,9 +2179,13 @@ a:focus-visible {
 .atlas-starter { left: 4%; bottom: 2%; width: 27%; height: 24%; border-radius: 42% 33% 12% 20%; background: #555f576b; }
 .atlas-civic { left: 31%; bottom: 27%; width: 29%; height: 30%; border-radius: 30% 45% 25% 38%; background: #78906b78; }
 .atlas-cbd { left: 43%; bottom: 34%; width: 34%; height: 36%; border: 1px solid #43efae66; border-radius: 34% 29% 38% 22%; background: radial-gradient(circle, #77ae727d, #476b526e); box-shadow: inset 0 0 22px #4cf0ad1d, 0 0 20px #0a1b1482; }
+.atlas-river-district { left: 28%; top: 39%; width: 69%; height: 18%; border-color: #6bd4e73d; border-radius: 42% 23% 37% 24%; background: #3d788b38; }
+.atlas-east-suburbs { right: 1.5%; top: 29%; width: 25%; height: 34%; border-radius: 28% 35% 22% 31%; background: #78906b52; }
+.atlas-bay-resorts { left: 1.5%; top: 61%; width: 28%; height: 18%; border-color: #83d6e750; border-radius: 48% 24% 42% 19%; background: #3c8ba35c; }
 .atlas-ridge { right: 3%; top: 6%; width: 27%; height: 36%; border-radius: 25% 42% 35% 19%; background: linear-gradient(135deg, #806f55a8, #536b50a8); }
 .atlas-highlands { left: 26%; top: 2%; width: 42%; height: 23%; border-radius: 36% 29% 42% 31%; background: linear-gradient(150deg, #6f735fbd, #455b4fad); }
 
+.atlas-river,
 .atlas-roads,
 .atlas-routes {
   position: absolute;
@@ -2168,6 +2196,12 @@ a:focus-visible {
   overflow: visible;
   pointer-events: none;
 }
+
+.atlas-river { z-index: 2; }
+.atlas-river path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; }
+.atlas-river .river-water { stroke: #3194ad; stroke-width: 18; filter: drop-shadow(0 0 5px #06191f); }
+.atlas-river .river-tributary { stroke: #3c9bb0; stroke-width: 9; }
+.atlas-river .atlas-bridges line { stroke: #d7cfbb; stroke-width: 5.5; vector-effect: non-scaling-stroke; filter: drop-shadow(0 1px 1px #0008); }
 
 .atlas-roads { z-index: 2; }
 .atlas-roads path {
@@ -2264,6 +2298,16 @@ a:focus-visible {
 
 .atlas-node.poi > i { border-width: 1px; opacity: .82; }
 .atlas-node.hub > i { width: 13px; height: 13px; border-width: 2px; }
+.atlas-node.neighborhood { z-index: 5; width: 20px; height: 20px; }
+.atlas-node.neighborhood > i { width: 6px; height: 6px; border-width: 1px; opacity: .96; }
+.atlas-node.neighborhood.tier-value > i { background: #b8b2a6; box-shadow: 0 0 8px #b8b2a6; }
+.atlas-node.neighborhood.tier-mid_market > i { background: #76b78c; box-shadow: 0 0 8px #76b78c; }
+.atlas-node.neighborhood.tier-move_up > i { background: #6fc8d7; box-shadow: 0 0 8px #6fc8d7; }
+.atlas-node.neighborhood.tier-premium > i { background: #c4a0f0; box-shadow: 0 0 8px #c4a0f0; }
+.atlas-node.neighborhood.tier-trophy > i { background: #f1c56e; box-shadow: 0 0 9px #f1c56e; }
+.atlas-node.neighborhood.development-playable > i { border-width: 2px; }
+.atlas-node.neighborhood.development-shell > i { border-style: dashed; opacity: .78; }
+.atlas-node.neighborhood.development-planned > i { border-style: dotted; filter: grayscale(.7); opacity: .42; }
 
 .atlas-node:hover > i,
 .atlas-node:focus-visible > i,
@@ -2307,6 +2351,28 @@ a:focus-visible {
 .atlas-node.residential > i { background: #e78ad6; box-shadow: 0 0 11px #e78ad6; }
 .atlas-node.dining > i { background: #f3a85f; box-shadow: 0 0 11px #f3a85f; }
 .atlas-node.energy > i { background: #6ff0be; box-shadow: 0 0 11px #6ff0be; }
+
+.atlas-neighborhood-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid #314f44;
+  background: #081611;
+  color: #9db2a8;
+  font-size: 6px;
+  letter-spacing: .07em;
+}
+
+.atlas-neighborhood-summary span { display: inline-flex; align-items: center; gap: 4px; }
+.atlas-neighborhood-summary span:first-child { margin-right: auto; color: #d9ebe2; }
+.atlas-neighborhood-summary b { color: var(--green); font-size: 9px; }
+.atlas-neighborhood-summary i { width: 6px; height: 6px; border-radius: 50%; background: #b8b2a6; box-shadow: 0 0 6px currentColor; }
+.atlas-neighborhood-summary .tier-mid_market i { background: #76b78c; }
+.atlas-neighborhood-summary .tier-move_up i { background: #6fc8d7; }
+.atlas-neighborhood-summary .tier-premium i { background: #c4a0f0; }
+.atlas-neighborhood-summary .tier-trophy i { background: #f1c56e; }
 
 .atlas-player {
   position: absolute;
@@ -2392,6 +2458,40 @@ a:focus-visible {
 .atlas-inspector dl div { display: flex; justify-content: space-between; gap: 14px; padding: 9px 0; border-bottom: 1px solid #243b31; }
 .atlas-inspector dt { color: #758d82; font-size: 6px; letter-spacing: .11em; }
 .atlas-inspector dd { margin: 0; color: #d9e9e1; font-size: 7px; text-align: right; }
+
+.atlas-neighborhood-card {
+  margin-top: 11px;
+  padding: 10px;
+  border: 1px solid #624c70;
+  background: linear-gradient(145deg, #211827, #11171a);
+}
+
+.atlas-neighborhood-card header,
+.atlas-neighborhood-card > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.atlas-neighborhood-card header span,
+.atlas-neighborhood-card > div span {
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid #5e546166;
+  background: #0b1413a8;
+}
+
+.atlas-neighborhood-card small,
+.atlas-neighborhood-card b { display: block; }
+.atlas-neighborhood-card header small { color: #94869d; font-size: 5px; letter-spacing: .11em; }
+.atlas-neighborhood-card header b { margin-top: 3px; color: #e4c7ee; font-size: 7px; line-height: 1.25; }
+.atlas-neighborhood-card > div { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 7px; }
+.atlas-neighborhood-card > div span { color: #8fa39a; font-size: 5px; line-height: 1.35; }
+.atlas-neighborhood-card > div b { color: #f0f6f2; font-size: 8px; }
+.atlas-neighborhood-card p { margin: 8px 0 7px; color: #b8c8c0; font-size: 6px; line-height: 1.55; }
+.atlas-neighborhood-card p b { margin-bottom: 3px; color: #c4a0f0; font-size: 5px; letter-spacing: .11em; }
+.atlas-neighborhood-card > small { color: #706f70; font-size: 5px; line-height: 1.45; letter-spacing: .05em; }
+
 .atlas-inspector > button,
 .facility-action,
 .marina-actions button {
@@ -2427,6 +2527,7 @@ a:focus-visible {
 .atlas-legend .you { border: 1px solid #fff; background: #07120f; box-shadow: 0 0 6px var(--green); }
 .atlas-legend .route { height: 2px; border-radius: 0; background: var(--cyan); }
 .atlas-legend .gated { background: var(--amber); }
+.atlas-legend .shell { border: 1px dashed #c4a0f0; background: #604a6b; }
 .atlas-legend .planned { border: 1px solid #b9c4be; background: transparent; }
 
 .city-layer-grid {
@@ -2599,6 +2700,29 @@ a:focus-visible {
 .housing-ladder b { margin-top: 8px; font-size: 15px; }
 .housing-ladder span { margin-top: 8px; color: var(--muted); font-size: 8px; line-height: 1.45; }
 .housing-ladder em { margin-top: auto; padding-top: 14px; color: var(--amber); font-size: 6px; font-style: normal; letter-spacing: .1em; }
+
+.community-profile {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 17px;
+}
+
+.community-profile article {
+  min-height: 116px;
+  display: flex;
+  flex-direction: column;
+  padding: 13px;
+  border: 1px solid #5f5067;
+  background: linear-gradient(145deg, #211a25, #0b1513);
+}
+
+.community-profile small,
+.community-profile b,
+.community-profile span { display: block; }
+.community-profile small { color: #c89bd4; font-size: 6px; letter-spacing: .11em; }
+.community-profile b { margin-top: 9px; color: #f2edf3; font-size: 13px; line-height: 1.2; }
+.community-profile span { margin-top: auto; padding-top: 10px; color: var(--muted); font-size: 7px; line-height: 1.45; }
 
 .district-action {
   align-self: flex-start;
@@ -3222,7 +3346,8 @@ a:focus-visible {
     text-align: left;
   }
 
-  .housing-ladder {
+  .housing-ladder,
+  .community-profile {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -3458,6 +3583,7 @@ a:focus-visible {
   .facility-grid,
   .facility-grid.compact,
   .housing-ladder,
+  .community-profile,
   .marina-actions,
   .city-layer-grid {
     grid-template-columns: 1fr;
