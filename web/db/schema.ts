@@ -5,6 +5,7 @@ import {
   real,
   sqliteTable,
   text,
+  uniqueIndex,
 } from 'drizzle-orm/sqlite-core';
 
 export const players = sqliteTable('players', {
@@ -14,6 +15,15 @@ export const players = sqliteTable('players', {
   realizedPnl: real('realized_pnl').notNull().default(0),
   unrealizedPnl: real('unrealized_pnl').notNull().default(0),
   happiness: integer('happiness').notNull().default(52),
+  nutrition: integer('nutrition').notNull().default(50),
+  careStreak: integer('care_streak').notNull().default(0),
+  dailyCarePoints: integer('daily_care_points').notNull().default(0),
+  dailyProtein: integer('daily_protein').notNull().default(0),
+  dailyProduce: integer('daily_produce').notNull().default(0),
+  lastMealTurn: integer('last_meal_turn').notNull().default(0),
+  lastWellnessTurn: integer('last_wellness_turn').notNull().default(0),
+  lastLeisureTurn: integer('last_leisure_turn').notNull().default(0),
+  tradingFeeBps: integer('trading_fee_bps').notNull().default(10),
   cityTaxPaid: real('city_tax_paid').notNull().default(0),
   marginUsed: real('margin_used').notNull().default(0),
   grossExposure: real('gross_exposure').notNull().default(0),
@@ -41,6 +51,14 @@ export const players = sqliteTable('players', {
   lastTransitFare: real('last_transit_fare').notNull().default(0),
   lastTransitAt: text('last_transit_at').notNull().default(''),
   careerStatus: text('career_status').notNull().default('UNEMPLOYED'),
+  lastWorkTurn: integer('last_work_turn').notNull().default(0),
+  workStreak: integer('work_streak').notNull().default(0),
+  lifetimeWages: real('lifetime_wages').notNull().default(0),
+  workDate: text('work_date').notNull().default(''),
+  shiftsToday: integer('shifts_today').notNull().default(0),
+  wagesToday: real('wages_today').notNull().default(0),
+  socialMode: text('social_mode').notNull().default('PRIVATE'),
+  contactCoins: integer('contact_coins').notNull().default(0),
   turn: integer('turn').notNull().default(1),
   marketSeed: text('market_seed').notNull().default(''),
   lastOperationId: text('last_operation_id').notNull().default(''),
@@ -184,5 +202,49 @@ export const transitTrips = sqliteTable(
   },
   (table) => [
     index('transit_trips_user_created_idx').on(table.userId, table.createdAt),
+  ],
+);
+
+export const lifeEvents = sqliteTable(
+  'life_events',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => players.userId, { onDelete: 'cascade' }),
+    turn: integer('turn').notNull(),
+    activityCode: text('activity_code').notNull(),
+    category: text('category').$type<'MEAL' | 'WELLNESS' | 'LEISURE'>().notNull(),
+    price: real('price').notNull(),
+    tax: real('tax').notNull().default(0),
+    happinessDelta: integer('happiness_delta').notNull().default(0),
+    nutritionDelta: integer('nutrition_delta').notNull().default(0),
+    carePoints: integer('care_points').notNull().default(0),
+    createdAt: text('created_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('life_events_user_turn_category_unique').on(
+      table.userId,
+      table.turn,
+      table.category,
+    ),
+  ],
+);
+
+export const workShifts = sqliteTable(
+  'work_shifts',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => players.userId, { onDelete: 'cascade' }),
+    turn: integer('turn').notNull(),
+    jobCode: text('job_code').notNull(),
+    pay: real('pay').notNull(),
+    happinessDelta: integer('happiness_delta').notNull().default(0),
+    createdAt: text('created_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('work_shifts_user_turn_unique').on(table.userId, table.turn),
   ],
 );

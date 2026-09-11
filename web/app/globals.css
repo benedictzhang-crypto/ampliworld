@@ -1690,6 +1690,390 @@ a:focus-visible {
   box-shadow: 0 0 18px #42f5af45;
 }
 
+.modal.studio-modal {
+  width: min(430px, calc(100% - 30px));
+  background: linear-gradient(145deg, #161712ee, #0d100eee);
+  border-color: #8b7558;
+}
+
+.fee-banner {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 11px 12px;
+  border: 1px solid #4c725f;
+  background: linear-gradient(90deg, #163528, #0c1d1a);
+}
+
+.fee-banner > svg {
+  width: 23px;
+  color: var(--green);
+}
+
+.fee-banner span,
+.fee-banner b {
+  display: block;
+}
+
+.fee-banner span {
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.4;
+}
+
+.fee-banner b {
+  margin-bottom: 3px;
+  color: var(--ink);
+  font-size: 10px;
+  letter-spacing: .07em;
+}
+
+.fee-banner button,
+.district-action {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--green);
+  background: #143829;
+  color: var(--green);
+  cursor: pointer;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+
+.world-atlas {
+  position: relative;
+  width: min(280px, 72vw);
+  aspect-ratio: 2 / 3;
+  margin: 18px auto;
+  overflow: hidden;
+  border: 1px solid #587064;
+  border-radius: 46% 45% 34% 38% / 16% 18% 26% 22%;
+  background:
+    radial-gradient(circle at 57% 49%, #75a66d 0 16%, transparent 17%),
+    linear-gradient(145deg, transparent 0 59%, #765f49 60% 69%, transparent 70%),
+    linear-gradient(90deg, #3d8aa0 0 18%, #768b66 19% 100%);
+  box-shadow: inset 0 0 45px #0a17138f, 0 18px 40px #0007;
+}
+
+.world-atlas::before {
+  content: '';
+  position: absolute;
+  inset: 6% 5%;
+  border: 1px solid #e7e0c31f;
+  background:
+    linear-gradient(90deg, transparent 49.7%, #edf4e21f 50%, transparent 50.3%),
+    linear-gradient(transparent 49.7%, #edf4e21f 50%, transparent 50.3%);
+  background-size: 25% 16.66%;
+}
+
+.atlas-sea,
+.atlas-mountains,
+.atlas-width,
+.atlas-height {
+  position: absolute;
+  z-index: 1;
+  color: #e6f0e9a8;
+  font-size: 6px;
+  letter-spacing: .12em;
+}
+
+.atlas-sea { left: 3%; top: 48%; transform: rotate(-90deg); }
+.atlas-mountains { top: 3.5%; left: 24%; }
+.atlas-width { right: 7%; bottom: 2.5%; }
+.atlas-height { right: 1%; top: 38%; transform: rotate(90deg); }
+
+.atlas-node {
+  position: absolute;
+  z-index: 3;
+  min-width: 78px;
+  transform: translate(-8px, 50%);
+  color: #f3fbf7;
+  font-size: 7px;
+  text-shadow: 0 2px 5px #000;
+}
+
+.atlas-node > i {
+  width: 9px;
+  height: 9px;
+  display: inline-block;
+  border: 2px solid #eefaf3;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 11px #42f5af;
+  vertical-align: middle;
+}
+
+.atlas-node b,
+.atlas-node small {
+  display: block;
+  margin-left: 14px;
+}
+
+.atlas-node b { margin-top: -11px; white-space: nowrap; }
+.atlas-node small { margin-top: 2px; color: #d0ddd6; font-size: 5px; letter-spacing: .1em; }
+.atlas-node.sea > i { background: var(--cyan); box-shadow: 0 0 11px var(--cyan); }
+.atlas-node.villas > i { background: var(--amber); box-shadow: 0 0 11px var(--amber); }
+.atlas-node.mountains > i { background: #d7c4a0; box-shadow: 0 0 11px #d7c4a0; }
+
+.district-action {
+  align-self: flex-start;
+  margin-top: 9px;
+}
+
+.district-action:disabled {
+  cursor: not-allowed;
+  border-color: #59675f;
+  color: #78877f;
+  opacity: .65;
+}
+
+.wellbeing-ledger,
+.social-status,
+.work-ledger {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.wellbeing-ledger > span,
+.social-status > span,
+.work-ledger > span {
+  min-width: 0;
+  padding: 10px 8px;
+  border: 1px solid #315044;
+  background: #0d1f19;
+}
+
+.wellbeing-ledger svg {
+  width: 14px;
+  height: 14px;
+  margin-bottom: 5px;
+  color: var(--green);
+}
+
+.wellbeing-ledger b,
+.wellbeing-ledger small,
+.social-status b,
+.social-status small,
+.work-ledger b {
+  display: block;
+}
+
+.wellbeing-ledger b {
+  font-size: 13px;
+}
+
+.wellbeing-ledger small,
+.social-status small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 6px;
+  line-height: 1.25;
+  letter-spacing: .08em;
+}
+
+.wellbeing-ledger .fee {
+  border-color: #b08241;
+  background: #261d10;
+}
+
+.wellbeing-ledger .fee svg,
+.wellbeing-ledger .fee b {
+  color: var(--amber);
+}
+
+.care-rule,
+.truth-note {
+  margin-top: 9px;
+  padding: 10px 12px;
+  border: 1px solid #405a50;
+  background: #121d19;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.care-rule b {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--green);
+  font-size: 7px;
+  letter-spacing: .12em;
+}
+
+.life-grid,
+.job-grid,
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.life-grid article,
+.job-grid article,
+.social-grid article {
+  position: relative;
+  min-height: 210px;
+  display: flex;
+  flex-direction: column;
+  padding: 13px;
+  border: 1px solid #345248;
+  background: linear-gradient(145deg, #11251d, #0a1512);
+}
+
+.life-grid article.complete {
+  border-color: #557166;
+  filter: saturate(.7);
+  opacity: .72;
+}
+
+.life-icon,
+.job-grid > article > svg {
+  position: absolute;
+  top: 11px;
+  right: 11px;
+  color: var(--green);
+}
+
+.life-icon svg,
+.job-grid > article > svg {
+  width: 19px;
+  height: 19px;
+}
+
+.life-grid article > small,
+.job-grid article > small,
+.social-grid article > small {
+  padding-right: 25px;
+  color: var(--green);
+  font-size: 6px;
+  letter-spacing: .1em;
+}
+
+.life-grid h2,
+.job-grid h2,
+.social-grid h2 {
+  margin: 7px 0 0;
+  font-size: 13px;
+}
+
+.life-grid p,
+.job-grid p,
+.social-grid p {
+  margin: 7px 0 10px;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.life-grid article > div,
+.job-grid article > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 7px;
+  margin-top: auto;
+  color: #829b90;
+  font-size: 7px;
+}
+
+.life-grid article > div b,
+.job-grid article > div b {
+  color: var(--amber);
+  white-space: nowrap;
+}
+
+.life-grid button,
+.job-grid button,
+.social-grid button,
+.privacy-setting button {
+  min-height: 35px;
+  margin-top: 10px;
+  border: 1px solid #43856a;
+  background: #143528;
+  color: var(--green);
+  cursor: pointer;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .07em;
+}
+
+.life-grid button:disabled,
+.job-grid button:disabled,
+.social-grid button:disabled,
+.privacy-setting button:disabled {
+  cursor: not-allowed;
+  filter: grayscale(.5);
+  opacity: .52;
+}
+
+.work-ledger {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.work-ledger span {
+  color: var(--muted);
+  font-size: 7px;
+  line-height: 1.35;
+}
+
+.work-ledger b {
+  margin-bottom: 3px;
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.social-status {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.social-status b {
+  color: var(--ink);
+  font-size: 9px;
+  line-height: 1.25;
+}
+
+.privacy-setting {
+  margin-top: 10px;
+  padding: 13px;
+  border: 1px solid #3a5b4d;
+  background: linear-gradient(120deg, #13291f, #101820);
+}
+
+.privacy-setting > div:first-child {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.privacy-setting svg {
+  width: 23px;
+  flex: 0 0 23px;
+  color: var(--cyan);
+}
+
+.privacy-setting span,
+.privacy-setting small,
+.privacy-setting b,
+.privacy-setting p {
+  display: block;
+}
+
+.privacy-setting small { color: var(--cyan); font-size: 6px; letter-spacing: .12em; }
+.privacy-setting b { margin-top: 4px; font-size: 11px; }
+.privacy-setting p { margin: 4px 0 0; color: var(--muted); font-size: 8px; line-height: 1.4; }
+.privacy-setting > div:last-child { display: grid; grid-template-columns: .75fr 1.25fr; gap: 6px; }
+.privacy-setting button.active { border-color: var(--cyan); background: #123442; color: var(--cyan); }
+.social-grid article { min-height: 178px; }
+.social-grid article:last-child { grid-column: 1 / -1; }
+.social-grid i { margin-top: auto; color: var(--amber); font-size: 7px; font-style: normal; letter-spacing: .1em; }
+.truth-note { border-style: dashed; }
+
 .journey-overlay {
   position: absolute;
   inset: 0;
@@ -1950,6 +2334,10 @@ a:focus-visible {
     border-color: #3f6455;
   }
 
+  .modal.studio-modal {
+    width: auto;
+  }
+
   .modal h1 {
     padding-right: 26px;
     font-size: 23px;
@@ -2049,6 +2437,23 @@ a:focus-visible {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .wellbeing-ledger {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .social-status,
+  .work-ledger {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .fee-banner {
+    grid-template-columns: 24px 1fr;
+  }
+
+  .fee-banner button {
+    grid-column: 1 / -1;
+  }
+
   .interview {
     align-items: flex-start;
     flex-wrap: wrap;
@@ -2134,7 +2539,18 @@ a:focus-visible {
 
   .district-grid,
   .inventory-grid,
-  .real-estate-grid {
+  .real-estate-grid,
+  .life-grid,
+  .job-grid,
+  .social-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .social-grid article:last-child {
+    grid-column: auto;
+  }
+
+  .privacy-setting > div:last-child {
     grid-template-columns: 1fr;
   }
 

@@ -43,6 +43,122 @@ export const GAME_ITEMS = {
 
 export type GameItemCode = keyof typeof GAME_ITEMS;
 
+export const LIFE_ACTIVITIES = {
+  DELIVERY_BOWL: {
+    name: 'Basic Delivery Bowl',
+    price: 12,
+    happiness: 2,
+    nutrition: 6,
+    protein: 15,
+    produce: 5,
+    carePoints: 0,
+    category: 'MEAL',
+    district: 'ANY',
+    description: 'Keeps the character going, but does not improve long-term care.',
+  },
+  PROTEIN_PLATE: {
+    name: 'Protein Plate',
+    price: 22,
+    happiness: 5,
+    nutrition: 18,
+    protein: 100,
+    produce: 25,
+    carePoints: 3,
+    category: 'MEAL',
+    district: 'CBD',
+    description: 'A complete meal that materially improves recovery.',
+  },
+  FRESH_FRUIT_BOX: {
+    name: 'Fresh Fruit Box',
+    price: 8,
+    happiness: 3,
+    nutrition: 10,
+    protein: 10,
+    produce: 100,
+    carePoints: 2,
+    category: 'WELLNESS',
+    district: 'ANY',
+    description: 'A low-cost daily wellness choice available to every player.',
+  },
+  PARK_WALK: {
+    name: 'Waterfront Park Walk',
+    price: 0,
+    happiness: 4,
+    nutrition: 0,
+    protein: 0,
+    produce: 0,
+    carePoints: 1,
+    category: 'LEISURE',
+    district: 'CBD',
+    description: 'Free recovery after the market closes.',
+  },
+  COAST_DAY_TRIP: {
+    name: 'Coast Day Trip',
+    price: 80,
+    happiness: 14,
+    nutrition: 2,
+    protein: 0,
+    produce: 0,
+    carePoints: 4,
+    category: 'LEISURE',
+    district: 'CBD',
+    description: 'A compressed trip to the coast, park and mountain overlook.',
+  },
+  ISLAND_WEEKEND: {
+    name: 'Island Weekend',
+    price: 320,
+    happiness: 24,
+    nutrition: 4,
+    protein: 0,
+    produce: 0,
+    carePoints: 6,
+    category: 'LEISURE',
+    district: 'CBD',
+    description: 'Premium leisure paid entirely with earned virtual dollars.',
+  },
+} as const;
+
+export type LifeActivityCode = keyof typeof LIFE_ACTIVITIES;
+export type LifeActivityCategory =
+  (typeof LIFE_ACTIVITIES)[LifeActivityCode]['category'];
+
+export const DAILY_JOBS = {
+  REMOTE_NEWS_TAGGER: {
+    name: 'Remote News Tagger',
+    pay: 12,
+    happiness: -1,
+    district: 'ANY',
+    durationMinutes: 3,
+    description: 'Classify world events from the home terminal.',
+  },
+  PARK_STEWARD: {
+    name: 'Waterfront Park Steward',
+    pay: 18,
+    happiness: 2,
+    district: 'CBD',
+    durationMinutes: 4,
+    description: 'Help visitors and keep the promenade relaxed.',
+  },
+  CAFE_CLOSING_SHIFT: {
+    name: 'Nova Café Closing Shift',
+    pay: 24,
+    happiness: -3,
+    district: 'CBD',
+    durationMinutes: 5,
+    description: 'A reliable shift that pays for several city visits.',
+  },
+  MARKET_BRIEF_REVIEW: {
+    name: 'Market Brief Review',
+    pay: 30,
+    happiness: -4,
+    district: 'CBD',
+    durationMinutes: 6,
+    description: 'A focused research task for hired market assistants.',
+  },
+} as const;
+
+export type DailyJobCode = keyof typeof DAILY_JOBS;
+
 export const VIRTUAL_PROPERTY_CODES: readonly GameItemCode[] = [
   'PARKSIDE_VILLA',
   'GLASS_COURTYARD_VILLA',
@@ -251,6 +367,14 @@ export function isVirtualSymbol(value: string): value is VirtualSymbol {
 
 export function isGameItemCode(value: string): value is GameItemCode {
   return Object.prototype.hasOwnProperty.call(GAME_ITEMS, value);
+}
+
+export function isLifeActivityCode(value: string): value is LifeActivityCode {
+  return Object.prototype.hasOwnProperty.call(LIFE_ACTIVITIES, value);
+}
+
+export function isDailyJobCode(value: string): value is DailyJobCode {
+  return Object.prototype.hasOwnProperty.call(DAILY_JOBS, value);
 }
 
 export function isVirtualPropertyCode(value: GameItemCode) {

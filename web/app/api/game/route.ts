@@ -1,12 +1,16 @@
 import { env } from 'cloudflare:workers';
 import { getChatGPTUser } from '../../chatgpt-auth';
 import {
+  DAILY_JOBS,
   GAME_ITEMS,
+  isDailyJobCode,
   isGameItemCode,
   isLeverageLevel,
+  isLifeActivityCode,
   isVirtualPropertyCode,
   isVirtualSymbol,
   LEVERAGE_LEVELS,
+  LIFE_ACTIVITIES,
   type LeverageLevel,
   MAINTENANCE_MARGIN_RATES,
   MAX_SIMULATION_TURN,
@@ -29,6 +33,11 @@ const MAX_RELIEF_CLAIMS = 2;
 const RELIEF_COOLDOWN_TURNS = 30;
 const MAX_IDEMPOTENCY_KEY_LENGTH = 128;
 const IDEMPOTENCY_HISTORY_LIMIT = 200;
+const MAX_DAILY_WORK_SHIFTS = 2;
+const MAX_DAILY_WAGES = 40;
+const DAILY_HAPPINESS_DECAY = 2;
+const DAILY_NUTRITION_DECAY = 6;
+const WELL_CARED_POINTS = 4;
 const STARTER_TOWER_COUNT = 1_000;
 const STARTER_TOWER_FLOORS = 50;
 const STARTER_UNITS_PER_FLOOR = 200;
@@ -65,6 +74,15 @@ interface PlayerRow {
   realizedPnl: number;
   unrealizedPnl: number;
   happiness: number;
+  nutrition: number;
+  careStreak: number;
+  dailyCarePoints: number;
+  dailyProtein: number;
+  dailyProduce: number;
+  lastMealTurn: number;
+  lastWellnessTurn: number;
+  lastLeisureTurn: number;
+  tradingFeeBps: number;
   cityTaxPaid: number;
   marginUsed: number;
   grossExposure: number;
@@ -89,6 +107,14 @@ interface PlayerRow {
   lastTransitFare: number;
   lastTransitAt: string;
   careerStatus: string;
+  lastWorkTurn: number;
+  workStreak: number;
+  lifetimeWages: number;
+  workDate: string;
+  shiftsToday: number;
+  wagesToday: number;
+  socialMode: string;
+  contactCoins: number;
   turn: number;
   marketSeed: string;
   updatedAt: string;
@@ -154,6 +180,28 @@ interface TransitTripRow {
   createdAt: string;
 }
 
+interface LifeEventRow {
+  id: number;
+  turn: number;
+  activityCode: string;
+  category: string;
+  price: number;
+  tax: number;
+  happinessDelta: number;
+  nutritionDelta: number;
+  carePoints: number;
+  createdAt: string;
+}
+
+interface WorkShiftRow {
+  id: number;
+  turn: number;
+  jobCode: string;
+  pay: number;
+  happinessDelta: number;
+  createdAt: string;
+}
+
 let databasePreparation: Promise<void> | undefined;
 
 function roundMoney(value: number) {
@@ -162,6 +210,59 @@ function roundMoney(value: number) {
 
 function roundQuantity(value: number) {
   return Math.round((value + Number.EPSILON) * 100_000_000) / 100_000_000;
+}
+
+function clampScore(value: number) {
+  return Math.min(100, Math.max(0, Math.round(value)));
+}
+
+function normalizedFeeBps(value: number) {
+  return Math.min(10, Math.max(0, Math.round(value)));
+}
+
+function careScore(happiness: number, nutrition: number, careStreak: number) {
+  return clampScore(
+    happiness * 0.6 + nutrition * 0.4 + Math.min(10, careStreak),
+  );
+}
+
+function feeBpsForCare(
+  happiness: number,
+  nutrition: number,
+  careStreak: number,
+) {
+  const score = careScore(happiness, nutrition, careStreak);
+  const rawFeeBps = Math.min(10, Math.max(0, Math.ceil((100 - score) / 5)));
+  return rawFeeBps === 0 && careStreak < 7 ? 1 : rawFeeBps;
+}
+
+function tradingFee(notional: number, feeBps: number) {
+  const rate = normalizedFeeBps(feeBps) / 10_000;
+  return rate === 0 ? 0 : roundMoney(Math.max(0.01, notional * rate));
+}
+
+function utcDateKey(date = new Date()) {
+  return date.toISOString().slice(0, 10);
+}
+
+function nextCareState(player: PlayerRow) {
+  const happiness = clampScore(player.happiness - DAILY_HAPPINESS_DECAY);
+  const nutrition = clampScore(player.nutrition - DAILY_NUTRITION_DECAY);
+  const completeCareDay =
+    player.dailyCarePoints >= WELL_CARED_POINTS &&
+    player.dailyProtein >= 70 &&
+    player.dailyProduce >= 70 &&
+    nutrition >= 55;
+  const careStreak = completeCareDay
+    ? Math.min(30, player.careStreak + 1)
+    : Math.max(0, player.careStreak - 1);
+  return {
+    happiness,
+    nutrition,
+    careStreak,
+    completeCareDay,
+    tradingFeeBps: feeBpsForCare(happiness, nutrition, careStreak),
+  };
 }
 
 function playerDistrict(value: string): District {
@@ -202,7 +303,11 @@ async function prepareDatabaseInternal() {
         `SELECT user_id, market_seed, last_operation_id, current_district,
           starter_tower, starter_floor, starter_unit, transit_spend,
           transit_trips, metro_rides, taxi_rides, last_transit_mode,
-          last_transit_fare, last_transit_at
+          last_transit_fare, last_transit_at, nutrition, care_streak,
+          daily_care_points, daily_protein, daily_produce,
+          last_meal_turn, last_wellness_turn, last_leisure_turn,
+          trading_fee_bps, last_work_turn, work_streak, lifetime_wages,
+          work_date, shifts_today, wages_today, social_mode, contact_coins
          FROM players LIMIT 0`,
       ),
       env.DB.prepare(
@@ -219,6 +324,15 @@ async function prepareDatabaseInternal() {
       env.DB.prepare(
         `SELECT user_id, from_district, to_district, mode, fare,
           duration_game_minutes, created_at FROM transit_trips LIMIT 0`,
+      ),
+      env.DB.prepare(
+        `SELECT user_id, turn, activity_code, category, price, tax,
+          happiness_delta, nutrition_delta, care_points, created_at
+         FROM life_events LIMIT 0`,
+      ),
+      env.DB.prepare(
+        `SELECT user_id, turn, job_code, pay, happiness_delta, created_at
+         FROM work_shifts LIMIT 0`,
       ),
       env.DB.prepare('SELECT id, market_seed FROM game_world LIMIT 0'),
     ]);
@@ -383,7 +497,13 @@ function accountMetrics(
 async function readPlayer(userId: string) {
   return env.DB.prepare(
     `SELECT cash, portfolio_value AS portfolioValue, realized_pnl AS realizedPnl,
-      unrealized_pnl AS unrealizedPnl, happiness, city_tax_paid AS cityTaxPaid,
+      unrealized_pnl AS unrealizedPnl, happiness, nutrition,
+      care_streak AS careStreak, daily_care_points AS dailyCarePoints,
+      daily_protein AS dailyProtein, daily_produce AS dailyProduce,
+      last_meal_turn AS lastMealTurn,
+      last_wellness_turn AS lastWellnessTurn,
+      last_leisure_turn AS lastLeisureTurn,
+      trading_fee_bps AS tradingFeeBps, city_tax_paid AS cityTaxPaid,
       margin_used AS marginUsed, gross_exposure AS grossExposure,
       borrowed_exposure AS borrowedExposure,
       maintenance_margin_required AS maintenanceMarginRequired,
@@ -399,6 +519,10 @@ async function readPlayer(userId: string) {
       taxi_rides AS taxiRides, last_transit_mode AS lastTransitMode,
       last_transit_fare AS lastTransitFare,
       last_transit_at AS lastTransitAt, career_status AS careerStatus,
+      last_work_turn AS lastWorkTurn, work_streak AS workStreak,
+      lifetime_wages AS lifetimeWages, work_date AS workDate,
+      shifts_today AS shiftsToday, wages_today AS wagesToday,
+      social_mode AS socialMode, contact_coins AS contactCoins,
       turn,
       (SELECT market_seed FROM game_world WHERE id = 'MAIN') AS marketSeed,
       updated_at AS updatedAt
@@ -459,7 +583,14 @@ async function getSnapshot(userId: string, retry = 0) {
   const metrics = accountMetrics(player.cash, markedHoldings);
   const now = new Date().toISOString();
 
-  const [inventory, tradesResult, marginEventsResult, transitTripsResult] =
+  const [
+    inventory,
+    tradesResult,
+    marginEventsResult,
+    transitTripsResult,
+    lifeEventsResult,
+    workShiftsResult,
+  ] =
     await Promise.all([
       readInventory(userId),
       env.DB.prepare(
@@ -487,6 +618,22 @@ async function getSnapshot(userId: string, retry = 0) {
       )
         .bind(userId)
         .all<TransitTripRow>(),
+      env.DB.prepare(
+        `SELECT id, turn, activity_code AS activityCode, category, price, tax,
+          happiness_delta AS happinessDelta,
+          nutrition_delta AS nutritionDelta, care_points AS carePoints,
+          created_at AS createdAt
+         FROM life_events WHERE user_id = ? ORDER BY id DESC LIMIT 50`,
+      )
+        .bind(userId)
+        .all<LifeEventRow>(),
+      env.DB.prepare(
+        `SELECT id, turn, job_code AS jobCode, pay,
+          happiness_delta AS happinessDelta, created_at AS createdAt
+         FROM work_shifts WHERE user_id = ? ORDER BY id DESC LIMIT 50`,
+      )
+        .bind(userId)
+        .all<WorkShiftRow>(),
     ]);
   const latestPlayer = await readPlayer(userId);
   if (
@@ -517,6 +664,10 @@ async function getSnapshot(userId: string, retry = 0) {
   const { marketSeed: privateMarketSeed, ...publicPlayer } = player;
   void privateMarketSeed;
   const currentDistrict = playerDistrict(player.currentDistrict);
+  const tradingFeeBps = normalizedFeeBps(player.tradingFeeBps);
+  const today = utcDateKey();
+  const shiftsToday = player.workDate === today ? player.shiftsToday : 0;
+  const wagesToday = player.workDate === today ? roundMoney(player.wagesToday) : 0;
   const normalizedPlayer = {
     ...publicPlayer,
     ...metrics,
@@ -529,6 +680,14 @@ async function getSnapshot(userId: string, retry = 0) {
     cityTaxPaid: roundMoney(player.cityTaxPaid),
     cityTax: roundMoney(player.cityTaxPaid),
     currentDistrict,
+    happiness: clampScore(player.happiness),
+    nutrition: clampScore(player.nutrition),
+    careStreak: Math.max(0, player.careStreak),
+    tradingFeeBps,
+    tradingFeeRate: tradingFeeBps / 10_000,
+    shiftsToday,
+    wagesToday,
+    lifetimeWages: roundMoney(player.lifetimeWages),
     transitSpend: roundMoney(player.transitSpend),
     lastTransitFare: roundMoney(player.lastTransitFare),
     totalTradingPnl: roundMoney(player.realizedPnl + metrics.unrealizedPnl),
@@ -555,6 +714,8 @@ async function getSnapshot(userId: string, retry = 0) {
     trades: tradesResult.results,
     marginEvents: marginEventsResult.results,
     transitHistory: transitTripsResult.results,
+    lifeHistory: lifeEventsResult.results,
+    workHistory: workShiftsResult.results,
     market: Object.keys(VIRTUAL_MARKET).map((symbol) =>
       virtualQuoteAtTurn(
         symbol as keyof typeof VIRTUAL_MARKET,
@@ -577,6 +738,80 @@ async function getSnapshot(userId: string, retry = 0) {
       isProperty: isGameItemCode(itemCode) && isVirtualPropertyCode(itemCode),
       currency: 'VIRTUAL_USD' as const,
     })),
+    lifeCatalog: Object.entries(LIFE_ACTIVITIES).map(
+      ([activityCode, activity]) => ({
+        activityCode,
+        ...activity,
+        completedToday:
+          activity.category === 'MEAL'
+            ? player.lastMealTurn === player.turn
+            : activity.category === 'WELLNESS'
+              ? player.lastWellnessTurn === player.turn
+              : player.lastLeisureTurn === player.turn,
+        currency: 'VIRTUAL_USD' as const,
+      }),
+    ),
+    jobs: Object.entries(DAILY_JOBS).map(([jobCode, job]) => ({
+      jobCode,
+      ...job,
+      completedThisTurn: player.lastWorkTurn === player.turn,
+      availableToday:
+        shiftsToday < MAX_DAILY_WORK_SHIFTS &&
+        wagesToday < MAX_DAILY_WAGES,
+      currency: 'VIRTUAL_USD' as const,
+    })),
+    wellbeing: {
+      happiness: clampScore(player.happiness),
+      nutrition: clampScore(player.nutrition),
+      careScore: careScore(
+        player.happiness,
+        player.nutrition,
+        player.careStreak,
+      ),
+      careStreak: Math.max(0, player.careStreak),
+      dailyCarePoints: player.dailyCarePoints,
+      dailyProtein: player.dailyProtein,
+      dailyProduce: player.dailyProduce,
+      mealComplete: player.lastMealTurn === player.turn,
+      wellnessComplete: player.lastWellnessTurn === player.turn,
+      leisureComplete: player.lastLeisureTurn === player.turn,
+      tradingFeeBps,
+      tradingFeeRate: tradingFeeBps / 10_000,
+      zeroFeeRequirement: {
+        minimumHappiness: 95,
+        minimumNutrition: 90,
+        minimumCareStreak: 7,
+      },
+      policy: 'CARE_SETTLES_AT_END_OF_DAY' as const,
+    },
+    employment: {
+      shiftsToday,
+      maxShiftsPerUtcDay: MAX_DAILY_WORK_SHIFTS,
+      wagesToday,
+      maxWagesPerUtcDay: MAX_DAILY_WAGES,
+      lifetimeWages: roundMoney(player.lifetimeWages),
+      paidOnCompletion: true,
+      passiveWage: false,
+    },
+    social: {
+      mode: player.socialMode === 'APPROACHABLE' ? 'APPROACHABLE' : 'PRIVATE',
+      contactCoins: Math.max(0, player.contactCoins),
+      realPlayerEncountersLive: false,
+      worldVisitsLive: false,
+      partyCapacityPlanned: 100,
+      contactCoinCheckoutLive: false,
+      humanLabelsRequired: true,
+    },
+    worldAtlas: {
+      widthKm: 20,
+      heightKm: 30,
+      starter: { xKm: 2, yKm: 4 },
+      cbd: { xKm: 14, yKm: 18 },
+      coast: { xKm: 2.5, yKm: 18.5 },
+      park: { xKm: 11, yKm: 16 },
+      ridge: { xKm: 16.5, yKm: 24.5 },
+      highlands: { xKm: 9, yKm: 28 },
+    },
     marginPolicy: {
       levels: LEVERAGE_LEVELS.map((leverage) => ({
         leverage,
@@ -588,6 +823,12 @@ async function getSnapshot(userId: string, retry = 0) {
       positionLiquidationPrice: 'NOT_APPLICABLE',
       riskSource: 'SERVER_ACCOUNT_EQUITY',
       currency: 'VIRTUAL_USD',
+      tradingFeeBps,
+      tradingFeeRate: tradingFeeBps / 10_000,
+      minimumTradingFeeBps: 0,
+      tradingTaxBps: TRADING_TAX_RATE * 10_000,
+      liquidationFeeBps: TRADING_FEE_RATE * 10_000,
+      feeDiscountSource: 'SETTLED_CHARACTER_WELLBEING',
     },
     access: {
       cbd: {
@@ -683,7 +924,7 @@ async function runIdempotent(
   userId: string,
   action: string,
   payload: JsonObject,
-  operation: () => Promise<Response>,
+  operation: (requestId: string) => Promise<Response>,
 ) {
   const requestId = readIdempotencyKey(payload);
   if (requestId === undefined) {
@@ -692,7 +933,12 @@ async function runIdempotent(
       'INVALID_IDEMPOTENCY_KEY',
     );
   }
-  if (requestId === null) return operation();
+  if (requestId === null) {
+    return errorResponse(
+      'requestId is required for every state-changing game action',
+      'IDEMPOTENCY_KEY_REQUIRED',
+    );
+  }
 
   const createdAt = new Date().toISOString();
   const reservation = await env.DB.prepare(
@@ -732,13 +978,29 @@ async function runIdempotent(
 
   let response: Response;
   try {
-    response = await operation();
+    response = await operation(requestId);
   } catch (error) {
-    await env.DB.prepare(
-      'DELETE FROM game_idempotency WHERE user_id = ? AND request_id = ? AND completed = 0',
+    const state = await env.DB.prepare(
+      'SELECT completed FROM game_idempotency WHERE user_id = ? AND request_id = ? AND action = ?',
     )
-      .bind(userId, requestId)
-      .run();
+      .bind(userId, requestId, action)
+      .first<{ completed: number }>();
+    if (state?.completed) {
+      return Response.json(
+        {
+          ...(await getSnapshot(userId)),
+          idempotency: { requestId, recovered: true },
+        },
+        { headers: { 'Idempotency-Key': requestId } },
+      );
+    }
+    if (!state?.completed) {
+      await env.DB.prepare(
+        'DELETE FROM game_idempotency WHERE user_id = ? AND request_id = ? AND action = ? AND completed = 0',
+      )
+        .bind(userId, requestId, action)
+        .run();
+    }
     throw error;
   }
 
@@ -751,22 +1013,57 @@ async function runIdempotent(
     return response;
   }
 
-  const completedAt = new Date().toISOString();
-  await env.DB.batch([
-    env.DB.prepare(
-      `UPDATE game_idempotency SET completed = 1, completed_at = ?
-       WHERE user_id = ? AND request_id = ? AND completed = 0`,
-    ).bind(completedAt, userId, requestId),
-    env.DB.prepare(
+  const completion = await env.DB.prepare(
+    `SELECT completed FROM game_idempotency
+     WHERE user_id = ? AND request_id = ? AND action = ?`,
+  )
+    .bind(userId, requestId, action)
+    .first<{ completed: number }>();
+  if (!completion?.completed) {
+    throw new Error('Successful game operation did not commit its idempotency marker');
+  }
+  await env.DB.prepare(
       `DELETE FROM game_idempotency
-       WHERE user_id = ? AND request_id NOT IN (
+       WHERE user_id = ? AND completed = 1 AND request_id NOT IN (
          SELECT request_id FROM game_idempotency
          WHERE user_id = ? ORDER BY created_at DESC LIMIT ?
        )`,
-    ).bind(userId, userId, IDEMPOTENCY_HISTORY_LIMIT),
-  ]);
+    )
+    .bind(userId, userId, IDEMPOTENCY_HISTORY_LIMIT)
+    .run();
   response.headers.set('Idempotency-Key', requestId);
   return response;
+}
+
+function completeIdempotencyStatement(
+  userId: string,
+  requestId: string,
+  action: string,
+  operationId: string,
+  completedAt: string,
+) {
+  return env.DB.prepare(
+    `UPDATE game_idempotency SET completed = 1, completed_at = ?
+     WHERE user_id = ? AND request_id = ? AND action = ? AND completed = 0
+       AND EXISTS (
+         SELECT 1 FROM players
+         WHERE user_id = ? AND last_operation_id = ?
+       )`,
+  ).bind(completedAt, userId, requestId, action, userId, operationId);
+}
+
+async function idempotencyWasCompleted(
+  userId: string,
+  requestId: string,
+  action: string,
+) {
+  const completion = await env.DB.prepare(
+    `SELECT 1 AS completed FROM game_idempotency
+     WHERE user_id = ? AND request_id = ? AND action = ? AND completed = 1`,
+  )
+    .bind(userId, requestId, action)
+    .first<{ completed: number }>();
+  return Boolean(completion?.completed);
 }
 
 function parseVirtualOrder(payload: JsonObject, price: number) {
@@ -802,6 +1099,8 @@ async function executeTrade(
   userId: string,
   side: 'BUY' | 'SELL',
   payload: JsonObject,
+  requestId: string,
+  idempotencyAction: string,
 ) {
   const symbol = readString(payload, 'symbol').trim().toUpperCase();
   if (!isVirtualSymbol(symbol)) {
@@ -858,7 +1157,8 @@ async function executeTrade(
     );
   }
 
-  const fee = roundMoney(Math.max(0.01, order.notional * TRADING_FEE_RATE));
+  const feeBps = normalizedFeeBps(player.tradingFeeBps);
+  const fee = tradingFee(order.notional, feeBps);
   const tax = roundMoney(Math.max(0.01, order.notional * TRADING_TAX_RATE));
   const now = new Date().toISOString();
   const operationId = crypto.randomUUID();
@@ -972,6 +1272,13 @@ async function executeTrade(
         userId,
         operationId,
       ),
+      completeIdempotencyStatement(
+        userId,
+        requestId,
+        idempotencyAction,
+        operationId,
+        now,
+      ),
     ]);
   } else {
     if (
@@ -1015,7 +1322,7 @@ async function executeTrade(
         `UPDATE players
          SET cash = cash + ?, realized_pnl = realized_pnl + ?,
              city_tax_paid = city_tax_paid + ?, last_operation_id = ?, updated_at = ?
-         WHERE user_id = ? AND current_district = 'CBD' AND EXISTS (
+         WHERE user_id = ? AND turn = ? AND current_district = 'CBD' AND EXISTS (
            SELECT 1 FROM holdings
            WHERE user_id = ? AND symbol = ? AND quantity >= ?
              AND ABS(average_price - ?) < 0.0000001
@@ -1029,6 +1336,7 @@ async function executeTrade(
         operationId,
         now,
         userId,
+        player.turn,
         userId,
         symbol,
         order.quantity,
@@ -1081,14 +1389,21 @@ async function executeTrade(
         userId,
         operationId,
       ),
+      completeIdempotencyStatement(
+        userId,
+        requestId,
+        idempotencyAction,
+        operationId,
+        now,
+      ),
     ]);
   }
 
-  const completed = await env.DB.prepare(
-    'SELECT 1 AS completed FROM players WHERE user_id = ? AND last_operation_id = ?',
-  )
-    .bind(userId, operationId)
-    .first<{ completed: number }>();
+  const completed = await idempotencyWasCompleted(
+    userId,
+    requestId,
+    idempotencyAction,
+  );
   if (!completed) {
     const latestPlayer = await readPlayer(userId);
     if (
@@ -1136,6 +1451,8 @@ async function executeTrade(
       notional: order.notional,
       price,
       fee,
+      feeBps,
+      feePolicy: 'SETTLED_CHARACTER_WELLBEING',
       tax,
       leverage,
       marginRequired: executionMargin,
@@ -1297,7 +1614,12 @@ async function commute(
   });
 }
 
-async function purchaseItem(userId: string, payload: JsonObject) {
+async function purchaseItem(
+  userId: string,
+  payload: JsonObject,
+  requestId: string,
+  idempotencyAction: string,
+) {
   const requestedItem = readString(
     payload,
     'itemCode',
@@ -1348,14 +1670,12 @@ async function purchaseItem(userId: string, payload: JsonObject) {
   await env.DB.batch([
     env.DB.prepare(
       `UPDATE players
-       SET cash = cash - ?, happiness = MIN(100, happiness + ?),
-           city_tax_paid = city_tax_paid + ?, account_status = 'ACTIVE',
+       SET cash = cash - ?, city_tax_paid = city_tax_paid + ?,
            last_operation_id = ?, updated_at = ?
        WHERE user_id = ? AND cash >= ? AND cash = ? AND turn = ?
          AND current_district = 'CBD'`,
     ).bind(
       totalDebit,
-      item.happiness,
       tax,
       operationId,
       now,
@@ -1386,13 +1706,20 @@ async function purchaseItem(userId: string, payload: JsonObject) {
       userId,
       operationId,
     ),
+    completeIdempotencyStatement(
+      userId,
+      requestId,
+      idempotencyAction,
+      operationId,
+      now,
+    ),
   ]);
 
-  const completed = await env.DB.prepare(
-    'SELECT 1 AS completed FROM players WHERE user_id = ? AND last_operation_id = ?',
-  )
-    .bind(userId, operationId)
-    .first<{ completed: number }>();
+  const completed = await idempotencyWasCompleted(
+    userId,
+    requestId,
+    idempotencyAction,
+  );
   if (!completed) {
     const latestPlayer = await readPlayer(userId);
     if (
@@ -1414,7 +1741,303 @@ async function purchaseItem(userId: string, payload: JsonObject) {
   });
 }
 
-async function acceptJob(userId: string, payload: JsonObject) {
+async function doLifeActivity(
+  userId: string,
+  payload: JsonObject,
+  requestId: string,
+  idempotencyAction: string,
+) {
+  const activityCode = readString(payload, 'activityCode', readString(payload, 'activity'))
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '_');
+  if (!isLifeActivityCode(activityCode)) {
+    return errorResponse('Unknown wellbeing activity', 'UNKNOWN_ACTIVITY');
+  }
+
+  const activity = LIFE_ACTIVITIES[activityCode];
+  const player = await readPlayer(userId);
+  if (!player) throw new Error('Player initialization failed');
+  if (
+    activity.district === 'CBD' &&
+    playerDistrict(player.currentDistrict) !== 'CBD'
+  ) {
+    return cbdTravelRequiredResponse();
+  }
+
+  const categoryTurn =
+    activity.category === 'MEAL'
+      ? player.lastMealTurn
+      : activity.category === 'WELLNESS'
+        ? player.lastWellnessTurn
+        : player.lastLeisureTurn;
+  if (categoryTurn === player.turn) {
+    return errorResponse(
+      `The ${activity.category.toLowerCase()} choice for this game day is already complete`,
+      'DAILY_ACTIVITY_CATEGORY_COMPLETE',
+      409,
+    );
+  }
+
+  const categoryColumn = {
+    MEAL: 'last_meal_turn',
+    WELLNESS: 'last_wellness_turn',
+    LEISURE: 'last_leisure_turn',
+  }[activity.category];
+  const taxable = activity.district === 'CBD' && activity.price > 0;
+  const tax = taxable ? roundMoney(activity.price * SHOPPING_TAX_RATE) : 0;
+  const totalDebit = roundMoney(activity.price + tax);
+  const now = new Date().toISOString();
+  const operationId = crypto.randomUUID();
+  const results = await env.DB.batch([
+    env.DB.prepare(
+      `UPDATE players
+       SET cash = cash - ?, happiness = MIN(100, happiness + ?),
+           nutrition = MIN(100, nutrition + ?),
+           daily_care_points = MIN(20, daily_care_points + ?),
+           daily_protein = MIN(100, daily_protein + ?),
+           daily_produce = MIN(100, daily_produce + ?),
+           city_tax_paid = city_tax_paid + ?, ${categoryColumn} = turn,
+           account_status = CASE WHEN cash - ? > 0 THEN 'ACTIVE' ELSE account_status END,
+           last_operation_id = ?, updated_at = ?
+       WHERE user_id = ? AND cash >= ? AND cash = ? AND turn = ?
+         AND ${categoryColumn} < turn
+         ${activity.district === 'CBD' ? "AND current_district = 'CBD'" : ''}`,
+    ).bind(
+      totalDebit,
+      activity.happiness,
+      activity.nutrition,
+      activity.carePoints,
+      activity.protein,
+      activity.produce,
+      tax,
+      totalDebit,
+      operationId,
+      now,
+      userId,
+      totalDebit,
+      player.cash,
+      player.turn,
+    ),
+    env.DB.prepare(
+      `INSERT INTO life_events (
+        user_id, turn, activity_code, category, price, tax,
+        happiness_delta, nutrition_delta, care_points, created_at
+      )
+      SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+      FROM players WHERE user_id = ? AND last_operation_id = ?`,
+    ).bind(
+      userId,
+      player.turn,
+      activityCode,
+      activity.category,
+      activity.price,
+      tax,
+      activity.happiness,
+      activity.nutrition,
+      activity.carePoints,
+      now,
+      userId,
+      operationId,
+    ),
+    completeIdempotencyStatement(
+      userId,
+      requestId,
+      idempotencyAction,
+      operationId,
+      now,
+    ),
+  ]);
+
+  if ((results[0]?.meta.changes ?? 0) !== 1) {
+    const latest = await readPlayer(userId);
+    if (latest && activity.district === 'CBD' && playerDistrict(latest.currentDistrict) !== 'CBD') {
+      return cbdTravelRequiredResponse();
+    }
+    if (latest && latest.cash < totalDebit) {
+      return errorResponse('Insufficient virtual cash', 'INSUFFICIENT_VIRTUAL_CASH', 409);
+    }
+    return errorResponse('Daily activity state changed; retry', 'PLAYER_STATE_CONFLICT', 409);
+  }
+
+  return Response.json({
+    ...(await getSnapshot(userId)),
+    activity: {
+      activityCode,
+      displayName: activity.name,
+      category: activity.category,
+      price: activity.price,
+      tax,
+      happinessDelta: activity.happiness,
+      nutritionDelta: activity.nutrition,
+      appliesToTradingFee: 'NEXT_GAME_DAY',
+    },
+  });
+}
+
+async function completeWorkShift(
+  userId: string,
+  payload: JsonObject,
+  requestId: string,
+  idempotencyAction: string,
+) {
+  const jobCode = readString(payload, 'jobCode', readString(payload, 'job'))
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '_');
+  if (!isDailyJobCode(jobCode)) {
+    return errorResponse('Unknown daily job', 'UNKNOWN_DAILY_JOB');
+  }
+
+  const job = DAILY_JOBS[jobCode];
+  const player = await readPlayer(userId);
+  if (!player) throw new Error('Player initialization failed');
+  if (job.district === 'CBD' && playerDistrict(player.currentDistrict) !== 'CBD') {
+    return cbdTravelRequiredResponse();
+  }
+  if (
+    jobCode === 'MARKET_BRIEF_REVIEW' &&
+    player.careerStatus !== 'MARKET_DATA_ASSISTANT'
+  ) {
+    return errorResponse('Complete the Career Tower interview first', 'CAREER_REQUIRED', 403);
+  }
+  if (player.lastWorkTurn === player.turn) {
+    return errorResponse('One paid shift is allowed per game day', 'GAME_DAY_SHIFT_COMPLETE', 409);
+  }
+
+  const today = utcDateKey();
+  const sameUtcDay = player.workDate === today;
+  const shiftsToday = sameUtcDay ? player.shiftsToday : 0;
+  const wagesToday = sameUtcDay ? player.wagesToday : 0;
+  if (shiftsToday >= MAX_DAILY_WORK_SHIFTS || wagesToday >= MAX_DAILY_WAGES) {
+    return errorResponse('The real-world daily work allowance is complete', 'UTC_WORK_LIMIT_REACHED', 409);
+  }
+  const pay = roundMoney(Math.min(job.pay, MAX_DAILY_WAGES - wagesToday));
+  if (pay <= 0) {
+    return errorResponse('No daily wage allowance remains', 'UTC_WORK_LIMIT_REACHED', 409);
+  }
+
+  const now = new Date().toISOString();
+  const operationId = crypto.randomUUID();
+  const nextShiftsToday = shiftsToday + 1;
+  const nextWagesToday = roundMoney(wagesToday + pay);
+  const results = await env.DB.batch([
+    env.DB.prepare(
+      `UPDATE players
+       SET cash = cash + ?, happiness = MIN(100, MAX(0, happiness + ?)),
+           last_work_turn = turn, work_streak = work_streak + 1,
+           lifetime_wages = lifetime_wages + ?, work_date = ?,
+           shifts_today = ?, wages_today = ?,
+           account_status = CASE WHEN cash + ? > 0 THEN 'ACTIVE' ELSE account_status END,
+           last_operation_id = ?, updated_at = ?
+       WHERE user_id = ? AND turn = ? AND last_work_turn < turn
+         AND cash = ? AND work_date = ? AND shifts_today = ? AND wages_today = ?
+         ${job.district === 'CBD' ? "AND current_district = 'CBD'" : ''}`,
+    ).bind(
+      pay,
+      job.happiness,
+      pay,
+      today,
+      nextShiftsToday,
+      nextWagesToday,
+      pay,
+      operationId,
+      now,
+      userId,
+      player.turn,
+      player.cash,
+      player.workDate,
+      player.shiftsToday,
+      player.wagesToday,
+    ),
+    env.DB.prepare(
+      `INSERT INTO work_shifts (
+        user_id, turn, job_code, pay, happiness_delta, created_at
+      )
+      SELECT ?, ?, ?, ?, ?, ?
+      FROM players WHERE user_id = ? AND last_operation_id = ?`,
+    ).bind(
+      userId,
+      player.turn,
+      jobCode,
+      pay,
+      job.happiness,
+      now,
+      userId,
+      operationId,
+    ),
+    completeIdempotencyStatement(
+      userId,
+      requestId,
+      idempotencyAction,
+      operationId,
+      now,
+    ),
+  ]);
+
+  if ((results[0]?.meta.changes ?? 0) !== 1) {
+    const latest = await readPlayer(userId);
+    if (latest && job.district === 'CBD' && playerDistrict(latest.currentDistrict) !== 'CBD') {
+      return cbdTravelRequiredResponse();
+    }
+    return errorResponse('Work state changed; retry the shift', 'PLAYER_STATE_CONFLICT', 409);
+  }
+
+  return Response.json({
+    ...(await getSnapshot(userId)),
+    work: {
+      jobCode,
+      displayName: job.name,
+      pay,
+      happinessDelta: job.happiness,
+      virtualOnly: true,
+      passive: false,
+    },
+  });
+}
+
+async function setSocialMode(
+  userId: string,
+  payload: JsonObject,
+  requestId: string,
+  idempotencyAction: string,
+) {
+  const mode = readString(payload, 'mode').trim().toUpperCase();
+  if (mode !== 'PRIVATE' && mode !== 'APPROACHABLE') {
+    return errorResponse('mode must be PRIVATE or APPROACHABLE', 'INVALID_SOCIAL_MODE');
+  }
+  const player = await readPlayer(userId);
+  if (!player) throw new Error('Player initialization failed');
+  const now = new Date().toISOString();
+  const operationId = crypto.randomUUID();
+  const results = await env.DB.batch([
+    env.DB.prepare(
+      `UPDATE players SET social_mode = ?, last_operation_id = ?, updated_at = ?
+       WHERE user_id = ? AND turn = ? AND social_mode = ?`,
+    ).bind(mode, operationId, now, userId, player.turn, player.socialMode),
+    completeIdempotencyStatement(
+      userId,
+      requestId,
+      idempotencyAction,
+      operationId,
+      now,
+    ),
+  ]);
+  if ((results[0]?.meta.changes ?? 0) !== 1) {
+    return errorResponse('Social preference changed; retry', 'PLAYER_STATE_CONFLICT', 409);
+  }
+  return Response.json({
+    ...(await getSnapshot(userId)),
+    socialUpdate: { mode, realPlayerEncountersLive: false },
+  });
+}
+
+async function acceptJob(
+  userId: string,
+  payload: JsonObject,
+  requestId: string,
+  idempotencyAction: string,
+) {
   const requestedJob = readString(payload, 'job', 'MARKET_DATA_ASSISTANT')
     .trim()
     .toUpperCase()
@@ -1431,15 +2054,22 @@ async function acceptJob(userId: string, payload: JsonObject) {
 
   const now = new Date().toISOString();
   const operationId = crypto.randomUUID();
-  const update = await env.DB.prepare(
-    `UPDATE players
-     SET career_status = 'MARKET_DATA_ASSISTANT', last_operation_id = ?,
-         updated_at = ?
-     WHERE user_id = ? AND current_district = 'CBD' AND turn = ?`,
-  )
-    .bind(operationId, now, userId, player.turn)
-    .run();
-  if ((update.meta.changes ?? 0) === 0) {
+  const results = await env.DB.batch([
+    env.DB.prepare(
+      `UPDATE players
+       SET career_status = 'MARKET_DATA_ASSISTANT', last_operation_id = ?,
+           updated_at = ?
+       WHERE user_id = ? AND current_district = 'CBD' AND turn = ?`,
+    ).bind(operationId, now, userId, player.turn),
+    completeIdempotencyStatement(
+      userId,
+      requestId,
+      idempotencyAction,
+      operationId,
+      now,
+    ),
+  ]);
+  if ((results[0]?.meta.changes ?? 0) === 0) {
     const latestPlayer = await readPlayer(userId);
     if (
       latestPlayer &&
@@ -1457,13 +2087,19 @@ async function acceptJob(userId: string, payload: JsonObject) {
     ...(await getSnapshot(userId)),
     career: {
       status: 'MARKET_DATA_ASSISTANT',
-      dailyPay: 0,
+      passiveDailyPay: 0,
+      eligibleShift: 'MARKET_BRIEF_REVIEW',
+      maxShiftPay: DAILY_JOBS.MARKET_BRIEF_REVIEW.pay,
       virtualOnly: true,
     },
   });
 }
 
-async function endDay(userId: string) {
+async function endDay(
+  userId: string,
+  requestId: string,
+  idempotencyAction: string,
+) {
   const player = await readPlayer(userId);
   if (!player) throw new Error('Player initialization failed');
   if (player.turn >= MAX_SIMULATION_TURN) {
@@ -1481,8 +2117,9 @@ async function endDay(userId: string) {
     nextTurn,
     player.marketSeed,
   );
+  const nextCare = nextCareState(player);
 
-  // Careers are role-play only. CLAIM_RELIEF is the sole cash safety net.
+  // Work is paid only when a player actively completes a shift.
   const wage = 0;
   const dailyPnl = roundMoney(
     nextMarkedHoldings.reduce((total, holding) => total + holding.dailyPnl, 0),
@@ -1556,8 +2193,10 @@ async function endDay(userId: string) {
              city_tax_paid = city_tax_paid + ?, liquidation_count = liquidation_count + 1,
              account_status = ?, turn = ?, last_settlement_turn = ?,
              apartment_lease_days = MAX(0, apartment_lease_days - 1),
-             happiness = MAX(0, happiness - 2), last_operation_id = ?, updated_at = ?
-         WHERE user_id = ? AND turn = ? AND cash = ?`,
+             happiness = ?, nutrition = ?, care_streak = ?, trading_fee_bps = ?,
+             daily_care_points = 0, daily_protein = 0, daily_produce = 0,
+             last_operation_id = ?, updated_at = ?
+         WHERE user_id = ? AND turn = ? AND cash = ? AND last_operation_id = ?`,
       ).bind(
         cashAfterLiquidation,
         liquidationRealizedPnl,
@@ -1565,11 +2204,16 @@ async function endDay(userId: string) {
         statusAfterLiquidation,
         nextTurn,
         nextTurn,
+        nextCare.happiness,
+        nextCare.nutrition,
+        nextCare.careStreak,
+        nextCare.tradingFeeBps,
         operationId,
         now,
         userId,
         player.turn,
         player.cash,
+        player.lastOperationId,
       ),
     ];
 
@@ -1631,6 +2275,15 @@ async function endDay(userId: string) {
         operationId,
       ),
     );
+    statements.push(
+      completeIdempotencyStatement(
+        userId,
+        requestId,
+        idempotencyAction,
+        operationId,
+        now,
+      ),
+    );
     await env.DB.batch(statements);
   } else {
     const statements = [
@@ -1638,17 +2291,24 @@ async function endDay(userId: string) {
         `UPDATE players
          SET cash = cash + ?, turn = ?, last_settlement_turn = ?,
              apartment_lease_days = MAX(0, apartment_lease_days - 1),
-             happiness = MAX(0, happiness - 2), last_operation_id = ?, updated_at = ?
-         WHERE user_id = ? AND turn = ? AND cash = ?`,
+             happiness = ?, nutrition = ?, care_streak = ?, trading_fee_bps = ?,
+             daily_care_points = 0, daily_protein = 0, daily_produce = 0,
+             last_operation_id = ?, updated_at = ?
+         WHERE user_id = ? AND turn = ? AND cash = ? AND last_operation_id = ?`,
       ).bind(
         wage,
         nextTurn,
         nextTurn,
+        nextCare.happiness,
+        nextCare.nutrition,
+        nextCare.careStreak,
+        nextCare.tradingFeeBps,
         operationId,
         now,
         userId,
         player.turn,
         player.cash,
+        player.lastOperationId,
       ),
     ];
     for (const holding of nextMarkedHoldings) {
@@ -1690,14 +2350,23 @@ async function endDay(userId: string) {
         operationId,
       ),
     );
+    statements.push(
+      completeIdempotencyStatement(
+        userId,
+        requestId,
+        idempotencyAction,
+        operationId,
+        now,
+      ),
+    );
     await env.DB.batch(statements);
   }
 
-  const completed = await env.DB.prepare(
-    'SELECT 1 AS completed FROM players WHERE user_id = ? AND last_operation_id = ?',
-  )
-    .bind(userId, operationId)
-    .first<{ completed: number }>();
+  const completed = await idempotencyWasCompleted(
+    userId,
+    requestId,
+    idempotencyAction,
+  );
   if (!completed) {
     return errorResponse(
       'Player state changed; retry day close',
@@ -1717,11 +2386,22 @@ async function endDay(userId: string) {
       maintenanceRequired: settlementMetrics.maintenanceMarginRequired,
       accountEquityBeforeLiquidation: settlementMetrics.netWorth,
       worldEvent: worldEventAtTurn(nextTurn, player.marketSeed),
+      wellbeing: {
+        happiness: nextCare.happiness,
+        nutrition: nextCare.nutrition,
+        careStreak: nextCare.careStreak,
+        completeCareDay: nextCare.completeCareDay,
+        tradingFeeBps: nextCare.tradingFeeBps,
+      },
     },
   });
 }
 
-async function claimRelief(userId: string) {
+async function claimRelief(
+  userId: string,
+  requestId: string,
+  idempotencyAction: string,
+) {
   const player = await readPlayer(userId);
   if (!player) throw new Error('Player initialization failed');
   const holdings = await readHoldings(userId);
@@ -1806,13 +2486,20 @@ async function claimRelief(userId: string) {
       userId,
       operationId,
     ),
+    completeIdempotencyStatement(
+      userId,
+      requestId,
+      idempotencyAction,
+      operationId,
+      now,
+    ),
   ]);
 
-  const completed = await env.DB.prepare(
-    'SELECT 1 AS completed FROM players WHERE user_id = ? AND last_operation_id = ?',
-  )
-    .bind(userId, operationId)
-    .first<{ completed: number }>();
+  const completed = await idempotencyWasCompleted(
+    userId,
+    requestId,
+    idempotencyAction,
+  );
   if (!completed) {
     return errorResponse(
       'Player state changed; relief was not issued',
@@ -1858,25 +2545,37 @@ export async function POST(request: Request) {
   await ensurePlayer(user.userId);
   const action = readString(payload, 'action').trim().toUpperCase();
   if (action === 'BUY' || action === 'SELL') {
-    return runIdempotent(user.userId, action, payload, () =>
-      executeTrade(user.userId, action, payload),
+    return runIdempotent(user.userId, action, payload, (requestId) =>
+      executeTrade(user.userId, action, payload, requestId, action),
     );
   }
   if (action === 'PURCHASE' || action === 'SPEND')
-    return runIdempotent(user.userId, action, payload, () =>
-      purchaseItem(user.userId, payload),
+    return runIdempotent(user.userId, action, payload, (requestId) =>
+      purchaseItem(user.userId, payload, requestId, action),
     );
   if (action === 'HIRE')
-    return runIdempotent(user.userId, action, payload, () =>
-      acceptJob(user.userId, payload),
+    return runIdempotent(user.userId, action, payload, (requestId) =>
+      acceptJob(user.userId, payload, requestId, action),
+    );
+  if (action === 'CARE' || action === 'DO_ACTIVITY')
+    return runIdempotent(user.userId, action, payload, (requestId) =>
+      doLifeActivity(user.userId, payload, requestId, action),
+    );
+  if (action === 'WORK' || action === 'COMPLETE_SHIFT')
+    return runIdempotent(user.userId, action, payload, (requestId) =>
+      completeWorkShift(user.userId, payload, requestId, action),
+    );
+  if (action === 'SET_SOCIAL_MODE')
+    return runIdempotent(user.userId, action, payload, (requestId) =>
+      setSocialMode(user.userId, payload, requestId, action),
     );
   if (action === 'END_DAY')
-    return runIdempotent(user.userId, action, payload, () =>
-      endDay(user.userId),
+    return runIdempotent(user.userId, action, payload, (requestId) =>
+      endDay(user.userId, requestId, action),
     );
   if (action === 'CLAIM_RELIEF')
-    return runIdempotent(user.userId, action, payload, () =>
-      claimRelief(user.userId),
+    return runIdempotent(user.userId, action, payload, (requestId) =>
+      claimRelief(user.userId, requestId, action),
     );
   if (action === 'COMMUTE') {
     if (readIdempotencyKey(payload) === null) {
@@ -1896,7 +2595,7 @@ export async function POST(request: Request) {
     );
   }
   return errorResponse(
-    'Supported actions are BUY, SELL, PURCHASE, SPEND, HIRE, END_DAY, CLAIM_RELIEF, and COMMUTE',
+    'Supported actions are BUY, SELL, PURCHASE, SPEND, HIRE, CARE, WORK, SET_SOCIAL_MODE, END_DAY, CLAIM_RELIEF, and COMMUTE',
     'INVALID_ACTION',
   );
 }
