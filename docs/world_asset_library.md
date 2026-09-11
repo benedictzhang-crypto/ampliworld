@@ -8,13 +8,15 @@
 
 云端生成的原创场景母版保存为 `web/public/visuals/ampliworld-world-asset-master-v1.png`。它是建模方向与质量基准，不冒充当前浏览器原型的实时截图。
 
+CBD 的原创精品商业外立面保存为 `web/public/visuals/ampliworld-luxury-retail-facade-v1.jpg`，并已经映射到 `BLD-C02` 的实体几何上。步道、码头和水面使用本地托管的 PBR 贴图；来源与许可保存在 `web/public/assets/pbr/README.md`，运行时不会向第三方素材站请求资源。
+
 ## 编号规则
 
 | 前缀 | 类别 | 当前系列 |
 | --- | --- | --- |
 | `BLD-A` | 高层住宅 | Helix、Prism、Skybridge |
 | `BLD-B` | 独栋住宅 | 中式、英式、美式、混凝土、白木、田园、赛博 |
-| `BLD-C` | 中端公寓 | 含 Studio、1B、2B 的泳池社区 |
+| `BLD-C` | 城市混合建筑 | 含 Studio、1B、2B 的泳池社区与临街精品商业 |
 | `YHT-A` | 动力游艇 | 45、55、60、70、80、100+ 英尺 |
 | `FSH-B` | 钓鱼与工作艇 | 近海钓鱼艇 |
 | `SAI-C` | 帆船 | 私人帆船 |

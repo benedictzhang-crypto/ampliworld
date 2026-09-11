@@ -303,6 +303,7 @@ const CBD_PLAYER_BLOCKERS = [
   [-25, -3, 5.4, 4.5], [-26, 29, 11.5, 7.2], [0, 13, 3.4, 3.4],
   [-6.9, -9, 1.2, 0.9], [6.9, -9, 1.2, 0.9], [-6.9, 4.33, 1.2, 0.9], [6.9, 4.33, 1.2, 0.9],
   [-6.9, 17.67, 1.2, 0.9], [6.9, 17.67, 1.2, 0.9], [-6.9, 31, 1.2, 0.9], [6.9, 31, 1.2, 0.9],
+  [-20.7, 7, 1.15, 13], [20.7, 7, 1.15, 13],
 ] as const;
 
 const STARTER_PLAYER_BLOCKERS = [
@@ -346,12 +347,12 @@ const SCENE_PROFILES: Record<SceneProfileId, {
   speed: number;
   blockers: readonly (readonly [number, number, number, number])[];
 }> = {
-  STARTER_ARCOLOGY: { spawn: [0, 0, 9], bounds: { minX: -26, maxX: 26, minZ: -25, maxZ: 26 }, cameraOffset: [0, 3.5, 6.4], heading: Math.PI, speed: 5.2, blockers: STARTER_PLAYER_BLOCKERS },
-  CBD: { spawn: [0, 0, 34], bounds: { minX: -36, maxX: 37, minZ: -52, maxZ: 38 }, cameraOffset: [0, 3.5, 6.4], heading: Math.PI, speed: 5.8, blockers: CBD_PLAYER_BLOCKERS },
-  AZURE_YACHT_MARINA: { spawn: [3, 0, 22], bounds: { minX: -9, maxX: 34, minZ: -34, maxZ: 34 }, cameraOffset: [-2.15, 3.5, 6.4], heading: Math.PI, speed: 5.4, blockers: MARINA_PLAYER_BLOCKERS },
-  CROWN_RESIDENTIAL_TOWERS: { spawn: [0, 0, 27], bounds: { minX: -28, maxX: 28, minZ: -22, maxZ: 30 }, cameraOffset: [0, 3.5, 6.4], heading: Math.PI, speed: 5.2, blockers: CROWN_PLAYER_BLOCKERS },
-  MILLIONAIRE_RIDGE: { spawn: [0, 0, 34], bounds: { minX: -34, maxX: 34, minZ: -39, maxZ: 37 }, cameraOffset: [0, 3.5, 6.4], heading: Math.PI, speed: 5.2, blockers: RIDGE_PLAYER_BLOCKERS },
-  STUDIO_INTERIOR: { spawn: [0, 0, 2.8], bounds: { minX: -3.8, maxX: 3.8, minZ: -3.7, maxZ: 4 }, cameraOffset: [0, 2.8, 4.7], heading: Math.PI, speed: 3.8, blockers: STUDIO_PLAYER_BLOCKERS },
+  STARTER_ARCOLOGY: { spawn: [0, 0, 9], bounds: { minX: -26, maxX: 26, minZ: -25, maxZ: 26 }, cameraOffset: [0, 3.2, 5.6], heading: Math.PI, speed: 5.2, blockers: STARTER_PLAYER_BLOCKERS },
+  CBD: { spawn: [0, 0, 34], bounds: { minX: -36, maxX: 37, minZ: -52, maxZ: 38 }, cameraOffset: [0, 3.2, 5.6], heading: Math.PI, speed: 5.8, blockers: CBD_PLAYER_BLOCKERS },
+  AZURE_YACHT_MARINA: { spawn: [3, 0, 22], bounds: { minX: -9, maxX: 34, minZ: -34, maxZ: 34 }, cameraOffset: [-1.8, 3.2, 5.6], heading: Math.PI, speed: 5.4, blockers: MARINA_PLAYER_BLOCKERS },
+  CROWN_RESIDENTIAL_TOWERS: { spawn: [0, 0, 27], bounds: { minX: -28, maxX: 28, minZ: -22, maxZ: 30 }, cameraOffset: [0, 3.2, 5.6], heading: Math.PI, speed: 5.2, blockers: CROWN_PLAYER_BLOCKERS },
+  MILLIONAIRE_RIDGE: { spawn: [0, 0, 34], bounds: { minX: -34, maxX: 34, minZ: -39, maxZ: 37 }, cameraOffset: [0, 3.2, 5.6], heading: Math.PI, speed: 5.2, blockers: RIDGE_PLAYER_BLOCKERS },
+  STUDIO_INTERIOR: { spawn: [0, 0, 2.8], bounds: { minX: -3.8, maxX: 3.8, minZ: -3.7, maxZ: 4 }, cameraOffset: [0, 2.65, 4.4], heading: Math.PI, speed: 3.8, blockers: STUDIO_PLAYER_BLOCKERS },
 };
 
 function readableString(value: unknown, fallback = ''): string {
@@ -937,6 +938,105 @@ function CinematicHorizon({ src, position, size = [132, 70], opacity = 0.88 }: {
   );
 }
 
+function useTiledTexture(src: string, repeatX: number, repeatY: number, isColorTexture = false) {
+  const sourceTexture = useTexture(src);
+  const texture = useMemo(() => {
+    const clone = sourceTexture.clone();
+    clone.wrapS = THREE.RepeatWrapping;
+    clone.wrapT = THREE.RepeatWrapping;
+    clone.repeat.set(repeatX, repeatY);
+    clone.colorSpace = isColorTexture ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+    clone.anisotropy = 8;
+    clone.needsUpdate = true;
+    return clone;
+  }, [isColorTexture, repeatX, repeatY, sourceTexture]);
+  useEffect(() => () => texture.dispose(), [texture]);
+  return texture;
+}
+
+function PavedSurfaceMaterial({ tone, width, length }: { tone: ArrivalSpineTone; width: number; length: number }) {
+  const isStarter = tone === 'STARTER';
+  const isMarina = tone === 'MARINA';
+  const textureRoot = isStarter
+    ? '/assets/pbr/polyhaven/cobblestone_floor_04/cobblestone_floor_04'
+    : isMarina
+      ? '/assets/pbr/polyhaven/wood_floor_deck/wood_floor_deck'
+      : '/assets/pbr/polyhaven/marble_tiles/marble_tiles';
+  const tileSize = isStarter ? 1.55 : isMarina ? 2.4 : 2;
+  const colorMap = useTiledTexture(`${textureRoot}_diff_1k.jpg`, Math.max(1, width / tileSize), Math.max(1, length / tileSize), true);
+  const normalMap = useTiledTexture(`${textureRoot}_nor_gl_1k.jpg`, Math.max(1, width / tileSize), Math.max(1, length / tileSize));
+  const normalStrength = isStarter ? 0.5 : isMarina ? 0.34 : 0.28;
+  const normalScale = useMemo(() => new THREE.Vector2(normalStrength, normalStrength), [normalStrength]);
+  const tint = isStarter ? '#70675d' : isMarina ? '#ddc99f' : tone === 'CROWN' ? '#d4dbd5' : tone === 'RIDGE' ? '#d9d0bd' : '#c4ccc7';
+  return <meshPhysicalMaterial map={colorMap} normalMap={normalMap} normalScale={normalScale} color={tint} metalness={isStarter ? 0.08 : isMarina ? 0.12 : 0.28} roughness={isStarter ? 0.7 : isMarina ? 0.5 : 0.28} clearcoat={isStarter ? 0.08 : isMarina ? 0.32 : 0.72} clearcoatRoughness={isStarter ? 0.5 : 0.2} envMapIntensity={isStarter ? 0.7 : 1.25} />;
+}
+
+function DeckSurfaceMaterial({ width, length }: { width: number; length: number }) {
+  const colorMap = useTiledTexture('/assets/pbr/polyhaven/wood_floor_deck/wood_floor_deck_diff_1k.jpg', Math.max(1, width / 2.4), Math.max(1, length / 2.4), true);
+  const normalMap = useTiledTexture('/assets/pbr/polyhaven/wood_floor_deck/wood_floor_deck_nor_gl_1k.jpg', Math.max(1, width / 2.4), Math.max(1, length / 2.4));
+  const normalScale = useMemo(() => new THREE.Vector2(0.38, 0.38), []);
+  return <meshPhysicalMaterial map={colorMap} normalMap={normalMap} normalScale={normalScale} color="#d6b98a" metalness={0.04} roughness={0.58} clearcoat={0.22} clearcoatRoughness={0.42} />;
+}
+
+function StoneQuayMaterial({ width, length }: { width: number; length: number }) {
+  const colorMap = useTiledTexture('/assets/pbr/polyhaven/marble_tiles/marble_tiles_diff_1k.jpg', Math.max(1, width / 2), Math.max(1, length / 2), true);
+  const normalMap = useTiledTexture('/assets/pbr/polyhaven/marble_tiles/marble_tiles_nor_gl_1k.jpg', Math.max(1, width / 2), Math.max(1, length / 2));
+  const normalScale = useMemo(() => new THREE.Vector2(0.24, 0.24), []);
+  return <meshPhysicalMaterial map={colorMap} normalMap={normalMap} normalScale={normalScale} color="#bfc4b9" metalness={0.16} roughness={0.4} clearcoat={0.32} clearcoatRoughness={0.3} />;
+}
+
+function AnimatedWaterSurface({ position, size, tone = 'COAST' }: {
+  position: [number, number, number];
+  size: [number, number];
+  tone?: 'COAST' | 'POOL';
+}) {
+  const normalMap = useTiledTexture('/assets/pbr/three-r180/waternormals.jpg', Math.max(2, size[0] / 7), Math.max(2, size[1] / 7));
+  const animatedNormalMap = useRef(normalMap);
+  const normalStrength = tone === 'POOL' ? 0.22 : 0.46;
+  const normalScale = useMemo(() => new THREE.Vector2(normalStrength, normalStrength), [normalStrength]);
+  useEffect(() => {
+    animatedNormalMap.current = normalMap;
+  }, [normalMap]);
+  useFrame((_, delta) => {
+    const activeNormalMap = animatedNormalMap.current;
+    activeNormalMap.offset.x = (activeNormalMap.offset.x + delta * 0.008) % 1;
+    activeNormalMap.offset.y = (activeNormalMap.offset.y + delta * 0.016) % 1;
+  });
+  return (
+    <mesh receiveShadow position={position} rotation={[-Math.PI / 2, 0, 0]} renderOrder={1}>
+      <planeGeometry args={size} />
+      <meshPhysicalMaterial normalMap={normalMap} normalScale={normalScale} color={tone === 'POOL' ? '#50bfd0' : '#248ca6'} metalness={0.08} roughness={tone === 'POOL' ? 0.12 : 0.2} clearcoat={0.78} clearcoatRoughness={0.14} envMapIntensity={1.25} />
+    </mesh>
+  );
+}
+
+function LuxuryRetailArcades() {
+  const sourceTexture = useTexture('/visuals/ampliworld-luxury-retail-facade-v1.jpg');
+  const texture = useMemo(() => {
+    const clone = sourceTexture.clone();
+    clone.colorSpace = THREE.SRGBColorSpace;
+    clone.anisotropy = 8;
+    clone.needsUpdate = true;
+    return clone;
+  }, [sourceTexture]);
+  useEffect(() => () => texture.dispose(), [texture]);
+  const arcades = [
+    { position: [-20.7, 0, 7] as [number, number, number], rotation: Math.PI / 2 },
+    { position: [20.7, 0, 7] as [number, number, number], rotation: -Math.PI / 2 },
+  ];
+  return <group>{arcades.map((arcade, side) => <group key={side} position={arcade.position} rotation={[0, arcade.rotation, 0]}>
+    <mesh castShadow receiveShadow position={[0, 6.45, 0]}><boxGeometry args={[26, 12.9, 1.45]} /><meshPhysicalMaterial color="#eee7d8" roughness={0.31} metalness={0.12} clearcoat={0.38} /></mesh>
+    <mesh position={[0, 6.45, 0.735]}><planeGeometry args={[25.65, 12.55]} /><meshStandardMaterial map={texture} roughness={0.34} metalness={0.06} emissiveMap={texture} emissive="#3b2d20" emissiveIntensity={0.1} /></mesh>
+    <mesh castShadow position={[0, 13.1, 0.08]}><boxGeometry args={[26.8, 0.34, 2.15]} /><meshPhysicalMaterial color="#f3eee2" roughness={0.28} clearcoat={0.52} /></mesh>
+    <mesh position={[0, 12.78, 0.85]}><boxGeometry args={[25.8, 0.09, 0.09]} /><meshBasicMaterial color="#77f7e3" toneMapped={false} transparent opacity={0.86} /></mesh>
+    {[-10.5, -6.3, -2.1, 2.1, 6.3, 10.5].map((x, index) => <group key={x} position={[x, 13.38, 0]}>
+      <mesh position={[0, 0.15, 0]}><boxGeometry args={[3.25, 0.3, 1.35]} /><meshStandardMaterial color="#e7e0cf" roughness={0.52} /></mesh>
+      <mesh position={[0, 0.46, 0]}><boxGeometry args={[2.75, 0.38, 1.05]} /><meshStandardMaterial color={index % 2 ? '#3f694c' : '#527c56'} roughness={0.92} /></mesh>
+    </group>)}
+    <mesh receiveShadow position={[0, 0.08, 1.2]}><boxGeometry args={[27.2, 0.16, 2.4]} /><meshPhysicalMaterial color="#908a7f" roughness={0.24} clearcoat={0.62} /></mesh>
+  </group>)}</group>;
+}
+
 function ArrivalSpine({ tone, position, length = 48, width = 12 }: {
   tone: ArrivalSpineTone;
   position: [number, number, number];
@@ -948,7 +1048,6 @@ function ArrivalSpine({ tone, position, length = 48, width = 12 }: {
   const isMarina = tone === 'MARINA';
   const hasWaterRills = tone === 'CBD' || tone === 'CROWN';
   const accent = isStarter ? '#c6764f' : isRidge ? '#ffd391' : isMarina ? '#74ddf2' : '#6ff5d4';
-  const stone = isStarter ? '#303735' : isRidge ? '#8d887c' : isMarina ? '#b9b2a3' : tone === 'CROWN' ? '#687370' : '#596765';
   const treeModel = isRidge ? 'tree_oak.glb' : isMarina || tone === 'CBD' || tone === 'CROWN' ? 'tree_palmDetailedTall.glb' : null;
   const stationCount = Math.max(4, Math.floor(length / 10));
   const stations = Array.from({ length: stationCount }, (_, index) => -length / 2 + 4 + index * ((length - 8) / Math.max(1, stationCount - 1)));
@@ -958,7 +1057,7 @@ function ArrivalSpine({ tone, position, length = 48, width = 12 }: {
     <group position={position}>
       <mesh receiveShadow position={[0, 0.075, 0]}>
         <boxGeometry args={[width, 0.15, length]} />
-        <meshPhysicalMaterial color={stone} metalness={isStarter ? 0.18 : 0.42} roughness={isStarter ? 0.58 : 0.2} clearcoat={isStarter ? 0.12 : 0.72} clearcoatRoughness={0.13} />
+        <PavedSurfaceMaterial tone={tone} width={width} length={length} />
       </mesh>
       {[-width / 2 + 0.3, width / 2 - 0.3].map((x) => <mesh key={`edge-${x}`} position={[x, 0.18, 0]}><boxGeometry args={[0.11, 0.07, length - 0.8]} /><meshBasicMaterial color={accent} toneMapped={false} /></mesh>)}
       {!isStarter && pavingSeams.map((z) => <mesh key={`seam-${z}`} position={[0, 0.158, z]}><boxGeometry args={[width - 0.55, 0.012, 0.025]} /><meshBasicMaterial color="#21312f" transparent opacity={isRidge ? 0.28 : 0.5} /></mesh>)}
@@ -1240,8 +1339,9 @@ function WaterfrontMarina({ onEnter }: { onEnter: EnterPlace }) {
   return (
     <group>
       <mesh receiveShadow position={[-47, -0.18, 1]}><boxGeometry args={[22, 0.32, 90]} /><meshPhysicalMaterial color="#267f9c" roughness={0.16} metalness={0.04} transmission={0.12} transparent opacity={0.9} /></mesh>
-      <mesh receiveShadow position={[-36.5, 0.06, 1]}><boxGeometry args={[1.4, 0.28, 90]} /><meshStandardMaterial color="#8d8d7d" roughness={0.92} /></mesh>
-      {piers.map((z, pier) => <group key={z}><mesh castShadow receiveShadow position={[-42, 0.18, z]}><boxGeometry args={[11.2, 0.28, 1.15]} /><meshStandardMaterial color="#7a5d42" roughness={0.88} /></mesh>{[-47, -43, -39].map((x) => <mesh key={x} position={[x, -0.15, z]}><cylinderGeometry args={[0.12, 0.16, 1.2, 8]} /><meshStandardMaterial color="#493829" roughness={0.96} /></mesh>)}{pier < 3 && <Suspense fallback={null}><StaticAsset url={`${WATERCRAFT_ASSET_ROOT}/buoy.glb`} position={[-46.5, 0.05, z + 2.8]} scale={1.5} shadows={false} /></Suspense>}</group>)}
+      <AnimatedWaterSurface position={[-47, -0.005, 1]} size={[22, 90]} />
+      <mesh receiveShadow position={[-36.5, 0.06, 1]}><boxGeometry args={[1.4, 0.28, 90]} /><StoneQuayMaterial width={1.4} length={90} /></mesh>
+      {piers.map((z, pier) => <group key={z}><mesh castShadow receiveShadow position={[-42, 0.18, z]}><boxGeometry args={[11.2, 0.28, 1.15]} /><DeckSurfaceMaterial width={11.2} length={1.15} /></mesh>{[-47, -43, -39].map((x) => <mesh key={x} position={[x, -0.15, z]}><cylinderGeometry args={[0.12, 0.16, 1.2, 8]} /><meshStandardMaterial color="#493829" roughness={0.96} /></mesh>)}{pier < 3 && <Suspense fallback={null}><StaticAsset url={`${WATERCRAFT_ASSET_ROOT}/buoy.glb`} position={[-46.5, 0.05, z + 2.8]} scale={1.5} shadows={false} /></Suspense>}</group>)}
       <FloatingWatercraft model="boat-fishing-small" position={[-42.5, 0.2, -14]} rotation={Math.PI / 2} scale={2.45} phase={1} />
       <FloatingWatercraft model="boat-speed-a" position={[-43.8, 0.2, -5]} rotation={Math.PI / 2} scale={2.7} phase={2} />
       <FloatingWatercraft model="boat-speed-f" position={[-43, 0.2, 7]} rotation={Math.PI / 2} scale={2.8} phase={3} />
@@ -1355,7 +1455,8 @@ function AzureYachtMarinaScene({ onEnter, onPositionChange, playerEnabled = true
       <directionalLight castShadow position={[-18, 28, 12]} intensity={3.1} color="#ffd6a1" shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-42} shadow-camera-right={42} shadow-camera-top={42} shadow-camera-bottom={-42} />
       <Suspense fallback={null}><CinematicHorizon src="/visuals/ampliworld-world-asset-master-v1.png" position={[11, 32, -86]} size={[158, 75]} opacity={0.82} /></Suspense>
       <mesh receiveShadow position={[-28, -0.18, 0]}><boxGeometry args={[56, 0.3, 96]} /><meshPhysicalMaterial color="#197d9e" roughness={0.09} metalness={0.08} transmission={0.16} transparent opacity={0.94} clearcoat={0.62} /></mesh>
-      <mesh receiveShadow position={[-4.5, 0.015, 0]}><boxGeometry args={[11, 0.08, 84]} /><meshStandardMaterial color="#d8c59b" roughness={0.98} /></mesh>
+      <AnimatedWaterSurface position={[-28, -0.005, 0]} size={[56, 96]} />
+      <mesh receiveShadow position={[-4.5, 0.015, 0]}><boxGeometry args={[11, 0.08, 84]} /><DeckSurfaceMaterial width={11} length={84} /></mesh>
       <mesh receiveShadow position={[4, 0.035, 0]}><boxGeometry args={[6, 0.1, 84]} /><meshStandardMaterial color="#c7c1b0" roughness={0.88} /></mesh>
       <mesh receiveShadow position={[21, 0.015, 0]}><boxGeometry args={[28, 0.08, 84]} /><meshStandardMaterial color="#6d7868" roughness={0.96} /></mesh>
       <ArrivalSpine tone="MARINA" position={[4, 0.02, 1]} length={66} width={5.8} />
@@ -1514,6 +1615,7 @@ function CyberCBD({ onEnter, onPositionChange, playerEnabled = true }: { onEnter
       {[-9.25, 9.25].map((x) => <mesh key={x} position={[x, 0.046, -5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.72, 102]} /><meshStandardMaterial color="#318e9b" metalness={0.18} roughness={0.22} transparent opacity={0.88} /></mesh>)}
       {[-8, 19].map((z) => <group key={z}><mesh receiveShadow position={[2, 0.031, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[76, 6.5]} /><meshStandardMaterial color="#2a3032" roughness={0.96} /></mesh>{[-31, -17, -3, 11, 25, 36].map((x) => <mesh key={x} position={[x, 0.052, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[5.5, 0.09]} /><meshBasicMaterial color="#ddc878" /></mesh>)}</group>)}
 
+      <Suspense fallback={null}><LuxuryRetailArcades /></Suspense>
       <WaterfrontMarina onEnter={onEnter} />
       <SciFiResidenceTower position={[-27, 0, -28]} variant="HELIX" label="HELIX ONE" onEnter={onEnter} />
       <SciFiResidenceTower position={[28, 0, -30]} variant="PRISM" label="PRISM HOUSE" onEnter={onEnter} />

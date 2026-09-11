@@ -24,6 +24,7 @@ export const BUILDING_ASSETS = [
   { id: 'BLD-B06', kind: 'BUILDING', name: 'Meadow House', family: 'PASTORAL VILLA', status: 'LIVE', implementation: 'PROCEDURAL', source: 'game-shell.tsx#CatalogVilla:PASTORAL', scaleClass: '2 floors', notes: 'Stone base, pitched roof, veranda and flowering garden.' },
   { id: 'BLD-B07', kind: 'BUILDING', name: 'Neon Cliff House', family: 'CYBER COASTAL VILLA', status: 'LIVE', implementation: 'PROCEDURAL', source: 'game-shell.tsx#CatalogVilla:CYBER', scaleClass: '3 floors', notes: 'Sculpted dark shell, cyan light seams and cantilevered sea decks.' },
   { id: 'BLD-C01', kind: 'BUILDING', name: 'Canopy Studio', family: 'ATTAINABLE MIDRISE', status: 'LIVE', implementation: 'PROCEDURAL', source: 'game-shell.tsx#MidriseCommunity', scaleClass: '5 floors', notes: 'Compact first upgrade around a shared pool.' },
+  { id: 'BLD-C02', kind: 'BUILDING', name: 'Meridian Retail Arcades', family: 'LUXURY MIXED-USE PODIUM', status: 'LIVE', implementation: 'PROCEDURAL', source: 'game-shell.tsx#LuxuryRetailArcades + /visuals/ampliworld-luxury-retail-facade-v1.jpg', scaleClass: '2 mirrored 26 m arcades', notes: 'Original AI-directed facade mapped onto walkable backed geometry with roof gardens, boutique glazing and cyan light seams.' },
 ] as const satisfies readonly WorldAssetRecord[];
 
 export const WATERCRAFT_ASSETS = [
