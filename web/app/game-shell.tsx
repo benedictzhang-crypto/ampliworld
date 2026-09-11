@@ -339,12 +339,12 @@ const SCENE_PROFILES: Record<SceneProfileId, {
   speed: number;
   blockers: readonly (readonly [number, number, number, number])[];
 }> = {
-  STARTER_ARCOLOGY: { spawn: [0, 0, 9], bounds: { minX: -26, maxX: 26, minZ: -25, maxZ: 26 }, cameraOffset: [0, 6.4, 10.5], speed: 5.2, blockers: STARTER_PLAYER_BLOCKERS },
-  CBD: { spawn: [0, 0, 34], bounds: { minX: -36, maxX: 37, minZ: -39, maxZ: 38 }, cameraOffset: [0, 7.2, 12.5], speed: 5.8, blockers: CBD_PLAYER_BLOCKERS },
-  AZURE_YACHT_MARINA: { spawn: [3, 0, 22], bounds: { minX: -9, maxX: 34, minZ: -34, maxZ: 34 }, cameraOffset: [0, 8.2, 15], speed: 5.4, blockers: MARINA_PLAYER_BLOCKERS },
-  CROWN_RESIDENTIAL_TOWERS: { spawn: [0, 0, 27], bounds: { minX: -28, maxX: 28, minZ: -22, maxZ: 30 }, cameraOffset: [0, 10, 18], speed: 5.2, blockers: CROWN_PLAYER_BLOCKERS },
-  MILLIONAIRE_RIDGE: { spawn: [0, 0, 34], bounds: { minX: -34, maxX: 34, minZ: -39, maxZ: 37 }, cameraOffset: [0, 8.4, 16], speed: 5.2, blockers: RIDGE_PLAYER_BLOCKERS },
-  STUDIO_INTERIOR: { spawn: [0, 0, 2.8], bounds: { minX: -3.8, maxX: 3.8, minZ: -3.7, maxZ: 4 }, cameraOffset: [0, 4.2, 7], speed: 3.8, blockers: STUDIO_PLAYER_BLOCKERS },
+  STARTER_ARCOLOGY: { spawn: [0, 0, 9], bounds: { minX: -26, maxX: 26, minZ: -25, maxZ: 26 }, cameraOffset: [0, 3.5, 6.4], speed: 5.2, blockers: STARTER_PLAYER_BLOCKERS },
+  CBD: { spawn: [0, 0, 34], bounds: { minX: -36, maxX: 37, minZ: -39, maxZ: 38 }, cameraOffset: [0, 3.5, 6.4], speed: 5.8, blockers: CBD_PLAYER_BLOCKERS },
+  AZURE_YACHT_MARINA: { spawn: [3, 0, 22], bounds: { minX: -9, maxX: 34, minZ: -34, maxZ: 34 }, cameraOffset: [0, 3.5, 6.4], speed: 5.4, blockers: MARINA_PLAYER_BLOCKERS },
+  CROWN_RESIDENTIAL_TOWERS: { spawn: [0, 0, 27], bounds: { minX: -28, maxX: 28, minZ: -22, maxZ: 30 }, cameraOffset: [0, 3.5, 6.4], speed: 5.2, blockers: CROWN_PLAYER_BLOCKERS },
+  MILLIONAIRE_RIDGE: { spawn: [0, 0, 34], bounds: { minX: -34, maxX: 34, minZ: -39, maxZ: 37 }, cameraOffset: [0, 3.5, 6.4], speed: 5.2, blockers: RIDGE_PLAYER_BLOCKERS },
+  STUDIO_INTERIOR: { spawn: [0, 0, 2.8], bounds: { minX: -3.8, maxX: 3.8, minZ: -3.7, maxZ: 4 }, cameraOffset: [0, 2.8, 4.7], speed: 3.8, blockers: STUDIO_PLAYER_BLOCKERS },
 };
 
 function readableString(value: unknown, fallback = ''): string {
@@ -715,10 +715,15 @@ function StarterArcology({ onEnter, onNotice, residenceBlock }: { onEnter: Enter
 const ACTIVE_PLAYER_POSITION = new THREE.Vector3(9999, 0, 9999);
 const ACTIVE_TRAFFIC_POSITIONS = Array.from({ length: 4 }, () => new THREE.Vector3(9999, 0, 9999));
 
-function Player({ scene, onPositionChange }: { scene: SceneProfileId; onPositionChange?: (location: PlayerLocation) => void }) {
+function Player({ scene, onPositionChange, enabled = true }: {
+  scene: SceneProfileId;
+  onPositionChange?: (location: PlayerLocation) => void;
+  enabled?: boolean;
+}) {
   const body = useRef<THREE.Group>(null);
   const keys = useRef<Record<string, boolean>>({});
   const queuedKeys = useRef<string[]>([]);
+  const facingAngle = useRef(Math.PI);
   const lastPositionReport = useRef(0);
   const lastReportedPosition = useRef(new THREE.Vector2(Number.NaN, Number.NaN));
   const cameraTarget = useRef(new THREE.Vector3());
@@ -727,9 +732,10 @@ function Player({ scene, onPositionChange }: { scene: SceneProfileId; onPosition
   const profile = SCENE_PROFILES[scene];
   useEffect(() => {
     lastReportedPosition.current.set(profile.spawn[0], profile.spawn[2]);
-    cameraTarget.current.set(profile.spawn[0], profile.spawn[1] + 1, profile.spawn[2]);
+    facingAngle.current = Math.PI;
+    cameraTarget.current.set(profile.spawn[0], profile.spawn[1] + 1.3, profile.spawn[2] - 1.6);
     camera.position.set(
-      profile.spawn[0] + profile.cameraOffset[0],
+      profile.spawn[0] - profile.cameraOffset[0],
       profile.spawn[1] + profile.cameraOffset[1],
       profile.spawn[2] + profile.cameraOffset[2],
     );
@@ -737,8 +743,17 @@ function Player({ scene, onPositionChange }: { scene: SceneProfileId; onPosition
     onPositionChange?.({ scene, x: profile.spawn[0], z: profile.spawn[2] });
   }, [camera, onPositionChange, profile.cameraOffset, profile.spawn, scene]);
   useEffect(() => {
+    const normalizeControlKey = (key: string) => {
+      const normalized = key.toLowerCase();
+      if (normalized === 'arrowup') return 'w';
+      if (normalized === 'arrowleft') return 'a';
+      if (normalized === 'arrowdown') return 's';
+      if (normalized === 'arrowright') return 'd';
+      return normalized;
+    };
     const update = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase();
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || (event.target instanceof HTMLElement && event.target.isContentEditable)) return;
+      const key = normalizeControlKey(event.key);
       const pressed = event.type === 'keydown';
       const wasPressed = Boolean(keys.current[key]);
       keys.current[key] = pressed;
@@ -763,24 +778,41 @@ function Player({ scene, onPositionChange }: { scene: SceneProfileId; onPosition
       window.removeEventListener('blur', release);
     };
   }, []);
+  useEffect(() => {
+    if (enabled) return;
+    keys.current = {};
+    queuedKeys.current = [];
+  }, [enabled]);
   useFrame(({ clock }, delta) => {
     if (!body.current) return;
     const keysDown = keys.current;
-    const heldDx = (keysDown.d ? 1 : 0) - (keysDown.a ? 1 : 0);
-    const heldDz = (keysDown.s ? 1 : 0) - (keysDown.w ? 1 : 0);
+    if (!enabled) {
+      keys.current = {};
+      queuedKeys.current = [];
+    }
+    const heldForward = enabled ? (keysDown.w ? 1 : 0) - (keysDown.s ? 1 : 0) : 0;
+    const heldTurn = enabled ? (keysDown.a ? 1 : 0) - (keysDown.d ? 1 : 0) : 0;
     const pendingKeys = queuedKeys.current;
     queuedKeys.current = [];
     const movementKeys = new Set<string>();
-    (['w', 'a', 's', 'd'] as const).forEach((key) => { if (keysDown[key]) movementKeys.add(key); });
-    pendingKeys.forEach((key) => movementKeys.add(key));
-    const dx = (movementKeys.has('d') ? 1 : 0) - (movementKeys.has('a') ? 1 : 0);
-    const dz = (movementKeys.has('s') ? 1 : 0) - (movementKeys.has('w') ? 1 : 0);
-    const usingTap = !heldDx && !heldDz && pendingKeys.length > 0;
+    if (enabled) {
+      (['w', 'a', 's', 'd'] as const).forEach((key) => { if (keysDown[key]) movementKeys.add(key); });
+      pendingKeys.forEach((key) => movementKeys.add(key));
+    }
+    const forwardInput = (movementKeys.has('w') ? 1 : 0) - (movementKeys.has('s') ? 1 : 0);
+    const turnInput = (movementKeys.has('a') ? 1 : 0) - (movementKeys.has('d') ? 1 : 0);
+    const usingTap = !heldForward && !heldTurn && pendingKeys.length > 0;
+    if (turnInput) {
+      const turnStep = usingTap ? 0.14 : Math.min(delta, 1 / 30) * 2.45;
+      facingAngle.current = THREE.MathUtils.euclideanModulo(facingAngle.current + turnInput * turnStep, Math.PI * 2);
+      body.current.rotation.y = facingAngle.current;
+    }
     const appliedMovement = new THREE.Vector3();
-    if (dx || dz) {
-      const movement = new THREE.Vector3(dx, 0, dz).normalize().multiplyScalar(usingTap ? 0.42 : Math.min(delta, 1 / 30) * profile.speed);
+    if (forwardInput) {
+      const direction = new THREE.Vector3(Math.sin(facingAngle.current), 0, Math.cos(facingAngle.current));
+      const movement = direction.multiplyScalar((usingTap ? 0.42 : Math.min(delta, 1 / 30) * profile.speed) * (forwardInput > 0 ? 1 : -0.68));
       const blocked = (next: THREE.Vector3) => (
-        profile.blockers.some(([x, z, halfX, halfZ]) => Math.abs(next.x - x) < halfX && Math.abs(next.z - z) < halfZ)
+        profile.blockers.some(([x, z, halfX, halfZ]) => Math.abs(next.x - x) < halfX + 0.38 && Math.abs(next.z - z) < halfZ + 0.38)
         || (scene === 'CBD' && ACTIVE_TRAFFIC_POSITIONS.some((vehicle) => next.distanceToSquared(vehicle) < 4))
       );
       const clamp = (next: THREE.Vector3) => {
@@ -805,7 +837,6 @@ function Player({ scene, onPositionChange }: { scene: SceneProfileId; onPosition
       appliedMovement.copy(body.current.position).sub(start);
       if (appliedMovement.lengthSq() > 0.000001) {
         if (movementAction !== 'walk') setMovementAction('walk');
-        body.current.rotation.y = Math.atan2(appliedMovement.x, appliedMovement.z);
       } else if (movementAction !== 'idle') {
         setMovementAction('idle');
       }
@@ -825,15 +856,20 @@ function Player({ scene, onPositionChange }: { scene: SceneProfileId; onPosition
       setMovementAction('idle');
     }
     ACTIVE_PLAYER_POSITION.copy(body.current.position);
-    const cameraAlpha = 1 - Math.exp(-delta * 2.2);
-    const targetAlpha = 1 - Math.exp(-delta * 2.8);
-    camera.position.lerp(body.current.position.clone().add(new THREE.Vector3(...profile.cameraOffset)), cameraAlpha);
-    const viewLead = appliedMovement.lengthSq() > 0.000001 ? appliedMovement.clone().normalize().multiplyScalar(2.2) : new THREE.Vector3();
-    cameraTarget.current.lerp(body.current.position.clone().add(new THREE.Vector3(0, 1, 0)).add(viewLead), targetAlpha);
+    const forward = new THREE.Vector3(Math.sin(facingAngle.current), 0, Math.cos(facingAngle.current));
+    const right = new THREE.Vector3(forward.z, 0, -forward.x);
+    const desiredCamera = body.current.position.clone()
+      .addScaledVector(forward, -profile.cameraOffset[2])
+      .addScaledVector(right, profile.cameraOffset[0])
+      .add(new THREE.Vector3(0, profile.cameraOffset[1], 0));
+    const cameraAlpha = 1 - Math.exp(-delta * 5.4);
+    const targetAlpha = 1 - Math.exp(-delta * 7);
+    camera.position.lerp(desiredCamera, cameraAlpha);
+    cameraTarget.current.lerp(body.current.position.clone().add(new THREE.Vector3(0, 1.3, 0)).addScaledVector(forward, 1.6), targetAlpha);
     camera.lookAt(cameraTarget.current);
   });
   return (
-    <group ref={body} position={profile.spawn}>
+    <group ref={body} position={profile.spawn} rotation={[0, Math.PI, 0]}>
       <Suspense fallback={<mesh castShadow position={[0, 0.8, 0]}><capsuleGeometry args={[0.38, 0.9, 6, 12]} /><meshStandardMaterial color="#e7fff5" metalness={0.65} roughness={0.22} emissive="#27e8a1" emissiveIntensity={0.25} /></mesh>}>
         <CharacterAsset url={`${HERO_CHARACTER_ASSET_ROOT}/male-casual-hoodie.glb`} animation={movementAction === 'walk' ? 'Walk' : 'Idle'} scale={0.98} />
       </Suspense>
@@ -1430,7 +1466,7 @@ function CityAtlas({ selectedId, playerNodeId, onSelect }: {
 function TouchControls() {
   const move = (key: string, pressed: boolean) => window.dispatchEvent(new CustomEvent('ampliworld-move', { detail: { key, pressed } }));
   const bind = (key: string) => ({ onPointerDown: () => move(key, true), onPointerUp: () => move(key, false), onPointerCancel: () => move(key, false), onPointerLeave: () => move(key, false) });
-  return <div className="touch-controls"><button {...bind('w')} aria-label="Move forward"><ChevronUp /></button><button {...bind('a')} aria-label="Move left"><ChevronLeft /></button><button {...bind('s')} aria-label="Move backward"><ChevronDown /></button><button {...bind('d')} aria-label="Move right"><ChevronRight /></button></div>;
+  return <div className="touch-controls"><button {...bind('w')} aria-label="Walk forward"><ChevronUp /></button><button {...bind('a')} aria-label="Turn left"><ChevronLeft /></button><button {...bind('s')} aria-label="Walk backward"><ChevronDown /></button><button {...bind('d')} aria-label="Turn right"><ChevronRight /></button></div>;
 }
 
 function VisionPanel({ image, label, alt }: { image: string; label: string; alt: string }) {
@@ -2110,10 +2146,10 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
     <main className="game">
       <header><div className="logo">A</div><div><b>AMPLIWORLD</b><small>THE LIVING MARKET</small></div><div className="day">DAY {String(day).padStart(3, '0')} · 20:42 · {locationLabel}</div><div className="player"><span>{playerName}</span>{signedIn ? <i>CLOUD SAVE</i> : <a href={signInPath} target="_top">SIGN IN TO SAVE</a>}</div></header>
       <section className="playfield">
-        <Canvas aria-label="Playable AmpliWorld city" tabIndex={0} shadows dpr={[1, 1.5]} camera={{ position: [0, 6, 13], fov: 52 }}><World key={activeScene} onEnter={openPlace} onNotice={setNotice} onPositionChange={setLocalPosition} scene={activeScene} residenceBlock={residenceBlock} place={place} /></Canvas>
+        <Canvas aria-label="Playable AmpliWorld city" tabIndex={0} shadows dpr={[1, 1.5]} camera={{ position: [0, 3.5, 6.4], fov: 48 }}><World key={activeScene} onEnter={openPlace} onNotice={setNotice} onPositionChange={setLocalPosition} scene={activeScene} residenceBlock={residenceBlock} place={place} /></Canvas>
         {!place && <MiniMap scene={activeScene} residenceBlock={residenceBlock} location={localPosition} onOpen={() => openPlace('map')} />}
         <div className={`mission ${activeScene === 'STARTER_ARCOLOGY' ? 'arcology-mission' : ''}`}><small>{activeScene === 'STARTER_ARCOLOGY' ? `BLOCK ${residenceBlock} · FLOOR ${starterFloor} · UNIT ${starterUnit}` : locationLabel}</small><b>{activeScene === 'STARTER_ARCOLOGY' ? 'Turn $10,000 into a way out' : activeScene === 'CBD' ? 'Make every paid trip count' : 'Walk the district · learn the living market'}</b><span aria-live="polite">{notice}</span><div className="mission-track"><i className={missions.firstTrade ? 'done' : ''}>TRADE</i><i className={missions.firstJob ? 'done' : ''}>JOB</i><i className={missions.firstPurchase ? 'done' : ''}>MOVE UP</i></div></div>
-        <div className="controls"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> MOVE · <kbd>M</kbd> MAP · CLICK A LOCATION TO ENTER</div><TouchControls />
+        <div className="controls"><kbd>W</kbd>/<kbd>S</kbd> WALK · <kbd>A</kbd>/<kbd>D</kbd> TURN · CAMERA FOLLOWS FROM BEHIND · <kbd>M</kbd> MAP</div><TouchControls />
         <aside className="hud"><div><WalletCards /><span>CASH<big>${cash.toLocaleString(undefined, { maximumFractionDigits: 0 })}</big></span></div><div><Banknote /><span>MARKET EQUITY<big>${portfolioEquity.toLocaleString(undefined, { maximumFractionDigits: 0 })}</big></span></div><div><Smile /><span>HAPPINESS<big>{happiness}%</big></span></div><div><Leaf /><span>NUTRITION · FEE<big>{nutrition}% · {tradingFeeBps} bps</big></span></div><div><Trophy /><span>CITY STATUS<big>{netWorth >= 1_000_000 ? 'VIRTUAL RIDGE' : netWorth >= 100_000 ? 'ISLAND ELIGIBLE' : 'ARCOLOGY RESIDENT'}</big></span></div></aside>
         <nav><button onClick={() => openPlace('studio')}><Home />HOME</button><button onClick={() => openPlace('map')}><MapIcon />MAP</button><button onClick={() => openPlace('market')}><Banknote />TRADE</button><button onClick={() => openPlace('news')}><Newspaper />WORLD</button><button onClick={() => openPlace('wellness')}><Heart />LIFE</button><button onClick={() => openPlace('career')}><BriefcaseBusiness />WORK</button><button onClick={() => openPlace('social')}><Users />SOCIAL</button><button onClick={() => openPlace('inventory')}><ShoppingBag />ITEMS <em>{inventory.length}</em></button><button disabled={pendingAction !== null} onClick={() => void closeDay()}><Clock3 />{pendingAction === 'end-day' ? 'CLOSING…' : 'END DAY'}</button><button onClick={() => openPlace('menu')}><Menu />MENU</button></nav>
 
