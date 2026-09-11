@@ -15,7 +15,10 @@ export type WorldSectorId =
   | 'CIVIC_MEDICAL'
   | 'ENERGY_RESEARCH'
   | 'NORTH_HIGHLANDS'
-  | 'FOOD_RETAIL';
+  | 'FOOD_RETAIL'
+  | 'SUMMIT_ESTATES'
+  | 'OFFSHORE_CITY'
+  | 'MOTORSPORT_PARK';
 
 export type WorldSectorStatus = 'PLAYABLE' | 'SHELL' | 'PLANNED';
 
@@ -29,7 +32,14 @@ export type WorldSector = {
   status: WorldSectorStatus;
   description: string;
   /** Optional planning metadata keeps the original sector contract compatible. */
-  role?: 'CORE' | 'RIVER' | 'CENTRE' | 'RESIDENTIAL' | 'EMPLOYMENT' | 'RESORT' | 'INFRASTRUCTURE';
+  role?:
+    | 'CORE'
+    | 'RIVER'
+    | 'CENTRE'
+    | 'RESIDENTIAL'
+    | 'EMPLOYMENT'
+    | 'RESORT'
+    | 'INFRASTRUCTURE';
   anchors?: readonly string[];
 };
 
@@ -66,7 +76,8 @@ export type MetroStationCode =
   | 'M10'
   | 'M11'
   | 'M12'
-  | 'M13';
+  | 'M13'
+  | 'M14';
 
 export type MetroStationRegistryEntry = {
   /** Stable public station code. This is not the rail-line identifier. */
@@ -122,10 +133,21 @@ export type UrbanCenter = {
   name: string;
   sector: WorldSectorId;
   position: WorldPoint;
-  scale: 'METROPOLITAN' | 'SUBCENTER' | 'REGIONAL' | 'DISTRICT' | 'NEIGHBORHOOD';
+  scale:
+    | 'METROPOLITAN'
+    | 'SUBCENTER'
+    | 'REGIONAL'
+    | 'DISTRICT'
+    | 'NEIGHBORHOOD';
   catchmentRadiusKm: number;
   anchors: readonly string[];
-  housingTiers: readonly ('VALUE' | 'MID_MARKET' | 'MOVE_UP' | 'PREMIUM' | 'TROPHY')[];
+  housingTiers: readonly (
+    | 'VALUE'
+    | 'MID_MARKET'
+    | 'MOVE_UP'
+    | 'PREMIUM'
+    | 'TROPHY'
+  )[];
 };
 
 export type ResortBay = {
@@ -151,7 +173,8 @@ export const REPRESENTED_REGION_WIDTH_KM = 320;
 export const REPRESENTED_REGION_HEIGHT_KM = 240;
 export const REPRESENTED_REGION_KM = REPRESENTED_REGION_WIDTH_KM;
 export const WORLD_CORE_UNITS = 160;
-export const METERS_PER_WORLD_UNIT = PLAYABLE_CORE_KM * 1000 / WORLD_CORE_UNITS;
+export const METERS_PER_WORLD_UNIT =
+  (PLAYABLE_CORE_KM * 1000) / WORLD_CORE_UNITS;
 
 export const WORLD_PLANNING_PRINCIPLES = {
   structure: 'TWO_AXES_TWO_RINGS_POLYCENTRIC',
@@ -221,16 +244,116 @@ export const GRAND_RIVER_CORRIDOR: RiverCorridor = {
 };
 
 export const RIVER_BRIDGES: readonly RiverBridge[] = [
-  { id: 'BR-W01', name: 'Harbor Gate Bridge', class: 'ROAD', position: [-58, 33], rotationDegrees: -34, width: 10.5, lanes: 4, modes: ['WALK', 'CYCLE', 'BUS', 'CAR'], status: 'SHELL' },
-  { id: 'BR-P01', name: 'Foundry Walk', class: 'PEDESTRIAN', position: [-45, 40], rotationDegrees: -18, width: 4.5, lanes: 0, modes: ['WALK', 'CYCLE'], status: 'PLANNED' },
-  { id: 'BR-R01', name: 'West Inner Ring Bridge', class: 'ROAD', position: [-29, 44], rotationDegrees: 0, width: 13, lanes: 6, modes: ['WALK', 'CYCLE', 'BUS', 'CAR'], status: 'PLAYABLE' },
-  { id: 'BR-M01', name: 'Academy Metro Bridge', class: 'METRO', position: [-16, 42], rotationDegrees: 0, width: 7, lanes: 0, modes: ['METRO'], status: 'SHELL' },
-  { id: 'BR-A01', name: 'Grand Axis Bridge', class: 'BOULEVARD', position: [0, 38], rotationDegrees: 0, width: 31, lanes: 10, modes: ['WALK', 'CYCLE', 'BUS', 'CAR'], status: 'PLAYABLE' },
-  { id: 'BR-P02', name: 'Exchange Garden Footbridge', class: 'PEDESTRIAN', position: [17, 39], rotationDegrees: 3, width: 5, lanes: 0, modes: ['WALK', 'CYCLE'], status: 'SHELL' },
-  { id: 'BR-R02', name: 'East Inner Ring Bridge', class: 'ROAD', position: [29, 40], rotationDegrees: 5, width: 13, lanes: 6, modes: ['WALK', 'CYCLE', 'BUS', 'CAR'], status: 'PLAYABLE' },
-  { id: 'BR-M02', name: 'Willow Light Rail Bridge', class: 'METRO', position: [45, 37], rotationDegrees: 11, width: 7, lanes: 0, modes: ['METRO'], status: 'PLANNED' },
-  { id: 'BR-E01', name: 'Eastgarden Bridge', class: 'ROAD', position: [59, 34], rotationDegrees: 14, width: 12, lanes: 6, modes: ['WALK', 'CYCLE', 'BUS', 'CAR'], status: 'SHELL' },
-  { id: 'BR-P03', name: 'Wetland Ribbon Bridge', class: 'PEDESTRIAN', position: [72, 31], rotationDegrees: 14, width: 4, lanes: 0, modes: ['WALK', 'CYCLE'], status: 'PLANNED' },
+  {
+    id: 'BR-W01',
+    name: 'Harbor Gate Bridge',
+    class: 'ROAD',
+    position: [-58, 33],
+    rotationDegrees: -34,
+    width: 10.5,
+    lanes: 4,
+    modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
+    status: 'SHELL',
+  },
+  {
+    id: 'BR-P01',
+    name: 'Foundry Walk',
+    class: 'PEDESTRIAN',
+    position: [-45, 40],
+    rotationDegrees: -18,
+    width: 4.5,
+    lanes: 0,
+    modes: ['WALK', 'CYCLE'],
+    status: 'PLANNED',
+  },
+  {
+    id: 'BR-R01',
+    name: 'West Inner Ring Bridge',
+    class: 'ROAD',
+    position: [-29, 44],
+    rotationDegrees: 0,
+    width: 13,
+    lanes: 6,
+    modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
+    status: 'PLAYABLE',
+  },
+  {
+    id: 'BR-M01',
+    name: 'Academy Metro Bridge',
+    class: 'METRO',
+    position: [-16, 42],
+    rotationDegrees: 0,
+    width: 7,
+    lanes: 0,
+    modes: ['METRO'],
+    status: 'SHELL',
+  },
+  {
+    id: 'BR-A01',
+    name: 'Grand Axis Bridge',
+    class: 'BOULEVARD',
+    position: [0, 38],
+    rotationDegrees: 0,
+    width: 31,
+    lanes: 10,
+    modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
+    status: 'PLAYABLE',
+  },
+  {
+    id: 'BR-P02',
+    name: 'Exchange Garden Footbridge',
+    class: 'PEDESTRIAN',
+    position: [17, 39],
+    rotationDegrees: 3,
+    width: 5,
+    lanes: 0,
+    modes: ['WALK', 'CYCLE'],
+    status: 'SHELL',
+  },
+  {
+    id: 'BR-R02',
+    name: 'East Inner Ring Bridge',
+    class: 'ROAD',
+    position: [29, 40],
+    rotationDegrees: 5,
+    width: 13,
+    lanes: 6,
+    modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
+    status: 'PLAYABLE',
+  },
+  {
+    id: 'BR-M02',
+    name: 'Willow Light Rail Bridge',
+    class: 'METRO',
+    position: [45, 37],
+    rotationDegrees: 11,
+    width: 7,
+    lanes: 0,
+    modes: ['METRO'],
+    status: 'PLANNED',
+  },
+  {
+    id: 'BR-E01',
+    name: 'Eastgarden Bridge',
+    class: 'ROAD',
+    position: [59, 34],
+    rotationDegrees: 14,
+    width: 12,
+    lanes: 6,
+    modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
+    status: 'SHELL',
+  },
+  {
+    id: 'BR-P03',
+    name: 'Wetland Ribbon Bridge',
+    class: 'PEDESTRIAN',
+    position: [72, 31],
+    rotationDegrees: 14,
+    width: 4,
+    lanes: 0,
+    modes: ['WALK', 'CYCLE'],
+    status: 'PLANNED',
+  },
 ] as const;
 
 export const WORLD_SECTORS: readonly WorldSector[] = [
@@ -243,8 +366,14 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 56,
     status: 'PLAYABLE',
     role: 'CORE',
-    anchors: ['Grand Exchange', 'Aurelian Park', 'Forum cultural axis', 'duplex skyline'],
-    description: 'A New York-scale skyline organized by Beijing-like civic axes, a grand avenue and vertical trophy homes.',
+    anchors: [
+      'Grand Exchange',
+      'Aurelian Park',
+      'Forum cultural axis',
+      'duplex skyline',
+    ],
+    description:
+      'A New York-scale skyline organized by Beijing-like civic axes, a grand avenue and vertical trophy homes.',
   },
   {
     id: 'GRAND_RIVER',
@@ -255,8 +384,14 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 54,
     status: 'PLAYABLE',
     role: 'RIVER',
-    anchors: ['continuous riverwalk', 'ten bridges', 'ferry landings', 'floodable parks'],
-    description: 'A navigable metropolitan river joins garden suburbs, the exchange core, the working harbor and the sea.',
+    anchors: [
+      'continuous riverwalk',
+      'ten bridges',
+      'ferry landings',
+      'floodable parks',
+    ],
+    description:
+      'A navigable metropolitan river joins garden suburbs, the exchange core, the working harbor and the sea.',
   },
   {
     id: 'NORTH_RIVER',
@@ -267,8 +402,14 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 42,
     status: 'SHELL',
     role: 'RESIDENTIAL',
-    anchors: ['Glassworks quarter', 'Willow Bend', 'cycle promenade', 'family parks'],
-    description: 'A chain of mixed-income river neighborhoods, creative reuse blocks and public waterfront rooms.',
+    anchors: [
+      'Glassworks quarter',
+      'Willow Bend',
+      'cycle promenade',
+      'family parks',
+    ],
+    description:
+      'A chain of mixed-income river neighborhoods, creative reuse blocks and public waterfront rooms.',
   },
   {
     id: 'SOUTH_RIVER',
@@ -279,8 +420,14 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 42,
     status: 'SHELL',
     role: 'RESIDENTIAL',
-    anchors: ['Foundry lofts', 'Embankment arts centre', 'night market', 'river terraces'],
-    description: 'Dense homes, adaptive reuse, food streets and cultural terraces face the civic reach of the river.',
+    anchors: [
+      'Foundry lofts',
+      'Embankment arts centre',
+      'night market',
+      'river terraces',
+    ],
+    description:
+      'Dense homes, adaptive reuse, food streets and cultural terraces face the civic reach of the river.',
   },
   {
     id: 'WATERFRONT_MARINA',
@@ -291,8 +438,14 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 48,
     status: 'PLAYABLE',
     role: 'RESORT',
-    anchors: ['public coast', 'yacht marina', 'ferry pier', 'seaside promenade'],
-    description: 'The public coast combines daily ferries, fishing craft, sailing boats, yacht hotels and a continuous promenade.',
+    anchors: [
+      'public coast',
+      'yacht marina',
+      'ferry pier',
+      'seaside promenade',
+    ],
+    description:
+      'The public coast combines daily ferries, fishing craft, sailing boats, yacht hotels and a continuous promenade.',
   },
   {
     id: 'AZURE_RESORT_BELT',
@@ -303,8 +456,14 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 45,
     status: 'SHELL',
     role: 'RESORT',
-    anchors: ['three resort bays', 'yacht hotels', 'public beaches', 'marine retail'],
-    description: 'Three distinct bays layer public beaches, resort hotels, yacht clubs, residences and marine services.',
+    anchors: [
+      'three resort bays',
+      'yacht hotels',
+      'public beaches',
+      'marine retail',
+    ],
+    description:
+      'Three distinct bays layer public beaches, resort hotels, yacht clubs, residences and marine services.',
   },
   {
     id: 'WEST_HARBOR',
@@ -315,8 +474,14 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 42,
     status: 'PLANNED',
     role: 'EMPLOYMENT',
-    anchors: ['working docks', 'ferry terminal', 'maker halls', 'harborworker homes'],
-    description: 'A working river port keeps logistics, ferries, repair yards and attainable housing close together.',
+    anchors: [
+      'working docks',
+      'ferry terminal',
+      'maker halls',
+      'harborworker homes',
+    ],
+    description:
+      'A working river port keeps logistics, ferries, repair yards and attainable housing close together.',
   },
   {
     id: 'CROWN_RESIDENTIAL',
@@ -327,8 +492,14 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 42,
     status: 'PLAYABLE',
     role: 'RESIDENTIAL',
-    anchors: ['premium towers', 'sky gardens', 'private lift lobbies', 'local retail'],
-    description: 'Premium towers and one-home-per-floor duplexes form the residential edge of the city core.',
+    anchors: [
+      'premium towers',
+      'sky gardens',
+      'private lift lobbies',
+      'local retail',
+    ],
+    description:
+      'Premium towers and one-home-per-floor duplexes form the residential edge of the city core.',
   },
   {
     id: 'MIDSLOPE_VILLAS',
@@ -339,8 +510,14 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 46,
     status: 'PLAYABLE',
     role: 'RESIDENTIAL',
-    anchors: ['townhouses', 'semi-detached homes', 'detached estates', 'forest drives'],
-    description: 'A climbable hillside progresses from townhouses to paired villas and guarded detached estates.',
+    anchors: [
+      'townhouses',
+      'semi-detached homes',
+      'detached estates',
+      'forest drives',
+    ],
+    description:
+      'A climbable hillside progresses from townhouses to paired villas and guarded detached estates.',
   },
   {
     id: 'EAST_GARDEN_CENTRES',
@@ -351,8 +528,15 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 46,
     status: 'SHELL',
     role: 'CENTRE',
-    anchors: ['regional mall', 'family housing', 'schools', 'river park', 'metro interchange'],
-    description: 'Several transit-served commercial centers mix attainable, family and move-up housing around schools and parks.',
+    anchors: [
+      'regional mall',
+      'family housing',
+      'schools',
+      'river park',
+      'metro interchange',
+    ],
+    description:
+      'Several transit-served commercial centers mix attainable, family and move-up housing around schools and parks.',
   },
   {
     id: 'CIVIC_MEDICAL',
@@ -363,8 +547,15 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 40,
     status: 'SHELL',
     role: 'CENTRE',
-    anchors: ['hospital', 'emergency services', 'police', 'schools', 'laboratories'],
-    description: 'A complete civic campus with worker housing, public transport, schools, research and emergency services.',
+    anchors: [
+      'hospital',
+      'emergency services',
+      'police',
+      'schools',
+      'laboratories',
+    ],
+    description:
+      'A complete civic campus with worker housing, public transport, schools, research and emergency services.',
   },
   {
     id: 'ENERGY_RESEARCH',
@@ -375,8 +566,14 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 38,
     status: 'SHELL',
     role: 'INFRASTRUCTURE',
-    anchors: ['grid control', 'clean energy research', 'reservoir buffer', 'worker housing'],
-    description: 'Grid control, clean generation research and secure utilities sit inside a wide landscaped buffer.',
+    anchors: [
+      'grid control',
+      'clean energy research',
+      'reservoir buffer',
+      'worker housing',
+    ],
+    description:
+      'Grid control, clean generation research and secure utilities sit inside a wide landscaped buffer.',
   },
   {
     id: 'NORTH_HIGHLANDS',
@@ -387,8 +584,14 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 38,
     status: 'PLANNED',
     role: 'RESIDENTIAL',
-    anchors: ['reservoir homes', 'paired villas', 'forest estates', 'country lodge'],
-    description: 'Worker apartments step gradually into low-density hillside housing and protected highland landscape.',
+    anchors: [
+      'reservoir homes',
+      'paired villas',
+      'forest estates',
+      'country lodge',
+    ],
+    description:
+      'Worker apartments step gradually into low-density hillside housing and protected highland landscape.',
   },
   {
     id: 'FOOD_RETAIL',
@@ -399,33 +602,215 @@ export const WORLD_SECTORS: readonly WorldSector[] = [
     detailRadius: 40,
     status: 'SHELL',
     role: 'CENTRE',
-    anchors: ['market hall', 'grocers', 'restaurants', 'pool residences', 'nightlife'],
-    description: 'Daily retail and food streets support value, mid-market and move-up homes in one walkable center.',
+    anchors: [
+      'market hall',
+      'grocers',
+      'restaurants',
+      'pool residences',
+      'nightlife',
+    ],
+    description:
+      'Daily retail and food streets support value, mid-market and move-up homes in one walkable center.',
   },
   {
     id: 'STARTER_OUTER_RING',
     name: 'Starter Outer Ring',
-    center: [0, 76],
-    bounds: [-30, 30, 66, 80],
+    center: [0, 78],
+    bounds: [-30, 30, 66, 90],
     streamRadius: 65,
     detailRadius: 34,
     status: 'PLAYABLE',
     role: 'RESIDENTIAL',
-    anchors: ['starter towers', 'employment hall', 'transit mall', 'sports deck'],
-    description: 'High-density starter housing and attainable townhomes connect to the city by metro, buses and the grand axis.',
+    anchors: [
+      'starter towers',
+      'employment hall',
+      'transit mall',
+      'sports deck',
+    ],
+    description:
+      'High-density starter housing and attainable townhomes connect to the city by metro, buses and the grand axis.',
+  },
+  {
+    id: 'SUMMIT_ESTATES',
+    name: 'Victoria–Bel Air Summit Estates',
+    center: [98, 12],
+    bounds: [77, 124, -24, 48],
+    streamRadius: 86,
+    detailRadius: 52,
+    status: 'PLAYABLE',
+    role: 'RESIDENTIAL',
+    anchors: [
+      'Hong Kong-style mid-level homes',
+      'Los Angeles cantilever villas',
+      'summit club',
+      'scenic switchback',
+    ],
+    description:
+      'Individually designed houses climb a continuous eastern ridge from garden suburbs to the summit.',
+  },
+  {
+    id: 'OFFSHORE_CITY',
+    name: 'Ocean Crown Offshore City',
+    center: [-120, -60],
+    bounds: [-150, -94, -88, -34],
+    streamRadius: 92,
+    detailRadius: 58,
+    status: 'PLAYABLE',
+    role: 'RESORT',
+    anchors: [
+      'offshore casino',
+      'sky hotel',
+      'waterfront theatre',
+      'elevated metro terminal',
+    ],
+    description:
+      'A gold-and-white offshore entertainment city reached by a dedicated surface metro and sea bridge.',
+  },
+  {
+    id: 'MOTORSPORT_PARK',
+    name: 'Ampli Grand Prix Park',
+    center: [131, -56],
+    bounds: [100, 165, -90, -24],
+    streamRadius: 98,
+    detailRadius: 62,
+    status: 'PLAYABLE',
+    role: 'INFRASTRUCTURE',
+    anchors: [
+      'Grade 1-style circuit',
+      'pit complex',
+      'grandstand',
+      'mobility research campus',
+    ],
+    description:
+      'A purpose-designed permanent racing circuit anchors the eastern mobility and testing district.',
   },
 ] as const;
 
 export const URBAN_CENTERS: readonly UrbanCenter[] = [
-  { id: 'CTR-CBD', name: 'Civic Exchange', sector: 'CBD_CORE', position: [0, -10], scale: 'METROPOLITAN', catchmentRadiusKm: 18, anchors: ['exchange', 'offices', 'culture', 'luxury retail', 'central park'], housingTiers: ['MOVE_UP', 'PREMIUM', 'TROPHY'] },
-  { id: 'CTR-CANOPY', name: 'Canopy Market Centre', sector: 'FOOD_RETAIL', position: [-22, 24], scale: 'DISTRICT', catchmentRadiusKm: 4.5, anchors: ['market hall', 'groceries', 'restaurants', 'community services'], housingTiers: ['VALUE', 'MID_MARKET', 'MOVE_UP'] },
-  { id: 'CTR-MERIDIAN', name: 'Meridian Civic Centre', sector: 'CIVIC_MEDICAL', position: [45, 46], scale: 'SUBCENTER', catchmentRadiusKm: 9, anchors: ['hospital', 'university', 'government', 'research', 'regional park'], housingTiers: ['MID_MARKET', 'MOVE_UP'] },
-  { id: 'CTR-EASTGARDEN', name: 'Eastgarden Regional Centre', sector: 'EAST_GARDEN_CENTRES', position: [64, 57], scale: 'REGIONAL', catchmentRadiusKm: 8, anchors: ['regional mall', 'schools', 'sports', 'river park', 'interchange'], housingTiers: ['VALUE', 'MID_MARKET', 'MOVE_UP'] },
-  { id: 'CTR-AZURE', name: 'Azure Bay Marina Village', sector: 'AZURE_RESORT_BELT', position: [-61, -61], scale: 'REGIONAL', catchmentRadiusKm: 7, anchors: ['yacht hotels', 'marina', 'public beach', 'dining', 'marine retail'], housingTiers: ['MOVE_UP', 'PREMIUM', 'TROPHY'] },
-  { id: 'CTR-HARBOR', name: 'West Harbor Centre', sector: 'WEST_HARBOR', position: [-66, 22], scale: 'DISTRICT', catchmentRadiusKm: 6, anchors: ['ferry terminal', 'working port', 'repair', 'food market'], housingTiers: ['VALUE', 'MID_MARKET'] },
-  { id: 'CTR-STARTER', name: 'Outer Ring Transit Centre', sector: 'STARTER_OUTER_RING', position: [0, 73], scale: 'REGIONAL', catchmentRadiusKm: 7, anchors: ['employment hall', 'transit mall', 'community clinic', 'sports deck'], housingTiers: ['VALUE', 'MID_MARKET'] },
-  { id: 'CTR-GRID', name: 'North Grid Innovation Centre', sector: 'ENERGY_RESEARCH', position: [-48, 58], scale: 'DISTRICT', catchmentRadiusKm: 5.5, anchors: ['research campus', 'grid control', 'reservoir park', 'worker services'], housingTiers: ['VALUE', 'MID_MARKET', 'MOVE_UP'] },
-  { id: 'CTR-RIDGE', name: 'Ridge Gate Village', sector: 'MIDSLOPE_VILLAS', position: [50, 5], scale: 'NEIGHBORHOOD', catchmentRadiusKm: 3, anchors: ['club street', 'grocer', 'trailhead', 'metro gate'], housingTiers: ['MOVE_UP', 'PREMIUM', 'TROPHY'] },
+  {
+    id: 'CTR-CBD',
+    name: 'Civic Exchange',
+    sector: 'CBD_CORE',
+    position: [0, -10],
+    scale: 'METROPOLITAN',
+    catchmentRadiusKm: 18,
+    anchors: [
+      'exchange',
+      'offices',
+      'culture',
+      'luxury retail',
+      'central park',
+    ],
+    housingTiers: ['MOVE_UP', 'PREMIUM', 'TROPHY'],
+  },
+  {
+    id: 'CTR-CANOPY',
+    name: 'Canopy Market Centre',
+    sector: 'FOOD_RETAIL',
+    position: [-22, 24],
+    scale: 'DISTRICT',
+    catchmentRadiusKm: 4.5,
+    anchors: ['market hall', 'groceries', 'restaurants', 'community services'],
+    housingTiers: ['VALUE', 'MID_MARKET', 'MOVE_UP'],
+  },
+  {
+    id: 'CTR-MERIDIAN',
+    name: 'Meridian Civic Centre',
+    sector: 'CIVIC_MEDICAL',
+    position: [45, 46],
+    scale: 'SUBCENTER',
+    catchmentRadiusKm: 9,
+    anchors: [
+      'hospital',
+      'university',
+      'government',
+      'research',
+      'regional park',
+    ],
+    housingTiers: ['MID_MARKET', 'MOVE_UP'],
+  },
+  {
+    id: 'CTR-EASTGARDEN',
+    name: 'Eastgarden Regional Centre',
+    sector: 'EAST_GARDEN_CENTRES',
+    position: [64, 57],
+    scale: 'REGIONAL',
+    catchmentRadiusKm: 8,
+    anchors: [
+      'regional mall',
+      'schools',
+      'sports',
+      'river park',
+      'interchange',
+    ],
+    housingTiers: ['VALUE', 'MID_MARKET', 'MOVE_UP'],
+  },
+  {
+    id: 'CTR-AZURE',
+    name: 'Azure Bay Marina Village',
+    sector: 'AZURE_RESORT_BELT',
+    position: [-61, -61],
+    scale: 'REGIONAL',
+    catchmentRadiusKm: 7,
+    anchors: [
+      'yacht hotels',
+      'marina',
+      'public beach',
+      'dining',
+      'marine retail',
+    ],
+    housingTiers: ['MOVE_UP', 'PREMIUM', 'TROPHY'],
+  },
+  {
+    id: 'CTR-HARBOR',
+    name: 'West Harbor Centre',
+    sector: 'WEST_HARBOR',
+    position: [-66, 22],
+    scale: 'DISTRICT',
+    catchmentRadiusKm: 6,
+    anchors: ['ferry terminal', 'working port', 'repair', 'food market'],
+    housingTiers: ['VALUE', 'MID_MARKET'],
+  },
+  {
+    id: 'CTR-STARTER',
+    name: 'Outer Ring Transit Centre',
+    sector: 'STARTER_OUTER_RING',
+    position: [0, 73],
+    scale: 'REGIONAL',
+    catchmentRadiusKm: 7,
+    anchors: [
+      'employment hall',
+      'transit mall',
+      'community clinic',
+      'sports deck',
+    ],
+    housingTiers: ['VALUE', 'MID_MARKET'],
+  },
+  {
+    id: 'CTR-GRID',
+    name: 'North Grid Innovation Centre',
+    sector: 'ENERGY_RESEARCH',
+    position: [-48, 58],
+    scale: 'DISTRICT',
+    catchmentRadiusKm: 5.5,
+    anchors: [
+      'research campus',
+      'grid control',
+      'reservoir park',
+      'worker services',
+    ],
+    housingTiers: ['VALUE', 'MID_MARKET', 'MOVE_UP'],
+  },
+  {
+    id: 'CTR-RIDGE',
+    name: 'Ridge Gate Village',
+    sector: 'MIDSLOPE_VILLAS',
+    position: [50, 5],
+    scale: 'NEIGHBORHOOD',
+    catchmentRadiusKm: 3,
+    anchors: ['club street', 'grocer', 'trailhead', 'metro gate'],
+    housingTiers: ['MOVE_UP', 'PREMIUM', 'TROPHY'],
+  },
 ] as const;
 
 export const RESORT_BAYS: readonly ResortBay[] = [
@@ -433,33 +818,64 @@ export const RESORT_BAYS: readonly ResortBay[] = [
     id: 'BAY-AZURE',
     name: 'Azure Crescent Bay',
     center: [-61, -55],
-    coast: [[-77, -43], [-69, -51], [-61, -57], [-50, -55], [-42, -48]],
+    coast: [
+      [-77, -43],
+      [-69, -51],
+      [-61, -57],
+      [-50, -55],
+      [-42, -48],
+    ],
     hotelRooms: 1_320,
     publicBerths: 220,
     largeYachtBerths: 28,
-    anchors: ['yacht hotel', 'public promenade', 'ferry pier', 'sailing school'],
+    anchors: [
+      'yacht hotel',
+      'public promenade',
+      'ferry pier',
+      'sailing school',
+    ],
     status: 'PLAYABLE',
   },
   {
     id: 'BAY-PEARL',
     name: 'Pearl Cape Bay',
     center: [-75, -69],
-    coast: [[-80, -58], [-76, -66], [-72, -73], [-65, -77]],
+    coast: [
+      [-80, -58],
+      [-76, -66],
+      [-72, -73],
+      [-65, -77],
+    ],
     hotelRooms: 420,
     publicBerths: 82,
     largeYachtBerths: 34,
-    anchors: ['cape villas', 'private marina', 'cliff hotel', 'marine sanctuary'],
+    anchors: [
+      'cape villas',
+      'private marina',
+      'cliff hotel',
+      'marine sanctuary',
+    ],
     status: 'PLANNED',
   },
   {
     id: 'BAY-CORAL',
     name: 'Coral Lantern Bay',
     center: [-43, -69],
-    coast: [[-58, -73], [-49, -67], [-40, -65], [-33, -72]],
+    coast: [
+      [-58, -73],
+      [-49, -67],
+      [-40, -65],
+      [-33, -72],
+    ],
     hotelRooms: 860,
     publicBerths: 146,
     largeYachtBerths: 12,
-    anchors: ['family resort', 'public beach', 'fishing harbor', 'night market'],
+    anchors: [
+      'family resort',
+      'public beach',
+      'fishing harbor',
+      'night market',
+    ],
     status: 'SHELL',
   },
 ] as const;
@@ -469,10 +885,34 @@ function fourCornerEntrances(
   connections: readonly [string, string, string, string],
 ): readonly MetroEntrancePlan[] {
   return [
-    { code: 'A', corner: 'NORTHWEST', form: 'GLASS_CANOPY', accessible: true, connectsTo: connections[0] },
-    { code: 'B', corner: 'NORTHEAST', form: 'INTEGRATED_PODIUM', accessible: false, connectsTo: connections[1] },
-    { code: 'C', corner: 'SOUTHEAST', form: 'STONE_PAVILION', accessible: true, connectsTo: connections[2] },
-    { code: 'D', corner: 'SOUTHWEST', form: 'PARK_GATE', accessible: false, connectsTo: connections[3] },
+    {
+      code: 'A',
+      corner: 'NORTHWEST',
+      form: 'GLASS_CANOPY',
+      accessible: true,
+      connectsTo: connections[0],
+    },
+    {
+      code: 'B',
+      corner: 'NORTHEAST',
+      form: 'INTEGRATED_PODIUM',
+      accessible: false,
+      connectsTo: connections[1],
+    },
+    {
+      code: 'C',
+      corner: 'SOUTHEAST',
+      form: 'STONE_PAVILION',
+      accessible: true,
+      connectsTo: connections[2],
+    },
+    {
+      code: 'D',
+      corner: 'SOUTHWEST',
+      form: 'PARK_GATE',
+      accessible: false,
+      connectsTo: connections[3],
+    },
   ];
 }
 
@@ -480,7 +920,14 @@ export const METRO_ENTRANCE_DESIGN_STANDARD = {
   defaultEntranceCodes: ['A', 'B', 'C', 'D'],
   minimumAccessibleEntrances: 2,
   placement: 'OPPOSITE_STREET_CORNERS',
-  commonElements: ['weather canopy', 'bilingual line signage', 'lift', 'cycle parking', 'bus transfer', 'flood threshold'],
+  commonElements: [
+    'weather canopy',
+    'bilingual line signage',
+    'lift',
+    'cycle parking',
+    'bus transfer',
+    'flood threshold',
+  ],
 } as const;
 
 export const METRO_HUBS: readonly MetroHub[] = [
@@ -491,7 +938,12 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [0, 71],
     lines: ['M1', 'M4'],
     catchmentRadiusMeters: 1_100,
-    entrances: fourCornerEntrances(['Starter Towers', 'Employment Hall', 'Orchard Mall', 'Sports Deck']),
+    entrances: fourCornerEntrances([
+      'Starter Towers',
+      'Employment Hall',
+      'Orchard Mall',
+      'Sports Deck',
+    ]),
   },
   {
     id: 'MTR-C01',
@@ -500,7 +952,12 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [0, 25],
     lines: ['M1', 'M2', 'M3'],
     catchmentRadiusMeters: 900,
-    entrances: fourCornerEntrances(['Grand Exchange', 'Aurelian Park', 'Forum Offices', 'Canopy Market']),
+    entrances: fourCornerEntrances([
+      'Grand Exchange',
+      'Aurelian Park',
+      'Forum Offices',
+      'Canopy Market',
+    ]),
   },
   {
     id: 'MTR-C02',
@@ -509,7 +966,12 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [0, -39],
     lines: ['M1', 'M3'],
     catchmentRadiusMeters: 850,
-    entrances: fourCornerEntrances(['Rotunda', 'Crown Residences', 'Theatre Row', 'South Boulevard']),
+    entrances: fourCornerEntrances([
+      'Rotunda',
+      'Crown Residences',
+      'Theatre Row',
+      'South Boulevard',
+    ]),
   },
   {
     id: 'MTR-G01',
@@ -518,7 +980,12 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [13, 48],
     lines: ['M2', 'M6'],
     catchmentRadiusMeters: 950,
-    entrances: fourCornerEntrances(['Glassworks', 'Willow Bend', 'North Riverwalk', 'Civic Bridge']),
+    entrances: fourCornerEntrances([
+      'Glassworks',
+      'Willow Bend',
+      'North Riverwalk',
+      'Civic Bridge',
+    ]),
   },
   {
     id: 'MTR-G02',
@@ -527,7 +994,12 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [-12, 31],
     lines: ['M2', 'M6'],
     catchmentRadiusMeters: 950,
-    entrances: fourCornerEntrances(['Foundry Lofts', 'Embankment Arts', 'South Riverwalk', 'Night Market']),
+    entrances: fourCornerEntrances([
+      'Foundry Lofts',
+      'Embankment Arts',
+      'South Riverwalk',
+      'Night Market',
+    ]),
   },
   {
     id: 'MTR-W01',
@@ -536,7 +1008,12 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [-53, -27],
     lines: ['M2'],
     catchmentRadiusMeters: 1_050,
-    entrances: fourCornerEntrances(['Public Marina', 'Yacht Hotel', 'Ferry Pier', 'Azure Crescent']),
+    entrances: fourCornerEntrances([
+      'Public Marina',
+      'Yacht Hotel',
+      'Ferry Pier',
+      'Azure Crescent',
+    ]),
   },
   {
     id: 'MTR-B01',
@@ -547,7 +1024,12 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [-36, -63],
     lines: ['M2', 'M7'],
     catchmentRadiusMeters: 1_300,
-    entrances: fourCornerEntrances(['Resort Promenade', 'Yacht Club', 'Public Beach', 'Convention Hotel']),
+    entrances: fourCornerEntrances([
+      'Resort Promenade',
+      'Yacht Club',
+      'Public Beach',
+      'Convention Hotel',
+    ]),
   },
   {
     id: 'MTR-W02',
@@ -556,7 +1038,12 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [-65, 20],
     lines: ['M6'],
     catchmentRadiusMeters: 1_200,
-    entrances: fourCornerEntrances(['Ferry Terminal', 'Provision Market', 'Repair Yards', 'Harborworkers Court']),
+    entrances: fourCornerEntrances([
+      'Ferry Terminal',
+      'Provision Market',
+      'Repair Yards',
+      'Harborworkers Court',
+    ]),
   },
   {
     id: 'MTR-R01',
@@ -565,7 +1052,12 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [34, -33],
     lines: ['M3'],
     catchmentRadiusMeters: 850,
-    entrances: fourCornerEntrances(['Crown Towers', 'Sky Garden', 'Local Retail', 'River Road']),
+    entrances: fourCornerEntrances([
+      'Crown Towers',
+      'Sky Garden',
+      'Local Retail',
+      'River Road',
+    ]),
   },
   {
     id: 'MTR-H01',
@@ -574,7 +1066,12 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [48, 5],
     lines: ['M3', 'M5'],
     catchmentRadiusMeters: 1_250,
-    entrances: fourCornerEntrances(['Townhouse Gate', 'Village Centre', 'Forest Trail', 'Villa Shuttle']),
+    entrances: fourCornerEntrances([
+      'Townhouse Gate',
+      'Village Centre',
+      'Forest Trail',
+      'Villa Shuttle',
+    ]),
   },
   {
     id: 'MTR-M01',
@@ -583,7 +1080,12 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [34, 43],
     lines: ['M1', 'M5'],
     catchmentRadiusMeters: 1_100,
-    entrances: fourCornerEntrances(['Hospital', 'Academy', 'Civic Park', 'Resident Quarter']),
+    entrances: fourCornerEntrances([
+      'Hospital',
+      'Academy',
+      'Civic Park',
+      'Resident Quarter',
+    ]),
   },
   {
     id: 'MTR-E02',
@@ -592,7 +1094,12 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [62, 56],
     lines: ['M5', 'M6'],
     catchmentRadiusMeters: 1_250,
-    entrances: fourCornerEntrances(['Regional Mall', 'Family Park', 'Schools', 'River Wetlands']),
+    entrances: fourCornerEntrances([
+      'Regional Mall',
+      'Family Park',
+      'Schools',
+      'River Wetlands',
+    ]),
   },
   {
     id: 'MTR-E01',
@@ -601,7 +1108,12 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [-36, 54],
     lines: ['M4'],
     catchmentRadiusMeters: 1_200,
-    entrances: fourCornerEntrances(['Research Campus', 'Grid Control', 'Reservoir Park', 'Worker Housing']),
+    entrances: fourCornerEntrances([
+      'Research Campus',
+      'Grid Control',
+      'Reservoir Park',
+      'Worker Housing',
+    ]),
   },
   {
     id: 'MTR-F01',
@@ -610,7 +1122,26 @@ export const METRO_HUBS: readonly MetroHub[] = [
     position: [-18, 23],
     lines: ['M2', 'M4'],
     catchmentRadiusMeters: 850,
-    entrances: fourCornerEntrances(['Market Hall', 'Food Street', 'Canopy Courtyard', 'Verdant Pool']),
+    entrances: fourCornerEntrances([
+      'Market Hall',
+      'Food Street',
+      'Canopy Courtyard',
+      'Verdant Pool',
+    ]),
+  },
+  {
+    id: 'MTR-O01',
+    name: 'Ocean Crown Terminal',
+    sector: 'OFFSHORE_CITY',
+    position: [-120, -84],
+    lines: ['M7'],
+    catchmentRadiusMeters: 1_400,
+    entrances: fourCornerEntrances([
+      'Casino Promenade',
+      'Sky Hotel',
+      'Marine Theatre',
+      'Sea Bridge',
+    ]),
   },
 ] as const;
 
@@ -620,20 +1151,26 @@ export const METRO_HUBS: readonly MetroHub[] = [
  * on these values remaining stable.
  */
 export const METRO_STATION_REGISTRY = [
-  { id: 'M0', topologyId: 'MTR-S01', district: 'STARTER_ARCOLOGY', arrival: [0, 71] },
-  { id: 'M1', topologyId: 'MTR-G02', district: 'CBD', arrival: [-12, 31] },
+  {
+    id: 'M0',
+    topologyId: 'MTR-S01',
+    district: 'STARTER_ARCOLOGY',
+    arrival: [0, 71],
+  },
+  { id: 'M1', topologyId: 'MTR-G02', district: 'CBD', arrival: [-8, 28] },
   { id: 'M2', topologyId: 'MTR-W01', district: 'CBD', arrival: [-53, -27] },
   { id: 'M3', topologyId: 'MTR-G01', district: 'CBD', arrival: [13, 48] },
   { id: 'M4', topologyId: 'MTR-C01', district: 'CBD', arrival: [0, 25] },
-  { id: 'M5', topologyId: 'MTR-C02', district: 'CBD', arrival: [0, -44] },
-  { id: 'M6', topologyId: 'MTR-B01', district: 'CBD', arrival: [-36, -63] },
+  { id: 'M5', topologyId: 'MTR-C02', district: 'CBD', arrival: [-5, -49] },
+  { id: 'M6', topologyId: 'MTR-B01', district: 'CBD', arrival: [-35, -68] },
   { id: 'M7', topologyId: 'MTR-W02', district: 'CBD', arrival: [-65, 20] },
   { id: 'M8', topologyId: 'MTR-M01', district: 'CBD', arrival: [34, 43] },
-  { id: 'M9', topologyId: 'MTR-H01', district: 'CBD', arrival: [48, 12] },
-  { id: 'M10', topologyId: 'MTR-R01', district: 'CBD', arrival: [37, -34] },
-  { id: 'M11', topologyId: 'MTR-E02', district: 'CBD', arrival: [61, 58] },
-  { id: 'M12', topologyId: 'MTR-E01', district: 'CBD', arrival: [-36, 54] },
-  { id: 'M13', topologyId: 'MTR-F01', district: 'CBD', arrival: [-13, 23] },
+  { id: 'M9', topologyId: 'MTR-H01', district: 'CBD', arrival: [45, 13] },
+  { id: 'M10', topologyId: 'MTR-R01', district: 'CBD', arrival: [41, -28] },
+  { id: 'M11', topologyId: 'MTR-E02', district: 'CBD', arrival: [51, 48] },
+  { id: 'M12', topologyId: 'MTR-E01', district: 'CBD', arrival: [-33, 51] },
+  { id: 'M13', topologyId: 'MTR-F01', district: 'CBD', arrival: [-10, 19] },
+  { id: 'M14', topologyId: 'MTR-O01', district: 'CBD', arrival: [-120, -84] },
 ] as const satisfies readonly MetroStationRegistryEntry[];
 
 export const DEFAULT_METRO_STATION_BY_DISTRICT = {
@@ -661,7 +1198,15 @@ export const METROPOLITAN_AXES: readonly RoadConnector[] = [
     name: 'Grand Market Avenue',
     class: 'AXIS',
     width: 31,
-    points: [[0, 80], [0, 60], [0, 38], [0, 25], [0, 2], [0, -39], [0, -78]],
+    points: [
+      [0, 80],
+      [0, 60],
+      [0, 38],
+      [0, 25],
+      [0, 2],
+      [0, -39],
+      [0, -78],
+    ],
     modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
   },
   {
@@ -669,7 +1214,15 @@ export const METROPOLITAN_AXES: readonly RoadConnector[] = [
     name: 'Forum Cultural Axis',
     class: 'AXIS',
     width: 18,
-    points: [[-80, -8], [-55, -8], [-28, -8], [0, -8], [32, -8], [58, -8], [80, -8]],
+    points: [
+      [-80, -8],
+      [-55, -8],
+      [-28, -8],
+      [0, -8],
+      [32, -8],
+      [58, -8],
+      [80, -8],
+    ],
     modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
   },
 ] as const;
@@ -680,7 +1233,17 @@ export const RING_ROADS: readonly RoadConnector[] = [
     name: 'Inner Capital Ring',
     class: 'RING',
     width: 13,
-    points: [[-43, -52], [43, -52], [55, -10], [48, 33], [29, 40], [-29, 44], [-50, 28], [-55, -10], [-43, -52]],
+    points: [
+      [-43, -52],
+      [43, -52],
+      [55, -10],
+      [48, 33],
+      [29, 40],
+      [-29, 44],
+      [-50, 28],
+      [-55, -10],
+      [-43, -52],
+    ],
     modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
   },
   {
@@ -688,7 +1251,17 @@ export const RING_ROADS: readonly RoadConnector[] = [
     name: 'Metropolitan Middle Ring',
     class: 'RING',
     width: 16,
-    points: [[-74, -67], [48, -71], [76, -40], [75, 42], [48, 72], [-45, 76], [-76, 48], [-77, -25], [-74, -67]],
+    points: [
+      [-74, -67],
+      [48, -71],
+      [76, -40],
+      [75, 42],
+      [48, 96],
+      [-45, 96],
+      [-76, 48],
+      [-77, -25],
+      [-74, -67],
+    ],
     modes: ['BUS', 'CAR'],
   },
 ] as const;
@@ -701,7 +1274,12 @@ export const ROAD_CONNECTORS: readonly RoadConnector[] = [
     name: 'Harbor Crescent',
     class: 'ARTERIAL',
     width: 10.5,
-    points: [[0, -22], [-22, -26], [-45, -35], [-61, -52]],
+    points: [
+      [0, -22],
+      [-22, -26],
+      [-45, -35],
+      [-61, -52],
+    ],
     modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
   },
   {
@@ -709,7 +1287,12 @@ export const ROAD_CONNECTORS: readonly RoadConnector[] = [
     name: 'Civic Parkway',
     class: 'ARTERIAL',
     width: 11.5,
-    points: [[0, 25], [23, 32], [45, 46], [64, 57]],
+    points: [
+      [0, 25],
+      [23, 32],
+      [45, 46],
+      [64, 57],
+    ],
     modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
   },
   {
@@ -717,7 +1300,13 @@ export const ROAD_CONNECTORS: readonly RoadConnector[] = [
     name: 'Ridge Scenic Drive',
     class: 'SCENIC',
     width: 8,
-    points: [[18, -18], [36, -11], [48, 5], [59, 23], [70, 38]],
+    points: [
+      [18, -18],
+      [36, -11],
+      [48, 5],
+      [59, 23],
+      [70, 38],
+    ],
     modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
   },
   {
@@ -725,7 +1314,12 @@ export const ROAD_CONNECTORS: readonly RoadConnector[] = [
     name: 'North Utility Boulevard',
     class: 'ARTERIAL',
     width: 10,
-    points: [[0, 45], [-24, 49], [-48, 58], [-64, 71]],
+    points: [
+      [0, 45],
+      [-24, 39],
+      [-48, 58],
+      [-64, 71],
+    ],
     modes: ['CYCLE', 'BUS', 'CAR'],
   },
   {
@@ -733,7 +1327,16 @@ export const ROAD_CONNECTORS: readonly RoadConnector[] = [
     name: 'North River Parkway',
     class: 'SCENIC',
     width: 9,
-    points: [[-63, 30], [-49, 43], [-29, 50], [0, 45], [31, 47], [60, 40], [80, 35]],
+    points: [
+      [-63, 30],
+      [-49, 43],
+      [-34, 39],
+      [-8, 40],
+      [0, 45],
+      [31, 47],
+      [60, 40],
+      [80, 35],
+    ],
     modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
   },
   {
@@ -741,7 +1344,15 @@ export const ROAD_CONNECTORS: readonly RoadConnector[] = [
     name: 'Southbank Avenue',
     class: 'ARTERIAL',
     width: 12,
-    points: [[-69, 21], [-53, 33], [-30, 37], [0, 31], [29, 33], [58, 28], [80, 23]],
+    points: [
+      [-69, 21],
+      [-53, 33],
+      [-30, 37],
+      [0, 31],
+      [29, 33],
+      [58, 28],
+      [80, 23],
+    ],
     modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
   },
   {
@@ -749,7 +1360,13 @@ export const ROAD_CONNECTORS: readonly RoadConnector[] = [
     name: 'Eastgarden Centre Boulevard',
     class: 'TRUNK',
     width: 14,
-    points: [[32, 17], [46, 31], [59, 34], [64, 57], [55, 78]],
+    points: [
+      [32, 17],
+      [46, 31],
+      [59, 34],
+      [64, 57],
+      [55, 78],
+    ],
     modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
   },
   {
@@ -757,7 +1374,14 @@ export const ROAD_CONNECTORS: readonly RoadConnector[] = [
     name: 'Azure Resort Parkway',
     class: 'SCENIC',
     width: 10,
-    points: [[-44, -32], [-51, -46], [-61, -55], [-72, -67], [-45, -72], [-34, -63]],
+    points: [
+      [-44, -32],
+      [-51, -46],
+      [-61, -55],
+      [-72, -67],
+      [-45, -72],
+      [-34, -63],
+    ],
     modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
   },
   {
@@ -765,7 +1389,13 @@ export const ROAD_CONNECTORS: readonly RoadConnector[] = [
     name: 'West Harbor Logistics Way',
     class: 'TRUNK',
     width: 14,
-    points: [[-77, 44], [-68, 24], [-72, 7], [-70, -17], [-61, -39]],
+    points: [
+      [-77, 44],
+      [-68, 24],
+      [-72, 7],
+      [-70, -17],
+      [-61, -39],
+    ],
     modes: ['BUS', 'CAR'],
   },
   {
@@ -773,7 +1403,71 @@ export const ROAD_CONNECTORS: readonly RoadConnector[] = [
     name: 'East-West Commerce Corridor',
     class: 'TRUNK',
     width: 15,
-    points: [[-78, 16], [-52, 16], [-22, 18], [0, 16], [34, 17], [62, 20], [80, 18]],
+    points: [
+      [-78, 16],
+      [-52, 16],
+      [-22, 18],
+      [0, 16],
+      [34, 17],
+      [62, 20],
+      [80, 18],
+    ],
+    modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
+  },
+  {
+    id: 'RD-A13',
+    name: 'Ocean Crown Sea Bridge',
+    class: 'SCENIC',
+    width: 12,
+    points: [
+      [-45, -72],
+      [-72, -72],
+      [-96, -70],
+      [-120, -84],
+    ],
+    modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
+  },
+  {
+    id: 'RD-A14',
+    name: 'Grand Prix Expressway',
+    class: 'TRUNK',
+    width: 16,
+    points: [
+      [76, -40],
+      [92, -44],
+      [108, -50],
+      [124, -55],
+    ],
+    modes: ['BUS', 'CAR'],
+  },
+  {
+    id: 'RD-A15',
+    name: 'Summit Switchback Drive',
+    class: 'SCENIC',
+    width: 8,
+    points: [
+      [70, 38],
+      [79, 33],
+      [85, 27],
+      [91, 20],
+      [96, 12],
+      [101, 4],
+      [105, -16],
+    ],
+    modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
+  },
+  {
+    id: 'RD-A16',
+    name: 'Apex Mobility Avenue',
+    class: 'ARTERIAL',
+    width: 11,
+    points: [
+      [63, -54],
+      [70, -51],
+      [82, -51],
+      [94, -51],
+      [105, -53],
+    ],
     modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
   },
 ] as const;
@@ -813,7 +1507,7 @@ export function headingAlongNearestRoad(position: WorldPoint) {
 }
 
 export function worldUnitsToKilometers(units: number) {
-  return units * METERS_PER_WORLD_UNIT / 1000;
+  return (units * METERS_PER_WORLD_UNIT) / 1000;
 }
 
 export function distanceBetween(a: WorldPoint, b: WorldPoint) {
@@ -821,29 +1515,44 @@ export function distanceBetween(a: WorldPoint, b: WorldPoint) {
 }
 
 export function nearbyWorldSectors(position: WorldPoint, extraRadius = 0) {
-  return WORLD_SECTORS.filter((sector) => distanceBetween(position, sector.center) <= sector.streamRadius + extraRadius);
+  return WORLD_SECTORS.filter(
+    (sector) =>
+      distanceBetween(position, sector.center) <=
+      sector.streamRadius + extraRadius,
+  );
 }
 
 export function detailedWorldSectors(position: WorldPoint) {
-  return WORLD_SECTORS.filter((sector) => distanceBetween(position, sector.center) <= sector.detailRadius);
+  return WORLD_SECTORS.filter(
+    (sector) => distanceBetween(position, sector.center) <= sector.detailRadius,
+  );
 }
 
 export function nearestMetroHub(position: WorldPoint) {
-  return METRO_HUBS.reduce((nearest, hub) => (
-    distanceBetween(position, hub.position) < distanceBetween(position, nearest.position) ? hub : nearest
-  ));
+  return METRO_HUBS.reduce((nearest, hub) =>
+    distanceBetween(position, hub.position) <
+    distanceBetween(position, nearest.position)
+      ? hub
+      : nearest,
+  );
 }
 
 export function nearestUrbanCenter(position: WorldPoint) {
-  return URBAN_CENTERS.reduce((nearest, center) => (
-    distanceBetween(position, center.position) < distanceBetween(position, nearest.position) ? center : nearest
-  ));
+  return URBAN_CENTERS.reduce((nearest, center) =>
+    distanceBetween(position, center.position) <
+    distanceBetween(position, nearest.position)
+      ? center
+      : nearest,
+  );
 }
 
 export function nearestRiverBridge(position: WorldPoint) {
-  return RIVER_BRIDGES.reduce((nearest, bridge) => (
-    distanceBetween(position, bridge.position) < distanceBetween(position, nearest.position) ? bridge : nearest
-  ));
+  return RIVER_BRIDGES.reduce((nearest, bridge) =>
+    distanceBetween(position, bridge.position) <
+    distanceBetween(position, nearest.position)
+      ? bridge
+      : nearest,
+  );
 }
 
 export function metroHubsServingSector(sector: WorldSectorId) {

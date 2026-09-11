@@ -62,16 +62,25 @@ import {
   getDayPhase,
   getWorldMinutesAtCycleTime,
 } from './dynamic-atmosphere';
+import { MetropolitanExpansion } from './metropolitan-expansion';
 import {
   CONTINUOUS_WORLD_BOUNDS,
   ContinuousWorldBase,
   LEGACY_DISTRICT_WORLD_ORIGINS,
   SectorLodMassing,
+  canStepBetweenContinuousWorldPoints,
   canTraverseContinuousWorld,
   getContinuousWorldMetroArrival,
+  getContinuousWorldMetroEntrancePosition,
   getContinuousWorldSectorAt,
   getNearestContinuousWorldMetro,
+  getWorldSurfaceElevationXZ,
+  isWorldCameraPointOccluded,
 } from './continuous-world';
+import {
+  isStudioCameraPointOccluded,
+  resolveCameraOcclusion,
+} from './camera-safety';
 import {
   GrandRiverSystem,
   MarinaHotelDistrict,
@@ -79,6 +88,13 @@ import {
   ResidentialQuarter,
 } from './urban-expansion';
 import { WORLD_ASSET_COUNTS } from './world-asset-catalog';
+import {
+  NAMED_WORLD_SOLIDS,
+  STARTER_TOWER_SPECS,
+  WORLD_SITE_RESERVATIONS,
+  getWorldFootprintElevationRange,
+  type StarterTowerSpec,
+} from './world-spatial-registry';
 import {
   WORLD_NEIGHBORHOODS,
   WORLD_NEIGHBORHOOD_STATS,
@@ -161,7 +177,10 @@ type AtlasKind =
   | 'GROCER'
   | 'RESIDENTIAL'
   | 'DINING'
-  | 'ENERGY';
+  | 'ENERGY'
+  | 'CIVIC'
+  | 'CASINO'
+  | 'RACING';
 type AtlasNode = {
   id: string;
   name: string;
@@ -479,7 +498,7 @@ const LANDMARK_ATLAS = [
     y: 4,
     kind: 'HOME',
     zone: 'SOUTH RESIDENTIAL',
-    detail: '1,000 residential towers · your 10 m² studio',
+    detail: 'Solid registered tower blocks · your 10 m² studio portal',
     place: 'studio',
     scene: 'STARTER_ARCOLOGY',
     availability: 'PLAYABLE',
@@ -623,12 +642,13 @@ const LANDMARK_ATLAS = [
   },
   {
     id: 'auto-4s',
-    name: 'Apex Motors 4S',
-    x: 18,
-    y: 9.5,
+    name: 'Apex Motors Flagship 4S',
+    x: 14.8,
+    y: 6.6,
     kind: 'AUTO',
-    zone: 'EAST AUTO DISTRICT',
-    detail: 'Vehicle sales, service, spare parts and owner support',
+    zone: 'EAST MOBILITY DISTRICT',
+    detail:
+      'Large showroom, service hall, customer parking, charging and test loop',
     place: 'dealership',
     availability: 'PLAYABLE',
   },
@@ -678,6 +698,50 @@ const LANDMARK_ATLAS = [
     detail: 'Mountain trails, overlooks and research stations',
     availability: 'PLANNED',
   },
+  {
+    id: 'cyber-sanctuary',
+    name: 'Aurelian Cyber Sanctuary',
+    x: 11.6,
+    y: 24,
+    kind: 'CIVIC',
+    zone: 'NORTH CIVIC RIDGE',
+    detail: 'Concrete grey, white and gold sanctuary precinct',
+    place: 'social',
+    availability: 'PLAYABLE',
+  },
+  {
+    id: 'summit-estates',
+    name: 'Victoria–Bel Air Summit Estates',
+    x: 16,
+    y: 16.4,
+    kind: 'VILLAS',
+    zone: 'EASTERN SUMMIT',
+    detail: 'Individually designed Hong Kong and Los Angeles hillside homes',
+    place: 'villa',
+    availability: 'PLAYABLE',
+  },
+  {
+    id: 'ocean-crown',
+    name: 'Ocean Crown Offshore City',
+    x: 2.2,
+    y: 5.6,
+    kind: 'CASINO',
+    zone: 'WESTERN SEA',
+    detail: 'Offshore casino, hotel and marine theatre reached by Line M7',
+    place: 'social',
+    availability: 'PLAYABLE',
+  },
+  {
+    id: 'ampli-grand-prix',
+    name: 'Ampli Grand Prix Circuit',
+    x: 18.2,
+    y: 6.4,
+    kind: 'RACING',
+    zone: 'EAST MOBILITY PARK',
+    detail: 'Purpose-designed circuit, pit complex and main grandstand',
+    place: 'dealership',
+    availability: 'PLAYABLE',
+  },
 ] as const satisfies readonly AtlasNode[];
 
 const NEIGHBORHOOD_ATLAS: readonly AtlasNode[] = WORLD_NEIGHBORHOODS.map(
@@ -722,6 +786,9 @@ const METRO_NODE_BY_SECTOR: Record<WorldSectorId, string> = {
   ENERGY_RESEARCH: 'grid-energy',
   NORTH_HIGHLANDS: 'highlands',
   FOOD_RETAIL: 'fresh-market',
+  SUMMIT_ESTATES: 'summit-estates',
+  OFFSHORE_CITY: 'ocean-crown',
+  MOTORSPORT_PARK: 'ampli-grand-prix',
 };
 
 const sceneForSector = (sector: WorldSectorId): WorldSceneId => {
@@ -764,6 +831,7 @@ const METRO_STATIONS: readonly MetroStation[] = METRO_STATION_REGISTRY.map(
     const arrival = getContinuousWorldMetroArrival(hub.id);
     if (!arrival)
       throw new Error(`Missing continuous-world arrival for ${hub.id}`);
+    const entrance = getContinuousWorldMetroEntrancePosition(arrival);
     return {
       id: registeredStation.id,
       topologyId: hub.id,
@@ -772,7 +840,7 @@ const METRO_STATIONS: readonly MetroStation[] = METRO_STATION_REGISTRY.map(
       y: worldToAtlasY(arrival.position[2]),
       nodeId: METRO_NODE_BY_SECTOR[hub.sector],
       scene: sceneForSector(hub.sector),
-      entrance: [arrival.position[0], 0, arrival.position[2]],
+      entrance: [...entrance],
       spawn: [...arrival.position],
       heading: arrival.heading,
     };
@@ -791,14 +859,6 @@ const RESIDENTIAL_TIER_LABELS: Record<CatalogResidentialTier, string> = {
   MOVE_UP: 'IMPROVEMENT',
   PREMIUM: 'PREMIUM',
   TROPHY: 'TROPHY',
-};
-
-const SCENE_LABELS: Record<WorldSceneId, string> = {
-  STARTER_ARCOLOGY: 'OUTER RING · STARTER ARCOLOGY',
-  CBD: 'CYBER CBD',
-  AZURE_YACHT_MARINA: 'NORTH WATERFRONT · AZURE YACHT MARINA',
-  CROWN_RESIDENTIAL_TOWERS: 'CITY CORE · CROWN RESIDENTIAL TOWERS',
-  MILLIONAIRE_RIDGE: 'NORTHEAST RIDGE · VILLA DISTRICT',
 };
 
 const sceneDistrict = (scene: WorldSceneId): WorldDistrict =>
@@ -945,7 +1005,6 @@ const CBD_PLAYER_BLOCKERS = [
   [27, -14, 6.2, 5.2],
   [27, 3, 5.3, 4.4],
   [-25, 16, 8.3, 7.2],
-  [27, 25, 8.3, 6.3],
   [-25, -3, 5.4, 4.5],
   [-26, 29, 11.5, 7.2],
   [0, 13, 3.4, 3.4],
@@ -994,13 +1053,7 @@ const CBD_PLAYER_BLOCKERS = [
   [51, -59, 10, 9],
 ] as const;
 
-const STARTER_PLAYER_BLOCKERS = [
-  [-15, -6, 3.7, 4.1],
-  [15, -6, 3.7, 4.1],
-  [-15, 14, 3.5, 3.7],
-  [15, 14, 3.5, 3.7],
-  [0, -18, 3.2, 2.1],
-] as const;
+const STARTER_PLAYER_BLOCKERS = [] as const;
 
 const STUDIO_PLAYER_BLOCKERS = [
   [-2.6, -0.8, 1.05, 2.1],
@@ -1043,9 +1096,6 @@ const RIDGE_PLAYER_BLOCKERS = [
   [-15, -14, 4.4, 4.7],
   [15, -14, 4.4, 4.7],
   [0, -31, 5.2, 5.2],
-  [-2.1, 18, 1.4, 2.4],
-  [2.1, 5, 1.4, 2.4],
-  [-2.1, -13, 1.4, 2.4],
   [-9.5, -14, 0.25, 6.2],
   [9.5, -14, 0.25, 6.2],
   [-9.5, 2, 0.25, 6.2],
@@ -1057,10 +1107,7 @@ const RIDGE_PLAYER_BLOCKERS = [
   [30, 18, 5, 7.5],
 ] as const;
 
-const ARCOLOGY_TOWER_TOTAL = 1000;
-const DETAILED_ARCOLOGY_TOWER_TOTAL = 4;
 const ARCOLOGY_FLOORS = 50;
-const ARCOLOGY_TOWER_HEIGHT = 78;
 
 const SCENE_PROFILES: Record<
   SceneProfileId,
@@ -1492,7 +1539,6 @@ export function VillaDistrict({
 }: {
   netWorth: number;
   onEnter: EnterPlace;
-  onDenied: (message: string) => void;
 }) {
   const verified = netWorth >= 1_000_000;
   const approach = () => onEnter('villa');
@@ -1687,33 +1733,42 @@ function PopulationLayer({
 function TowerFloorBands({
   width,
   depth,
+  height,
   floors = ARCOLOGY_FLOORS,
 }: {
   width: number;
   depth: number;
+  height: number;
   floors?: number;
 }) {
-  const front = useRef<THREE.InstancedMesh>(null);
-  const side = useRef<THREE.InstancedMesh>(null);
+  const frontAndBack = useRef<THREE.InstancedMesh>(null);
+  const sides = useRef<THREE.InstancedMesh>(null);
   useEffect(() => {
     const matrix = new THREE.Matrix4();
-    const floorHeight = ARCOLOGY_TOWER_HEIGHT / floors;
+    const floorHeight = height / floors;
     for (let floor = 0; floor < floors; floor += 1) {
       const y = floorHeight * 0.52 + floor * floorHeight;
       matrix.makeTranslation(0, y, depth / 2 + 0.012);
-      front.current?.setMatrixAt(floor, matrix);
+      frontAndBack.current?.setMatrixAt(floor * 2, matrix);
+      matrix.makeRotationY(Math.PI);
+      matrix.setPosition(0, y, -depth / 2 - 0.012);
+      frontAndBack.current?.setMatrixAt(floor * 2 + 1, matrix);
       matrix.makeRotationY(Math.PI / 2);
       matrix.setPosition(width / 2 + 0.012, y, 0);
-      side.current?.setMatrixAt(floor, matrix);
+      sides.current?.setMatrixAt(floor * 2, matrix);
+      matrix.makeRotationY(-Math.PI / 2);
+      matrix.setPosition(-width / 2 - 0.012, y, 0);
+      sides.current?.setMatrixAt(floor * 2 + 1, matrix);
     }
-    if (front.current) front.current.instanceMatrix.needsUpdate = true;
-    if (side.current) side.current.instanceMatrix.needsUpdate = true;
-  }, [depth, floors, width]);
+    if (frontAndBack.current)
+      frontAndBack.current.instanceMatrix.needsUpdate = true;
+    if (sides.current) sides.current.instanceMatrix.needsUpdate = true;
+  }, [depth, floors, height, width]);
   return (
     <>
       <instancedMesh
-        ref={front}
-        args={[undefined, undefined, floors]}
+        ref={frontAndBack}
+        args={[undefined, undefined, floors * 2]}
         frustumCulled
       >
         <planeGeometry args={[width * 0.86, 0.055]} />
@@ -1725,8 +1780,8 @@ function TowerFloorBands({
         />
       </instancedMesh>
       <instancedMesh
-        ref={side}
-        args={[undefined, undefined, floors]}
+        ref={sides}
+        args={[undefined, undefined, floors * 2]}
         frustumCulled
       >
         <planeGeometry args={[depth * 0.86, 0.055]} />
@@ -1742,45 +1797,81 @@ function TowerFloorBands({
 }
 
 function ArcologyTower({
-  position,
-  block,
-  home = false,
+  tower,
   onEnter,
+  onNotice,
+  residenceBlock,
 }: {
-  position: [number, number, number];
-  block: string;
-  home?: boolean;
+  tower: StarterTowerSpec;
   onEnter: EnterPlace;
+  onNotice: (message: string) => void;
+  residenceBlock: string;
 }) {
-  const width = home ? 6.4 : 6;
-  const depth = home ? 6.7 : 6.2;
+  const { width, depth, height, home } = tower;
+  const doorDirection = tower.center[0] < 0 ? 1 : -1;
+  const block = home ? `BLOCK ${residenceBlock}` : tower.id;
+  const portalAnchor = useRef<THREE.Group>(null);
+  const portalWorldPosition = useRef(
+    new THREE.Vector3(tower.door[0], 1.3, tower.door[1]),
+  );
+  const portalVisibility = useRef(false);
+  const [portalVisible, setPortalVisible] = useState(false);
+  useFrame(() => {
+    portalAnchor.current?.getWorldPosition(portalWorldPosition.current);
+    const visible =
+      portalWorldPosition.current.distanceToSquared(ACTIVE_PLAYER_POSITION) <
+      7.5 * 7.5;
+    if (visible !== portalVisibility.current) {
+      portalVisibility.current = visible;
+      setPortalVisible(visible);
+    }
+  });
+  const enterTower = () => {
+    if (
+      portalWorldPosition.current.distanceToSquared(ACTIVE_PLAYER_POSITION) >
+      2.8 * 2.8
+    ) {
+      onNotice(`APPROACH ${tower.id} ENTRANCE TO OPEN ITS INTERIOR PORTAL`);
+      return;
+    }
+    if (home) {
+      onEnter('studio');
+      return;
+    }
+    onNotice(`${tower.name.toUpperCase()} · INTERIOR INSTANCE RESERVED`);
+  };
   return (
-    <group position={position}>
-      <mesh
-        castShadow
-        receiveShadow
-        position={[0, ARCOLOGY_TOWER_HEIGHT / 2, 0]}
-      >
-        <boxGeometry args={[width, ARCOLOGY_TOWER_HEIGHT, depth]} />
+    <group
+      position={[tower.center[0], 0, tower.center[1]]}
+      name={`${tower.id} · solid exterior shell`}
+      userData={{
+        buildingId: tower.id,
+        collision: 'SOLID',
+        portal: tower.door,
+      }}
+    >
+      <mesh castShadow receiveShadow position={[0, height / 2, 0]}>
+        <boxGeometry args={[width, height, depth]} />
         <meshStandardMaterial
-          color={home ? '#34433f' : '#303c3b'}
-          roughness={0.74}
-          metalness={0.28}
-          emissive={home ? '#214d40' : '#263a37'}
-          emissiveIntensity={0.23}
+          color={home ? '#b6b2aa' : '#999894'}
+          roughness={0.82}
+          metalness={0.12}
+          emissive={home ? '#544a35' : '#303b39'}
+          emissiveIntensity={0.12}
         />
       </mesh>
-      <TowerFloorBands width={width} depth={depth} />
+      <TowerFloorBands
+        width={width}
+        depth={depth}
+        height={height}
+        floors={Math.max(28, Math.round(height / 1.25))}
+      />
       {[-0.34, -0.11, 0.11, 0.34].map((ratio, index) => (
         <mesh
           key={`front-window-${ratio}`}
-          position={[
-            ratio * width,
-            ARCOLOGY_TOWER_HEIGHT * 0.51,
-            depth / 2 + 0.018,
-          ]}
+          position={[ratio * width, height * 0.51, depth / 2 + 0.018]}
         >
-          <planeGeometry args={[0.32, ARCOLOGY_TOWER_HEIGHT * 0.92]} />
+          <planeGeometry args={[0.32, height * 0.92]} />
           <meshBasicMaterial
             color={index % 2 ? '#d6ad7c' : home ? '#70e6bf' : '#83b7af'}
             toneMapped={false}
@@ -1792,14 +1883,10 @@ function ArcologyTower({
       {[-0.28, 0, 0.28].map((ratio, index) => (
         <mesh
           key={`side-window-${ratio}`}
-          position={[
-            width / 2 + 0.018,
-            ARCOLOGY_TOWER_HEIGHT * 0.51,
-            ratio * depth,
-          ]}
+          position={[width / 2 + 0.018, height * 0.51, ratio * depth]}
           rotation={[0, Math.PI / 2, 0]}
         >
-          <planeGeometry args={[0.3, ARCOLOGY_TOWER_HEIGHT * 0.92]} />
+          <planeGeometry args={[0.3, height * 0.92]} />
           <meshBasicMaterial
             color={index === 1 ? '#d19d73' : '#6fa69d'}
             toneMapped={false}
@@ -1808,129 +1895,110 @@ function ArcologyTower({
           />
         </mesh>
       ))}
-      <mesh receiveShadow position={[0, 0.22, depth / 2 + 0.42]}>
-        <boxGeometry args={[width + 0.8, 0.44, 1.15]} />
-        <meshStandardMaterial color="#222927" roughness={0.94} />
+      <mesh
+        receiveShadow
+        position={[doorDirection * (width / 2 + 0.42), 0.22, 0]}
+      >
+        <boxGeometry args={[1.15, 0.44, depth + 0.8]} />
+        <meshStandardMaterial color="#5e605c" roughness={0.94} />
       </mesh>
-      <mesh position={[0, 1.36, depth / 2 + 0.04]}>
-        <planeGeometry args={[1.65, 1.95]} />
-        <meshStandardMaterial
-          color="#0c1111"
-          metalness={0.72}
-          roughness={0.3}
-          emissive={home ? '#42f5af' : '#6b7f79'}
-          emissiveIntensity={home ? 0.42 : 0.1}
-        />
-      </mesh>
-      <mesh castShadow position={[0, ARCOLOGY_TOWER_HEIGHT + 0.5, 0]}>
+      <group
+        ref={portalAnchor}
+        position={[doorDirection * (width / 2 + 0.04), 0, 0]}
+      >
+        <mesh
+          position={[0, 1.36, 0]}
+          rotation={[0, doorDirection > 0 ? Math.PI / 2 : -Math.PI / 2, 0]}
+          onClick={(event) => {
+            event.stopPropagation();
+            enterTower();
+          }}
+        >
+          <planeGeometry args={[1.65, 1.95]} />
+          <meshStandardMaterial
+            color="#0c1111"
+            metalness={0.72}
+            roughness={0.3}
+            emissive={home ? '#42f5af' : '#6b7f79'}
+            emissiveIntensity={home ? 0.42 : 0.1}
+          />
+        </mesh>
+      </group>
+      <mesh castShadow position={[0, height + 0.5, 0]}>
         <boxGeometry args={[1.3, 1, 1.3]} />
         <meshStandardMaterial color="#262f2c" roughness={0.68} />
       </mesh>
-      <Html
-        position={[0, home ? 4.7 : 3.5, depth / 2 + 0.65]}
-        center
-        distanceFactor={13}
-        zIndexRange={[3, 0]}
-      >
-        {home ? (
-          <button
-            className="world-label enterable residence-label"
-            onClick={() => onEnter('studio')}
-          >{`YOUR 10 m² STUDIO · ${block}`}</button>
-        ) : (
-          <span className="world-label arcology-label">{`${block} · 10,000 RESIDENTS`}</span>
-        )}
-      </Html>
+      {portalVisible && (
+        <Html
+          position={[doorDirection * (width / 2 + 0.75), home ? 4.7 : 3.5, 0]}
+          center
+          distanceFactor={13}
+          zIndexRange={[3, 0]}
+        >
+          {home ? (
+            <button
+              className="world-label enterable residence-label"
+              onClick={(event) => {
+                event.stopPropagation();
+                enterTower();
+              }}
+            >{`YOUR 10 m² STUDIO · ${block}`}</button>
+          ) : (
+            <button
+              className="world-label enterable arcology-label"
+              onClick={(event) => {
+                event.stopPropagation();
+                enterTower();
+              }}
+            >{`${block} · SEPARATE INTERIOR`}</button>
+          )}
+        </Html>
+      )}
     </group>
   );
 }
 
 function ArcologyTowerField() {
-  const towers = useRef<THREE.InstancedMesh>(null);
-  const beacons = useRef<THREE.InstancedMesh>(null);
-  const layout = useMemo(
-    () =>
-      Array.from(
-        { length: ARCOLOGY_TOWER_TOTAL - DETAILED_ARCOLOGY_TOWER_TOTAL },
-        (_, index) => {
-          const column = index % 40;
-          const row = Math.floor(index / 40);
-          const height = ARCOLOGY_TOWER_HEIGHT;
-          const width = 4.45 + ((index * 7) % 4) * 0.18;
-          return {
-            position: new THREE.Vector3(
-              (column - 19.5) * 8.5,
-              height / 2,
-              -31 - row * 9,
-            ),
-            scale: new THREE.Vector3(
-              width,
-              height,
-              4.75 + ((index * 11) % 3) * 0.18,
-            ),
-            color: new THREE.Color().setHSL(
-              0.43 + (index % 7) * 0.005,
-              0.11,
-              0.12 + (index % 5) * 0.009,
-            ),
-          };
-        },
-      ),
-    [],
-  );
-  useEffect(() => {
-    const matrix = new THREE.Matrix4();
-    const quaternion = new THREE.Quaternion();
-    for (let index = 0; index < layout.length; index += 1) {
-      const tower = layout[index];
-      matrix.compose(tower.position, quaternion, tower.scale);
-      towers.current?.setMatrixAt(index, matrix);
-      towers.current?.setColorAt(index, tower.color);
-      matrix.compose(
-        new THREE.Vector3(
-          tower.position.x,
-          tower.scale.y + 0.28,
-          tower.position.z,
-        ),
-        quaternion,
-        new THREE.Vector3(0.16, 0.55, 0.16),
-      );
-      beacons.current?.setMatrixAt(index, matrix);
-    }
-    if (towers.current) {
-      towers.current.instanceMatrix.needsUpdate = true;
-      if (towers.current.instanceColor)
-        towers.current.instanceColor.needsUpdate = true;
-    }
-    if (beacons.current) beacons.current.instanceMatrix.needsUpdate = true;
-  }, [layout]);
   return (
-    <group>
-      <instancedMesh
-        ref={towers}
-        args={[undefined, undefined, layout.length]}
-        castShadow={false}
-        receiveShadow
-        frustumCulled
-      >
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial
-          color="#46534f"
-          vertexColors
-          roughness={0.76}
-          metalness={0.14}
-          emissive="#233b35"
-          emissiveIntensity={0.26}
-        />
-      </instancedMesh>
-      <instancedMesh
-        ref={beacons}
-        args={[undefined, undefined, layout.length]}
-        frustumCulled
-      >
-        <boxGeometry args={[1, 1, 1]} />
-        <meshBasicMaterial color="#d05b3e" toneMapped={false} />
-      </instancedMesh>
+    <group name="Starter Arcology registered public realm">
+      {[74, 82.4].map((z) => (
+        <group key={z}>
+          <mesh receiveShadow position={[0, 0.065, z]}>
+            <boxGeometry args={[58, 0.13, 2.7]} />
+            <meshStandardMaterial color="#555b5a" roughness={0.94} />
+          </mesh>
+          {[-1, 1].map((side) => (
+            <mesh
+              key={side}
+              receiveShadow
+              position={[0, 0.13, z + side * 2.05]}
+            >
+              <boxGeometry args={[58, 0.15, 1.2]} />
+              <meshStandardMaterial color="#b8b4a8" roughness={0.9} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+      {[-27.5, -7.6, 7.6, 27.5].map((x) => (
+        <mesh key={x} receiveShadow position={[x, 0.09, 78]}>
+          <boxGeometry args={[1.4, 0.16, 24]} />
+          <meshStandardMaterial color="#c2bdb0" roughness={0.92} />
+        </mesh>
+      ))}
+      {[-27.5, 27.5].flatMap((x) =>
+        [69, 75.5, 81, 87.5].map((z) => (
+          <group key={`${x}-${z}`} position={[x, 0, z]}>
+            <mesh position={[0, 0.72, 0]} castShadow>
+              <boxGeometry args={[0.17, 1.44, 0.17]} />
+              <meshStandardMaterial color="#5c4938" roughness={0.94} />
+            </mesh>
+            <mesh position={[0, 1.95, 0]} castShadow>
+              <dodecahedronGeometry args={[0.9, 0]} />
+              <meshStandardMaterial color="#45634b" roughness={0.88} />
+            </mesh>
+          </group>
+        )),
+      )}
     </group>
   );
 }
@@ -1939,142 +2007,36 @@ function StarterArcology({
   onEnter,
   onNotice,
   residenceBlock,
-  embedded = false,
 }: {
   onEnter: EnterPlace;
   onNotice: (message: string) => void;
   residenceBlock: string;
-  embedded?: boolean;
 }) {
   return (
     <>
-      {!embedded && (
-        <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[380, 520]} />
-          <meshPhysicalMaterial
-            color="#252d2b"
-            roughness={0.58}
-            metalness={0.17}
-            clearcoat={0.22}
-            clearcoatRoughness={0.3}
-          />
-        </mesh>
-      )}
-      <group scale={embedded ? [0.18, 0.72, 0.18] : 1}>
-        <ArcologyTowerField />
-      </group>
-      <ArcologyTower
-        position={[-15, 0, -6]}
-        block={`BLOCK ${residenceBlock}`}
-        home
-        onEnter={onEnter}
-      />
-      <ArcologyTower
-        position={[15, 0, -6]}
-        block="BLOCK 072"
-        onEnter={onEnter}
-      />
-      <ArcologyTower
-        position={[-15, 0, 14]}
-        block="BLOCK 070"
-        onEnter={onEnter}
-      />
-      <ArcologyTower
-        position={[15, 0, 14]}
-        block="BLOCK 073"
-        onEnter={onEnter}
-      />
-      {!embedded && (
-        <ArrivalSpine
-          tone="STARTER"
-          position={[0, 0, 1.5]}
-          length={44}
-          width={11.6}
+      <ArcologyTowerField />
+      {STARTER_TOWER_SPECS.map((tower) => (
+        <ArcologyTower
+          key={tower.id}
+          tower={tower}
+          onEnter={onEnter}
+          onNotice={onNotice}
+          residenceBlock={residenceBlock}
         />
-      )}
-      {!embedded &&
-        [-3.2, 0, 3.2].map((x) => (
-          <mesh
-            key={x}
-            position={[x, 0.05, 1.5]}
-            rotation={[-Math.PI / 2, 0, 0]}
-          >
-            <planeGeometry args={[0.07, 44]} />
-            <meshBasicMaterial color="#8f9c8d" transparent opacity={0.48} />
-          </mesh>
-        ))}
-      {!embedded && (
-        <group position={[0, 0, -18]} onClick={() => onEnter('map')}>
-          <mesh castShadow receiveShadow position={[0, 1, 0]}>
-            <boxGeometry args={[6.2, 2, 3.7]} />
-            <meshStandardMaterial
-              color="#1d2625"
-              metalness={0.33}
-              roughness={0.63}
-            />
-          </mesh>
-          <mesh position={[0, 1.15, 1.87]}>
-            <planeGeometry args={[4.8, 0.92]} />
-            <meshStandardMaterial
-              color="#07100e"
-              emissive="#43a987"
-              emissiveIntensity={0.36}
-            />
-          </mesh>
-          <mesh position={[-2.15, 2.45, 0]}>
-            <cylinderGeometry args={[0.42, 0.42, 2.3, 20]} />
-            <meshStandardMaterial
-              color="#d05b3e"
-              emissive="#c84332"
-              emissiveIntensity={0.42}
-            />
-          </mesh>
-          <Html
-            position={[0, 3.15, 0]}
-            center
-            distanceFactor={12}
-            zIndexRange={[3, 0]}
-          >
-            <button
-              className="world-label enterable transit-label"
-              onClick={() => onEnter('map')}
-            >
-              OPEN METRO MAP · CHOOSE A STATION
-            </button>
-          </Html>
-        </group>
-      )}
-      {!embedded && (
-        <Suspense fallback={null}>
-          <StaticAsset
-            url={`${CAR_ASSET_ROOT}/taxi.glb`}
-            position={[5.2, 0.05, -14.5]}
-            rotation={[0, Math.PI, 0]}
-            scale={0.9}
-          />
-        </Suspense>
-      )}
-      {!embedded && (
-        <Html
-          position={[5.2, 2.35, -14.5]}
-          center
-          distanceFactor={12}
-          zIndexRange={[3, 0]}
-        >
-          <button
-            className="world-label enterable taxi-label"
-            onClick={() => {
-              onNotice(
-                'OPENING THE NETWORK · CLICK THE EXACT METRO STATION YOU WANT',
-              );
-              onEnter('map');
-            }}
-          >
-            CITY TRANSIT MAP · DIRECT STATIONS
-          </button>
-        </Html>
-      )}
-      <group position={[0, 0, -28]}>
+      ))}
+      <ArrivalSpine
+        tone="STARTER"
+        position={[0, 0, 78]}
+        length={25}
+        width={12.4}
+      />
+      {[-3.2, 0, 3.2].map((x) => (
+        <mesh key={x} position={[x, 0.14, 78]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.07, 24]} />
+          <meshBasicMaterial color="#d6c476" transparent opacity={0.56} />
+        </mesh>
+      ))}
+      <group position={[0, 0, 66.1]}>
         <mesh position={[0, 0.16, 0]}>
           <boxGeometry args={[20, 0.3, 0.22]} />
           <meshStandardMaterial color="#414a45" metalness={0.56} />
@@ -2087,13 +2049,13 @@ function StarterArcology({
         ))}
       </group>
       <Html
-        position={[0, 10.8, -29]}
+        position={[0, 10.8, 65.2]}
         center
         distanceFactor={17}
         zIndexRange={[3, 0]}
       >
         <span className="zone-label arcology-scale">
-          STARTER ARCOLOGY · 1,000 TOWERS · 10,000,000 RESIDENTS
+          STARTER ARCOLOGY · SOLID EXTERIORS · PORTAL-BASED INTERIORS
         </span>
       </Html>
     </>
@@ -2109,6 +2071,49 @@ const CAMERA_LOOK_DISTANCE = 7.4;
 const DEFAULT_CAMERA_PITCH = -0.06;
 const MIN_CAMERA_PITCH = -0.44;
 const MAX_CAMERA_PITCH = 0.7;
+const INPUT_FORWARD = 1;
+const INPUT_LEFT = 2;
+const INPUT_BACKWARD = 4;
+const INPUT_RIGHT = 8;
+
+const inputBitForKey = (key: string) => {
+  if (key === 'w') return INPUT_FORWARD;
+  if (key === 'a') return INPUT_LEFT;
+  if (key === 's') return INPUT_BACKWARD;
+  if (key === 'd') return INPUT_RIGHT;
+  return 0;
+};
+
+function clampPlayerPosition(
+  position: THREE.Vector3,
+  bounds: (typeof SCENE_PROFILES)[SceneProfileId]['bounds'],
+) {
+  position.x = THREE.MathUtils.clamp(position.x, bounds.minX, bounds.maxX);
+  position.z = THREE.MathUtils.clamp(position.z, bounds.minZ, bounds.maxZ);
+  return position;
+}
+
+function isPlayerPositionBlocked(
+  position: THREE.Vector3,
+  scene: SceneProfileId,
+  profile: (typeof SCENE_PROFILES)[SceneProfileId],
+  traversalPredicate?: (position: { x: number; z: number }) => boolean,
+) {
+  if (traversalPredicate && !traversalPredicate(position)) return true;
+  for (const [x, z, halfX, halfZ] of profile.blockers) {
+    if (
+      Math.abs(position.x - x) < halfX + 0.38 &&
+      Math.abs(position.z - z) < halfZ + 0.38
+    )
+      return true;
+  }
+  if (scene === 'CBD') {
+    for (const vehicle of ACTIVE_TRAFFIC_POSITIONS) {
+      if (position.distanceToSquared(vehicle) < 4) return true;
+    }
+  }
+  return false;
+}
 
 function Player({
   scene,
@@ -2118,6 +2123,8 @@ function Player({
   headingOverride,
   teleportKey = 0,
   traversalPredicate,
+  stepTraversalPredicate,
+  cameraOcclusionPredicate,
 }: {
   scene: SceneProfileId;
   onPositionChange?: (location: PlayerLocation) => void;
@@ -2126,10 +2133,19 @@ function Player({
   headingOverride?: number;
   teleportKey?: number;
   traversalPredicate?: (position: { x: number; z: number }) => boolean;
+  stepTraversalPredicate?: (
+    from: { x: number; z: number },
+    to: { x: number; z: number },
+  ) => boolean;
+  cameraOcclusionPredicate?: (position: {
+    x: number;
+    y: number;
+    z: number;
+  }) => boolean;
 }) {
   const body = useRef<THREE.Group>(null);
   const keys = useRef<Record<string, boolean>>({});
-  const queuedKeys = useRef<string[]>([]);
+  const queuedInputMask = useRef(0);
   const facingAngle = useRef(SCENE_PROFILES[scene].heading);
   const cameraPitch = useRef(DEFAULT_CAMERA_PITCH);
   const targetCameraPitch = useRef(DEFAULT_CAMERA_PITCH);
@@ -2141,6 +2157,23 @@ function Player({
     new THREE.Vector2(Number.NaN, Number.NaN),
   );
   const cameraTarget = useRef(new THREE.Vector3());
+  const frameScratch = useRef({
+    direction: new THREE.Vector3(),
+    movement: new THREE.Vector3(),
+    step: new THREE.Vector3(),
+    start: new THREE.Vector3(),
+    candidate: new THREE.Vector3(),
+    xCandidate: new THREE.Vector3(),
+    zCandidate: new THREE.Vector3(),
+    applied: new THREE.Vector3(),
+    forward: new THREE.Vector3(),
+    right: new THREE.Vector3(),
+    cameraAnchor: new THREE.Vector3(),
+    desiredCamera: new THREE.Vector3(),
+    safeCamera: new THREE.Vector3(),
+    cameraProbe: new THREE.Vector3(),
+    desiredTarget: new THREE.Vector3(),
+  });
   const [movementAction, setMovementAction] = useState<'idle' | 'walk'>('idle');
   const { camera, gl } = useThree();
   const profile = SCENE_PROFILES[scene];
@@ -2206,8 +2239,8 @@ function Player({
       if (pressed && isTextEntry) return;
       const wasPressed = Boolean(keys.current[key]);
       keys.current[key] = pressed;
-      if (pressed && !wasPressed && ['w', 'a', 's', 'd'].includes(key))
-        queuedKeys.current.push(key);
+      if (pressed && !wasPressed)
+        queuedInputMask.current |= inputBitForKey(key);
       if (['w', 'a', 's', 'd'].includes(key)) event.preventDefault();
     };
     const virtual = (event: Event) => {
@@ -2215,7 +2248,8 @@ function Player({
         .detail;
       const wasPressed = Boolean(keys.current[detail.key]);
       keys.current[detail.key] = detail.pressed;
-      if (detail.pressed && !wasPressed) queuedKeys.current.push(detail.key);
+      if (detail.pressed && !wasPressed)
+        queuedInputMask.current |= inputBitForKey(detail.key);
     };
     const virtualLook = (event: Event) => {
       const detail = (
@@ -2262,7 +2296,7 @@ function Player({
     gl.domElement.addEventListener('wheel', trackpadLook, { passive: false });
     const release = () => {
       keys.current = {};
-      queuedKeys.current = [];
+      queuedInputMask.current = 0;
       heldLookDirection.current = 0;
     };
     window.addEventListener('blur', release);
@@ -2278,14 +2312,14 @@ function Player({
   useEffect(() => {
     if (enabled) return;
     keys.current = {};
-    queuedKeys.current = [];
+    queuedInputMask.current = 0;
   }, [enabled]);
   useFrame(({ clock }, delta) => {
     if (!body.current) return;
     const keysDown = keys.current;
     if (!enabled) {
-      keys.current = {};
-      queuedKeys.current = [];
+      for (const key in keys.current) keys.current[key] = false;
+      queuedInputMask.current = 0;
       heldLookDirection.current = 0;
     }
     if (enabled && heldLookDirection.current) {
@@ -2306,20 +2340,15 @@ function Player({
       ? (keysDown.w ? 1 : 0) - (keysDown.s ? 1 : 0)
       : 0;
     const heldTurn = enabled ? (keysDown.a ? 1 : 0) - (keysDown.d ? 1 : 0) : 0;
-    const pendingKeys = queuedKeys.current;
-    queuedKeys.current = [];
-    const movementKeys = new Set<string>();
-    if (enabled) {
-      (['w', 'a', 's', 'd'] as const).forEach((key) => {
-        if (keysDown[key]) movementKeys.add(key);
-      });
-      pendingKeys.forEach((key) => movementKeys.add(key));
-    }
+    const pendingInputMask = queuedInputMask.current;
+    queuedInputMask.current = 0;
     const forwardInput =
-      (movementKeys.has('w') ? 1 : 0) - (movementKeys.has('s') ? 1 : 0);
+      (enabled && (keysDown.w || pendingInputMask & INPUT_FORWARD) ? 1 : 0) -
+      (enabled && (keysDown.s || pendingInputMask & INPUT_BACKWARD) ? 1 : 0);
     const turnInput =
-      (movementKeys.has('a') ? 1 : 0) - (movementKeys.has('d') ? 1 : 0);
-    const usingTap = !heldForward && !heldTurn && pendingKeys.length > 0;
+      (enabled && (keysDown.a || pendingInputMask & INPUT_LEFT) ? 1 : 0) -
+      (enabled && (keysDown.d || pendingInputMask & INPUT_RIGHT) ? 1 : 0);
+    const usingTap = !heldForward && !heldTurn && pendingInputMask !== 0;
     if (forwardInput || turnInput) {
       targetCameraYawOffset.current = THREE.MathUtils.lerp(
         targetCameraYawOffset.current,
@@ -2340,61 +2369,74 @@ function Player({
       );
       body.current.rotation.y = facingAngle.current;
     }
-    const appliedMovement = new THREE.Vector3();
+    const scratch = frameScratch.current;
+    scratch.applied.set(0, 0, 0);
     if (forwardInput) {
-      const direction = new THREE.Vector3(
+      scratch.direction.set(
         Math.sin(facingAngle.current),
         0,
         Math.cos(facingAngle.current),
       );
-      const movement = direction.multiplyScalar(
-        (usingTap ? 0.42 : Math.min(delta, 1 / 30) * profile.speed) *
-          (forwardInput > 0 ? 1 : -0.68),
-      );
-      const blocked = (next: THREE.Vector3) =>
-        (traversalPredicate ? !traversalPredicate(next) : false) ||
-        profile.blockers.some(
-          ([x, z, halfX, halfZ]) =>
-            Math.abs(next.x - x) < halfX + 0.38 &&
-            Math.abs(next.z - z) < halfZ + 0.38,
-        ) ||
-        (scene === 'CBD' &&
-          ACTIVE_TRAFFIC_POSITIONS.some(
-            (vehicle) => next.distanceToSquared(vehicle) < 4,
-          ));
-      const clamp = (next: THREE.Vector3) => {
-        next.x = THREE.MathUtils.clamp(
-          next.x,
-          profile.bounds.minX,
-          profile.bounds.maxX,
+      scratch.movement
+        .copy(scratch.direction)
+        .multiplyScalar(
+          (usingTap ? 0.42 : Math.min(delta, 1 / 30) * profile.speed) *
+            (forwardInput > 0 ? 1 : -0.68),
         );
-        next.z = THREE.MathUtils.clamp(
-          next.z,
-          profile.bounds.minZ,
-          profile.bounds.maxZ,
-        );
-        return next;
-      };
-      const start = body.current.position.clone();
-      const substeps = Math.max(1, Math.ceil(movement.length() / 0.18));
-      const step = movement.clone().divideScalar(substeps);
+      scratch.start.copy(body.current.position);
+      const substeps = Math.max(1, Math.ceil(scratch.movement.length() / 0.18));
+      scratch.step.copy(scratch.movement).divideScalar(substeps);
       for (let index = 0; index < substeps; index += 1) {
-        const combined = clamp(body.current.position.clone().add(step));
-        if (!blocked(combined)) {
-          body.current.position.copy(combined);
+        clampPlayerPosition(
+          scratch.candidate.copy(body.current.position).add(scratch.step),
+          profile.bounds,
+        );
+        if (
+          !isPlayerPositionBlocked(
+            scratch.candidate,
+            scene,
+            profile,
+            traversalPredicate,
+          ) &&
+          (!stepTraversalPredicate ||
+            stepTraversalPredicate(body.current.position, scratch.candidate))
+        ) {
+          body.current.position.copy(scratch.candidate);
         } else {
-          const xOnly = clamp(
-            body.current.position.clone().add(new THREE.Vector3(step.x, 0, 0)),
-          );
-          if (step.x && !blocked(xOnly)) body.current.position.copy(xOnly);
-          const zOnly = clamp(
-            body.current.position.clone().add(new THREE.Vector3(0, 0, step.z)),
-          );
-          if (step.z && !blocked(zOnly)) body.current.position.copy(zOnly);
+          scratch.xCandidate.copy(body.current.position);
+          scratch.xCandidate.x += scratch.step.x;
+          clampPlayerPosition(scratch.xCandidate, profile.bounds);
+          if (
+            scratch.step.x &&
+            !isPlayerPositionBlocked(
+              scratch.xCandidate,
+              scene,
+              profile,
+              traversalPredicate,
+            ) &&
+            (!stepTraversalPredicate ||
+              stepTraversalPredicate(body.current.position, scratch.xCandidate))
+          )
+            body.current.position.copy(scratch.xCandidate);
+          scratch.zCandidate.copy(body.current.position);
+          scratch.zCandidate.z += scratch.step.z;
+          clampPlayerPosition(scratch.zCandidate, profile.bounds);
+          if (
+            scratch.step.z &&
+            !isPlayerPositionBlocked(
+              scratch.zCandidate,
+              scene,
+              profile,
+              traversalPredicate,
+            ) &&
+            (!stepTraversalPredicate ||
+              stepTraversalPredicate(body.current.position, scratch.zCandidate))
+          )
+            body.current.position.copy(scratch.zCandidate);
         }
       }
-      appliedMovement.copy(body.current.position).sub(start);
-      if (appliedMovement.lengthSq() > 0.000001) {
+      scratch.applied.copy(body.current.position).sub(scratch.start);
+      if (scratch.applied.lengthSq() > 0.000001) {
         if (movementAction !== 'walk') setMovementAction('walk');
       } else if (movementAction !== 'idle') {
         setMovementAction('idle');
@@ -2416,41 +2458,58 @@ function Player({
         );
         onPositionChangeRef.current?.({
           scene,
-          x: Number(body.current.position.x.toFixed(2)),
-          z: Number(body.current.position.z.toFixed(2)),
+          x: Math.round(body.current.position.x * 100) / 100,
+          z: Math.round(body.current.position.z * 100) / 100,
         });
       }
     } else if (movementAction !== 'idle') {
       setMovementAction('idle');
     }
+    if (scene === 'CONTINUOUS_WORLD') {
+      body.current.position.y = getWorldSurfaceElevationXZ(
+        body.current.position.x,
+        body.current.position.z,
+      );
+    }
     ACTIVE_PLAYER_POSITION.copy(body.current.position);
     const viewHeading = facingAngle.current + cameraYawOffset.current;
-    const forward = new THREE.Vector3(
-      Math.sin(viewHeading),
-      0,
-      Math.cos(viewHeading),
+    scratch.forward.set(Math.sin(viewHeading), 0, Math.cos(viewHeading));
+    scratch.right.set(scratch.forward.z, 0, -scratch.forward.x);
+    scratch.desiredCamera
+      .copy(body.current.position)
+      .addScaledVector(scratch.forward, -profile.cameraOffset[2])
+      .addScaledVector(scratch.right, profile.cameraOffset[0]);
+    scratch.desiredCamera.y += profile.cameraOffset[1];
+    scratch.cameraAnchor.copy(body.current.position);
+    scratch.cameraAnchor.y += 1.7;
+    const cameraWasOccluded = resolveCameraOcclusion(
+      scratch.cameraAnchor,
+      scratch.desiredCamera,
+      scratch.safeCamera,
+      scratch.cameraProbe,
+      cameraOcclusionPredicate,
     );
-    const right = new THREE.Vector3(forward.z, 0, -forward.x);
-    const desiredCamera = body.current.position
-      .clone()
-      .addScaledVector(forward, -profile.cameraOffset[2])
-      .addScaledVector(right, profile.cameraOffset[0])
-      .add(new THREE.Vector3(0, profile.cameraOffset[1], 0));
+    if (scene === 'CONTINUOUS_WORLD') {
+      scratch.safeCamera.y = Math.max(
+        scratch.safeCamera.y,
+        getWorldSurfaceElevationXZ(scratch.safeCamera.x, scratch.safeCamera.z) +
+          0.35,
+      );
+    }
     const cameraAlpha = 1 - Math.exp(-delta * 5.4);
     const targetAlpha = 1 - Math.exp(-delta * 7);
-    camera.position.lerp(desiredCamera, cameraAlpha);
+    if (cameraWasOccluded) camera.position.copy(scratch.safeCamera);
+    else camera.position.lerp(scratch.safeCamera, cameraAlpha);
     const lookDistance =
       scene === 'STUDIO_INTERIOR' ? 4.2 : CAMERA_LOOK_DISTANCE;
     const lookSpan = lookDistance + profile.cameraOffset[2];
     const lookHeight =
       profile.cameraOffset[1] + Math.tan(cameraPitch.current) * lookSpan;
-    cameraTarget.current.lerp(
-      body.current.position
-        .clone()
-        .add(new THREE.Vector3(0, lookHeight, 0))
-        .addScaledVector(forward, lookDistance),
-      targetAlpha,
-    );
+    scratch.desiredTarget
+      .copy(body.current.position)
+      .addScaledVector(scratch.forward, lookDistance);
+    scratch.desiredTarget.y += lookHeight;
+    cameraTarget.current.lerp(scratch.desiredTarget, targetAlpha);
     camera.lookAt(cameraTarget.current);
   });
   return (
@@ -2680,7 +2739,7 @@ function PavedSurfaceMaterial({
     [normalStrength],
   );
   const tint = isStarter
-    ? '#70675d'
+    ? '#8e887d'
     : isMarina
       ? '#ddc99f'
       : tone === 'CROWN'
@@ -2698,7 +2757,7 @@ function PavedSurfaceMaterial({
       roughness={isStarter ? 0.7 : isMarina ? 0.5 : 0.28}
       clearcoat={isStarter ? 0.08 : isMarina ? 0.32 : 0.72}
       clearcoatRoughness={isStarter ? 0.5 : 0.2}
-      envMapIntensity={isStarter ? 0.7 : 1.25}
+      envMapIntensity={isStarter ? 0.9 : 1.25}
     />
   );
 }
@@ -3767,48 +3826,98 @@ function FreshMarket({ onEnter }: { onEnter: EnterPlace }) {
 }
 
 function Auto4SDealership({ onEnter }: { onEnter: EnterPlace }) {
+  const campus = WORLD_SITE_RESERVATIONS.find(
+    (site) => site.id === 'SITE-APEX-MOTORS',
+  )!;
+  const showroom = NAMED_WORLD_SOLIDS.find(
+    (solid) => solid.id === 'AUTO-APEX-SHOWROOM',
+  )!;
+  const serviceHall = NAMED_WORLD_SOLIDS.find(
+    (solid) => solid.id === 'AUTO-APEX-SERVICE',
+  )!;
+  const showroomLocalX = showroom.center[0] - campus.center[0];
+  const showroomLocalZ = showroom.center[1] - campus.center[1];
+  const serviceLocalX = serviceHall.center[0] - campus.center[0];
+  const serviceLocalZ = serviceHall.center[1] - campus.center[1];
+  const campusTerrain = getWorldFootprintElevationRange(
+    campus.center,
+    [14.2, 10.1],
+  );
+  const campusElevation = showroom.baseElevation!;
+  const campusFoundationDepth = Math.max(
+    0.8,
+    campusElevation - campusTerrain.minimum + 0.35,
+  );
   const displayCars = [
     {
       model: 'sedan.glb',
-      position: [-5.2, 0.24, 2.7] as [number, number, number],
+      position: [-10.2, 0.24, 3.2] as [number, number, number],
       rotation: 0,
     },
     {
       model: 'suv-luxury.glb',
-      position: [-1.7, 0.24, 2.7] as [number, number, number],
+      position: [-6.8, 0.24, 3.2] as [number, number, number],
       rotation: Math.PI,
     },
     {
       model: 'race-future.glb',
-      position: [1.25, 0.24, 2.7] as [number, number, number],
+      position: [-3.4, 0.24, 3.2] as [number, number, number],
+      rotation: 0,
+    },
+    {
+      model: 'sedan.glb',
+      position: [0, 0.24, 3.2] as [number, number, number],
+      rotation: Math.PI,
+    },
+    {
+      model: 'race-future.glb',
+      position: [3.4, 0.24, 3.2] as [number, number, number],
+      rotation: 0,
+    },
+    {
+      model: 'suv-luxury.glb',
+      position: [6.8, 0.24, 3.2] as [number, number, number],
+      rotation: Math.PI,
+    },
+    {
+      model: 'taxi.glb',
+      position: [10.2, 0.24, 3.2] as [number, number, number],
       rotation: 0,
     },
   ];
   const perimeterLanes = [
     {
-      position: [-7.35, 0.15, 0] as [number, number, number],
-      size: [1.05, 0.04, 10.7] as [number, number, number],
+      position: [-13.2, 0.15, 0] as [number, number, number],
+      size: [1.2, 0.04, 19.2] as [number, number, number],
     },
     {
-      position: [7.35, 0.15, 0] as [number, number, number],
-      size: [1.05, 0.04, 10.7] as [number, number, number],
+      position: [13.2, 0.15, 0] as [number, number, number],
+      size: [1.2, 0.04, 19.2] as [number, number, number],
     },
     {
-      position: [0, 0.15, -5.25] as [number, number, number],
-      size: [15.7, 0.04, 1.05] as [number, number, number],
+      position: [0, 0.15, -9.2] as [number, number, number],
+      size: [27.6, 0.04, 1.2] as [number, number, number],
     },
     {
-      position: [0, 0.15, 5.25] as [number, number, number],
-      size: [15.7, 0.04, 1.05] as [number, number, number],
+      position: [0, 0.15, 9.2] as [number, number, number],
+      size: [27.6, 0.04, 1.2] as [number, number, number],
     },
   ];
   return (
     <group
-      position={[27, 0, 25]}
-      onClick={() => onEnter('dealership', 'auto-4s')}
+      position={[campus.center[0], campusElevation, campus.center[1]]}
+      name="AUTO-APEX · 4S flagship campus"
     >
+      <mesh
+        castShadow
+        receiveShadow
+        position={[0, -campusFoundationDepth / 2, 0]}
+      >
+        <boxGeometry args={[28.4, campusFoundationDepth, 20.2]} />
+        <meshStandardMaterial color="#737873" roughness={0.95} />
+      </mesh>
       <mesh receiveShadow position={[0, 0.06, 0]}>
-        <boxGeometry args={[16.2, 0.12, 12.2]} />
+        <boxGeometry args={[28.4, 0.12, 20.2]} />
         <meshStandardMaterial color="#545a57" roughness={0.94} />
       </mesh>
       {perimeterLanes.map((lane, index) => (
@@ -3817,36 +3926,53 @@ function Auto4SDealership({ onEnter }: { onEnter: EnterPlace }) {
           <meshStandardMaterial color="#20282b" roughness={0.76} />
         </mesh>
       ))}
-      {[-4.6, -1.55, 1.55, 4.6].map((x) => (
-        <mesh key={`test-mark-${x}`} position={[x, 0.18, 5.25]}>
-          <boxGeometry args={[1.45, 0.018, 0.07]} />
+      {[-11.8, -8.4, -5, -1.7, 1.7, 5, 8.4, 11.8].map((x) => (
+        <mesh key={`test-mark-${x}`} position={[x, 0.18, 5.05]}>
+          <boxGeometry args={[0.07, 0.018, 4.2]} />
           <meshBasicMaterial color="#e8cf71" />
         </mesh>
       ))}
       <Suspense fallback={null}>
         <FourSidedFacadeShell
-          size={[7.1, 4.45, 4.5]}
-          position={[-3.75, 0.05, -2.35]}
+          size={[
+            showroom.halfExtents[0] * 2,
+            showroom.height,
+            showroom.halfExtents[1] * 2,
+          ]}
+          position={[showroomLocalX, 0.05, showroomLocalZ]}
           accent="#65d8ff"
           verticalCoverage={0.48}
         />
         <FourSidedFacadeShell
-          size={[6.35, 3.35, 4.65]}
-          position={[3.75, 0.05, -2.25]}
+          size={[
+            serviceHall.halfExtents[0] * 2,
+            serviceHall.height,
+            serviceHall.halfExtents[1] * 2,
+          ]}
+          position={[serviceLocalX, 0.05, serviceLocalZ]}
           accent="#ffb45d"
           verticalCoverage={0.36}
         />
       </Suspense>
-      <mesh castShadow position={[-3.75, 4.58, -2.35]}>
-        <boxGeometry args={[7.65, 0.26, 5]} />
+      <mesh
+        castShadow
+        position={[showroomLocalX, showroom.height + 0.12, showroomLocalZ]}
+      >
+        <boxGeometry args={[11.4, 0.26, 7.3]} />
         <meshStandardMaterial
           color="#202c30"
           metalness={0.68}
           roughness={0.22}
         />
       </mesh>
-      <mesh position={[-3.75, 2.25, -0.06]}>
-        <boxGeometry args={[6.15, 2.9, 0.08]} />
+      <mesh
+        position={[
+          showroomLocalX,
+          showroom.height * 0.48,
+          showroomLocalZ + showroom.halfExtents[1] + 0.04,
+        ]}
+      >
+        <boxGeometry args={[9.6, 4.7, 0.08]} />
         <meshPhysicalMaterial
           color="#77bdca"
           transmission={0.55}
@@ -3855,10 +3981,17 @@ function Auto4SDealership({ onEnter }: { onEnter: EnterPlace }) {
           roughness={0.12}
         />
       </mesh>
-      {[-1.95, 0, 1.95].map((offset, index) => (
-        <group key={`service-bay-${offset}`} position={[3.75 + offset, 0, 0.1]}>
-          <mesh position={[0, 1.34, 0]}>
-            <boxGeometry args={[1.62, 2.52, 0.08]} />
+      {[-3.9, -1.3, 1.3, 3.9].map((offset, index) => (
+        <group
+          key={`service-bay-${offset}`}
+          position={[
+            serviceLocalX + offset,
+            0,
+            serviceLocalZ + serviceHall.halfExtents[1] + 0.04,
+          ]}
+        >
+          <mesh position={[0, 1.7, 0]}>
+            <boxGeometry args={[2.2, 3.2, 0.08]} />
             <meshStandardMaterial
               color="#26373b"
               emissive={index === 1 ? '#8b4d22' : '#244856'}
@@ -3867,18 +4000,18 @@ function Auto4SDealership({ onEnter }: { onEnter: EnterPlace }) {
               roughness={0.28}
             />
           </mesh>
-          {[0.55, 1.1, 1.65, 2.2].map((y) => (
+          {[0.7, 1.35, 2, 2.65].map((y) => (
             <mesh key={y} position={[0, y, 0.05]}>
-              <boxGeometry args={[1.45, 0.045, 0.03]} />
+              <boxGeometry args={[2, 0.045, 0.03]} />
               <meshBasicMaterial color="#a9c4c5" transparent opacity={0.68} />
             </mesh>
           ))}
         </group>
       ))}
       <Suspense fallback={null}>
-        {displayCars.map((car) => (
+        {displayCars.map((car, index) => (
           <StaticAsset
-            key={car.model}
+            key={`${car.model}-${index}`}
             url={`${CAR_ASSET_ROOT}/${car.model}`}
             position={car.position}
             rotation={[0, car.rotation, 0]}
@@ -3886,9 +4019,9 @@ function Auto4SDealership({ onEnter }: { onEnter: EnterPlace }) {
           />
         ))}
       </Suspense>
-      {displayCars.map((car) => (
+      {displayCars.map((car, index) => (
         <mesh
-          key={`${car.model}-pad`}
+          key={`${car.model}-${index}-pad`}
           position={[car.position[0], 0.13, car.position[2]]}
         >
           <cylinderGeometry args={[1.35, 1.35, 0.12, 28]} />
@@ -3899,8 +4032,8 @@ function Auto4SDealership({ onEnter }: { onEnter: EnterPlace }) {
           />
         </mesh>
       ))}
-      {[3.8, 5.1, 6.4].map((x, index) => (
-        <group key={`charger-${x}`} position={[x, 0, 2.2]}>
+      {[5, 7.5, 10].map((x, index) => (
+        <group key={`charger-${x}`} position={[x, 0, 6.9]}>
           <mesh castShadow position={[0, 0.75, 0]}>
             <boxGeometry args={[0.42, 1.5, 0.34]} />
             <meshPhysicalMaterial
@@ -3924,8 +4057,8 @@ function Auto4SDealership({ onEnter }: { onEnter: EnterPlace }) {
         </group>
       ))}
       <LandmarkLabel
-        position={[0, 6.25, 0]}
-        label="APEX MOTORS CAMPUS · SHOWROOM / SERVICE / CHARGING"
+        position={[0, 9.25, -1]}
+        label="APEX MOTORS FLAGSHIP 4S · SHOWROOM / SERVICE / TEST LOOP / 42 BAYS"
         place="dealership"
         atlasId="auto-4s"
         onEnter={onEnter}
@@ -5561,6 +5694,7 @@ function StudioInterior({
         scene="STUDIO_INTERIOR"
         onPositionChange={onPositionChange}
         enabled={playerEnabled}
+        cameraOcclusionPredicate={isStudioCameraPointOccluded}
       />
       <Environment preset="apartment" />
     </>
@@ -6108,7 +6242,6 @@ function CyberCBD({
       <CivicSafetyHQ onEnter={onEnter} />
       <AcademyCampus onEnter={onEnter} />
       <FreshMarket onEnter={onEnter} />
-      <Auto4SDealership onEnter={onEnter} />
       <EnergyResearchCampus onEnter={onEnter} />
       <MidriseCommunity onEnter={onEnter} />
 
@@ -6231,38 +6364,33 @@ function CyberCBD({
 
 function LegacyDistrictChunk({
   sector,
-  activeSectorId,
+  lod,
   onEnter,
   onNotice,
   residenceBlock,
 }: {
   sector: WorldSector;
-  activeSectorId: WorldSectorId;
+  lod: 'DETAIL' | 'SHELL';
   onEnter: EnterPlace;
   onNotice: (message: string) => void;
   residenceBlock: string;
 }) {
   const legacyScene = LEGACY_SCENE_BY_SECTOR[sector.id];
-  if (sector.id !== activeSectorId) {
-    return <SectorLodMassing sector={sector} lod="SHELL" />;
+  if (lod !== 'DETAIL') return <SectorLodMassing sector={sector} lod={lod} />;
+  if (sector.id === 'STARTER_OUTER_RING') {
+    return (
+      <StarterArcology
+        onEnter={onEnter}
+        onNotice={onNotice}
+        residenceBlock={residenceBlock}
+      />
+    );
   }
   if (!legacyScene) return <SectorLodMassing sector={sector} lod="DETAIL" />;
   if (sector.id === 'CBD_CORE') {
     return (
       <group position={LEGACY_DISTRICT_WORLD_ORIGINS.CBD}>
         <CyberCBD onEnter={onEnter} embedded />
-      </group>
-    );
-  }
-  if (sector.id === 'STARTER_OUTER_RING') {
-    return (
-      <group position={LEGACY_DISTRICT_WORLD_ORIGINS.STARTER_ARCOLOGY}>
-        <StarterArcology
-          onEnter={onEnter}
-          onNotice={onNotice}
-          residenceBlock={residenceBlock}
-          embedded
-        />
       </group>
     );
   }
@@ -6341,14 +6469,15 @@ const World = memo(function World({
 }) {
   if (place === 'studio')
     return <StudioInterior onEnter={onEnter} playerEnabled={controlsEnabled} />;
-  const activeSectorId = getContinuousWorldSectorAt(playerPosition).id;
+  const showAuto4S =
+    Math.hypot(playerPosition.x - 82, playerPosition.z + 55) < 110;
   return (
     <ContinuousWorldBase
       playerPosition={playerPosition}
-      renderSector={(sector) => (
+      renderSector={(sector, lod) => (
         <LegacyDistrictChunk
           sector={sector}
-          activeSectorId={activeSectorId}
+          lod={lod}
           onEnter={onEnter}
           onNotice={onNotice}
           residenceBlock={residenceBlock}
@@ -6356,6 +6485,27 @@ const World = memo(function World({
       )}
     >
       <ContinuousMetroEntrances onEnter={onEnter} />
+      <MetropolitanExpansion
+        playerPosition={[playerPosition.x, playerPosition.z]}
+        onLandmarkSelect={(id) => {
+          if (id.startsWith('VIL-')) {
+            onEnter('villa', id);
+            return;
+          }
+          if (id === 'ampli-grand-prix') {
+            onEnter('dealership', id);
+            return;
+          }
+          if (id === 'ocean-crown') {
+            onEnter('social', id);
+            return;
+          }
+          onNotice(
+            'AURELIAN CYBER SANCTUARY · EXTERIOR COMPLETE · INTERIOR INSTANCE RESERVED',
+          );
+        }}
+      />
+      {showAuto4S && <Auto4SDealership onEnter={onEnter} />}
       <Player
         scene="CONTINUOUS_WORLD"
         onPositionChange={onPositionChange}
@@ -6364,6 +6514,8 @@ const World = memo(function World({
         headingOverride={playerEntry.heading}
         teleportKey={playerEntry.id}
         traversalPredicate={canTraverseContinuousWorld}
+        stepTraversalPredicate={canStepBetweenContinuousWorldPoints}
+        cameraOcclusionPredicate={isWorldCameraPointOccluded}
       />
     </ContinuousWorldBase>
   );
@@ -6373,11 +6525,13 @@ function MiniMap({
   scene,
   residenceBlock,
   location,
+  worldLocationLabel,
   onOpen,
 }: {
   scene: WorldSceneId;
   residenceBlock: string;
   location: PlayerLocation;
+  worldLocationLabel: string;
   onOpen: () => void;
 }) {
   const effectiveLocation = location;
@@ -6385,13 +6539,7 @@ function MiniMap({
   const label =
     scene === 'STARTER_ARCOLOGY'
       ? `BLOCK ${residenceBlock}`
-      : scene === 'CBD'
-        ? 'CYBER CBD'
-        : scene === 'AZURE_YACHT_MARINA'
-          ? 'AZURE MARINA'
-          : scene === 'CROWN_RESIDENTIAL_TOWERS'
-            ? 'CROWN TOWERS'
-            : 'MILLIONAIRE RIDGE';
+      : worldLocationLabel;
   const nearbyLandmarks = METRO_STATIONS.flatMap((station) => {
     const offsetX = station.spawn[0] - effectiveLocation.x;
     const offsetZ = station.spawn[2] - effectiveLocation.z;
@@ -6941,6 +7089,7 @@ export function GameShell({
   const [lastWorkTurn, setLastWorkTurn] = useState(0);
   const [shiftsToday, setShiftsToday] = useState(0);
   const [wagesToday, setWagesToday] = useState(0);
+  const guestWorkUtcDate = useRef(new Date().toISOString().slice(0, 10));
   const [lifetimeWages, setLifetimeWages] = useState(0);
   const [socialMode, setSocialMode] = useState<'PRIVATE' | 'APPROACHABLE'>(
     'PRIVATE',
@@ -6976,6 +7125,23 @@ export function GameShell({
     }, 1000);
     return () => window.clearInterval(clock);
   }, []);
+
+  useEffect(() => {
+    if (signedIn) return;
+    const resetGuestWorkAllowance = () => {
+      const utcDate = new Date().toISOString().slice(0, 10);
+      if (utcDate === guestWorkUtcDate.current) return;
+      guestWorkUtcDate.current = utcDate;
+      setShiftsToday(0);
+      setWagesToday(0);
+    };
+    const timer = window.setInterval(resetGuestWorkAllowance, 60_000);
+    window.addEventListener('focus', resetGuestWorkAllowance);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('focus', resetGuestWorkAllowance);
+    };
+  }, [signedIn]);
 
   const handlePositionChange = useCallback((location: PlayerLocation) => {
     const positionStep = 2;
@@ -7077,10 +7243,15 @@ export function GameShell({
             (station) =>
               station.topologyId ===
               (district === 'CBD' ? 'MTR-C01' : 'MTR-S01'),
-          ) ?? METRO_STATIONS[0];
+          ) ??
+          METRO_STATIONS[0];
         const savedX = readableNumber(player.worldX, arrivalStation.spawn[0]);
         const savedZ = readableNumber(player.worldZ, arrivalStation.spawn[2]);
-        const savedSpawn: [number, number, number] = [savedX, 0.12, savedZ];
+        const savedSpawn: [number, number, number] = [
+          savedX,
+          getWorldSurfaceElevationXZ(savedX, savedZ),
+          savedZ,
+        ];
         const spawn: [number, number, number] = canTraverseContinuousWorld([
           savedX,
           savedZ,
@@ -7090,10 +7261,7 @@ export function GameShell({
         setPlayerEntry((current) => ({
           id: current.id + 1,
           spawn,
-          heading: readableNumber(
-            player.worldHeading,
-            arrivalStation.heading,
-          ),
+          heading: readableNumber(player.worldHeading, arrivalStation.heading),
         }));
         setActiveScene(arrivalStation.scene);
         setCurrentAtlasNodeId(arrivalStation.nodeId);
@@ -7271,9 +7439,15 @@ export function GameShell({
       }
       const requiresCbd = CBD_ONLY_PLACES.includes(target);
       const requiresHome = target === 'studio';
+      const homeTower = STARTER_TOWER_SPECS.find((tower) => tower.home)!;
+      const isAtHomePortal =
+        Math.hypot(
+          localPosition.x - homeTower.door[0],
+          localPosition.z - homeTower.door[1],
+        ) <= 3.2;
       if (
         (requiresCbd && currentDistrict !== 'CBD') ||
-        (requiresHome && currentDistrict !== 'STARTER_ARCOLOGY')
+        (requiresHome && !isAtHomePortal)
       ) {
         if (requiresHome) setSelectedAtlasId('starter');
         setPendingAtlasId(
@@ -7284,7 +7458,9 @@ export function GameShell({
         setNotice(
           requiresCbd
             ? 'PAID TRAVEL REQUIRED · CLICK THE METRO STATION YOU WANT TO ARRIVE AT'
-            : 'HOME IS 18.4 KM AWAY · CLICK ARCOLOGY TERMINAL ON THE METRO MAP',
+            : currentDistrict === 'STARTER_ARCOLOGY'
+              ? 'HOME INTERIORS ARE PORTAL-BASED · WALK TO THE ARC-A071 ENTRANCE'
+              : 'HOME IS 18.4 KM AWAY · TAKE M0, THEN WALK TO THE ARC-A071 ENTRANCE',
         );
         return;
       }
@@ -7785,12 +7961,12 @@ export function GameShell({
     actionLock.current = true;
     setPendingAction('relief');
     try {
-      let grant = Math.max(0, 1000 - Math.max(0, cash));
+      let grant = Math.min(1000, Math.max(0, 1000 - cash));
       if (signedIn) {
         const data = await runCloudAction({ action: 'claim_relief' });
         grant = readableNumber(recordOf(data.relief)?.grant, grant);
       } else {
-        setCash(1000);
+        setCash((value) => Number((value + grant).toFixed(2)));
         setReliefClaimsRemaining((value) => Math.max(0, value - 1));
       }
       setReliefEligible(false);
@@ -7983,10 +8159,7 @@ export function GameShell({
   const currentWorldSector = getContinuousWorldSectorAt(localPosition);
   const [headwaterX, headwaterZ] = GRAND_RIVER_CORRIDOR.centerline[0];
   const locationLabel =
-    Math.hypot(
-      localPosition.x - headwaterX,
-      localPosition.z - headwaterZ,
-    ) < 22
+    Math.hypot(localPosition.x - headwaterX, localPosition.z - headwaterZ) < 22
       ? 'GRAND RIVER HEADWATER FALLS'
       : currentWorldSector.name.toUpperCase();
   const playerAtlasId = currentAtlasNodeId;
@@ -8127,7 +8300,7 @@ export function GameShell({
           tabIndex={0}
           shadows
           dpr={[1, 1.5]}
-          camera={{ position: [0, 3.5, 6.4], fov: 48 }}
+          camera={{ position: [0, 3.5, 6.4], fov: 48, near: 0.08, far: 620 }}
         >
           {place !== 'studio' && (
             <DynamicAtmosphere
@@ -8152,6 +8325,7 @@ export function GameShell({
             scene={activeScene}
             residenceBlock={residenceBlock}
             location={localPosition}
+            worldLocationLabel={locationLabel}
             onOpen={() => openPlace('map')}
           />
         )}
@@ -9897,7 +10071,7 @@ export function GameShell({
           <b>
             {activeScene === 'STARTER_ARCOLOGY'
               ? `BLOCK ${residenceBlock}`
-              : SCENE_LABELS[activeScene]}
+              : locationLabel}
           </b>
         </span>
         <span>

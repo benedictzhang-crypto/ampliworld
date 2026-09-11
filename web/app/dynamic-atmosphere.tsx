@@ -310,6 +310,10 @@ export function DynamicAtmosphere({
   const moon = useRef<THREE.Group>(null);
   const sunLight = useRef<THREE.DirectionalLight>(null);
   const moonLight = useRef<THREE.DirectionalLight>(null);
+  const frameScratch = useRef({
+    sunPosition: new THREE.Vector3(),
+    moonPosition: new THREE.Vector3(),
+  });
   const palette = useMemo(() => sampleAtmosphere(hour), [hour]);
   const phase = getDayPhase(hour);
   const isNight = phase === 'NIGHT';
@@ -330,11 +334,11 @@ export function DynamicAtmosphere({
   }, [hour]);
 
   useFrame(({ camera, clock }) => {
-    const sunPosition = camera.position
-      .clone()
+    const sunPosition = frameScratch.current.sunPosition
+      .copy(camera.position)
       .addScaledVector(celestial.sunDirection, 180);
-    const moonPosition = camera.position
-      .clone()
+    const moonPosition = frameScratch.current.moonPosition
+      .copy(camera.position)
       .addScaledVector(celestial.moonDirection, 180);
 
     sun.current?.position.copy(sunPosition);
@@ -376,9 +380,12 @@ export function DynamicAtmosphere({
         />
       )}
 
-      <ambientLight intensity={palette.ambientIntensity} color={palette.sky} />
+      <ambientLight
+        intensity={palette.ambientIntensity * 1.45}
+        color={palette.sky}
+      />
       <hemisphereLight
-        intensity={palette.ambientIntensity * 0.92}
+        intensity={palette.ambientIntensity * 1.28}
         color={palette.sky}
         groundColor={palette.ground}
       />
@@ -395,6 +402,8 @@ export function DynamicAtmosphere({
         shadow-camera-right={70}
         shadow-camera-top={70}
         shadow-camera-bottom={-70}
+        shadow-normalBias={0.035}
+        shadow-bias={-0.00012}
       />
       <directionalLight
         ref={moonLight}
@@ -403,7 +412,7 @@ export function DynamicAtmosphere({
       />
       <directionalLight
         position={[42, 48, 58]}
-        intensity={palette.ambientIntensity * 1.35}
+        intensity={palette.ambientIntensity * 1.85}
         color={palette.sky}
       />
 

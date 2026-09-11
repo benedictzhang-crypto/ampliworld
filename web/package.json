@@ -12,6 +12,8 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "check:metro": "node --import tsx scripts/check-metro-network.mjs",
+    "check:camera": "node --import tsx scripts/check-camera-safety.mjs",
+    "check:world-plan": "node --import tsx scripts/check-world-plan.mjs",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {

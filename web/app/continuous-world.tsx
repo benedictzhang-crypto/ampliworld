@@ -10,6 +10,15 @@ import {
 import * as THREE from 'three';
 import { RiverHeadwaterFalls } from './urban-expansion';
 import {
+  WORLD_SURFACE_PLATEAUS,
+  WORLD_SURFACE_RAMPS,
+  getWorldSolidAtXZ,
+  getWorldGroundElevation,
+  isPointInNamedWorldSolid,
+  isPointInNamedWorldSolidXZ,
+  isPointInReservedWorldSite,
+} from './world-spatial-registry';
+import {
   GRAND_RIVER_CORRIDOR,
   METERS_PER_WORLD_UNIT,
   METRO_HUBS,
@@ -43,10 +52,10 @@ export type ContinuousWorldMetroArrival = {
 };
 
 export const CONTINUOUS_WORLD_BOUNDS = Object.freeze({
-  minX: -90,
-  maxX: 90,
-  minZ: -90,
-  maxZ: 90,
+  minX: -155,
+  maxX: 165,
+  minZ: -100,
+  maxZ: 105,
 });
 
 /**
@@ -90,6 +99,7 @@ export type ContinuousWorldDeckMask = Readonly<{
   id: string;
   center: WorldPoint;
   halfExtents: WorldPoint;
+  shape?: 'RECTANGLE' | 'ELLIPSE';
   rotationRadians?: number;
   elevation: number;
 }>;
@@ -114,7 +124,6 @@ const LEGACY_LOCAL_BUILDING_BLOCKERS: Readonly<
     [27, -14, 6.2, 5.2],
     [27, 3, 5.3, 4.4],
     [-25, 16, 8.3, 7.2],
-    [27, 25, 8.3, 6.3],
     [-25, -3, 5.4, 4.5],
     [-26, 29, 11.5, 7.2],
     [0, 13, 3.4, 3.4],
@@ -151,14 +160,9 @@ const LEGACY_LOCAL_BUILDING_BLOCKERS: Readonly<
     [-53, -59, 11, 10],
     [51, -59, 10, 9],
   ],
-  STARTER_ARCOLOGY: [
-    [-15, -6, 3.7, 4.1],
-    [15, -6, 3.7, 4.1],
-    [-15, 14, 3.5, 3.7],
-    [15, 14, 3.5, 3.7],
-    // The old [0, -18] blocker was the metro pavilion itself. The shared
-    // topology places MTR-S01 there, so it must remain a usable arrival plaza.
-  ],
+  // Starter towers now come from STARTER_TOWER_SPECS, which is shared by the
+  // renderer and collision system. No hand-copied blockers remain here.
+  STARTER_ARCOLOGY: [],
   AZURE_YACHT_MARINA: [
     [23, -15, 3.8, 3.2],
     [25, 14, 4.2, 5.1],
@@ -191,9 +195,6 @@ const LEGACY_LOCAL_BUILDING_BLOCKERS: Readonly<
     [-15, -14, 4.4, 4.7],
     [15, -14, 4.4, 4.7],
     [0, -31, 5.2, 5.2],
-    [-2.1, 18, 1.4, 2.4],
-    [2.1, 5, 1.4, 2.4],
-    [-2.1, -13, 1.4, 2.4],
     [-9.5, -14, 0.25, 6.2],
     [9.5, -14, 0.25, 6.2],
     [-9.5, 2, 0.25, 6.2],
@@ -227,6 +228,19 @@ const AZURE_ORIGIN = LEGACY_DISTRICT_WORLD_ORIGINS.AZURE_YACHT_MARINA;
 /** Solid walking surfaces that sit above water in the detailed legacy art. */
 export const CONTINUOUS_WORLD_WALKABLE_DECKS: readonly ContinuousWorldDeckMask[] =
   [
+    {
+      id: 'OCEAN-CROWN-ISLAND-DECK',
+      center: [-120, -60],
+      halfExtents: [24, 24],
+      shape: 'ELLIPSE',
+      elevation: 0.36,
+    },
+    {
+      id: 'OCEAN-CROWN-TERMINAL-PIER',
+      center: [-120, -81.5],
+      halfExtents: [7, 3.5],
+      elevation: 0.4,
+    },
     {
       id: 'CBD-WATERFRONT-QUAY',
       center: [-36.5, 1],
@@ -302,9 +316,12 @@ const RIVER_MAX_RENDER_WIDTH = Math.max(
 );
 
 type BoxInstance = {
+  id?: string;
   position: readonly [number, number, number];
   scale: readonly [number, number, number];
+  rotationX?: number;
   rotationY?: number;
+  rotationZ?: number;
   color?: THREE.ColorRepresentation;
 };
 
@@ -320,6 +337,14 @@ function asWorldPoint(position: ContinuousWorldPosition): WorldPoint {
   return 'x' in position
     ? [position.x, position.z]
     : [position[0], position[1]];
+}
+
+function worldX(position: ContinuousWorldPosition) {
+  return 'x' in position ? position.x : position[0];
+}
+
+function worldZ(position: ContinuousWorldPosition) {
+  return 'x' in position ? position.z : position[1];
 }
 
 function smoothstep(min: number, max: number, value: number) {
@@ -384,6 +409,21 @@ const RIVER_SAMPLES: readonly RiverSample[] = Array.from(
   },
 );
 
+const RIVER_QUERY_BOUNDS = RIVER_SAMPLES.reduce(
+  (bounds, sample) => ({
+    minX: Math.min(bounds.minX, sample.point.x - sample.halfWidth),
+    maxX: Math.max(bounds.maxX, sample.point.x + sample.halfWidth),
+    minZ: Math.min(bounds.minZ, sample.point.z - sample.halfWidth),
+    maxZ: Math.max(bounds.maxZ, sample.point.z + sample.halfWidth),
+  }),
+  {
+    minX: Number.POSITIVE_INFINITY,
+    maxX: Number.NEGATIVE_INFINITY,
+    minZ: Number.POSITIVE_INFINITY,
+    maxZ: Number.NEGATIVE_INFINITY,
+  },
+);
+
 const HEADWATER_POINT = GRAND_RIVER_CORRIDOR.centerline[0];
 const HEADWATER_DOWNSTREAM_POINT = GRAND_RIVER_CORRIDOR.centerline[1];
 const HEADWATER_WIDTH = Math.max(8.5, RIVER_MIN_RENDER_WIDTH * 1.8);
@@ -392,16 +432,14 @@ const HEADWATER_ROTATION = Math.atan2(
   HEADWATER_POINT[1] - HEADWATER_DOWNSTREAM_POINT[1],
 );
 
-function toHeadwaterLocal([x, z]: WorldPoint): WorldPoint {
+const HEADWATER_COSINE = Math.cos(HEADWATER_ROTATION);
+const HEADWATER_SINE = Math.sin(HEADWATER_ROTATION);
+
+function isHeadwaterWaterXZ(x: number, z: number, margin = 0.38) {
   const dx = x - HEADWATER_POINT[0];
   const dz = z - HEADWATER_POINT[1];
-  const cosine = Math.cos(HEADWATER_ROTATION);
-  const sine = Math.sin(HEADWATER_ROTATION);
-  return [dx * cosine - dz * sine, dx * sine + dz * cosine];
-}
-
-function isHeadwaterWater(point: WorldPoint, margin = 0.38) {
-  const [localX, localZ] = toHeadwaterLocal(point);
+  const localX = dx * HEADWATER_COSINE - dz * HEADWATER_SINE;
+  const localZ = dx * HEADWATER_SINE + dz * HEADWATER_COSINE;
   const poolRadius = HEADWATER_WIDTH * 0.62 + margin;
   const inLowerPool = Math.hypot(localX, localZ + 3.1) <= poolRadius;
   const inUpperChannel =
@@ -411,8 +449,11 @@ function isHeadwaterWater(point: WorldPoint, margin = 0.38) {
   return inLowerPool || inUpperChannel;
 }
 
-function isHeadwaterCliff(point: WorldPoint, margin = 0.75) {
-  const [localX, localZ] = toHeadwaterLocal(point);
+function isHeadwaterCliffXZ(x: number, z: number, margin = 0.75) {
+  const dx = x - HEADWATER_POINT[0];
+  const dz = z - HEADWATER_POINT[1];
+  const localX = dx * HEADWATER_COSINE - dz * HEADWATER_SINE;
+  const localZ = dx * HEADWATER_SINE + dz * HEADWATER_COSINE;
   return (
     Math.abs(localX) <= HEADWATER_WIDTH * 0.725 + margin &&
     Math.abs(localZ - 1.42) <= 1.3 + margin
@@ -463,22 +504,32 @@ function createRiverRibbonGeometry(extraWidth = 0, height = 0) {
 }
 
 function bridgeDeckLength(bridge: RiverBridge) {
-  const nearestSample = RIVER_SAMPLES.reduce((nearest, sample) =>
-    sample.point.distanceToSquared(
-      new THREE.Vector3(bridge.position[0], sample.point.y, bridge.position[1]),
-    ) <
-    nearest.point.distanceToSquared(
-      new THREE.Vector3(
-        bridge.position[0],
-        nearest.point.y,
-        bridge.position[1],
-      ),
-    )
-      ? sample
-      : nearest,
-  );
+  let nearestSample = RIVER_SAMPLES[0];
+  let nearestDistanceSquared = Number.POSITIVE_INFINITY;
+  for (const sample of RIVER_SAMPLES) {
+    const dx = bridge.position[0] - sample.point.x;
+    const dz = bridge.position[1] - sample.point.z;
+    const distanceSquared = dx * dx + dz * dz;
+    if (distanceSquared < nearestDistanceSquared) {
+      nearestDistanceSquared = distanceSquared;
+      nearestSample = sample;
+    }
+  }
   return Math.max(12, nearestSample.halfWidth * 2 + 8);
 }
+
+const BRIDGE_COLLISION_MASKS = RIVER_BRIDGES.map((bridge) => {
+  const angle = THREE.MathUtils.degToRad(bridge.rotationDegrees);
+  return {
+    centerX: bridge.position[0],
+    centerZ: bridge.position[1],
+    cosine: Math.cos(angle),
+    sine: Math.sin(angle),
+    halfWidth: Math.max(2.8, bridge.width * ROAD_WIDTH_SCALE) / 2,
+    halfLength: bridgeDeckLength(bridge) / 2,
+    elevation: 0.12,
+  };
+});
 
 function InstancedBoxes({
   instances,
@@ -511,7 +562,11 @@ function InstancedBoxes({
     instances.forEach((instance, index) => {
       object.position.set(...instance.position);
       object.scale.set(...instance.scale);
-      object.rotation.set(0, instance.rotationY ?? 0, 0);
+      object.rotation.set(
+        instance.rotationX ?? 0,
+        instance.rotationY ?? 0,
+        instance.rotationZ ?? 0,
+      );
       object.updateMatrix();
       mesh.setMatrixAt(index, object.matrix);
       if (instance.color !== undefined) {
@@ -547,10 +602,57 @@ function InstancedBoxes({
   );
 }
 
+function InstancedTreeCanopies({
+  instances,
+}: {
+  instances: readonly BoxInstance[];
+}) {
+  const ref = useRef<THREE.InstancedMesh>(null);
+  useLayoutEffect(() => {
+    const mesh = ref.current;
+    if (!mesh) return;
+    const object = new THREE.Object3D();
+    const color = new THREE.Color();
+    instances.forEach((instance, index) => {
+      object.position.set(...instance.position);
+      object.scale.set(...instance.scale);
+      object.rotation.set(0, instance.rotationY ?? 0, 0);
+      object.updateMatrix();
+      mesh.setMatrixAt(index, object.matrix);
+      if (instance.color !== undefined)
+        mesh.setColorAt(index, color.set(instance.color));
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    mesh.computeBoundingSphere();
+  }, [instances]);
+  if (instances.length === 0) return null;
+  return (
+    <instancedMesh
+      ref={ref}
+      args={[undefined, undefined, instances.length]}
+      castShadow={false}
+      receiveShadow
+    >
+      <dodecahedronGeometry args={[1, 0]} />
+      <meshStandardMaterial
+        color="#ffffff"
+        vertexColors
+        roughness={0.92}
+        emissive="#31563a"
+        emissiveIntensity={0.5}
+      />
+    </instancedMesh>
+  );
+}
+
 function buildRoadInstances() {
   const surfaces: BoxInstance[] = [];
   const walks: BoxInstance[] = [];
+  const cycleways: BoxInstance[] = [];
   const markings: BoxInstance[] = [];
+  const treeTrunks: BoxInstance[] = [];
+  const treeCanopies: BoxInstance[] = [];
 
   ROAD_CONNECTORS.forEach((road) => {
     const width = getRoadRenderWidth(road);
@@ -558,46 +660,104 @@ function buildRoadInstances() {
       const to = road.points[index + 1];
       const dx = to[0] - from[0];
       const dz = to[1] - from[1];
-      const length = Math.hypot(dx, dz);
+      const horizontalLength = Math.hypot(dx, dz);
+      const fromY = getWorldGroundElevation(from[0], from[1]);
+      const toY = getWorldGroundElevation(to[0], to[1]);
+      const slope = Math.atan2(toY - fromY, horizontalLength);
+      const length = Math.hypot(horizontalLength, toY - fromY);
       const rotationY = Math.atan2(dx, dz);
       const center: [number, number, number] = [
         (from[0] + to[0]) / 2,
-        0.055,
+        (fromY + toY) / 2 + 0.055,
         (from[1] + to[1]) / 2,
       ];
-      const tangentX = dx / Math.max(length, 0.001);
-      const tangentZ = dz / Math.max(length, 0.001);
+      const tangentX = dx / Math.max(horizontalLength, 0.001);
+      const tangentZ = dz / Math.max(horizontalLength, 0.001);
       const normalX = -tangentZ;
       const normalZ = tangentX;
-      const walkOffset = width / 2 + 0.95;
+      const cycleOffset = width / 2 + 0.52;
+      const walkOffset = width / 2 + 1.58;
+      const treeOffset = width / 2 + 2.18;
 
       surfaces.push({
         position: center,
         scale: [width, 0.11, length + 0.7],
+        rotationX: -slope,
         rotationY,
         color:
           road.class === 'SCENIC'
-            ? '#343d3a'
+            ? '#69756e'
             : road.class === 'RING'
-              ? '#2a3032'
-              : '#2d3335',
+              ? '#596164'
+              : '#60686b',
       });
-      for (const side of [-1, 1] as const) {
-        walks.push({
-          position: [
-            center[0] + normalX * walkOffset * side,
-            0.105,
-            center[2] + normalZ * walkOffset * side,
-          ],
-          scale: [1.7, 0.16, length + 0.45],
-          rotationY,
-          color: road.class === 'SCENIC' ? '#aaa78f' : '#bbb7aa',
-        });
+      if (road.modes?.includes('WALK')) {
+        for (const side of [-1, 1] as const) {
+          walks.push({
+            position: [
+              center[0] + normalX * walkOffset * side,
+              center[1] + 0.05,
+              center[2] + normalZ * walkOffset * side,
+            ],
+            scale: [1.42, 0.16, length + 0.45],
+            rotationX: -slope,
+            rotationY,
+            color: road.class === 'SCENIC' ? '#aaa78f' : '#bbb7aa',
+          });
+        }
+      }
+      if (road.modes?.includes('CYCLE')) {
+        for (const side of [-1, 1] as const) {
+          cycleways.push({
+            position: [
+              center[0] + normalX * cycleOffset * side,
+              center[1] + 0.04,
+              center[2] + normalZ * cycleOffset * side,
+            ],
+            scale: [0.7, 0.13, length + 0.38],
+            rotationX: -slope,
+            rotationY,
+            color: road.class === 'SCENIC' ? '#71826d' : '#667c70',
+          });
+        }
+      }
+      if (road.modes?.includes('WALK') && horizontalLength > 9) {
+        const treeCount = Math.max(1, Math.floor(horizontalLength / 9));
+        for (let treeIndex = 1; treeIndex <= treeCount; treeIndex += 1) {
+          const progress = treeIndex / (treeCount + 1);
+          const treeX = THREE.MathUtils.lerp(from[0], to[0], progress);
+          const treeZ = THREE.MathUtils.lerp(from[1], to[1], progress);
+          const treeY = getWorldGroundElevation(treeX, treeZ);
+          for (const side of [-1, 1] as const) {
+            const x = treeX + normalX * treeOffset * side;
+            const z = treeZ + normalZ * treeOffset * side;
+            const clearsMetroEntrance = METRO_STATION_REGISTRY.every(
+              (station) => {
+                const stationX = x - station.arrival[0];
+                const stationZ = z - station.arrival[1];
+                return stationX * stationX + stationZ * stationZ > 90.25;
+              },
+            );
+            if (!clearsMetroEntrance) continue;
+            treeTrunks.push({
+              position: [x, treeY + 0.72, z],
+              scale: [0.18, 1.44, 0.18],
+              color: '#67513b',
+            });
+            treeCanopies.push({
+              position: [x, treeY + 1.85, z],
+              scale: [1.05, 1.18, 1.05],
+              rotationY: (treeIndex * 0.71 + side) % Math.PI,
+              color: road.class === 'SCENIC' ? '#759b78' : '#82a080',
+            });
+          }
+        }
       }
       if (road.class !== 'SCENIC') {
         markings.push({
-          position: [center[0], 0.125, center[2]],
+          position: [center[0], center[1] + 0.07, center[2]],
           scale: [0.075, 0.018, Math.max(0.2, length - 0.8)],
+          rotationX: -slope,
           rotationY,
           color: road.class === 'AXIS' ? '#d5c270' : '#bfc4b8',
         });
@@ -605,16 +765,45 @@ function buildRoadInstances() {
     });
   });
 
-  return { surfaces, walks, markings };
+  return { surfaces, walks, cycleways, markings, treeTrunks, treeCanopies };
 }
 
 const ROAD_INSTANCES = buildRoadInstances();
 
+function isWorldCameraPointInsideRoadsideTree(x: number, y: number, z: number) {
+  for (const canopy of ROAD_INSTANCES.treeCanopies) {
+    const radiusX = canopy.scale[0] + 0.32;
+    const radiusY = canopy.scale[1] + 0.24;
+    const radiusZ = canopy.scale[2] + 0.32;
+    const dx = (x - canopy.position[0]) / radiusX;
+    const dy = (y - canopy.position[1]) / radiusY;
+    const dz = (z - canopy.position[2]) / radiusZ;
+    if (dx * dx + dy * dy + dz * dz <= 1) return true;
+  }
+  return false;
+}
+
 export function ContinuousRoadNetwork() {
   return (
     <group name="Continuous metropolitan road network">
-      <InstancedBoxes instances={ROAD_INSTANCES.surfaces} roughness={0.94} />
-      <InstancedBoxes instances={ROAD_INSTANCES.walks} roughness={0.9} />
+      <InstancedBoxes
+        instances={ROAD_INSTANCES.surfaces}
+        roughness={0.94}
+        emissive="#3b4244"
+        emissiveIntensity={0.24}
+      />
+      <InstancedBoxes
+        instances={ROAD_INSTANCES.walks}
+        roughness={0.9}
+        emissive="#514f47"
+        emissiveIntensity={0.1}
+      />
+      <InstancedBoxes
+        instances={ROAD_INSTANCES.cycleways}
+        roughness={0.82}
+        emissive="#26372d"
+        emissiveIntensity={0.06}
+      />
       <InstancedBoxes
         instances={ROAD_INSTANCES.markings}
         roughness={0.66}
@@ -622,6 +811,12 @@ export function ContinuousRoadNetwork() {
         emissiveIntensity={0.12}
         receiveShadow={false}
       />
+      <InstancedBoxes
+        instances={ROAD_INSTANCES.treeTrunks}
+        roughness={0.96}
+        castShadow={false}
+      />
+      <InstancedTreeCanopies instances={ROAD_INSTANCES.treeCanopies} />
     </group>
   );
 }
@@ -721,11 +916,11 @@ function EstuaryOceanInterface() {
   return (
     <group name="Grand River estuary and western ocean">
       <mesh
-        position={[-91, -0.035, -60]}
+        position={[-110, -0.035, -60]}
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
       >
-        <planeGeometry args={[72, 96, 1, 1]} />
+        <planeGeometry args={[120, 120, 1, 1]} />
         <meshPhysicalMaterial
           color="#1c6f8d"
           roughness={0.14}
@@ -828,84 +1023,221 @@ function sectorPalette(sector: WorldSector) {
   }
 }
 
-function isOceanPoint([x, z]: WorldPoint) {
+function isOceanPointXZ(x: number, z: number) {
   const ocean = x <= -62 && z <= -12;
   const bayX = (x + 64) / 25.5;
   const bayZ = (z + 58) / 14;
   return ocean || bayX * bayX + bayZ * bayZ <= 1;
 }
 
-function isLegacyMarinaWater([x, z]: WorldPoint) {
+function isLegacyMarinaWaterXZ(x: number, z: number) {
   return Math.abs(x + 47) <= 11 && Math.abs(z - 1) <= 45;
 }
 
-function isPointInsideDeckMask(
-  [x, z]: WorldPoint,
-  deck: ContinuousWorldDeckMask,
-  margin: number,
-) {
-  const rotation = deck.rotationRadians ?? 0;
-  const dx = x - deck.center[0];
-  const dz = z - deck.center[1];
-  const localX = dx * Math.cos(rotation) - dz * Math.sin(rotation);
-  const localZ = dx * Math.sin(rotation) + dz * Math.cos(rotation);
-  return (
-    Math.abs(localX) <= deck.halfExtents[0] + margin &&
-    Math.abs(localZ) <= deck.halfExtents[1] + margin
-  );
+const WALKABLE_DECK_COLLISION_MASKS = CONTINUOUS_WORLD_WALKABLE_DECKS.map(
+  (deck) => {
+    const rotation = deck.rotationRadians ?? 0;
+    return {
+      centerX: deck.center[0],
+      centerZ: deck.center[1],
+      halfX: deck.halfExtents[0],
+      halfZ: deck.halfExtents[1],
+      shape: deck.shape ?? 'RECTANGLE',
+      elevation: deck.elevation,
+      cosine: Math.cos(rotation),
+      sine: Math.sin(rotation),
+    };
+  },
+);
+
+function isWorldPointOnWalkableDeckXZ(x: number, z: number, margin = 0) {
+  for (const deck of WALKABLE_DECK_COLLISION_MASKS) {
+    const dx = x - deck.centerX;
+    const dz = z - deck.centerZ;
+    const localX = dx * deck.cosine - dz * deck.sine;
+    const localZ = dx * deck.sine + dz * deck.cosine;
+    if (deck.shape === 'ELLIPSE') {
+      const radiusX = deck.halfX + margin;
+      const radiusZ = deck.halfZ + margin;
+      if (
+        (localX * localX) / (radiusX * radiusX) +
+          (localZ * localZ) / (radiusZ * radiusZ) <=
+        1
+      )
+        return true;
+    } else if (
+      Math.abs(localX) <= deck.halfX + margin &&
+      Math.abs(localZ) <= deck.halfZ + margin
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+const SURFACE_PLATEAU_MASKS = WORLD_SURFACE_PLATEAUS.map((surface) => {
+  const rotation = surface.rotationRadians ?? 0;
+  return {
+    centerX: surface.center[0],
+    centerZ: surface.center[1],
+    halfX: surface.halfExtents[0],
+    halfZ: surface.halfExtents[1],
+    cosine: Math.cos(rotation),
+    sine: Math.sin(rotation),
+    elevation: surface.elevation,
+  };
+});
+
+const SURFACE_RAMP_MASKS = WORLD_SURFACE_RAMPS.map((surface) => {
+  const dx = surface.to[0] - surface.from[0];
+  const dz = surface.to[1] - surface.from[1];
+  return {
+    fromX: surface.from[0],
+    fromZ: surface.from[1],
+    dx,
+    dz,
+    lengthSquared: dx * dx + dz * dz,
+    halfWidth: surface.width / 2,
+    startElevation: surface.startElevation,
+    endElevation: surface.endElevation,
+  };
+});
+
+function surfaceRampElevationAtXZ(x: number, z: number) {
+  let elevation = Number.NEGATIVE_INFINITY;
+  for (const ramp of SURFACE_RAMP_MASKS) {
+    const progress = THREE.MathUtils.clamp(
+      ((x - ramp.fromX) * ramp.dx + (z - ramp.fromZ) * ramp.dz) /
+        Math.max(ramp.lengthSquared, Number.EPSILON),
+      0,
+      1,
+    );
+    const nearestX = ramp.fromX + ramp.dx * progress;
+    const nearestZ = ramp.fromZ + ramp.dz * progress;
+    const offsetX = x - nearestX;
+    const offsetZ = z - nearestZ;
+    if (
+      offsetX * offsetX + offsetZ * offsetZ <=
+      ramp.halfWidth * ramp.halfWidth
+    )
+      elevation = Math.max(
+        elevation,
+        THREE.MathUtils.lerp(ramp.startElevation, ramp.endElevation, progress),
+      );
+  }
+  return elevation;
+}
+
+export function getWorldSurfaceElevationXZ(x: number, z: number) {
+  let elevation = getWorldGroundElevation(x, z);
+  for (const bridge of BRIDGE_COLLISION_MASKS) {
+    const dx = x - bridge.centerX;
+    const dz = z - bridge.centerZ;
+    const localX = dx * bridge.cosine - dz * bridge.sine;
+    const localZ = dx * bridge.sine + dz * bridge.cosine;
+    if (
+      Math.abs(localX) <= bridge.halfWidth &&
+      Math.abs(localZ) <= bridge.halfLength
+    )
+      elevation = Math.max(elevation, bridge.elevation);
+  }
+  for (const deck of WALKABLE_DECK_COLLISION_MASKS) {
+    const dx = x - deck.centerX;
+    const dz = z - deck.centerZ;
+    const localX = dx * deck.cosine - dz * deck.sine;
+    const localZ = dx * deck.sine + dz * deck.cosine;
+    const onDeck =
+      deck.shape === 'ELLIPSE'
+        ? (localX * localX) / (deck.halfX * deck.halfX) +
+            (localZ * localZ) / (deck.halfZ * deck.halfZ) <=
+          1
+        : Math.abs(localX) <= deck.halfX && Math.abs(localZ) <= deck.halfZ;
+    if (onDeck) elevation = Math.max(elevation, deck.elevation);
+  }
+  for (const surface of SURFACE_PLATEAU_MASKS) {
+    const dx = x - surface.centerX;
+    const dz = z - surface.centerZ;
+    const localX = dx * surface.cosine - dz * surface.sine;
+    const localZ = dx * surface.sine + dz * surface.cosine;
+    if (Math.abs(localX) <= surface.halfX && Math.abs(localZ) <= surface.halfZ)
+      elevation = Math.max(elevation, surface.elevation);
+  }
+  return Math.max(elevation, surfaceRampElevationAtXZ(x, z));
+}
+
+export function getWorldSurfaceElevation(position: ContinuousWorldPosition) {
+  return getWorldSurfaceElevationXZ(worldX(position), worldZ(position));
 }
 
 export function isWorldPointOnWalkableDeck(
   position: ContinuousWorldPosition,
   margin = 0,
 ) {
-  const point = asWorldPoint(position);
-  return CONTINUOUS_WORLD_WALKABLE_DECKS.some((deck) =>
-    isPointInsideDeckMask(point, deck, margin),
+  return isWorldPointOnWalkableDeckXZ(
+    worldX(position),
+    worldZ(position),
+    margin,
   );
 }
 
-function distanceToRoadSegment(
-  point: WorldPoint,
-  from: WorldPoint,
-  to: WorldPoint,
+const ROAD_COLLISION_SEGMENTS = ROAD_CONNECTORS.flatMap((road) =>
+  road.points.slice(0, -1).map((from, index) => {
+    const to = road.points[index + 1];
+    const dx = to[0] - from[0];
+    const dz = to[1] - from[1];
+    return {
+      fromX: from[0],
+      fromZ: from[1],
+      dx,
+      dz,
+      lengthSquared: dx * dx + dz * dz,
+      halfCorridor: getRoadRenderWidth(road) / 2 + 1.8,
+    };
+  }),
+);
+
+function distanceSquaredToRoadSegmentXZ(
+  x: number,
+  z: number,
+  segment: (typeof ROAD_COLLISION_SEGMENTS)[number],
 ) {
-  const segmentX = to[0] - from[0];
-  const segmentZ = to[1] - from[1];
-  const lengthSquared = segmentX * segmentX + segmentZ * segmentZ;
-  if (lengthSquared <= Number.EPSILON) return distanceBetween(point, from);
+  if (segment.lengthSquared <= Number.EPSILON) {
+    const dx = x - segment.fromX;
+    const dz = z - segment.fromZ;
+    return dx * dx + dz * dz;
+  }
   const progress = THREE.MathUtils.clamp(
-    ((point[0] - from[0]) * segmentX + (point[1] - from[1]) * segmentZ) /
-      lengthSquared,
+    ((x - segment.fromX) * segment.dx + (z - segment.fromZ) * segment.dz) /
+      segment.lengthSquared,
     0,
     1,
   );
-  return Math.hypot(
-    point[0] - (from[0] + segmentX * progress),
-    point[1] - (from[1] + segmentZ * progress),
-  );
+  const nearestX = segment.fromX + segment.dx * progress;
+  const nearestZ = segment.fromZ + segment.dz * progress;
+  const dx = x - nearestX;
+  const dz = z - nearestZ;
+  return dx * dx + dz * dz;
+}
+
+function isWorldPointOnRoadXZ(x: number, z: number, margin = 0) {
+  for (const segment of ROAD_COLLISION_SEGMENTS) {
+    const clearance = segment.halfCorridor + margin;
+    if (distanceSquaredToRoadSegmentXZ(x, z, segment) <= clearance * clearance)
+      return true;
+  }
+  return false;
 }
 
 export function isWorldPointOnRoad(
   position: ContinuousWorldPosition,
   margin = 0,
 ) {
-  const point = asWorldPoint(position);
-  return ROAD_CONNECTORS.some((road) => {
-    // Includes the paved carriageway and both modeled pedestrian verges.
-    const halfCorridor = getRoadRenderWidth(road) / 2 + 1.8 + margin;
-    return road.points
-      .slice(0, -1)
-      .some(
-        (from, index) =>
-          distanceToRoadSegment(point, from, road.points[index + 1]) <=
-          halfCorridor,
-      );
-  });
+  return isWorldPointOnRoadXZ(worldX(position), worldZ(position), margin);
 }
 
 export function distanceToGrandRiver(position: ContinuousWorldPosition) {
-  const [x, z] = asWorldPoint(position);
+  const x = worldX(position);
+  const z = worldZ(position);
   let nearestDistance = Number.POSITIVE_INFINITY;
   let nearestHalfWidth = RIVER_MIN_RENDER_WIDTH / 2;
   for (const sample of RIVER_SAMPLES) {
@@ -918,60 +1250,246 @@ export function distanceToGrandRiver(position: ContinuousWorldPosition) {
   return { distance: nearestDistance, halfWidth: nearestHalfWidth };
 }
 
+function isWorldPointInGrandRiverXZ(x: number, z: number) {
+  if (
+    x < RIVER_QUERY_BOUNDS.minX ||
+    x > RIVER_QUERY_BOUNDS.maxX ||
+    z < RIVER_QUERY_BOUNDS.minZ ||
+    z > RIVER_QUERY_BOUNDS.maxZ
+  )
+    return false;
+  let nearestDistanceSquared = Number.POSITIVE_INFINITY;
+  let nearestHalfWidth = RIVER_MIN_RENDER_WIDTH / 2;
+  for (const sample of RIVER_SAMPLES) {
+    const dx = x - sample.point.x;
+    const dz = z - sample.point.z;
+    const distanceSquared = dx * dx + dz * dz;
+    if (distanceSquared < nearestDistanceSquared) {
+      nearestDistanceSquared = distanceSquared;
+      nearestHalfWidth = sample.halfWidth;
+    }
+  }
+  return nearestDistanceSquared <= nearestHalfWidth * nearestHalfWidth;
+}
+
+function isWorldPointOnRiverBridgeXZ(x: number, z: number, margin = 0) {
+  for (const bridge of BRIDGE_COLLISION_MASKS) {
+    const dx = x - bridge.centerX;
+    const dz = z - bridge.centerZ;
+    const localX = dx * bridge.cosine - dz * bridge.sine;
+    const localZ = dx * bridge.sine + dz * bridge.cosine;
+    if (
+      Math.abs(localX) <= bridge.halfWidth + margin &&
+      Math.abs(localZ) <= bridge.halfLength + margin
+    )
+      return true;
+  }
+  return false;
+}
+
 export function isWorldPointOnRiverBridge(
   position: ContinuousWorldPosition,
   margin = 0,
 ) {
-  const [x, z] = asWorldPoint(position);
-  return RIVER_BRIDGES.some((bridge) => {
-    const angle = THREE.MathUtils.degToRad(bridge.rotationDegrees);
-    const dx = x - bridge.position[0];
-    const dz = z - bridge.position[1];
-    const localX = dx * Math.cos(angle) - dz * Math.sin(angle);
-    const localZ = dx * Math.sin(angle) + dz * Math.cos(angle);
-    const halfWidth =
-      Math.max(2.8, bridge.width * ROAD_WIDTH_SCALE) / 2 + margin;
-    const halfLength = bridgeDeckLength(bridge) / 2 + margin;
-    return Math.abs(localX) <= halfWidth && Math.abs(localZ) <= halfLength;
-  });
+  return isWorldPointOnRiverBridgeXZ(
+    worldX(position),
+    worldZ(position),
+    margin,
+  );
 }
 
-export function isWorldPointInWater(position: ContinuousWorldPosition) {
-  const point = asWorldPoint(position);
+function isWorldPointInWaterXZ(x: number, z: number) {
   // Roads crossing water are rendered as causeways. Detailed marina decks and
   // bridge decks are also explicit solid surfaces, so water never traps a
   // station or cuts a visible pedestrian route.
   if (
-    isWorldPointOnRiverBridge(point, 0.38) ||
-    isWorldPointOnWalkableDeck(point, 0.38) ||
-    isWorldPointOnRoad(point, 0.38)
+    isWorldPointOnRiverBridgeXZ(x, z, 0.38) ||
+    isWorldPointOnWalkableDeckXZ(x, z, 0.38) ||
+    Number.isFinite(surfaceRampElevationAtXZ(x, z)) ||
+    isWorldPointOnRoadXZ(x, z, 0.38)
   )
     return false;
-  const river = distanceToGrandRiver(point);
   return (
-    river.distance <= river.halfWidth ||
-    isHeadwaterWater(point) ||
-    isOceanPoint(point) ||
-    isLegacyMarinaWater(point)
+    isWorldPointInGrandRiverXZ(x, z) ||
+    isHeadwaterWaterXZ(x, z) ||
+    isOceanPointXZ(x, z) ||
+    isLegacyMarinaWaterXZ(x, z)
   );
+}
+
+export function isWorldPointInWater(position: ContinuousWorldPosition) {
+  return isWorldPointInWaterXZ(worldX(position), worldZ(position));
+}
+
+function isWorldPointBlockedByLegacyGeometryXZ(
+  x: number,
+  z: number,
+  margin = 0.38,
+) {
+  for (const { center, halfExtents } of CONTINUOUS_WORLD_LEGACY_BLOCKERS) {
+    if (
+      Math.abs(x - center[0]) < halfExtents[0] + margin &&
+      Math.abs(z - center[1]) < halfExtents[1] + margin
+    )
+      return true;
+  }
+  return false;
 }
 
 export function isWorldPointBlockedByLegacyGeometry(
   position: ContinuousWorldPosition,
   margin = 0.38,
 ) {
-  const [x, z] = asWorldPoint(position);
-  return CONTINUOUS_WORLD_LEGACY_BLOCKERS.some(
-    ({ center, halfExtents }) =>
-      Math.abs(x - center[0]) < halfExtents[0] + margin &&
-      Math.abs(z - center[1]) < halfExtents[1] + margin,
+  return isWorldPointBlockedByLegacyGeometryXZ(
+    worldX(position),
+    worldZ(position),
+    margin,
+  );
+}
+
+type ProceduralCollisionMask = Readonly<{
+  centerX: number;
+  centerZ: number;
+  halfX: number;
+  halfZ: number;
+  cosine: number;
+  sine: number;
+  minimumY: number;
+  maximumY: number;
+}>;
+
+let proceduralCollisionMaskCache:
+  | readonly ProceduralCollisionMask[]
+  | undefined;
+
+function getProceduralCollisionMasks() {
+  if (!proceduralCollisionMaskCache) {
+    proceduralCollisionMaskCache = getAllProceduralMassing().map((building) => {
+      const angle = building.rotationY ?? 0;
+      return {
+        centerX: building.position[0],
+        centerZ: building.position[2],
+        halfX: building.scale[0] / 2,
+        halfZ: building.scale[2] / 2,
+        cosine: Math.cos(angle),
+        sine: Math.sin(angle),
+        minimumY: building.position[1] - building.scale[1] / 2,
+        maximumY: building.position[1] + building.scale[1] / 2,
+      };
+    });
+  }
+  return proceduralCollisionMaskCache;
+}
+
+function isWorldPointBlockedByProceduralGeometryXZ(
+  x: number,
+  z: number,
+  margin = 0.38,
+) {
+  for (const building of getProceduralCollisionMasks()) {
+    const dx = x - building.centerX;
+    const dz = z - building.centerZ;
+    const localX = dx * building.cosine - dz * building.sine;
+    const localZ = dx * building.sine + dz * building.cosine;
+    if (
+      Math.abs(localX) < building.halfX + margin &&
+      Math.abs(localZ) < building.halfZ + margin
+    )
+      return true;
+  }
+  return false;
+}
+
+function isWorldCameraPointInsideProceduralGeometry(
+  x: number,
+  y: number,
+  z: number,
+  margin = 0.55,
+) {
+  for (const building of getProceduralCollisionMasks()) {
+    if (y < building.minimumY - margin || y > building.maximumY + margin)
+      continue;
+    const dx = x - building.centerX;
+    const dz = z - building.centerZ;
+    const localX = dx * building.cosine - dz * building.sine;
+    const localZ = dx * building.sine + dz * building.cosine;
+    if (
+      Math.abs(localX) < building.halfX + margin &&
+      Math.abs(localZ) < building.halfZ + margin
+    )
+      return true;
+  }
+  return false;
+}
+
+export function isWorldPointBlockedByProceduralGeometry(
+  position: ContinuousWorldPosition,
+  margin = 0.38,
+) {
+  return isWorldPointBlockedByProceduralGeometryXZ(
+    worldX(position),
+    worldZ(position),
+    margin,
+  );
+}
+
+function isWorldPointBlockedBySolidGeometryXZ(
+  x: number,
+  z: number,
+  margin = 0.38,
+) {
+  return (
+    isPointInNamedWorldSolidXZ(x, z, margin) ||
+    isWorldPointBlockedByLegacyGeometryXZ(x, z, margin) ||
+    isWorldPointBlockedByProceduralGeometryXZ(x, z, margin)
+  );
+}
+
+/** Closed outdoor architecture, independent of visual LOD. */
+export function isWorldPointBlockedBySolidGeometry(
+  position: ContinuousWorldPosition,
+  margin = 0.38,
+) {
+  return isWorldPointBlockedBySolidGeometryXZ(
+    worldX(position),
+    worldZ(position),
+    margin,
+  );
+}
+
+/** Three-dimensional camera probe. Unlike player collision, buildings stop
+ * occluding once the camera is genuinely above their roofline. */
+export function isWorldCameraPointOccluded(position: {
+  x: number;
+  y: number;
+  z: number;
+}) {
+  const { x, y, z } = position;
+  if (y <= getWorldSurfaceElevationXZ(x, z) + 0.16) return true;
+  const namedSolid = getWorldSolidAtXZ(x, z, 0.55);
+  if (namedSolid) {
+    const baseElevation =
+      namedSolid.baseElevation ??
+      getWorldGroundElevation(namedSolid.center[0], namedSolid.center[1]);
+    if (
+      y >= baseElevation - 0.1 &&
+      y <= baseElevation + namedSolid.height + 0.5
+    )
+      return true;
+  }
+  if (y <= 110 && isWorldPointBlockedByLegacyGeometryXZ(x, z, 0.55))
+    return true;
+  return (
+    isWorldCameraPointInsideProceduralGeometry(x, y, z) ||
+    isWorldCameraPointInsideRoadsideTree(x, y, z)
   );
 }
 
 export function isWithinContinuousWorldBounds(
   position: ContinuousWorldPosition,
 ) {
-  const [x, z] = asWorldPoint(position);
+  const x = worldX(position);
+  const z = worldZ(position);
   return (
     x >= CONTINUOUS_WORLD_BOUNDS.minX &&
     x <= CONTINUOUS_WORLD_BOUNDS.maxX &&
@@ -982,58 +1500,87 @@ export function isWithinContinuousWorldBounds(
 
 /** A first-pass outdoor collision predicate for Player integration. */
 export function canTraverseContinuousWorld(position: ContinuousWorldPosition) {
-  const point = asWorldPoint(position);
+  const x = worldX(position);
+  const z = worldZ(position);
   return (
-    isWithinContinuousWorldBounds(point) &&
-    !isWorldPointInWater(point) &&
-    !isHeadwaterCliff(point) &&
-    !isWorldPointBlockedByLegacyGeometry(point)
+    x >= CONTINUOUS_WORLD_BOUNDS.minX &&
+    x <= CONTINUOUS_WORLD_BOUNDS.maxX &&
+    z >= CONTINUOUS_WORLD_BOUNDS.minZ &&
+    z <= CONTINUOUS_WORLD_BOUNDS.maxZ &&
+    !isWorldPointInWaterXZ(x, z) &&
+    !isHeadwaterCliffXZ(x, z) &&
+    !isWorldPointBlockedBySolidGeometryXZ(x, z)
   );
 }
 
-function buildSectorMassing(
-  sector: WorldSector,
-  lod: Exclude<ContinuousWorldLod, 'CULLED'>,
+/** Maximum vertical change the avatar may climb in one movement substep.
+ * Elevated terraces remain real geometry: players reach them through explicit
+ * ramps instead of being snapped upward at an arbitrary footprint edge. */
+export const MAX_CONTINUOUS_WORLD_STEP = 0.55;
+
+export function canStepBetweenContinuousWorldPoints(
+  from: ContinuousWorldPosition,
+  to: ContinuousWorldPosition,
 ) {
-  if (sector.role === 'RIVER') return [];
-  // LOD changes must never reshuffle the skyline. Build one deterministic
-  // DETAIL set, then let SHELL render its stable prefix.
+  const fromElevation = getWorldSurfaceElevationXZ(worldX(from), worldZ(from));
+  const toElevation = getWorldSurfaceElevationXZ(worldX(to), worldZ(to));
+  return Math.abs(toElevation - fromElevation) <= MAX_CONTINUOUS_WORLD_STEP;
+}
+
+/** Place the physical entrance beside—not on top of—the arrival marker. This
+ * keeps the avatar and its trailing camera out of the canopy while preserving
+ * a short, level connection to the station concourse. */
+export function getContinuousWorldMetroEntrancePosition(
+  arrival: ContinuousWorldMetroArrival,
+): readonly [x: number, y: number, z: number] {
+  const lateralX = Math.cos(arrival.heading);
+  const lateralZ = -Math.sin(arrival.heading);
+  for (const side of [1, -1] as const) {
+    const x = arrival.position[0] + lateralX * 3.4 * side;
+    const z = arrival.position[2] + lateralZ * 3.4 * side;
+    if (
+      canTraverseContinuousWorld([x, z]) &&
+      canStepBetweenContinuousWorldPoints(
+        [arrival.position[0], arrival.position[2]],
+        [x, z],
+      )
+    )
+      return [x, getWorldSurfaceElevationXZ(x, z), z];
+  }
+  return [...arrival.position];
+}
+
+const CUSTOM_ARCHITECTURE_SECTORS = new Set<WorldSectorId>([
+  'CBD_CORE',
+  'STARTER_OUTER_RING',
+  'WATERFRONT_MARINA',
+  'CROWN_RESIDENTIAL',
+  'MIDSLOPE_VILLAS',
+  'SUMMIT_ESTATES',
+  'OFFSHORE_CITY',
+  'MOTORSPORT_PARK',
+]);
+
+const SECTOR_MASSING_CACHE = new Map<WorldSectorId, readonly BoxInstance[]>();
+let allProceduralMassingCache: readonly BoxInstance[] | undefined;
+
+function buildSectorDetailMassing(
+  sector: WorldSector,
+  acceptedWorldMassing: readonly BoxInstance[],
+) {
+  if (sector.role === 'RIVER' || CUSTOM_ARCHITECTURE_SECTORS.has(sector.id))
+    return [];
   const random = seededRandom(hashString(sector.id));
   const [minX, maxX, minZ, maxZ] = sector.bounds;
   const detailCount = 20;
-  const shellCount = 7;
   const instances: BoxInstance[] = [];
   let attempts = 0;
 
-  while (instances.length < detailCount && attempts < detailCount * 9) {
+  while (instances.length < detailCount && attempts < detailCount * 24) {
     attempts += 1;
     const x = THREE.MathUtils.lerp(minX + 2, maxX - 2, random());
     const z = THREE.MathUtils.lerp(minZ + 2, maxZ - 2, random());
-    if (isWorldPointInWater([x, z])) continue;
-    // The source valley is a landscape room, not another tower parcel. Keep a
-    // broad mountain-and-forest reveal around the falls so the river origin is
-    // readable from the approach road and never hidden by streamed massing.
-    if (Math.hypot(x - HEADWATER_POINT[0], z - HEADWATER_POINT[1]) < 24)
-      continue;
-    // Keep every station arrival in a genuine civic forecourt. Without this
-    // reservation, deterministic LOD massing can place a tower directly in
-    // front of a safe metro spawn even though the spawn itself is walkable.
-    const stationClearance = METRO_STATION_REGISTRY.some(({ arrival }) =>
-      Math.hypot(x - arrival[0], z - arrival[1]) < 9.5,
-    );
-    if (stationClearance) continue;
-    const roadClearance = ROAD_CONNECTORS.some((road) => {
-      const clearance = getRoadRenderWidth(road) / 2 + 2.4;
-      return road.points
-        .slice(0, -1)
-        .some(
-          (from, index) =>
-            distanceToRoadSegment([x, z], from, road.points[index + 1]) <
-            clearance,
-        );
-    });
-    if (roadClearance) continue;
-
+    if (getContinuousWorldSectorAt([x, z]).id !== sector.id) continue;
     const roleHeight =
       sector.role === 'CORE'
         ? 22 + random() * 34
@@ -1045,13 +1592,127 @@ function buildSectorMassing(
     const height = roleHeight;
     const width = 3.4 + random() * (sector.role === 'CORE' ? 5.4 : 4.2);
     const depth = 3.6 + random() * 4.8;
+    const rotationY = (random() - 0.5) * 0.24;
+    const clearanceRadius = Math.hypot(width, depth) / 2 + 0.85;
+    const point: WorldPoint = [x, z];
+    if (isWorldPointInWater(point)) continue;
+    if (isPointInReservedWorldSite(point, clearanceRadius)) continue;
+    if (isPointInNamedWorldSolid(point, clearanceRadius)) continue;
+    // Legacy district art is still physical architecture. Reserve its complete
+    // footprint before adding streamed filler so both render layers can never
+    // occupy the same parcel when their DETAIL LODs are active together.
+    const legacyClearance = CONTINUOUS_WORLD_LEGACY_BLOCKERS.some(
+      ({ center, halfExtents }) =>
+        Math.hypot(x - center[0], z - center[1]) <
+        clearanceRadius + Math.hypot(halfExtents[0], halfExtents[1]) + 0.6,
+    );
+    if (legacyClearance) continue;
+    // The source valley is a landscape room, not another tower parcel. Keep a
+    // broad mountain-and-forest reveal around the falls so the river origin is
+    // readable from the approach road and never hidden by streamed massing.
+    if (Math.hypot(x - HEADWATER_POINT[0], z - HEADWATER_POINT[1]) < 24)
+      continue;
+    // Keep every station arrival in a genuine civic forecourt. Without this
+    // reservation, deterministic LOD massing can place a tower directly in
+    // front of a safe metro spawn even though the spawn itself is walkable.
+    const stationClearance = METRO_STATION_REGISTRY.some(
+      ({ arrival }) =>
+        Math.hypot(x - arrival[0], z - arrival[1]) < 9.5 + clearanceRadius,
+    );
+    if (stationClearance) continue;
+    const roadClearance = ROAD_COLLISION_SEGMENTS.some((segment) => {
+      const clearance = segment.halfCorridor + 0.6 + clearanceRadius;
+      return (
+        distanceSquaredToRoadSegmentXZ(x, z, segment) < clearance * clearance
+      );
+    });
+    if (roadClearance) continue;
+    const overlapsAnotherBuilding = [
+      ...acceptedWorldMassing,
+      ...instances,
+    ].some((building) => {
+      const separation = Math.hypot(
+        x - building.position[0],
+        z - building.position[2],
+      );
+      const otherRadius = Math.hypot(building.scale[0], building.scale[2]) / 2;
+      return separation < clearanceRadius + otherRadius + 1.4;
+    });
+    if (overlapsAnotherBuilding) continue;
+    const groundElevation = getWorldGroundElevation(x, z);
     instances.push({
-      position: [x, height / 2, z],
+      id: `${sector.id}-FILLER-${instances.length + 1}`,
+      position: [x, groundElevation + height / 2, z],
       scale: [width, height, depth],
-      rotationY: (random() - 0.5) * 0.24,
+      rotationY,
     });
   }
-  return lod === 'DETAIL' ? instances : instances.slice(0, shellCount);
+  return instances;
+}
+
+function ensureProceduralMassingPlan() {
+  if (allProceduralMassingCache) return;
+  const acceptedWorldMassing: BoxInstance[] = [];
+  for (const sector of WORLD_SECTORS) {
+    const buildings = buildSectorDetailMassing(sector, acceptedWorldMassing);
+    SECTOR_MASSING_CACHE.set(sector.id, buildings);
+    acceptedWorldMassing.push(...buildings);
+  }
+  allProceduralMassingCache = acceptedWorldMassing;
+}
+
+function getSectorDetailMassing(sector: WorldSector) {
+  ensureProceduralMassingPlan();
+  return SECTOR_MASSING_CACHE.get(sector.id) ?? [];
+}
+
+function getAllProceduralMassing() {
+  ensureProceduralMassingPlan();
+  return allProceduralMassingCache ?? [];
+}
+
+export function getContinuousWorldProceduralSolids() {
+  return getAllProceduralMassing();
+}
+
+const LEGACY_DISTRICT_BY_SECTOR: Partial<
+  Record<WorldSectorId, LegacyDistrictId>
+> = {
+  CBD_CORE: 'CBD',
+  WATERFRONT_MARINA: 'AZURE_YACHT_MARINA',
+  CROWN_RESIDENTIAL: 'CROWN_RESIDENTIAL_TOWERS',
+  MIDSLOPE_VILLAS: 'MILLIONAIRE_RIDGE',
+};
+
+function distanceToLegacySectorGeometryXZ(
+  x: number,
+  z: number,
+  sector: WorldSector,
+) {
+  const district = LEGACY_DISTRICT_BY_SECTOR[sector.id];
+  if (!district) return Number.POSITIVE_INFINITY;
+  let nearest = Number.POSITIVE_INFINITY;
+  for (const blocker of CONTINUOUS_WORLD_LEGACY_BLOCKERS) {
+    if (blocker.district !== district) continue;
+    const dx = Math.max(
+      0,
+      Math.abs(x - blocker.center[0]) - blocker.halfExtents[0],
+    );
+    const dz = Math.max(
+      0,
+      Math.abs(z - blocker.center[1]) - blocker.halfExtents[1],
+    );
+    nearest = Math.min(nearest, Math.hypot(dx, dz));
+  }
+  return nearest;
+}
+
+function buildSectorMassing(
+  sector: WorldSector,
+  lod: Exclude<ContinuousWorldLod, 'CULLED'>,
+) {
+  const detail = getSectorDetailMassing(sector);
+  return lod === 'DETAIL' ? detail : detail.slice(0, 7);
 }
 
 export function getContinuousWorldSectorLod(
@@ -1059,10 +1720,13 @@ export function getContinuousWorldSectorLod(
   sector: WorldSector,
   streamPadding = 12,
 ): ContinuousWorldLod {
-  const point = asWorldPoint(playerPosition);
-  const distance = distanceBetween(point, sector.center);
-  if (distance <= sector.detailRadius) return 'DETAIL';
-  if (distance <= sector.streamRadius + streamPadding) return 'SHELL';
+  const x = worldX(playerPosition);
+  const z = worldZ(playerPosition);
+  const centerDistance = Math.hypot(x - sector.center[0], z - sector.center[1]);
+  const legacyGeometryDistance = distanceToLegacySectorGeometryXZ(x, z, sector);
+  if (centerDistance <= sector.detailRadius || legacyGeometryDistance <= 18)
+    return 'DETAIL';
+  if (centerDistance <= sector.streamRadius + streamPadding) return 'SHELL';
   return 'CULLED';
 }
 
@@ -1080,8 +1744,33 @@ export function getVisibleContinuousWorldSectors(
   });
 }
 
+const METRO_STATION_SECTOR_ZONES = METRO_STATION_REGISTRY.flatMap((station) => {
+  const hub = METRO_HUBS.find(
+    (candidate) => candidate.id === station.topologyId,
+  );
+  const sector = hub
+    ? WORLD_SECTORS.find((candidate) => candidate.id === hub.sector)
+    : undefined;
+  return sector ? [{ arrival: station.arrival, sector }] : [];
+});
+
+const METRO_STATION_SECTOR_RADIUS = 6.5;
+
 export function getContinuousWorldSectorAt(position: ContinuousWorldPosition) {
   const point = asWorldPoint(position);
+  let stationSector: WorldSector | undefined;
+  let nearestStationDistance = METRO_STATION_SECTOR_RADIUS;
+  for (const zone of METRO_STATION_SECTOR_ZONES) {
+    const distance = Math.hypot(
+      point[0] - zone.arrival[0],
+      point[1] - zone.arrival[1],
+    );
+    if (distance <= nearestStationDistance) {
+      nearestStationDistance = distance;
+      stationSector = zone.sector;
+    }
+  }
+  if (stationSector) return stationSector;
   const containing = WORLD_SECTORS.filter((sector) => {
     const [minX, maxX, minZ, maxZ] = sector.bounds;
     return (
@@ -1240,16 +1929,29 @@ function metroHubArrival(
 ): ContinuousWorldMetroArrival {
   const publicStation = metroStationByTopologyId(station.id);
   if (!publicStation) {
-    throw new Error(`Metro hub ${station.id} has no stable public station code`);
+    throw new Error(
+      `Metro hub ${station.id} has no stable public station code`,
+    );
   }
   const arrival = publicStation.arrival;
-  const heading = headingAlongNearestRoad(arrival);
+  const oceanRamp = WORLD_SURFACE_RAMPS[0];
+  const heading =
+    station.id === 'MTR-O01'
+      ? Math.atan2(
+          oceanRamp.from[0] - oceanRamp.to[0],
+          oceanRamp.from[1] - oceanRamp.to[1],
+        )
+      : headingAlongNearestRoad(arrival);
   return {
     stationCode: publicStation.id,
     stationId: station.id,
     stationName: station.name,
     sector: station.sector,
-    position: [arrival[0], 0.12, arrival[1]],
+    position: [
+      arrival[0],
+      getWorldSurfaceElevationXZ(arrival[0], arrival[1]),
+      arrival[1],
+    ],
     heading,
   };
 }
@@ -1283,6 +1985,34 @@ export function ContinuousWorldBase({
   ) => ReactNode;
   children?: ReactNode;
 }) {
+  const terrainGeometry = useMemo(() => {
+    const width = CONTINUOUS_WORLD_BOUNDS.maxX - CONTINUOUS_WORLD_BOUNDS.minX;
+    const depth = CONTINUOUS_WORLD_BOUNDS.maxZ - CONTINUOUS_WORLD_BOUNDS.minZ;
+    const centerX =
+      (CONTINUOUS_WORLD_BOUNDS.minX + CONTINUOUS_WORLD_BOUNDS.maxX) / 2;
+    const centerZ =
+      (CONTINUOUS_WORLD_BOUNDS.minZ + CONTINUOUS_WORLD_BOUNDS.maxZ) / 2;
+    const geometry = new THREE.PlaneGeometry(width, depth, 84, 58);
+    const positions = geometry.getAttribute('position');
+    for (let index = 0; index < positions.count; index += 1) {
+      const localX = positions.getX(index);
+      const localY = positions.getY(index);
+      positions.setZ(
+        index,
+        getWorldGroundElevation(centerX + localX, centerZ - localY),
+      );
+    }
+    positions.needsUpdate = true;
+    geometry.rotateX(-Math.PI / 2);
+    geometry.computeVertexNormals();
+    geometry.computeBoundingSphere();
+    return geometry;
+  }, []);
+  useEffect(() => () => terrainGeometry.dispose(), [terrainGeometry]);
+  const terrainCenterX =
+    (CONTINUOUS_WORLD_BOUNDS.minX + CONTINUOUS_WORLD_BOUNDS.maxX) / 2;
+  const terrainCenterZ =
+    (CONTINUOUS_WORLD_BOUNDS.minZ + CONTINUOUS_WORLD_BOUNDS.maxZ) / 2;
   return (
     <group
       name="AmpliWorld continuous outdoor world"
@@ -1292,12 +2022,16 @@ export function ContinuousWorldBase({
       }}
     >
       <mesh
-        position={[0, -0.13, 0]}
-        rotation={[-Math.PI / 2, 0, 0]}
+        geometry={terrainGeometry}
+        position={[terrainCenterX, -0.13, terrainCenterZ]}
         receiveShadow
       >
-        <planeGeometry args={[208, 208, 1, 1]} />
-        <meshStandardMaterial color="#687365" roughness={0.98} />
+        <meshStandardMaterial
+          color="#7b8878"
+          roughness={0.98}
+          emissive="#344034"
+          emissiveIntensity={0.17}
+        />
       </mesh>
       <ContinuousRoadNetwork />
       <ContinuousGrandRiver />
