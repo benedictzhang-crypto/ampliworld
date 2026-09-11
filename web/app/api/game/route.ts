@@ -1,6 +1,12 @@
 import { env } from 'cloudflare:workers';
 import { getChatGPTUser } from '../../chatgpt-auth';
 import {
+  DEFAULT_METRO_STATION_BY_DISTRICT,
+  headingAlongNearestRoad,
+  metroHubById,
+  metroStationByCode,
+} from '../../world-topology';
+import {
   DAILY_JOBS,
   GAME_ITEMS,
   isDailyJobCode,
@@ -96,6 +102,10 @@ interface PlayerRow {
   lastOperationId: string;
   apartmentLeaseDays: number;
   currentDistrict: string;
+  currentStationId: string;
+  worldX: number;
+  worldZ: number;
+  worldHeading: number;
   starterTower: number;
   starterFloor: number;
   starterUnit: number;
@@ -174,6 +184,7 @@ interface TransitTripRow {
   turn: number;
   fromDistrict: string;
   toDistrict: string;
+  stationId: string | null;
   mode: TransitMode;
   fare: number;
   durationGameMinutes: number;
@@ -271,6 +282,30 @@ function playerDistrict(value: string): District {
     : 'STARTER_ARCOLOGY';
 }
 
+function metroArrivalByCode(stationCode: string) {
+  const station = metroStationByCode(stationCode);
+  if (!station) return undefined;
+  const hub = metroHubById(station.topologyId);
+  if (!hub) return undefined;
+  return {
+    stationId: station.id,
+    topologyId: station.topologyId,
+    district: station.district,
+    x: station.arrival[0],
+    z: station.arrival[1],
+    heading: headingAlongNearestRoad(station.arrival),
+  };
+}
+
+function defaultMetroArrival(district: District) {
+  const stationCode = DEFAULT_METRO_STATION_BY_DISTRICT[district];
+  const arrival = metroArrivalByCode(stationCode);
+  if (!arrival) {
+    throw new Error(`Default metro station ${stationCode} is not configured`);
+  }
+  return arrival;
+}
+
 function starterResidenceAssignment() {
   const values = new Uint32Array(1);
   crypto.getRandomValues(values);
@@ -301,6 +336,7 @@ async function prepareDatabaseInternal() {
     await env.DB.batch([
       env.DB.prepare(
         `SELECT user_id, market_seed, last_operation_id, current_district,
+          current_station_id, world_x, world_z, world_heading,
           starter_tower, starter_floor, starter_unit, transit_spend,
           transit_trips, metro_rides, taxi_rides, last_transit_mode,
           last_transit_fare, last_transit_at, nutrition, care_streak,
@@ -323,7 +359,8 @@ async function prepareDatabaseInternal() {
       ),
       env.DB.prepare(
         `SELECT user_id, from_district, to_district, mode, fare,
-          duration_game_minutes, created_at FROM transit_trips LIMIT 0`,
+          station_id, duration_game_minutes, created_at
+         FROM transit_trips LIMIT 0`,
       ),
       env.DB.prepare(
         `SELECT user_id, turn, activity_code, category, price, tax,
@@ -359,23 +396,29 @@ async function ensurePlayer(userId: string) {
   const now = new Date().toISOString();
   const marketSeed = crypto.randomUUID();
   const residence = starterResidenceAssignment();
+  const arrival = defaultMetroArrival('STARTER_ARCOLOGY');
   await env.DB.prepare(
     `INSERT OR IGNORE INTO players (
       user_id, cash, portfolio_value, realized_pnl, unrealized_pnl, happiness,
       city_tax_paid, apartment_lease_days, career_status, turn, market_seed,
-      current_district, starter_tower, starter_floor, starter_unit,
+      current_district, current_station_id, world_x, world_z, world_heading,
+      starter_tower, starter_floor, starter_unit,
       transit_spend, transit_trips, metro_rides, taxi_rides,
       last_transit_mode, last_transit_fare,
       last_transit_at, last_operation_id, created_at, updated_at
     ) VALUES (
       ?, ?, 0, 0, 0, 52, 0, 365, 'UNEMPLOYED', 1, ?,
-      'STARTER_ARCOLOGY', ?, ?, ?, 0, 0, 0, 0, '', 0, '', '', ?, ?
+      'STARTER_ARCOLOGY', ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0, '', 0, '', '', ?, ?
     )`,
   )
     .bind(
       userId,
       STARTING_CASH,
       marketSeed,
+      arrival.stationId,
+      arrival.x,
+      arrival.z,
+      arrival.heading,
       residence.tower,
       residence.floor,
       residence.unit,
@@ -513,6 +556,8 @@ async function readPlayer(userId: string) {
       last_operation_id AS lastOperationId,
       apartment_lease_days AS apartmentLeaseDays,
       current_district AS currentDistrict,
+      current_station_id AS currentStationId,
+      world_x AS worldX, world_z AS worldZ, world_heading AS worldHeading,
       starter_tower AS starterTower, starter_floor AS starterFloor,
       starter_unit AS starterUnit, transit_spend AS transitSpend,
       transit_trips AS transitTrips, metro_rides AS metroRides,
@@ -590,51 +635,50 @@ async function getSnapshot(userId: string, retry = 0) {
     transitTripsResult,
     lifeEventsResult,
     workShiftsResult,
-  ] =
-    await Promise.all([
-      readInventory(userId),
-      env.DB.prepare(
-        `SELECT id, symbol, side, quantity, notional, price, fee, tax,
+  ] = await Promise.all([
+    readInventory(userId),
+    env.DB.prepare(
+      `SELECT id, symbol, side, quantity, notional, price, fee, tax,
         realized_pnl AS realizedPnl, leverage, margin_required AS marginRequired,
         created_at AS createdAt
        FROM trades WHERE user_id = ? ORDER BY id DESC`,
-      )
-        .bind(userId)
-        .all<TradeRow>(),
-      env.DB.prepare(
-        `SELECT id, turn, event_type AS eventType, symbol, daily_pnl AS dailyPnl,
+    )
+      .bind(userId)
+      .all<TradeRow>(),
+    env.DB.prepare(
+      `SELECT id, turn, event_type AS eventType, symbol, daily_pnl AS dailyPnl,
         account_equity AS accountEquity,
         maintenance_required AS maintenanceRequired, details,
         created_at AS createdAt
        FROM margin_events WHERE user_id = ? ORDER BY id DESC LIMIT 100`,
-      )
-        .bind(userId)
-        .all<MarginEventRow>(),
-      env.DB.prepare(
-        `SELECT id, turn, from_district AS fromDistrict,
-        to_district AS toDistrict, mode, fare,
+    )
+      .bind(userId)
+      .all<MarginEventRow>(),
+    env.DB.prepare(
+      `SELECT id, turn, from_district AS fromDistrict,
+        to_district AS toDistrict, station_id AS stationId, mode, fare,
         duration_game_minutes AS durationGameMinutes, created_at AS createdAt
        FROM transit_trips WHERE user_id = ? ORDER BY id DESC LIMIT 50`,
-      )
-        .bind(userId)
-        .all<TransitTripRow>(),
-      env.DB.prepare(
-        `SELECT id, turn, activity_code AS activityCode, category, price, tax,
+    )
+      .bind(userId)
+      .all<TransitTripRow>(),
+    env.DB.prepare(
+      `SELECT id, turn, activity_code AS activityCode, category, price, tax,
           happiness_delta AS happinessDelta,
           nutrition_delta AS nutritionDelta, care_points AS carePoints,
           created_at AS createdAt
          FROM life_events WHERE user_id = ? ORDER BY id DESC LIMIT 50`,
-      )
-        .bind(userId)
-        .all<LifeEventRow>(),
-      env.DB.prepare(
-        `SELECT id, turn, job_code AS jobCode, pay,
+    )
+      .bind(userId)
+      .all<LifeEventRow>(),
+    env.DB.prepare(
+      `SELECT id, turn, job_code AS jobCode, pay,
           happiness_delta AS happinessDelta, created_at AS createdAt
          FROM work_shifts WHERE user_id = ? ORDER BY id DESC LIMIT 50`,
-      )
-        .bind(userId)
-        .all<WorkShiftRow>(),
-    ]);
+    )
+      .bind(userId)
+      .all<WorkShiftRow>(),
+  ]);
   const latestPlayer = await readPlayer(userId);
   if (
     latestPlayer &&
@@ -664,10 +708,17 @@ async function getSnapshot(userId: string, retry = 0) {
   const { marketSeed: privateMarketSeed, ...publicPlayer } = player;
   void privateMarketSeed;
   const currentDistrict = playerDistrict(player.currentDistrict);
+  const savedArrival = metroArrivalByCode(player.currentStationId);
+  const metroLocation =
+    savedArrival?.district === currentDistrict
+      ? savedArrival
+      : defaultMetroArrival(currentDistrict);
+  const hasValidSavedLocation = savedArrival?.district === currentDistrict;
   const tradingFeeBps = normalizedFeeBps(player.tradingFeeBps);
   const today = utcDateKey();
   const shiftsToday = player.workDate === today ? player.shiftsToday : 0;
-  const wagesToday = player.workDate === today ? roundMoney(player.wagesToday) : 0;
+  const wagesToday =
+    player.workDate === today ? roundMoney(player.wagesToday) : 0;
   const normalizedPlayer = {
     ...publicPlayer,
     ...metrics,
@@ -680,6 +731,19 @@ async function getSnapshot(userId: string, retry = 0) {
     cityTaxPaid: roundMoney(player.cityTaxPaid),
     cityTax: roundMoney(player.cityTaxPaid),
     currentDistrict,
+    currentStationId: metroLocation.stationId,
+    worldX:
+      hasValidSavedLocation && Number.isFinite(player.worldX)
+        ? player.worldX
+        : metroLocation.x,
+    worldZ:
+      hasValidSavedLocation && Number.isFinite(player.worldZ)
+        ? player.worldZ
+        : metroLocation.z,
+    worldHeading:
+      hasValidSavedLocation && Number.isFinite(player.worldHeading)
+        ? player.worldHeading
+        : metroLocation.heading,
     happiness: clampScore(player.happiness),
     nutrition: clampScore(player.nutrition),
     careStreak: Math.max(0, player.careStreak),
@@ -756,8 +820,7 @@ async function getSnapshot(userId: string, retry = 0) {
       ...job,
       completedThisTurn: player.lastWorkTurn === player.turn,
       availableToday:
-        shiftsToday < MAX_DAILY_WORK_SHIFTS &&
-        wagesToday < MAX_DAILY_WAGES,
+        shiftsToday < MAX_DAILY_WORK_SHIFTS && wagesToday < MAX_DAILY_WAGES,
       currency: 'VIRTUAL_USD' as const,
     })),
     wellbeing: {
@@ -858,6 +921,7 @@ async function getSnapshot(userId: string, retry = 0) {
     },
     mobility: {
       currentDistrict,
+      currentStationId: metroLocation.stationId,
       faresAreServerAuthoritative: true,
       travelIsImmediateAfterPayment: true,
       options: Object.entries(TRANSIT_OPTIONS).map(([mode, option]) => ({
@@ -1020,15 +1084,17 @@ async function runIdempotent(
     .bind(userId, requestId, action)
     .first<{ completed: number }>();
   if (!completion?.completed) {
-    throw new Error('Successful game operation did not commit its idempotency marker');
+    throw new Error(
+      'Successful game operation did not commit its idempotency marker',
+    );
   }
   await env.DB.prepare(
-      `DELETE FROM game_idempotency
+    `DELETE FROM game_idempotency
        WHERE user_id = ? AND completed = 1 AND request_id NOT IN (
          SELECT request_id FROM game_idempotency
          WHERE user_id = ? ORDER BY created_at DESC LIMIT ?
        )`,
-    )
+  )
     .bind(userId, userId, IDEMPOTENCY_HISTORY_LIMIT)
     .run();
   response.headers.set('Idempotency-Key', requestId);
@@ -1491,11 +1557,29 @@ async function commute(
   if (!mode) {
     return errorResponse('mode must be METRO or TAXI', 'INVALID_TRANSIT_MODE');
   }
+  const stationId = readString(payload, 'stationId').trim().toUpperCase();
+  const requestedStation = stationId
+    ? metroArrivalByCode(stationId)
+    : undefined;
+  if (stationId && (mode !== 'METRO' || !requestedStation)) {
+    return errorResponse(
+      'stationId must identify a valid metro station',
+      'INVALID_METRO_STATION',
+    );
+  }
+  const arrivalStation =
+    requestedStation ?? defaultMetroArrival(destination);
+  if (arrivalStation.district !== destination) {
+    return errorResponse(
+      `stationId ${arrivalStation.stationId} does not serve ${destination}`,
+      'METRO_STATION_DESTINATION_MISMATCH',
+    );
+  }
 
   const player = await readPlayer(userId);
   if (!player) throw new Error('Player initialization failed');
   const fromDistrict = playerDistrict(player.currentDistrict);
-  if (fromDistrict === destination) {
+  if (fromDistrict === destination && !stationId) {
     return errorResponse(
       `Player is already in ${destination}`,
       'ALREADY_AT_DESTINATION',
@@ -1520,6 +1604,7 @@ async function commute(
     env.DB.prepare(
       `UPDATE players
        SET cash = cash - ?, current_district = ?,
+           current_station_id = ?, world_x = ?, world_z = ?, world_heading = ?,
            transit_spend = transit_spend + ?, transit_trips = transit_trips + 1,
            metro_rides = metro_rides + CASE WHEN ? = 'METRO' THEN 1 ELSE 0 END,
            taxi_rides = taxi_rides + CASE WHEN ? = 'TAXI' THEN 1 ELSE 0 END,
@@ -1535,6 +1620,10 @@ async function commute(
     ).bind(
       option.fare,
       destination,
+      arrivalStation.stationId,
+      arrivalStation.x,
+      arrivalStation.z,
+      arrivalStation.heading,
       option.fare,
       mode,
       mode,
@@ -1554,16 +1643,17 @@ async function commute(
     ),
     env.DB.prepare(
       `INSERT INTO transit_trips (
-        user_id, turn, from_district, to_district, mode, fare,
+        user_id, turn, from_district, to_district, station_id, mode, fare,
         duration_game_minutes, created_at
       )
-      SELECT ?, ?, ?, ?, ?, ?, ?, ?
+      SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?
       FROM players WHERE user_id = ? AND last_operation_id = ?`,
     ).bind(
       userId,
       player.turn,
       fromDistrict,
       destination,
+      arrivalStation.stationId,
       mode,
       option.fare,
       option.durationGameMinutes,
@@ -1607,6 +1697,13 @@ async function commute(
       fare: option.fare,
       durationGameMinutes: option.durationGameMinutes,
       cashAfter: roundMoney(player.cash - option.fare),
+      stationId: arrivalStation.stationId,
+      topologyId: arrivalStation.topologyId,
+      worldPosition: {
+        x: arrivalStation.x,
+        z: arrivalStation.z,
+        heading: arrivalStation.heading,
+      },
       currency: 'VIRTUAL_USD',
       chargedBy: 'SERVER',
       arrival: 'IMMEDIATE_AFTER_PAYMENT',
@@ -1747,7 +1844,11 @@ async function doLifeActivity(
   requestId: string,
   idempotencyAction: string,
 ) {
-  const activityCode = readString(payload, 'activityCode', readString(payload, 'activity'))
+  const activityCode = readString(
+    payload,
+    'activityCode',
+    readString(payload, 'activity'),
+  )
     .trim()
     .toUpperCase()
     .replace(/[^A-Z0-9]+/g, '_');
@@ -1851,13 +1952,25 @@ async function doLifeActivity(
 
   if ((results[0]?.meta.changes ?? 0) !== 1) {
     const latest = await readPlayer(userId);
-    if (latest && activity.district === 'CBD' && playerDistrict(latest.currentDistrict) !== 'CBD') {
+    if (
+      latest &&
+      activity.district === 'CBD' &&
+      playerDistrict(latest.currentDistrict) !== 'CBD'
+    ) {
       return cbdTravelRequiredResponse();
     }
     if (latest && latest.cash < totalDebit) {
-      return errorResponse('Insufficient virtual cash', 'INSUFFICIENT_VIRTUAL_CASH', 409);
+      return errorResponse(
+        'Insufficient virtual cash',
+        'INSUFFICIENT_VIRTUAL_CASH',
+        409,
+      );
     }
-    return errorResponse('Daily activity state changed; retry', 'PLAYER_STATE_CONFLICT', 409);
+    return errorResponse(
+      'Daily activity state changed; retry',
+      'PLAYER_STATE_CONFLICT',
+      409,
+    );
   }
 
   return Response.json({
@@ -1892,17 +2005,28 @@ async function completeWorkShift(
   const job = DAILY_JOBS[jobCode];
   const player = await readPlayer(userId);
   if (!player) throw new Error('Player initialization failed');
-  if (job.district === 'CBD' && playerDistrict(player.currentDistrict) !== 'CBD') {
+  if (
+    job.district === 'CBD' &&
+    playerDistrict(player.currentDistrict) !== 'CBD'
+  ) {
     return cbdTravelRequiredResponse();
   }
   if (
     jobCode === 'MARKET_BRIEF_REVIEW' &&
     player.careerStatus !== 'MARKET_DATA_ASSISTANT'
   ) {
-    return errorResponse('Complete the Career Tower interview first', 'CAREER_REQUIRED', 403);
+    return errorResponse(
+      'Complete the Career Tower interview first',
+      'CAREER_REQUIRED',
+      403,
+    );
   }
   if (player.lastWorkTurn === player.turn) {
-    return errorResponse('One paid shift is allowed per game day', 'GAME_DAY_SHIFT_COMPLETE', 409);
+    return errorResponse(
+      'One paid shift is allowed per game day',
+      'GAME_DAY_SHIFT_COMPLETE',
+      409,
+    );
   }
 
   const today = utcDateKey();
@@ -1910,11 +2034,19 @@ async function completeWorkShift(
   const shiftsToday = sameUtcDay ? player.shiftsToday : 0;
   const wagesToday = sameUtcDay ? player.wagesToday : 0;
   if (shiftsToday >= MAX_DAILY_WORK_SHIFTS || wagesToday >= MAX_DAILY_WAGES) {
-    return errorResponse('The real-world daily work allowance is complete', 'UTC_WORK_LIMIT_REACHED', 409);
+    return errorResponse(
+      'The real-world daily work allowance is complete',
+      'UTC_WORK_LIMIT_REACHED',
+      409,
+    );
   }
   const pay = roundMoney(Math.min(job.pay, MAX_DAILY_WAGES - wagesToday));
   if (pay <= 0) {
-    return errorResponse('No daily wage allowance remains', 'UTC_WORK_LIMIT_REACHED', 409);
+    return errorResponse(
+      'No daily wage allowance remains',
+      'UTC_WORK_LIMIT_REACHED',
+      409,
+    );
   }
 
   const now = new Date().toISOString();
@@ -1977,10 +2109,18 @@ async function completeWorkShift(
 
   if ((results[0]?.meta.changes ?? 0) !== 1) {
     const latest = await readPlayer(userId);
-    if (latest && job.district === 'CBD' && playerDistrict(latest.currentDistrict) !== 'CBD') {
+    if (
+      latest &&
+      job.district === 'CBD' &&
+      playerDistrict(latest.currentDistrict) !== 'CBD'
+    ) {
       return cbdTravelRequiredResponse();
     }
-    return errorResponse('Work state changed; retry the shift', 'PLAYER_STATE_CONFLICT', 409);
+    return errorResponse(
+      'Work state changed; retry the shift',
+      'PLAYER_STATE_CONFLICT',
+      409,
+    );
   }
 
   return Response.json({
@@ -2004,7 +2144,10 @@ async function setSocialMode(
 ) {
   const mode = readString(payload, 'mode').trim().toUpperCase();
   if (mode !== 'PRIVATE' && mode !== 'APPROACHABLE') {
-    return errorResponse('mode must be PRIVATE or APPROACHABLE', 'INVALID_SOCIAL_MODE');
+    return errorResponse(
+      'mode must be PRIVATE or APPROACHABLE',
+      'INVALID_SOCIAL_MODE',
+    );
   }
   const player = await readPlayer(userId);
   if (!player) throw new Error('Player initialization failed');
@@ -2024,7 +2167,11 @@ async function setSocialMode(
     ),
   ]);
   if ((results[0]?.meta.changes ?? 0) !== 1) {
-    return errorResponse('Social preference changed; retry', 'PLAYER_STATE_CONFLICT', 409);
+    return errorResponse(
+      'Social preference changed; retry',
+      'PLAYER_STATE_CONFLICT',
+      409,
+    );
   }
   return Response.json({
     ...(await getSnapshot(userId)),
@@ -2586,9 +2733,10 @@ export async function POST(request: Request) {
     }
     const destination = readDistrict(payload, 'destination');
     const mode = readTransitMode(payload);
+    const stationId = readString(payload, 'stationId').trim().toUpperCase();
     const idempotencyAction =
       destination && mode
-        ? `${action}:${destination}:${mode}`
+        ? `${action}:${destination}:${mode}:${stationId || 'DEFAULT'}`
         : `${action}:INVALID`;
     return runIdempotent(user.userId, idempotencyAction, payload, () =>
       commute(user.userId, payload, idempotencyAction),

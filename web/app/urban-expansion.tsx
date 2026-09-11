@@ -1,6 +1,7 @@
 'use client';
 
-import { useLayoutEffect, useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
 export type EnterHandler = (destinationId: string) => void;
@@ -60,6 +61,9 @@ function InstancedBoxes({
   metalness = 0.08,
   transparent = false,
   opacity = 1,
+  unlit = false,
+  emissive,
+  emissiveIntensity = 0,
   castShadow = true,
   receiveShadow = true,
 }: {
@@ -68,6 +72,9 @@ function InstancedBoxes({
   metalness?: number;
   transparent?: boolean;
   opacity?: number;
+  unlit?: boolean;
+  emissive?: THREE.ColorRepresentation;
+  emissiveIntensity?: number;
   castShadow?: boolean;
   receiveShadow?: boolean;
 }) {
@@ -104,14 +111,26 @@ function InstancedBoxes({
       receiveShadow={receiveShadow}
     >
       <boxGeometry />
-      <meshStandardMaterial
-        color="#ffffff"
-        roughness={roughness}
-        metalness={metalness}
-        transparent={transparent}
-        opacity={opacity}
-        vertexColors={usesColors}
-      />
+      {unlit ? (
+        <meshBasicMaterial
+          color="#ffffff"
+          transparent={transparent}
+          opacity={opacity}
+          vertexColors={usesColors}
+          toneMapped={false}
+        />
+      ) : (
+        <meshStandardMaterial
+          color="#ffffff"
+          roughness={roughness}
+          metalness={metalness}
+          transparent={transparent}
+          opacity={opacity}
+          vertexColors={usesColors}
+          emissive={emissive}
+          emissiveIntensity={emissiveIntensity}
+        />
+      )}
     </instancedMesh>
   );
 }
@@ -121,11 +140,15 @@ function InstancedRounds({
   shape = 'SPHERE',
   roughness = 0.72,
   metalness = 0.04,
+  emissive,
+  emissiveIntensity = 0,
 }: {
   instances: readonly RoundInstance[];
   shape?: 'SPHERE' | 'CYLINDER';
   roughness?: number;
   metalness?: number;
+  emissive?: THREE.ColorRepresentation;
+  emissiveIntensity?: number;
 }) {
   const ref = useRef<THREE.InstancedMesh>(null);
   const usesColors = instances.some((instance) => instance.color !== undefined);
@@ -169,6 +192,8 @@ function InstancedRounds({
         roughness={roughness}
         metalness={metalness}
         vertexColors={usesColors}
+        emissive={emissive}
+        emissiveIntensity={emissiveIntensity}
       />
     </instancedMesh>
   );
@@ -179,6 +204,11 @@ function addFacadeBuilding(
   body: BoxInstance[],
   glass: BoxInstance[],
   ledges: BoxInstance[],
+  stonePiers: BoxInstance[],
+  bronzeFins: BoxInstance[],
+  planters: BoxInstance[],
+  greenery: BoxInstance[],
+  warmLights: BoxInstance[],
   roofs: BoxInstance[],
 ) {
   const { x, z, width, depth, height, rotationY } = site;
@@ -228,14 +258,97 @@ function addFacadeBuilding(
     },
   );
 
+  // A stone-and-bronze window grid gives every elevation real architectural
+  // depth. These are geometry, not a single billboard façade, so the same
+  // building remains convincing when the player walks around its sides.
+  const frontBayCount = Math.max(3, Math.min(7, Math.round(width / 2.2)));
+  const sideBayCount = Math.max(2, Math.min(6, Math.round(depth / 2.4)));
+  for (let bay = 0; bay <= frontBayCount; bay += 1) {
+    const localX = -width / 2 + (bay * width) / frontBayCount;
+    for (const side of [-1, 1] as const) {
+      const pier = rotatedOffset(localX, side * (depth / 2 + 0.105));
+      stonePiers.push({
+        position: [pier.x, floorY, pier.z],
+        scale: [0.17, height * 0.96, 0.13],
+        rotationY,
+        color: '#e5dfd2',
+      });
+      if (bay > 0 && bay < frontBayCount && bay % 2 === 1) {
+        const fin = rotatedOffset(
+          localX + (width / frontBayCount) * 0.12,
+          side * (depth / 2 + 0.19),
+        );
+        bronzeFins.push({
+          position: [fin.x, floorY, fin.z],
+          scale: [0.055, height * 0.9, 0.22],
+          rotationY,
+          color: '#76583d',
+        });
+      }
+    }
+  }
+  for (let bay = 0; bay <= sideBayCount; bay += 1) {
+    const localZ = -depth / 2 + (bay * depth) / sideBayCount;
+    for (const side of [-1, 1] as const) {
+      const pier = rotatedOffset(side * (width / 2 + 0.105), localZ);
+      stonePiers.push({
+        position: [pier.x, floorY, pier.z],
+        scale: [0.13, height * 0.96, 0.17],
+        rotationY,
+        color: '#e5dfd2',
+      });
+    }
+  }
+
   const ledgeCount = Math.max(2, Math.min(7, Math.round(height / 9)));
   for (let level = 1; level <= ledgeCount; level += 1) {
+    const levelY = (height * level) / (ledgeCount + 1);
     ledges.push({
-      position: [x, (height * level) / (ledgeCount + 1), z],
+      position: [x, levelY, z],
       scale: [width + 0.22, 0.1, depth + 0.22],
       rotationY,
       color: level % 2 === 0 ? '#d5d0c4' : '#9e988d',
     });
+
+    // Selected homes glow warmly and carry planted balcony ledges, echoing a
+    // lived-in premium residence instead of a dark repetitive office block.
+    if (level % 2 === 1) {
+      const balconyX = (level % 4 === 1 ? -1 : 1) * width * 0.22;
+      for (const side of [-1, 1] as const) {
+        const balcony = rotatedOffset(balconyX, side * (depth / 2 + 0.27));
+        const foliage = rotatedOffset(balconyX, side * (depth / 2 + 0.37));
+        planters.push({
+          position: [balcony.x, levelY + 0.16, balcony.z],
+          scale: [Math.max(1.05, width * 0.32), 0.32, 0.34],
+          rotationY,
+          color: '#d8d1c3',
+        });
+        greenery.push({
+          position: [foliage.x, levelY + 0.38, foliage.z],
+          scale: [Math.max(0.9, width * 0.28), 0.25, 0.28],
+          rotationY,
+          color: level % 4 === 1 ? '#315f3d' : '#477349',
+        });
+        const litWindow = rotatedOffset(
+          -balconyX * 0.72,
+          side * (depth / 2 + 0.16),
+        );
+        warmLights.push({
+          position: [
+            litWindow.x,
+            levelY - (height / (ledgeCount + 1)) * 0.27,
+            litWindow.z,
+          ],
+          scale: [
+            Math.max(0.65, (width / frontBayCount) * 0.56),
+            Math.max(0.65, (height / (ledgeCount + 1)) * 0.42),
+            0.035,
+          ],
+          rotationY,
+          color: level % 4 === 1 ? '#ffd39a' : '#f2b976',
+        });
+      }
+    }
   }
 
   roofs.push({
@@ -251,11 +364,37 @@ function FacadeBuildingCluster({ sites }: { sites: readonly BuildingSite[] }) {
     const body: BoxInstance[] = [];
     const glass: BoxInstance[] = [];
     const ledges: BoxInstance[] = [];
+    const stonePiers: BoxInstance[] = [];
+    const bronzeFins: BoxInstance[] = [];
+    const planters: BoxInstance[] = [];
+    const greenery: BoxInstance[] = [];
+    const warmLights: BoxInstance[] = [];
     const roofs: BoxInstance[] = [];
     sites.forEach((site) =>
-      addFacadeBuilding(site, body, glass, ledges, roofs),
+      addFacadeBuilding(
+        site,
+        body,
+        glass,
+        ledges,
+        stonePiers,
+        bronzeFins,
+        planters,
+        greenery,
+        warmLights,
+        roofs,
+      ),
     );
-    return { body, glass, ledges, roofs };
+    return {
+      body,
+      glass,
+      ledges,
+      stonePiers,
+      bronzeFins,
+      planters,
+      greenery,
+      warmLights,
+      roofs,
+    };
   }, [sites]);
 
   return (
@@ -266,6 +405,30 @@ function FacadeBuildingCluster({ sites }: { sites: readonly BuildingSite[] }) {
         instances={kit.ledges}
         roughness={0.56}
         metalness={0.12}
+      />
+      <InstancedBoxes
+        instances={kit.stonePiers}
+        roughness={0.48}
+        metalness={0.05}
+      />
+      <InstancedBoxes
+        instances={kit.bronzeFins}
+        roughness={0.27}
+        metalness={0.68}
+      />
+      <InstancedBoxes
+        instances={kit.planters}
+        roughness={0.64}
+        metalness={0.05}
+      />
+      <InstancedBoxes instances={kit.greenery} roughness={0.94} />
+      <InstancedBoxes
+        instances={kit.warmLights}
+        unlit
+        transparent
+        opacity={0.78}
+        castShadow={false}
+        receiveShadow={false}
       />
       <InstancedBoxes instances={kit.roofs} roughness={0.42} metalness={0.42} />
     </>
@@ -475,12 +638,313 @@ function riverCenterAt(z: number, length: number, width: number) {
   );
 }
 
+function makeWaterfallCurtainGeometry(
+  width: number,
+  dropHeight: number,
+  startRatio: number,
+  endRatio: number,
+  phase: number,
+) {
+  const segments = 10;
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+  for (let index = 0; index <= segments; index += 1) {
+    const progress = index / segments;
+    const ratio = THREE.MathUtils.lerp(startRatio, endRatio, progress);
+    const top =
+      dropHeight -
+      0.14 -
+      Math.abs(Math.sin(index * 1.73 + phase)) * 0.38;
+    const bottom =
+      0.18 + Math.abs(Math.sin(index * 2.17 + phase * 0.7)) * 0.42;
+    const z = -0.3 - Math.sin(progress * Math.PI * 2 + phase) * 0.08;
+    positions.push(ratio * width, bottom, z, ratio * width, top, z);
+    uvs.push(progress, 0, progress, 1);
+    if (index < segments) {
+      const start = index * 2;
+      indices.push(
+        start,
+        start + 2,
+        start + 1,
+        start + 1,
+        start + 2,
+        start + 3,
+      );
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(positions, 3),
+  );
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function WaterfallVeins({
+  width,
+  dropHeight,
+}: {
+  width: number;
+  dropHeight: number;
+}) {
+  const ref = useRef<THREE.InstancedMesh>(null);
+  const veins = useMemo(
+    () =>
+      Array.from({ length: 22 }, (_, index) => ({
+        x: -width * 0.44 + (index / 21) * width * 0.88,
+        phase: (index * 0.173) % 1,
+        speed: 0.22 + (index % 5) * 0.028,
+        length: 0.55 + (index % 4) * 0.2,
+      })),
+    [width],
+  );
+
+  useFrame(({ clock }) => {
+    const mesh = ref.current;
+    if (!mesh) return;
+    const object = new THREE.Object3D();
+    veins.forEach((vein, index) => {
+      const progress = (vein.phase + clock.elapsedTime * vein.speed) % 1;
+      object.position.set(
+        vein.x,
+        dropHeight * (1 - progress),
+        -0.38 - (index % 3) * 0.025,
+      );
+      object.scale.set(0.035 + (index % 2) * 0.025, vein.length, 0.035);
+      object.updateMatrix();
+      mesh.setMatrixAt(index, object.matrix);
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+  });
+
+  return (
+    <instancedMesh
+      ref={ref}
+      args={[undefined, undefined, veins.length]}
+      frustumCulled={false}
+    >
+      <boxGeometry />
+      <meshBasicMaterial
+        color="#d9fbff"
+        transparent
+        opacity={0.72}
+        toneMapped={false}
+      />
+    </instancedMesh>
+  );
+}
+
+export type RiverHeadwaterFallsProps = {
+  position?: WorldPosition;
+  rotationY?: number;
+  width?: number;
+  dropHeight?: number;
+};
+
+/**
+ * A modeled headwater terminus: the upper river crosses a rocky shelf, drops
+ * through an animated curtain and feeds a lower pool that joins the urban
+ * channel. It prevents the river from ending as a clipped plane in the world.
+ */
+export function RiverHeadwaterFalls({
+  position = [0, 0, 0],
+  rotationY = 0,
+  width = 14,
+  dropHeight = 6.5,
+}: RiverHeadwaterFallsProps) {
+  const curtainGeometries = useMemo(
+    () => [
+      makeWaterfallCurtainGeometry(width, dropHeight, -0.48, -0.1, 0.4),
+      makeWaterfallCurtainGeometry(width, dropHeight, -0.055, 0.27, 1.7),
+      makeWaterfallCurtainGeometry(width, dropHeight, 0.33, 0.49, 2.8),
+    ],
+    [dropHeight, width],
+  );
+  useEffect(
+    () => () => curtainGeometries.forEach((geometry) => geometry.dispose()),
+    [curtainGeometries],
+  );
+  const landscape = useMemo(() => {
+    const cliffFace: RoundInstance[] = [];
+    const rocks: RoundInstance[] = [];
+    const foam: RoundInstance[] = [];
+    const trees: RoundInstance[] = [];
+    const trunks: RoundInstance[] = [];
+
+    for (let row = 0; row < 5; row += 1) {
+      for (let column = 0; column < 9; column += 1) {
+        const stagger = row % 2 === 0 ? 0 : width / 18;
+        const x =
+          -width * 0.68 + (column / 8) * width * 1.36 + stagger;
+        cliffFace.push({
+          position: [
+            x,
+            0.72 + (row / 4) * dropHeight * 0.92,
+            0.82 + ((row * 7 + column * 3) % 4) * 0.18,
+          ],
+          scale: [
+            1.45 + ((column + row) % 3) * 0.38,
+            1.65 + ((column * 2 + row) % 4) * 0.3,
+            2.15 + ((column + row * 2) % 3) * 0.42,
+          ],
+          rotation: [row * 0.07, column * 0.19, (column - 4) * 0.025],
+          color:
+            (column + row) % 3 === 0
+              ? '#727970'
+              : (column + row) % 3 === 1
+                ? '#59645e'
+                : '#899087',
+        });
+      }
+    }
+
+    for (let index = 0; index < 20; index += 1) {
+      const side = index % 2 === 0 ? -1 : 1;
+      const row = Math.floor(index / 2);
+      rocks.push({
+        position: [
+          side * (width * 0.49 + (row % 3) * 0.42),
+          0.55 + (row % 4) * 0.58,
+          -1.2 + row * 0.52,
+        ],
+        scale: [1.15 + (row % 2) * 0.45, 0.85 + (row % 3) * 0.34, 1.1],
+        rotation: [0, row * 0.31, side * 0.08],
+        color:
+          row % 3 === 0 ? '#77786f' : row % 3 === 1 ? '#5c645e' : '#8d8b7e',
+      });
+    }
+    for (let index = 0; index < 18; index += 1) {
+      const angle = (index / 18) * Math.PI * 2;
+      foam.push({
+        position: [
+          Math.sin(angle) * width * 0.38,
+          0.28 + (index % 3) * 0.06,
+          -2.15 + Math.cos(angle) * 1.25,
+        ],
+        scale: [0.75 + (index % 4) * 0.17, 0.22, 0.58 + (index % 3) * 0.15],
+        color: index % 2 ? '#e4fbf8' : '#b9edf0',
+      });
+    }
+    for (let index = 0; index < 12; index += 1) {
+      const side = index % 2 === 0 ? -1 : 1;
+      const row = Math.floor(index / 2);
+      const x = side * (width * 0.72 + (row % 2) * 1.3);
+      const z = 2.2 + row * 2.5;
+      trunks.push({
+        position: [x, dropHeight + 0.85, z],
+        scale: [0.32, 1.7, 0.32],
+        color: '#5a4734',
+      });
+      trees.push({
+        position: [x, dropHeight + 2.35, z],
+        scale: [1.75, 2.1, 1.75],
+        color: index % 4 === 0 ? '#3f6548' : '#557650',
+      });
+    }
+    return { cliffFace, rocks, foam, trees, trunks };
+  }, [dropHeight, width]);
+
+  return (
+    <group
+      position={position}
+      rotation-y={rotationY}
+      name="Grand River Headwater Falls"
+    >
+      {curtainGeometries.map((geometry, index) => (
+        <mesh key={index} geometry={geometry} renderOrder={2}>
+          <meshPhysicalMaterial
+            color={index === 1 ? '#72c7dc' : '#68b9d0'}
+            emissive="#1e7895"
+            emissiveIntensity={0.18}
+            roughness={0.08}
+            metalness={0.08}
+            transmission={0.18}
+            transparent
+            opacity={0.8}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+      <WaterfallVeins width={width} dropHeight={dropHeight} />
+
+      <mesh
+        position={[0, dropHeight + 0.05, 8]}
+        rotation-x={-Math.PI / 2}
+        receiveShadow
+      >
+        <planeGeometry args={[width * 0.9, 17, 5, 8]} />
+        <meshPhysicalMaterial
+          color="#2f879d"
+          roughness={0.15}
+          metalness={0.2}
+          transparent
+          opacity={0.9}
+        />
+      </mesh>
+      <mesh position={[0, 0.06, -3.1]} rotation-x={-Math.PI / 2} receiveShadow>
+        <circleGeometry args={[width * 0.62, 40]} />
+        <meshPhysicalMaterial
+          color="#2d8295"
+          roughness={0.12}
+          metalness={0.22}
+          transparent
+          opacity={0.9}
+        />
+      </mesh>
+      <InstancedRounds
+        instances={landscape.cliffFace}
+        roughness={0.97}
+        emissive="#66716a"
+        emissiveIntensity={0.24}
+      />
+      <InstancedRounds
+        instances={landscape.rocks}
+        roughness={0.97}
+        emissive="#68736c"
+        emissiveIntensity={0.22}
+      />
+      <InstancedRounds
+        instances={landscape.foam}
+        roughness={0.18}
+        metalness={0.05}
+        emissive="#b9edf0"
+        emissiveIntensity={0.72}
+      />
+      <InstancedRounds
+        instances={landscape.trunks}
+        shape="CYLINDER"
+        roughness={0.94}
+        emissive="#4a3828"
+        emissiveIntensity={0.16}
+      />
+      <InstancedRounds
+        instances={landscape.trees}
+        roughness={0.92}
+        emissive="#31583b"
+        emissiveIntensity={0.24}
+      />
+      <pointLight
+        position={[0, 1.1, -1.7]}
+        color="#baf8ff"
+        intensity={1.3}
+        distance={width * 1.25}
+      />
+    </group>
+  );
+}
+
 export type GrandRiverSystemProps = {
   position?: WorldPosition;
   rotationY?: number;
   length?: number;
   width?: number;
   bridgeCount?: number;
+  headwaterFalls?: boolean;
 };
 
 /** A low-draw-call metropolitan river corridor with a tributary mouth. */
@@ -490,6 +954,7 @@ export function GrandRiverSystem({
   length = 280,
   width = 28,
   bridgeCount = 5,
+  headwaterFalls = true,
 }: GrandRiverSystemProps) {
   const riverGeometry = useMemo(
     () => makeRiverGeometry(length, width),
@@ -629,6 +1094,17 @@ export function GrandRiverSystem({
       />
       <InstancedRounds instances={corridor.trunks} shape="CYLINDER" />
       <InstancedRounds instances={corridor.crowns} />
+      {headwaterFalls && (
+        <RiverHeadwaterFalls
+          position={[
+            riverCenterAt(length / 2, length, width),
+            0,
+            length / 2 + 1.9,
+          ]}
+          width={width * 0.86}
+          dropHeight={Math.max(4.8, width * 0.46)}
+        />
+      )}
     </group>
   );
 }

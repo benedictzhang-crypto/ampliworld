@@ -40,6 +40,10 @@ export const players = sqliteTable('players', {
   currentDistrict: text('current_district')
     .notNull()
     .default('STARTER_ARCOLOGY'),
+  currentStationId: text('current_station_id').notNull().default('M0'),
+  worldX: real('world_x').notNull().default(0),
+  worldZ: real('world_z').notNull().default(71),
+  worldHeading: real('world_heading').notNull().default(0),
   starterTower: integer('starter_tower').notNull().default(1),
   starterFloor: integer('starter_floor').notNull().default(1),
   starterUnit: integer('starter_unit').notNull().default(1),
@@ -195,6 +199,7 @@ export const transitTrips = sqliteTable(
     turn: integer('turn').notNull(),
     fromDistrict: text('from_district').notNull(),
     toDistrict: text('to_district').notNull(),
+    stationId: text('station_id'),
     mode: text('mode').$type<'METRO' | 'TAXI'>().notNull(),
     fare: real('fare').notNull(),
     durationGameMinutes: integer('duration_game_minutes').notNull(),

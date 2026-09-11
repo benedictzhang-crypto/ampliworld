@@ -27,6 +27,66 @@ type AtmosphereKeyframe = {
 
 type AtmosphereSample = Omit<AtmosphereKeyframe, 'hour'>;
 
+const WORLD_DAY_PHASES = [
+  {
+    phase: 'DAWN',
+    startMinute: 5 * 60,
+    endMinute: 8 * 60,
+    durationMs: 10 * 60 * 1000,
+  },
+  {
+    phase: 'DAY',
+    startMinute: 8 * 60,
+    endMinute: 17.25 * 60,
+    durationMs: 20 * 60 * 1000,
+  },
+  {
+    phase: 'DUSK',
+    startMinute: 17.25 * 60,
+    endMinute: 20.25 * 60,
+    durationMs: 10 * 60 * 1000,
+  },
+  {
+    phase: 'NIGHT',
+    startMinute: 20.25 * 60,
+    endMinute: 29 * 60,
+    durationMs: 15 * 60 * 1000,
+  },
+] as const satisfies ReadonlyArray<{
+  phase: DayPhase;
+  startMinute: number;
+  endMinute: number;
+  durationMs: number;
+}>;
+
+export const WORLD_DAY_CYCLE_DURATION_MS = WORLD_DAY_PHASES.reduce(
+  (total, phase) => total + phase.durationMs,
+  0,
+);
+
+export function getWorldMinutesAtCycleTime(elapsedMs: number) {
+  const cycleTime =
+    ((elapsedMs % WORLD_DAY_CYCLE_DURATION_MS) + WORLD_DAY_CYCLE_DURATION_MS) %
+    WORLD_DAY_CYCLE_DURATION_MS;
+  let phaseStartTime = 0;
+
+  for (const phase of WORLD_DAY_PHASES) {
+    const phaseEndTime = phaseStartTime + phase.durationMs;
+    if (cycleTime < phaseEndTime) {
+      const progress = (cycleTime - phaseStartTime) / phase.durationMs;
+      const worldMinutes = THREE.MathUtils.lerp(
+        phase.startMinute,
+        phase.endMinute,
+        progress,
+      );
+      return worldMinutes % 1440;
+    }
+    phaseStartTime = phaseEndTime;
+  }
+
+  return WORLD_DAY_PHASES[0].startMinute;
+}
+
 const KEYFRAMES: AtmosphereKeyframe[] = [
   {
     hour: 0,
@@ -76,7 +136,7 @@ const KEYFRAMES: AtmosphereKeyframe[] = [
     mieDirectionalG: 0.84,
     sunIntensity: 1.35,
     moonIntensity: 0.05,
-    ambientIntensity: 0.42,
+    ambientIntensity: 0.62,
     cloudOpacity: 0.5,
   },
   {
@@ -93,7 +153,7 @@ const KEYFRAMES: AtmosphereKeyframe[] = [
     mieDirectionalG: 0.79,
     sunIntensity: 2.3,
     moonIntensity: 0,
-    ambientIntensity: 0.5,
+    ambientIntensity: 0.82,
     cloudOpacity: 0.51,
   },
   {
@@ -110,7 +170,7 @@ const KEYFRAMES: AtmosphereKeyframe[] = [
     mieDirectionalG: 0.8,
     sunIntensity: 2.15,
     moonIntensity: 0,
-    ambientIntensity: 0.48,
+    ambientIntensity: 0.78,
     cloudOpacity: 0.5,
   },
   {
@@ -127,7 +187,7 @@ const KEYFRAMES: AtmosphereKeyframe[] = [
     mieDirectionalG: 0.85,
     sunIntensity: 1.15,
     moonIntensity: 0.08,
-    ambientIntensity: 0.4,
+    ambientIntensity: 0.58,
     cloudOpacity: 0.5,
   },
   {
@@ -166,7 +226,14 @@ const KEYFRAMES: AtmosphereKeyframe[] = [
   },
 ];
 
-const COLOR_KEYS = ['background', 'fog', 'sky', 'ground', 'sun', 'cloud'] as const;
+const COLOR_KEYS = [
+  'background',
+  'fog',
+  'sky',
+  'ground',
+  'sun',
+  'cloud',
+] as const;
 const NUMBER_KEYS = [
   'turbidity',
   'rayleigh',
@@ -189,14 +256,17 @@ function smoothstep(min: number, max: number, value: number) {
 
 function sampleAtmosphere(hour: number): AtmosphereSample {
   const normalizedHour = ((hour % 24) + 24) % 24;
-  const upperIndex = KEYFRAMES.findIndex((frame) => frame.hour >= normalizedHour);
+  const upperIndex = KEYFRAMES.findIndex(
+    (frame) => frame.hour >= normalizedHour,
+  );
   const upper = KEYFRAMES[Math.max(1, upperIndex)];
   const lower = KEYFRAMES[Math.max(0, upperIndex - 1)];
   const mix = smoothstep(lower.hour, upper.hour, normalizedHour);
   const sample = {} as AtmosphereSample;
 
   for (const key of COLOR_KEYS) {
-    sample[key] = `#${new THREE.Color(lower[key]).lerp(new THREE.Color(upper[key]), mix).getHexString()}`;
+    sample[key] =
+      `#${new THREE.Color(lower[key]).lerp(new THREE.Color(upper[key]), mix).getHexString()}`;
   }
 
   for (const key of NUMBER_KEYS) {
@@ -245,7 +315,11 @@ export function DynamicAtmosphere({
   const isNight = phase === 'NIGHT';
   const celestial = useMemo(() => {
     const angle = ((hour - 6) / 24) * Math.PI * 2;
-    const direction = new THREE.Vector3(Math.cos(angle), Math.sin(angle), -0.48).normalize();
+    const direction = new THREE.Vector3(
+      Math.cos(angle),
+      Math.sin(angle),
+      -0.48,
+    ).normalize();
     const sunHeight = Math.sin(angle);
     return {
       sunDirection: direction,
@@ -256,13 +330,19 @@ export function DynamicAtmosphere({
   }, [hour]);
 
   useFrame(({ camera, clock }) => {
-    const sunPosition = camera.position.clone().addScaledVector(celestial.sunDirection, 180);
-    const moonPosition = camera.position.clone().addScaledVector(celestial.moonDirection, 180);
+    const sunPosition = camera.position
+      .clone()
+      .addScaledVector(celestial.sunDirection, 180);
+    const moonPosition = camera.position
+      .clone()
+      .addScaledVector(celestial.moonDirection, 180);
 
     sun.current?.position.copy(sunPosition);
     moon.current?.position.copy(moonPosition);
     sunLight.current?.position.copy(celestial.sunDirection).multiplyScalar(90);
-    moonLight.current?.position.copy(celestial.moonDirection).multiplyScalar(75);
+    moonLight.current?.position
+      .copy(celestial.moonDirection)
+      .multiplyScalar(75);
 
     if (cloudGroup.current) {
       cloudGroup.current.position.x = Math.sin(clock.elapsedTime * 0.01) * 16;
@@ -274,15 +354,27 @@ export function DynamicAtmosphere({
     <>
       <color attach="background" args={[palette.background]} />
       <fog attach="fog" args={[palette.fog, fogNear, fogFar]} />
-      {!isNight && <Sky
-        distance={450}
-        sunPosition={celestial.sunDirection.clone().multiplyScalar(160)}
-        turbidity={palette.turbidity}
-        rayleigh={palette.rayleigh}
-        mieCoefficient={palette.mieCoefficient}
-        mieDirectionalG={palette.mieDirectionalG}
-      />}
-      {isNight && <Stars radius={180} depth={70} count={700} factor={2.1} saturation={0.08} fade speed={0.18} />}
+      {!isNight && (
+        <Sky
+          distance={450}
+          sunPosition={celestial.sunDirection.clone().multiplyScalar(160)}
+          turbidity={palette.turbidity}
+          rayleigh={palette.rayleigh}
+          mieCoefficient={palette.mieCoefficient}
+          mieDirectionalG={palette.mieDirectionalG}
+        />
+      )}
+      {isNight && (
+        <Stars
+          radius={180}
+          depth={70}
+          count={700}
+          factor={2.1}
+          saturation={0.08}
+          fade
+          speed={0.18}
+        />
+      )}
 
       <ambientLight intensity={palette.ambientIntensity} color={palette.sky} />
       <hemisphereLight

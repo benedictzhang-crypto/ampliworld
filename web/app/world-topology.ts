@@ -51,6 +51,32 @@ export type MetroHub = {
   catchmentRadiusMeters?: number;
 };
 
+export type MetroDistrict = 'STARTER_ARCOLOGY' | 'CBD';
+export type MetroStationCode =
+  | 'M0'
+  | 'M1'
+  | 'M2'
+  | 'M3'
+  | 'M4'
+  | 'M5'
+  | 'M6'
+  | 'M7'
+  | 'M8'
+  | 'M9'
+  | 'M10'
+  | 'M11'
+  | 'M12'
+  | 'M13';
+
+export type MetroStationRegistryEntry = {
+  /** Stable public station code. This is not the rail-line identifier. */
+  id: MetroStationCode;
+  topologyId: string;
+  district: MetroDistrict;
+  /** Stable, walkable world-space arrival point beside the station entrance. */
+  arrival: WorldPoint;
+};
+
 export type RoadConnector = {
   id: string;
   name: string;
@@ -516,7 +542,9 @@ export const METRO_HUBS: readonly MetroHub[] = [
     id: 'MTR-B01',
     name: 'Azure Bay Hotels',
     sector: 'AZURE_RESORT_BELT',
-    position: [-61, -61],
+    // The resort itself spans the bay, but the station entrance must sit on
+    // the walkable east bank beside Azure Resort Parkway—not in the estuary.
+    position: [-36, -63],
     lines: ['M2', 'M7'],
     catchmentRadiusMeters: 1_300,
     entrances: fourCornerEntrances(['Resort Promenade', 'Yacht Club', 'Public Beach', 'Convention Hotel']),
@@ -585,6 +613,47 @@ export const METRO_HUBS: readonly MetroHub[] = [
     entrances: fourCornerEntrances(['Market Hall', 'Food Street', 'Canopy Courtyard', 'Verdant Pool']),
   },
 ] as const;
+
+/**
+ * Public station codes are deliberately explicit and permanent. Never derive
+ * them from METRO_HUBS array order: saved games, signs and shared links depend
+ * on these values remaining stable.
+ */
+export const METRO_STATION_REGISTRY = [
+  { id: 'M0', topologyId: 'MTR-S01', district: 'STARTER_ARCOLOGY', arrival: [0, 71] },
+  { id: 'M1', topologyId: 'MTR-G02', district: 'CBD', arrival: [-12, 31] },
+  { id: 'M2', topologyId: 'MTR-W01', district: 'CBD', arrival: [-53, -27] },
+  { id: 'M3', topologyId: 'MTR-G01', district: 'CBD', arrival: [13, 48] },
+  { id: 'M4', topologyId: 'MTR-C01', district: 'CBD', arrival: [0, 25] },
+  { id: 'M5', topologyId: 'MTR-C02', district: 'CBD', arrival: [0, -44] },
+  { id: 'M6', topologyId: 'MTR-B01', district: 'CBD', arrival: [-36, -63] },
+  { id: 'M7', topologyId: 'MTR-W02', district: 'CBD', arrival: [-65, 20] },
+  { id: 'M8', topologyId: 'MTR-M01', district: 'CBD', arrival: [34, 43] },
+  { id: 'M9', topologyId: 'MTR-H01', district: 'CBD', arrival: [48, 12] },
+  { id: 'M10', topologyId: 'MTR-R01', district: 'CBD', arrival: [37, -34] },
+  { id: 'M11', topologyId: 'MTR-E02', district: 'CBD', arrival: [61, 58] },
+  { id: 'M12', topologyId: 'MTR-E01', district: 'CBD', arrival: [-36, 54] },
+  { id: 'M13', topologyId: 'MTR-F01', district: 'CBD', arrival: [-13, 23] },
+] as const satisfies readonly MetroStationRegistryEntry[];
+
+export const DEFAULT_METRO_STATION_BY_DISTRICT = {
+  STARTER_ARCOLOGY: 'M0',
+  CBD: 'M4',
+} as const satisfies Record<MetroDistrict, MetroStationCode>;
+
+export function metroStationByCode(code: string) {
+  return METRO_STATION_REGISTRY.find((station) => station.id === code);
+}
+
+export function metroStationByTopologyId(topologyId: string) {
+  return METRO_STATION_REGISTRY.find(
+    (station) => station.topologyId === topologyId,
+  );
+}
+
+export function metroHubById(topologyId: string) {
+  return METRO_HUBS.find((hub) => hub.id === topologyId);
+}
 
 export const METROPOLITAN_AXES: readonly RoadConnector[] = [
   {
@@ -708,6 +777,40 @@ export const ROAD_CONNECTORS: readonly RoadConnector[] = [
     modes: ['WALK', 'CYCLE', 'BUS', 'CAR'],
   },
 ] as const;
+
+/** Heading, in radians, of the road segment nearest a world-space point. */
+export function headingAlongNearestRoad(position: WorldPoint) {
+  let nearestDistanceSquared = Number.POSITIVE_INFINITY;
+  let heading = 0;
+  for (const road of ROAD_CONNECTORS) {
+    road.points.slice(0, -1).forEach((from, index) => {
+      const to = road.points[index + 1];
+      const segmentX = to[0] - from[0];
+      const segmentZ = to[1] - from[1];
+      const lengthSquared = segmentX * segmentX + segmentZ * segmentZ;
+      const progress =
+        lengthSquared > Number.EPSILON
+          ? Math.min(
+              1,
+              Math.max(
+                0,
+                ((position[0] - from[0]) * segmentX +
+                  (position[1] - from[1]) * segmentZ) /
+                  lengthSquared,
+              ),
+            )
+          : 0;
+      const dx = position[0] - (from[0] + segmentX * progress);
+      const dz = position[1] - (from[1] + segmentZ * progress);
+      const distanceSquared = dx * dx + dz * dz;
+      if (distanceSquared < nearestDistanceSquared) {
+        nearestDistanceSquared = distanceSquared;
+        heading = Math.atan2(segmentX, segmentZ);
+      }
+    });
+  }
+  return heading;
+}
 
 export function worldUnitsToKilometers(units: number) {
   return units * METERS_PER_WORLD_UNIT / 1000;
