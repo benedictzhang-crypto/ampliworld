@@ -1,7 +1,7 @@
 'use client';
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Clone, Environment, Html, Sky, useAnimations, useGLTF, useTexture } from '@react-three/drei';
+import { Clone, Environment, Html, useAnimations, useGLTF, useTexture } from '@react-three/drei';
 import {
   Banknote,
   BriefcaseBusiness,
@@ -35,11 +35,15 @@ import {
   Utensils,
   WalletCards,
   X,
+  Zap,
 } from 'lucide-react';
 import Image from 'next/image';
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { PointerEvent as ReactPointerEvent } from 'react';
 import * as THREE from 'three';
+import { DynamicAtmosphere, formatWorldTime, getDayPhase, getHorizonVisibility } from './dynamic-atmosphere';
 import { WORLD_ASSET_COUNTS } from './world-asset-catalog';
+import { PLAYABLE_CORE_KM, REPRESENTED_REGION_HEIGHT_KM, REPRESENTED_REGION_KM } from './world-topology';
 
 type Place = 'market' | 'fashion' | 'restaurant' | 'property' | 'career' | 'news' | 'map' | 'inventory' | 'menu' | 'villa' | 'studio' | 'wellness' | 'social' | 'hospital' | 'police' | 'academy' | 'dealership' | 'grocer' | 'marina' | 'residences' | null;
 type EnterPlace = (place: Place, atlasId?: string) => void;
@@ -47,7 +51,12 @@ type WorldDistrict = 'STARTER_ARCOLOGY' | 'CBD';
 type WorldSceneId = WorldDistrict | 'AZURE_YACHT_MARINA' | 'CROWN_RESIDENTIAL_TOWERS' | 'MILLIONAIRE_RIDGE';
 type SceneProfileId = WorldSceneId | 'STUDIO_INTERIOR';
 type PlayerLocation = { scene: SceneProfileId; x: number; z: number };
-type AtlasKind = 'HOME' | 'PARK' | 'MARKET' | 'SEA' | 'VILLAS' | 'MOUNTAINS' | 'HOSPITAL' | 'POLICE' | 'SCHOOL' | 'AUTO' | 'MARINA' | 'PORT' | 'GROCER' | 'RESIDENTIAL';
+type SceneEntryOverride = {
+  scene: WorldSceneId;
+  spawn: [number, number, number];
+  heading: number;
+};
+type AtlasKind = 'HOME' | 'PARK' | 'MARKET' | 'SEA' | 'VILLAS' | 'MOUNTAINS' | 'HOSPITAL' | 'POLICE' | 'SCHOOL' | 'AUTO' | 'MARINA' | 'PORT' | 'GROCER' | 'RESIDENTIAL' | 'DINING' | 'ENERGY';
 type AtlasNode = {
   id: string;
   name: string;
@@ -190,6 +199,16 @@ const TRANSIT = {
   TAXI: { fare: 45, durationGameMinutes: 11, realDurationMs: 900 },
 } as const;
 
+const WORLD_CLOCK_START_MINUTES = 16 * 60 + 45;
+const WORLD_MINUTES_PER_SECOND = 3;
+const ATMOSPHERE_FOG_RANGES: Record<WorldSceneId, { near: number; far: number }> = {
+  STARTER_ARCOLOGY: { near: 62, far: 360 },
+  CBD: { near: 72, far: 225 },
+  AZURE_YACHT_MARINA: { near: 76, far: 230 },
+  CROWN_RESIDENTIAL_TOWERS: { near: 72, far: 220 },
+  MILLIONAIRE_RIDGE: { near: 76, far: 235 },
+};
+
 const LIFE_OPTIONS: LifeOption[] = [
   { code: 'DELIVERY_BOWL', name: 'Basic Delivery Bowl', price: 12, happiness: 2, nutrition: 6, protein: 15, produce: 5, carePoints: 0, category: 'MEAL', district: 'ANY', description: 'Keeps you going, but delivery alone will not improve long-term care.' },
   { code: 'PROTEIN_PLATE', name: 'Protein Plate', price: 22, happiness: 5, nutrition: 18, protein: 100, produce: 25, carePoints: 3, category: 'MEAL', district: 'CBD', description: 'A complete CBD meal with enough protein to materially improve recovery.' },
@@ -216,12 +235,15 @@ const WORLD_ATLAS = [
   { id: 'public-marina', name: 'Harbor Steps Marina', x: 2, y: 15, kind: 'MARINA', zone: 'PUBLIC WATERFRONT', detail: 'Public slips, fishing boats, speedboats and city ferries', place: 'marina', availability: 'PLAYABLE' },
   { id: 'fresh-market', name: 'Verdant Fresh Market', x: 12.5, y: 15, kind: 'GROCER', zone: 'CENTRAL MARKET', detail: 'Fruit, vegetables and everyday nutrition for the daily-care loop', place: 'grocer', availability: 'PLAYABLE' },
   { id: 'park', name: 'Central Park', x: 11, y: 16, kind: 'PARK', zone: 'CENTRAL GREEN AXIS', detail: 'Lakes, trails and free daily recovery', place: 'wellness', availability: 'PLAYABLE' },
+  { id: 'dining-campus', name: 'Nova Dining Campus', x: 12.8, y: 17.1, kind: 'DINING', zone: 'CENTRAL DINING DISTRICT', detail: 'Cafe pavilion, grill court, night kitchen and landscaped outdoor tables', place: 'restaurant', availability: 'PLAYABLE' },
   { id: 'cbd', name: 'Cyber CBD', x: 14, y: 18, kind: 'MARKET', zone: 'CITY CORE', detail: 'Exchange, work, dining, social plaza and luxury residences', place: 'market', scene: 'CBD', availability: 'PLAYABLE' },
+  { id: 'grid-energy', name: 'Grid Systems Research Campus', x: 18.2, y: 16.7, kind: 'ENERGY', zone: 'EAST UTILITY CAMPUS', detail: 'Grid control, storage, clean generation research and nuclear-operations simulation', place: 'career', availability: 'PLAYABLE' },
   { id: 'crown-residences', name: 'Crown Residential Towers', x: 15, y: 20.5, kind: 'RESIDENTIAL', zone: 'CITY CORE', detail: 'Distinctive sci-fi towers with one luxury full-floor home per level', place: 'residences', scene: 'CROWN_RESIDENTIAL_TOWERS', availability: 'PLAYABLE' },
   { id: 'auto-4s', name: 'Apex Motors 4S', x: 18, y: 9.5, kind: 'AUTO', zone: 'EAST AUTO DISTRICT', detail: 'Vehicle sales, service, spare parts and owner support', place: 'dealership', availability: 'PLAYABLE' },
   { id: 'yacht-marina', name: 'Azure Yacht Marina', x: 2.8, y: 21, kind: 'MARINA', zone: 'NORTH WATERFRONT', detail: 'Sailing boats, private yachts and large passenger vessels', place: 'marina', scene: 'AZURE_YACHT_MARINA', availability: 'PLAYABLE' },
   { id: 'ridge', name: 'Millionaire Ridge', x: 16.5, y: 24.5, kind: 'VILLAS', zone: 'NORTHEAST RIDGE', detail: 'Visit seven detached-home styles; ownership remains net-worth gated', place: 'villa', scene: 'MILLIONAIRE_RIDGE', availability: 'PLAYABLE' },
-  { id: 'highlands', name: 'North Highlands', x: 9, y: 28, kind: 'MOUNTAINS', zone: 'NORTH HIGHLANDS', detail: 'Mountain trails, overlooks and research stations', availability: 'PLANNED' },
+  { id: 'nuclear-district', name: 'North Highlands Power District', x: 7.2, y: 27.3, kind: 'ENERGY', zone: 'NORTH HIGHLANDS', detail: 'Off-core generation campus, nuclear plant, reservoirs and regional transmission grid', availability: 'PLANNED' },
+  { id: 'highlands', name: 'North Highlands', x: 9.5, y: 28.5, kind: 'MOUNTAINS', zone: 'NORTH HIGHLANDS', detail: 'Mountain trails, overlooks and research stations', availability: 'PLANNED' },
 ] as const satisfies readonly AtlasNode[];
 
 const CBD_LOCAL_LANDMARKS = [
@@ -300,9 +322,13 @@ const CBD_PLAYER_BLOCKERS = [
   [-27, -28, 4.6, 4.6], [28, -30, 5.8, 5.5], [-31, -42, 5.2, 4.8], [0, -35, 8, 8],
   [-18, -12, 3.2, 3.2], [18, -12, 3.2, 3.2], [-18, 0, 3.2, 3.2], [18, 0, 3.2, 3.2],
   [27, -14, 6.2, 5.2], [27, 3, 5.3, 4.4], [-25, 16, 8.3, 7.2], [27, 25, 8.3, 6.3],
-  [-25, -3, 5.4, 4.5], [-26, 29, 11.5, 7.2], [0, 13, 3.4, 3.4],
-  [-6.9, -9, 1.2, 0.9], [6.9, -9, 1.2, 0.9], [-6.9, 4.33, 1.2, 0.9], [6.9, 4.33, 1.2, 0.9],
-  [-6.9, 17.67, 1.2, 0.9], [6.9, 17.67, 1.2, 0.9], [-6.9, 31, 1.2, 0.9], [6.9, 31, 1.2, 0.9],
+  [-25, -3, 5.4, 4.5], [-26, 29, 11.5, 7.2], [0, 13, 3.4, 3.4], [45.5, 5, 6.9, 6.1],
+  [-47, 1, 11, 45], [-33, -58, 0.8, 5.2], [63, 55, 0.8, 5.2], [-5, -69, 0.8, 0.8], [5, -69, 0.8, 0.8],
+  [-7.4, -31, 1.2, 0.9], [7.4, -31, 1.2, 0.9], [-7.4, -20.56, 1.2, 0.9], [7.4, -20.56, 1.2, 0.9],
+  [-7.4, -10.11, 1.2, 0.9], [7.4, -10.11, 1.2, 0.9], [-7.4, 0.33, 1.2, 0.9], [7.4, 0.33, 1.2, 0.9],
+  [-7.4, 10.78, 1.2, 0.9], [7.4, 10.78, 1.2, 0.9], [-7.4, 21.22, 1.2, 0.9], [7.4, 21.22, 1.2, 0.9],
+  [-7.4, 31.67, 1.2, 0.9], [7.4, 31.67, 1.2, 0.9], [-7.4, 42.11, 1.2, 0.9], [7.4, 42.11, 1.2, 0.9],
+  [-7.4, 52.56, 1.2, 0.9], [7.4, 52.56, 1.2, 0.9], [-7.4, 63, 1.2, 0.9], [7.4, 63, 1.2, 0.9],
   [-20.7, 7, 1.15, 13], [20.7, 7, 1.15, 13],
 ] as const;
 
@@ -348,7 +374,7 @@ const SCENE_PROFILES: Record<SceneProfileId, {
   blockers: readonly (readonly [number, number, number, number])[];
 }> = {
   STARTER_ARCOLOGY: { spawn: [0, 0, 9], bounds: { minX: -26, maxX: 26, minZ: -25, maxZ: 26 }, cameraOffset: [0, 3.2, 5.6], heading: Math.PI, speed: 5.2, blockers: STARTER_PLAYER_BLOCKERS },
-  CBD: { spawn: [0, 0, 34], bounds: { minX: -36, maxX: 37, minZ: -52, maxZ: 38 }, cameraOffset: [0, 3.2, 5.6], heading: Math.PI, speed: 5.8, blockers: CBD_PLAYER_BLOCKERS },
+  CBD: { spawn: [0, 0, 62], bounds: { minX: -77, maxX: 77, minZ: -77, maxZ: 77 }, cameraOffset: [0, 3.2, 5.6], heading: Math.PI, speed: 5.8, blockers: CBD_PLAYER_BLOCKERS },
   AZURE_YACHT_MARINA: { spawn: [3, 0, 22], bounds: { minX: -9, maxX: 34, minZ: -34, maxZ: 34 }, cameraOffset: [-1.8, 3.2, 5.6], heading: Math.PI, speed: 5.4, blockers: MARINA_PLAYER_BLOCKERS },
   CROWN_RESIDENTIAL_TOWERS: { spawn: [0, 0, 27], bounds: { minX: -28, maxX: 28, minZ: -22, maxZ: 30 }, cameraOffset: [0, 3.2, 5.6], heading: Math.PI, speed: 5.2, blockers: CROWN_PLAYER_BLOCKERS },
   MILLIONAIRE_RIDGE: { spawn: [0, 0, 34], bounds: { minX: -34, maxX: 34, minZ: -39, maxZ: 37 }, cameraOffset: [0, 3.2, 5.6], heading: Math.PI, speed: 5.2, blockers: RIDGE_PLAYER_BLOCKERS },
@@ -429,6 +455,7 @@ function Building({ position, size, color, glow, label, place, onEnter, assetUrl
   assetUrl?: string; assetScale?: number; assetRotation?: [number, number, number]; labelHeight?: number;
 }) {
   const resolvedLabelHeight = labelHeight ?? size[1] + 0.45;
+  const facadeCoverage = THREE.MathUtils.clamp(size[1] / 12, 0.32, 0.52);
   const labelAnchor = useRef<THREE.Group>(null);
   const labelWorldPosition = useRef(new THREE.Vector3());
   const labelVisibility = useRef(false);
@@ -461,6 +488,9 @@ function Building({ position, size, color, glow, label, place, onEnter, assetUrl
       {assetUrl
         ? <Suspense fallback={proceduralBody}><StaticAsset url={assetUrl} scale={assetScale} rotation={assetRotation} /></Suspense>
         : proceduralBody}
+      <Suspense fallback={null}>
+        <FourSidedFacadeShell size={[size[0] + 0.12, size[1] + 0.18, size[2] + 0.12]} position={[0, 0.04, 0]} accent={glow} verticalCoverage={facadeCoverage} />
+      </Suspense>
       {assetUrl && <pointLight position={[0, Math.min(resolvedLabelHeight, 3), 1]} intensity={0.22} distance={5} color={glow} />}
       <group ref={labelAnchor} position={[0, resolvedLabelHeight, 0]}>{labelVisible && <Html center distanceFactor={13} zIndexRange={[3, 0]}>
         <button className={place ? 'world-label enterable' : 'world-label'} onClick={() => place && onEnter?.(place)}>{label}</button>
@@ -699,11 +729,6 @@ function ArcologyTowerField() {
 function StarterArcology({ onEnter, onNotice, residenceBlock }: { onEnter: EnterPlace; onNotice: (message: string) => void; residenceBlock: string }) {
   return (
     <>
-      <fog attach="fog" args={['#35423e', 62, 360]} />
-      <Sky sunPosition={[-8, 4.6, -10]} turbidity={7.4} rayleigh={1.48} mieCoefficient={0.009} mieDirectionalG={0.8} />
-      <ambientLight intensity={0.46} color="#c8d8d0" />
-      <hemisphereLight intensity={0.34} color="#c7ddd5" groundColor="#29332f" />
-      <directionalLight castShadow position={[8, 27, 12]} intensity={2.65} color="#ffd0a2" shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[380, 520]} />
         <meshPhysicalMaterial color="#252d2b" roughness={0.58} metalness={0.17} clearcoat={0.22} clearcoatRoughness={0.3} />
@@ -738,35 +763,60 @@ function StarterArcology({ onEnter, onNotice, residenceBlock }: { onEnter: Enter
 
 const ACTIVE_PLAYER_POSITION = new THREE.Vector3(9999, 0, 9999);
 const ACTIVE_TRAFFIC_POSITIONS = Array.from({ length: 4 }, () => new THREE.Vector3(9999, 0, 9999));
+const CAMERA_LOOK_DISTANCE = 7.4;
+const DEFAULT_CAMERA_PITCH = -0.06;
+const MIN_CAMERA_PITCH = -0.44;
+const MAX_CAMERA_PITCH = 0.7;
 
-function Player({ scene, onPositionChange, enabled = true }: {
+function Player({ scene, onPositionChange, enabled = true, spawnOverride, headingOverride }: {
   scene: SceneProfileId;
   onPositionChange?: (location: PlayerLocation) => void;
   enabled?: boolean;
+  spawnOverride?: [number, number, number];
+  headingOverride?: number;
 }) {
   const body = useRef<THREE.Group>(null);
   const keys = useRef<Record<string, boolean>>({});
   const queuedKeys = useRef<string[]>([]);
   const facingAngle = useRef(SCENE_PROFILES[scene].heading);
+  const cameraPitch = useRef(DEFAULT_CAMERA_PITCH);
+  const targetCameraPitch = useRef(DEFAULT_CAMERA_PITCH);
+  const cameraYawOffset = useRef(0);
+  const targetCameraYawOffset = useRef(0);
+  const heldLookDirection = useRef(0);
   const lastPositionReport = useRef(0);
   const lastReportedPosition = useRef(new THREE.Vector2(Number.NaN, Number.NaN));
   const cameraTarget = useRef(new THREE.Vector3());
   const [movementAction, setMovementAction] = useState<'idle' | 'walk'>('idle');
-  const { camera } = useThree();
+  const { camera, gl } = useThree();
   const profile = SCENE_PROFILES[scene];
+  const spawn = spawnOverride ?? profile.spawn;
+  const heading = headingOverride ?? profile.heading;
+  const onPositionChangeRef = useRef(onPositionChange);
   useEffect(() => {
-    lastReportedPosition.current.set(profile.spawn[0], profile.spawn[2]);
-    facingAngle.current = profile.heading;
-    const initialForward = new THREE.Vector3(Math.sin(profile.heading), 0, Math.cos(profile.heading));
+    onPositionChangeRef.current = onPositionChange;
+  }, [onPositionChange]);
+  useEffect(() => {
+    lastReportedPosition.current.set(spawn[0], spawn[2]);
+    facingAngle.current = heading;
+    cameraPitch.current = DEFAULT_CAMERA_PITCH;
+    targetCameraPitch.current = DEFAULT_CAMERA_PITCH;
+    cameraYawOffset.current = 0;
+    targetCameraYawOffset.current = 0;
+    heldLookDirection.current = 0;
+    const initialForward = new THREE.Vector3(Math.sin(heading), 0, Math.cos(heading));
     const initialRight = new THREE.Vector3(initialForward.z, 0, -initialForward.x);
-    cameraTarget.current.set(profile.spawn[0], profile.spawn[1] + 1.3, profile.spawn[2]).addScaledVector(initialForward, 1.6);
-    camera.position.set(profile.spawn[0], profile.spawn[1], profile.spawn[2])
+    const initialLookSpan = CAMERA_LOOK_DISTANCE + profile.cameraOffset[2];
+    cameraTarget.current
+      .set(spawn[0], spawn[1] + profile.cameraOffset[1] + Math.tan(DEFAULT_CAMERA_PITCH) * initialLookSpan, spawn[2])
+      .addScaledVector(initialForward, CAMERA_LOOK_DISTANCE);
+    camera.position.set(spawn[0], spawn[1], spawn[2])
       .addScaledVector(initialForward, -profile.cameraOffset[2])
       .addScaledVector(initialRight, profile.cameraOffset[0])
       .add(new THREE.Vector3(0, profile.cameraOffset[1], 0));
     camera.lookAt(cameraTarget.current);
-    onPositionChange?.({ scene, x: profile.spawn[0], z: profile.spawn[2] });
-  }, [camera, onPositionChange, profile.cameraOffset, profile.heading, profile.spawn, scene]);
+    onPositionChangeRef.current?.({ scene, x: spawn[0], z: spawn[2] });
+  }, [camera, heading, profile.cameraOffset, scene, spawn]);
   useEffect(() => {
     const normalizeControlKey = (key: string) => {
       const normalized = key.toLowerCase();
@@ -792,18 +842,41 @@ function Player({ scene, onPositionChange, enabled = true }: {
       keys.current[detail.key] = detail.pressed;
       if (detail.pressed && !wasPressed) queuedKeys.current.push(detail.key);
     };
+    const virtualLook = (event: Event) => {
+      const detail = (event as CustomEvent<{ direction: number; pressed: boolean }>).detail;
+      if (detail.pressed) {
+        heldLookDirection.current = detail.direction;
+        targetCameraPitch.current = THREE.MathUtils.clamp(targetCameraPitch.current + detail.direction * 0.13, MIN_CAMERA_PITCH, MAX_CAMERA_PITCH);
+      } else if (heldLookDirection.current === detail.direction) {
+        heldLookDirection.current = 0;
+      }
+    };
+    const trackpadLook = (event: WheelEvent) => {
+      if (!enabled) return;
+      const unit = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? 12 : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? 120 : 1;
+      const deltaX = THREE.MathUtils.clamp(event.deltaX * unit, -90, 90);
+      const deltaY = THREE.MathUtils.clamp(event.deltaY * unit, -90, 90);
+      if (Math.abs(deltaX) < 0.01 && Math.abs(deltaY) < 0.01) return;
+      event.preventDefault();
+      targetCameraYawOffset.current = THREE.MathUtils.clamp(targetCameraYawOffset.current - deltaX * 0.0032, -Math.PI, Math.PI);
+      targetCameraPitch.current = THREE.MathUtils.clamp(targetCameraPitch.current - deltaY * 0.0027, MIN_CAMERA_PITCH, MAX_CAMERA_PITCH);
+    };
     window.addEventListener('keydown', update);
     window.addEventListener('keyup', update);
     window.addEventListener('ampliworld-move', virtual);
-    const release = () => { keys.current = {}; queuedKeys.current = []; };
+    window.addEventListener('ampliworld-look', virtualLook);
+    gl.domElement.addEventListener('wheel', trackpadLook, { passive: false });
+    const release = () => { keys.current = {}; queuedKeys.current = []; heldLookDirection.current = 0; };
     window.addEventListener('blur', release);
     return () => {
       window.removeEventListener('keydown', update);
       window.removeEventListener('keyup', update);
       window.removeEventListener('ampliworld-move', virtual);
+      window.removeEventListener('ampliworld-look', virtualLook);
+      gl.domElement.removeEventListener('wheel', trackpadLook);
       window.removeEventListener('blur', release);
     };
-  }, []);
+  }, [enabled, gl]);
   useEffect(() => {
     if (enabled) return;
     keys.current = {};
@@ -815,7 +888,13 @@ function Player({ scene, onPositionChange, enabled = true }: {
     if (!enabled) {
       keys.current = {};
       queuedKeys.current = [];
+      heldLookDirection.current = 0;
     }
+    if (enabled && heldLookDirection.current) {
+      targetCameraPitch.current = THREE.MathUtils.clamp(targetCameraPitch.current + heldLookDirection.current * Math.min(delta, 1 / 30) * 0.9, MIN_CAMERA_PITCH, MAX_CAMERA_PITCH);
+    }
+    const pitchAlpha = 1 - Math.exp(-delta * 8);
+    cameraPitch.current = THREE.MathUtils.lerp(cameraPitch.current, targetCameraPitch.current, pitchAlpha);
     const heldForward = enabled ? (keysDown.w ? 1 : 0) - (keysDown.s ? 1 : 0) : 0;
     const heldTurn = enabled ? (keysDown.a ? 1 : 0) - (keysDown.d ? 1 : 0) : 0;
     const pendingKeys = queuedKeys.current;
@@ -828,6 +907,10 @@ function Player({ scene, onPositionChange, enabled = true }: {
     const forwardInput = (movementKeys.has('w') ? 1 : 0) - (movementKeys.has('s') ? 1 : 0);
     const turnInput = (movementKeys.has('a') ? 1 : 0) - (movementKeys.has('d') ? 1 : 0);
     const usingTap = !heldForward && !heldTurn && pendingKeys.length > 0;
+    if (forwardInput || turnInput) {
+      targetCameraYawOffset.current = THREE.MathUtils.lerp(targetCameraYawOffset.current, 0, 1 - Math.exp(-delta * 4.8));
+    }
+    cameraYawOffset.current = THREE.MathUtils.lerp(cameraYawOffset.current, targetCameraYawOffset.current, 1 - Math.exp(-delta * 8));
     if (turnInput) {
       const turnStep = usingTap ? 0.14 : Math.min(delta, 1 / 30) * 2.45;
       facingAngle.current = THREE.MathUtils.euclideanModulo(facingAngle.current + turnInput * turnStep, Math.PI * 2);
@@ -872,7 +955,7 @@ function Player({ scene, onPositionChange, enabled = true }: {
       if ((usingTap || clock.elapsedTime - lastPositionReport.current >= 0.1) && reportedDistance >= 0.0025) {
         lastPositionReport.current = clock.elapsedTime;
         lastReportedPosition.current.set(body.current.position.x, body.current.position.z);
-        onPositionChange?.({
+        onPositionChangeRef.current?.({
           scene,
           x: Number(body.current.position.x.toFixed(2)),
           z: Number(body.current.position.z.toFixed(2)),
@@ -882,7 +965,8 @@ function Player({ scene, onPositionChange, enabled = true }: {
       setMovementAction('idle');
     }
     ACTIVE_PLAYER_POSITION.copy(body.current.position);
-    const forward = new THREE.Vector3(Math.sin(facingAngle.current), 0, Math.cos(facingAngle.current));
+    const viewHeading = facingAngle.current + cameraYawOffset.current;
+    const forward = new THREE.Vector3(Math.sin(viewHeading), 0, Math.cos(viewHeading));
     const right = new THREE.Vector3(forward.z, 0, -forward.x);
     const desiredCamera = body.current.position.clone()
       .addScaledVector(forward, -profile.cameraOffset[2])
@@ -891,11 +975,14 @@ function Player({ scene, onPositionChange, enabled = true }: {
     const cameraAlpha = 1 - Math.exp(-delta * 5.4);
     const targetAlpha = 1 - Math.exp(-delta * 7);
     camera.position.lerp(desiredCamera, cameraAlpha);
-    cameraTarget.current.lerp(body.current.position.clone().add(new THREE.Vector3(0, 1.3, 0)).addScaledVector(forward, 1.6), targetAlpha);
+    const lookDistance = scene === 'STUDIO_INTERIOR' ? 4.2 : CAMERA_LOOK_DISTANCE;
+    const lookSpan = lookDistance + profile.cameraOffset[2];
+    const lookHeight = profile.cameraOffset[1] + Math.tan(cameraPitch.current) * lookSpan;
+    cameraTarget.current.lerp(body.current.position.clone().add(new THREE.Vector3(0, lookHeight, 0)).addScaledVector(forward, lookDistance), targetAlpha);
     camera.lookAt(cameraTarget.current);
   });
   return (
-    <group ref={body} position={profile.spawn} rotation={[0, profile.heading, 0]}>
+    <group ref={body} position={spawn} rotation={[0, heading, 0]}>
       <Suspense fallback={<mesh castShadow position={[0, 0.8, 0]}><capsuleGeometry args={[0.38, 0.9, 6, 12]} /><meshStandardMaterial color="#e7fff5" metalness={0.65} roughness={0.22} emissive="#27e8a1" emissiveIntensity={0.25} /></mesh>}>
         <CharacterAsset url={`${HERO_CHARACTER_ASSET_ROOT}/male-casual-hoodie.glb`} animation={movementAction === 'walk' ? 'Walk' : 'Idle'} scale={0.98} />
       </Suspense>
@@ -935,6 +1022,76 @@ function CinematicHorizon({ src, position, size = [132, 70], opacity = 0.88 }: {
       <planeGeometry args={size} />
       <meshBasicMaterial map={texture} transparent opacity={opacity} toneMapped={false} fog depthWrite={false} />
     </mesh>
+  );
+}
+
+const MODULAR_FACADE_TEXTURE_URL = '/visuals/ampliworld-modular-facade-v1.jpg';
+const MODULAR_FACADE_TEXTURE_ASPECT = 1774 / 887;
+const MODULAR_FACADE_TEXTURE_CACHE = new WeakMap<THREE.Texture, THREE.Texture>();
+
+function configuredFacadeTexture(sourceTexture: THREE.Texture) {
+  const cachedTexture = MODULAR_FACADE_TEXTURE_CACHE.get(sourceTexture);
+  if (cachedTexture) return cachedTexture;
+  const texture = sourceTexture.clone();
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  texture.needsUpdate = true;
+  MODULAR_FACADE_TEXTURE_CACHE.set(sourceTexture, texture);
+  return texture;
+}
+
+function createFacadeBoxGeometry(width: number, height: number, depth: number, verticalCoverage: number) {
+  const geometry = new THREE.BoxGeometry(width, height, depth);
+  geometry.translate(0, height / 2, 0);
+  const uv = geometry.getAttribute('uv') as THREE.BufferAttribute;
+  const faceDimensions: [number, number][] = [
+    [depth, height], [depth, height], [width, depth], [width, depth], [width, height], [width, height],
+  ];
+  faceDimensions.forEach(([faceWidth, faceHeight], faceIndex) => {
+    const faceAspect = faceWidth / Math.max(0.01, faceHeight);
+    let scaleV = faceIndex === 2 || faceIndex === 3 ? 1 : verticalCoverage;
+    let scaleU = faceAspect / MODULAR_FACADE_TEXTURE_ASPECT * scaleV;
+    if (scaleU > 1) {
+      scaleU = 1;
+      scaleV = MODULAR_FACADE_TEXTURE_ASPECT / faceAspect;
+    }
+    const firstVertex = faceIndex * 4;
+    for (let vertex = firstVertex; vertex < firstVertex + 4; vertex += 1) {
+      uv.setXY(
+        vertex,
+        0.5 + (uv.getX(vertex) - 0.5) * scaleU,
+        0.5 + (uv.getY(vertex) - 0.5) * scaleV,
+      );
+    }
+  });
+  uv.needsUpdate = true;
+  return geometry;
+}
+
+function FourSidedFacadeShell({ size, position = [0, 0, 0], accent = '#75e7dc', verticalCoverage = 1 }: {
+  size: [number, number, number];
+  position?: [number, number, number];
+  accent?: string;
+  verticalCoverage?: number;
+}) {
+  const [width, height, depth] = size;
+  const sourceTexture = useTexture(MODULAR_FACADE_TEXTURE_URL);
+  const facadeTexture = useMemo(() => configuredFacadeTexture(sourceTexture), [sourceTexture]);
+  const geometry = useMemo(
+    () => createFacadeBoxGeometry(width, height, depth, THREE.MathUtils.clamp(verticalCoverage, 0.22, 1)),
+    [depth, height, verticalCoverage, width],
+  );
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  return (
+    <group position={position}>
+      <mesh geometry={geometry} castShadow receiveShadow>
+        <meshPhysicalMaterial map={facadeTexture} emissiveMap={facadeTexture} emissive="#30241b" emissiveIntensity={0.11} color="#f5f0e6" metalness={0.08} roughness={0.39} clearcoat={0.28} clearcoatRoughness={0.3} envMapIntensity={0.9} />
+      </mesh>
+      <mesh castShadow receiveShadow position={[0, height + 0.09, 0]}>
+        <boxGeometry args={[width + 0.18, 0.18, depth + 0.18]} />
+        <meshPhysicalMaterial color="#e5dfd2" emissive={accent} emissiveIntensity={0.045} metalness={0.14} roughness={0.34} clearcoat={0.32} />
+      </mesh>
+    </group>
   );
 }
 
@@ -1011,24 +1168,13 @@ function AnimatedWaterSurface({ position, size, tone = 'COAST' }: {
 }
 
 function LuxuryRetailArcades() {
-  const sourceTexture = useTexture('/visuals/ampliworld-luxury-retail-facade-v1.jpg');
-  const texture = useMemo(() => {
-    const clone = sourceTexture.clone();
-    clone.colorSpace = THREE.SRGBColorSpace;
-    clone.anisotropy = 8;
-    clone.needsUpdate = true;
-    return clone;
-  }, [sourceTexture]);
-  useEffect(() => () => texture.dispose(), [texture]);
   const arcades = [
     { position: [-20.7, 0, 7] as [number, number, number], rotation: Math.PI / 2 },
     { position: [20.7, 0, 7] as [number, number, number], rotation: -Math.PI / 2 },
   ];
   return <group>{arcades.map((arcade, side) => <group key={side} position={arcade.position} rotation={[0, arcade.rotation, 0]}>
-    <mesh castShadow receiveShadow position={[0, 6.45, 0]}><boxGeometry args={[26, 12.9, 1.45]} /><meshPhysicalMaterial color="#eee7d8" roughness={0.31} metalness={0.12} clearcoat={0.38} /></mesh>
-    <mesh position={[0, 6.45, 0.735]}><planeGeometry args={[25.65, 12.55]} /><meshStandardMaterial map={texture} roughness={0.34} metalness={0.06} emissiveMap={texture} emissive="#3b2d20" emissiveIntensity={0.1} /></mesh>
-    <mesh castShadow position={[0, 13.1, 0.08]}><boxGeometry args={[26.8, 0.34, 2.15]} /><meshPhysicalMaterial color="#f3eee2" roughness={0.28} clearcoat={0.52} /></mesh>
-    <mesh position={[0, 12.78, 0.85]}><boxGeometry args={[25.8, 0.09, 0.09]} /><meshBasicMaterial color="#77f7e3" toneMapped={false} transparent opacity={0.86} /></mesh>
+    <FourSidedFacadeShell size={[26, 12.9, 1.45]} accent="#77f7e3" />
+    <mesh position={[0, 12.78, 0.78]}><boxGeometry args={[25.8, 0.09, 0.09]} /><meshBasicMaterial color="#77f7e3" toneMapped={false} transparent opacity={0.86} /></mesh>
     {[-10.5, -6.3, -2.1, 2.1, 6.3, 10.5].map((x, index) => <group key={x} position={[x, 13.38, 0]}>
       <mesh position={[0, 0.15, 0]}><boxGeometry args={[3.25, 0.3, 1.35]} /><meshStandardMaterial color="#e7e0cf" roughness={0.52} /></mesh>
       <mesh position={[0, 0.46, 0]}><boxGeometry args={[2.75, 0.38, 1.05]} /><meshStandardMaterial color={index % 2 ? '#3f694c' : '#527c56'} roughness={0.92} /></mesh>
@@ -1179,19 +1325,34 @@ function StockExchangeRotunda({ onEnter }: { onEnter: EnterPlace }) {
 }
 
 function CivicHospital({ onEnter }: { onEnter: EnterPlace }) {
+  const wardWindows = [-2.15, -0.7, 0.75, 2.2];
+  const ambulanceBays = [-2.35, 0, 2.35];
   return (
     <group position={[27, 0, -14]} onClick={() => onEnter('hospital', 'hospital')}>
       <mesh receiveShadow position={[0, 0.08, 0]}><boxGeometry args={[12.2, 0.16, 10.2]} /><meshStandardMaterial color="#d8ddd8" roughness={0.88} /></mesh>
-      <Suspense fallback={null}><StaticAsset url={`${COMMERCIAL_ASSET_ROOT}/building-j.glb`} position={[0, 0.15, -0.7]} scale={5.05} /></Suspense>
-      {[-4.7, 4.7].map((x) => <mesh key={x} castShadow receiveShadow position={[x, 2.1, 1.1]}><boxGeometry args={[3.2, 4.1, 5.8]} /><meshStandardMaterial color="#edf0ea" roughness={0.72} metalness={0.08} /></mesh>)}
-      {[-4.7, 4.7].flatMap((x) => [1, 2.15, 3.3].map((y) => <mesh key={`${x}-${y}`} position={[x, y, 4.02]}><boxGeometry args={[2.15, 0.38, 0.06]} /><meshStandardMaterial color="#7ec7d4" emissive="#255c68" emissiveIntensity={0.2} metalness={0.28} /></mesh>))}
-      <mesh castShadow position={[0, 1.25, 4.15]}><boxGeometry args={[3.5, 0.28, 2.2]} /><meshStandardMaterial color="#eaf5f2" metalness={0.35} roughness={0.35} /></mesh>
-      <mesh position={[0, 1.5, 4.02]}><boxGeometry args={[1.45, 2.25, 0.08]} /><meshStandardMaterial color="#24454c" metalness={0.5} roughness={0.2} transparent opacity={0.84} /></mesh>
-      <mesh position={[0, 5.9, 3.42]}><boxGeometry args={[0.44, 1.65, 0.12]} /><meshStandardMaterial color="#ff514c" emissive="#ff2d27" emissiveIntensity={0.72} /></mesh>
-      <mesh position={[0, 5.9, 3.43]}><boxGeometry args={[1.65, 0.44, 0.12]} /><meshStandardMaterial color="#ff514c" emissive="#ff2d27" emissiveIntensity={0.72} /></mesh>
-      <mesh position={[0, 7.05, -0.2]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[1.8, 32]} /><meshStandardMaterial color="#dadeda" roughness={0.74} /></mesh>
-      <mesh position={[0, 7.08, -0.2]} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[1.15, 1.45, 32]} /><meshBasicMaterial color="#ef5650" /></mesh>
-      <LandmarkLabel position={[0, 8.4, 0]} label="MERIDIAN GENERAL HOSPITAL" place="hospital" atlasId="hospital" onEnter={onEnter} tone="hospital-label" />
+      <mesh receiveShadow position={[0, 0.17, 3.72]}><boxGeometry args={[10.9, 0.11, 1.45]} /><meshStandardMaterial color="#596268" roughness={0.62} /></mesh>
+      {ambulanceBays.map((x) => <group key={`ambulance-${x}`} position={[x, 0, 3.72]}>
+        <mesh position={[0, 0.235, 0]}><boxGeometry args={[1.72, 0.025, 1.08]} /><meshBasicMaterial color="#cfd6d2" /></mesh>
+        <mesh position={[0, 0.252, 0]} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[0.22, 0.3, 18]} /><meshBasicMaterial color="#ef5650" /></mesh>
+      </group>)}
+      <Suspense fallback={null}>
+        <FourSidedFacadeShell size={[5.3, 7.2, 4.35]} position={[-2.85, 0.05, -1.55]} accent="#ef5650" verticalCoverage={0.72} />
+        <FourSidedFacadeShell size={[4.45, 4.45, 4.1]} position={[3.55, 0.05, -1.45]} accent="#74d5df" verticalCoverage={0.54} />
+        <FourSidedFacadeShell size={[8.8, 2.65, 2.35]} position={[0.2, 0.05, 1.92]} accent="#ef5650" verticalCoverage={0.34} />
+      </Suspense>
+      <mesh castShadow position={[0.25, 3.42, -1.5]}><boxGeometry args={[1.3, 1.05, 1.3]} /><meshPhysicalMaterial color="#bcdde0" metalness={0.32} roughness={0.16} transmission={0.22} transparent opacity={0.86} /></mesh>
+      {wardWindows.map((x) => [1.35, 2.8, 4.25, 5.7].map((y) => <mesh key={`${x}-${y}`} position={[-2.85 + x * 0.82, y, 0.66]}><boxGeometry args={[0.72, 0.48, 0.055]} /><meshStandardMaterial color="#79bdc9" emissive="#255c68" emissiveIntensity={0.18} metalness={0.22} roughness={0.2} /></mesh>))}
+      <mesh castShadow position={[0.2, 1.28, 3.38]}><boxGeometry args={[4.7, 0.22, 1.12]} /><meshPhysicalMaterial color="#edf4f0" metalness={0.28} roughness={0.28} clearcoat={0.45} /></mesh>
+      <mesh position={[0.2, 1.36, 3.12]}><boxGeometry args={[1.45, 2.08, 0.08]} /><meshPhysicalMaterial color="#24454c" transmission={0.35} transparent opacity={0.82} metalness={0.4} roughness={0.15} /></mesh>
+      <mesh position={[-2.85, 5.62, 0.7]}><boxGeometry args={[0.35, 1.35, 0.09]} /><meshStandardMaterial color="#ff514c" emissive="#ff2d27" emissiveIntensity={0.7} /></mesh>
+      <mesh position={[-2.85, 5.62, 0.71]}><boxGeometry args={[1.35, 0.35, 0.09]} /><meshStandardMaterial color="#ff514c" emissive="#ff2d27" emissiveIntensity={0.7} /></mesh>
+      <mesh position={[-2.85, 7.32, -1.55]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[1.32, 28]} /><meshStandardMaterial color="#e7e9e4" roughness={0.64} /></mesh>
+      <mesh position={[-2.85, 7.34, -1.55]} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[0.82, 1.04, 28]} /><meshBasicMaterial color="#ef5650" /></mesh>
+      <group position={[4.5, 0, 3.25]}>
+        <mesh receiveShadow position={[0, 0.2, 0]}><boxGeometry args={[1.75, 0.35, 1.15]} /><meshStandardMaterial color="#d9ddd6" roughness={0.76} /></mesh>
+        {[-0.55, 0, 0.55].map((x) => <mesh key={x} position={[x, 0.62, 0]}><sphereGeometry args={[0.34, 10, 8]} /><meshStandardMaterial color="#47704d" roughness={0.92} /></mesh>)}
+      </group>
+      <LandmarkLabel position={[0, 9.1, 0]} label="MERIDIAN HEALTH CAMPUS · EMERGENCY / CLINICS" place="hospital" atlasId="hospital" onEnter={onEnter} tone="hospital-label" />
     </group>
   );
 }
@@ -1201,8 +1362,10 @@ function CivicSafetyHQ({ onEnter }: { onEnter: EnterPlace }) {
     <group position={[27, 0, 3]} onClick={() => onEnter('police', 'police')}>
       <mesh receiveShadow position={[0, 0.08, 0]}><boxGeometry args={[10.4, 0.16, 8.6]} /><meshStandardMaterial color="#4c565c" roughness={0.93} /></mesh>
       <Suspense fallback={null}><StaticAsset url={`${INDUSTRIAL_ASSET_ROOT}/building-o.glb`} position={[0, 0.13, -0.4]} scale={5.8} /></Suspense>
-      <mesh castShadow position={[-2.8, 2.05, 1.2]}><boxGeometry args={[3.8, 4, 5.4]} /><meshStandardMaterial color="#c9d0cf" roughness={0.76} /></mesh>
-      <mesh castShadow position={[3.1, 1.45, 0.8]}><boxGeometry args={[4.1, 2.8, 5.9]} /><meshStandardMaterial color="#747f83" roughness={0.78} /></mesh>
+      <Suspense fallback={null}>
+        <FourSidedFacadeShell size={[3.8, 4, 5.4]} position={[-2.8, 0.05, 1.2]} accent="#4ebcff" verticalCoverage={0.36} />
+        <FourSidedFacadeShell size={[4.1, 2.8, 5.9]} position={[3.1, 0.05, 0.8]} accent="#ff5e61" verticalCoverage={0.3} />
+      </Suspense>
       <mesh position={[-2.8, 1.45, 3.94]}><boxGeometry args={[1.55, 2.2, 0.08]} /><meshStandardMaterial color="#153144" emissive="#24669f" emissiveIntensity={0.34} metalness={0.42} /></mesh>
       <mesh position={[-3.25, 4.65, 1]}><boxGeometry args={[1.2, 0.16, 0.25]} /><meshStandardMaterial color="#4ebcff" emissive="#2189da" emissiveIntensity={0.85} /></mesh>
       <mesh position={[-2.35, 4.65, 1]}><boxGeometry args={[0.6, 0.16, 0.25]} /><meshStandardMaterial color="#ff5e61" emissive="#e52d35" emissiveIntensity={0.82} /></mesh>
@@ -1219,8 +1382,8 @@ function AcademyCampus({ onEnter }: { onEnter: EnterPlace }) {
       <Suspense fallback={null}>
         <StaticAsset url={`${COMMERCIAL_ASSET_ROOT}/building-k.glb`} position={[-3.6, 0.12, -2.7]} rotation={[0, Math.PI / 2, 0]} scale={3.25} />
         <StaticAsset url={`${COMMERCIAL_ASSET_ROOT}/building-k.glb`} position={[3.6, 0.12, -2.7]} rotation={[0, -Math.PI / 2, 0]} scale={3.25} />
+        <FourSidedFacadeShell size={[5, 4, 3.4]} position={[0, 0.05, -4.1]} accent="#65d8ff" verticalCoverage={0.36} />
       </Suspense>
-      <mesh castShadow position={[0, 2.05, -4.1]}><boxGeometry args={[5, 4, 3.4]} /><meshStandardMaterial color="#d8c9aa" roughness={0.8} /></mesh>
       <mesh position={[0, 1.5, -2.36]}><boxGeometry args={[1.7, 2.5, 0.08]} /><meshStandardMaterial color="#254352" emissive="#2c8292" emissiveIntensity={0.28} /></mesh>
       <mesh receiveShadow position={[3.3, 0.095, 3.5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[7.2, 4.8]} /><meshStandardMaterial color="#435f7d" roughness={0.85} /></mesh>
       {[0, 1].map((line) => <mesh key={line} position={[3.3, 0.105, 2.5 + line * 2]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[6.5, 0.06]} /><meshBasicMaterial color="#e8e0ba" /></mesh>)}
@@ -1235,9 +1398,9 @@ function FreshMarket({ onEnter }: { onEnter: EnterPlace }) {
     <group position={[-25, 0, -3]} onClick={() => onEnter('grocer', 'fresh-market')}>
       <mesh receiveShadow position={[0, 0.06, 0]}><boxGeometry args={[10.4, 0.12, 8.4]} /><meshStandardMaterial color="#9b927a" roughness={0.92} /></mesh>
       <Suspense fallback={null}><StaticAsset url={`${COMMERCIAL_ASSET_ROOT}/building-g.glb`} position={[0, 0.12, -0.7]} scale={3.2} /></Suspense>
-      <mesh castShadow position={[0, 1.45, 2.2]}><boxGeometry args={[8.1, 2.8, 3.2]} /><meshStandardMaterial color="#e2ddcb" roughness={0.76} /></mesh>
+      <Suspense fallback={null}><FourSidedFacadeShell size={[6.8, 2.8, 3.2]} position={[0, 0.05, 2.2]} accent="#72aa4f" verticalCoverage={0.3} /></Suspense>
       <mesh position={[0, 1.4, 3.84]}><boxGeometry args={[6.8, 2, 0.08]} /><meshStandardMaterial color="#1e4e3d" emissive="#22895e" emissiveIntensity={0.3} /></mesh>
-      {[-3, -1.5, 0, 1.5, 3].map((x, index) => <group key={x} position={[x, 0.48, 4.2]}><mesh castShadow><boxGeometry args={[1.15, 0.65, 0.9]} /><meshStandardMaterial color={index % 2 ? '#b47742' : '#8b5d39'} roughness={0.9} /></mesh>{Array.from({ length: 4 }, (_, fruit) => <mesh key={fruit} position={[-0.35 + (fruit % 2) * 0.7, 0.45, -0.24 + Math.floor(fruit / 2) * 0.45]}><sphereGeometry args={[0.18, 9, 7]} /><meshStandardMaterial color={index % 3 === 0 ? '#e66b48' : index % 3 === 1 ? '#72aa4f' : '#e3bd4e'} roughness={0.84} /></mesh>)}</group>)}
+      {[-3, -1.5, 0, 1.5, 2.8].map((x, index) => <group key={x} position={[x, 0.48, 4.2]}><mesh castShadow><boxGeometry args={[1.15, 0.65, 0.9]} /><meshStandardMaterial color={index % 2 ? '#b47742' : '#8b5d39'} roughness={0.9} /></mesh>{Array.from({ length: 4 }, (_, fruit) => <mesh key={fruit} position={[-0.35 + (fruit % 2) * 0.7, 0.45, -0.24 + Math.floor(fruit / 2) * 0.45]}><sphereGeometry args={[0.18, 9, 7]} /><meshStandardMaterial color={index % 3 === 0 ? '#e66b48' : index % 3 === 1 ? '#72aa4f' : '#e3bd4e'} roughness={0.84} /></mesh>)}</group>)}
       <LandmarkLabel position={[0, 5.5, 0]} label="VERDANT · FRESH FRUIT &amp; VEGETABLES" place="grocer" atlasId="fresh-market" onEnter={onEnter} tone="grocer-label" />
     </group>
   );
@@ -1245,20 +1408,91 @@ function FreshMarket({ onEnter }: { onEnter: EnterPlace }) {
 
 function Auto4SDealership({ onEnter }: { onEnter: EnterPlace }) {
   const displayCars = [
-    { model: 'sedan.glb', position: [-4.6, 0.24, 2.6] as [number, number, number], rotation: 0 },
-    { model: 'suv-luxury.glb', position: [0, 0.24, 2.6] as [number, number, number], rotation: Math.PI },
-    { model: 'race-future.glb', position: [4.6, 0.24, 2.6] as [number, number, number], rotation: 0 },
+    { model: 'sedan.glb', position: [-5.2, 0.24, 2.7] as [number, number, number], rotation: 0 },
+    { model: 'suv-luxury.glb', position: [-1.7, 0.24, 2.7] as [number, number, number], rotation: Math.PI },
+    { model: 'race-future.glb', position: [1.25, 0.24, 2.7] as [number, number, number], rotation: 0 },
+  ];
+  const perimeterLanes = [
+    { position: [-7.35, 0.15, 0] as [number, number, number], size: [1.05, 0.04, 10.7] as [number, number, number] },
+    { position: [7.35, 0.15, 0] as [number, number, number], size: [1.05, 0.04, 10.7] as [number, number, number] },
+    { position: [0, 0.15, -5.25] as [number, number, number], size: [15.7, 0.04, 1.05] as [number, number, number] },
+    { position: [0, 0.15, 5.25] as [number, number, number], size: [15.7, 0.04, 1.05] as [number, number, number] },
   ];
   return (
     <group position={[27, 0, 25]} onClick={() => onEnter('dealership', 'auto-4s')}>
       <mesh receiveShadow position={[0, 0.06, 0]}><boxGeometry args={[16.2, 0.12, 12.2]} /><meshStandardMaterial color="#545a57" roughness={0.94} /></mesh>
-      <Suspense fallback={null}><StaticAsset url={`${INDUSTRIAL_ASSET_ROOT}/building-t.glb`} position={[4.5, 0.14, -2]} rotation={[0, Math.PI / 2, 0]} scale={4.5} /></Suspense>
-      <mesh castShadow position={[-2.7, 2.1, -1.8]}><boxGeometry args={[9, 4.1, 5.2]} /><meshPhysicalMaterial color="#b9dfe5" metalness={0.18} roughness={0.12} transmission={0.42} transparent opacity={0.76} /></mesh>
-      <mesh castShadow position={[-2.7, 4.25, -1.8]}><boxGeometry args={[9.6, 0.3, 5.7]} /><meshStandardMaterial color="#202c30" metalness={0.68} roughness={0.22} /></mesh>
-      <mesh position={[-2.7, 2.2, 0.84]}><boxGeometry args={[7.7, 2.8, 0.08]} /><meshPhysicalMaterial color="#77bdca" transmission={0.6} transparent opacity={0.62} roughness={0.12} /></mesh>
+      {perimeterLanes.map((lane, index) => <mesh key={`test-lane-${index}`} receiveShadow position={lane.position}><boxGeometry args={lane.size} /><meshStandardMaterial color="#20282b" roughness={0.76} /></mesh>)}
+      {[-4.6, -1.55, 1.55, 4.6].map((x) => <mesh key={`test-mark-${x}`} position={[x, 0.18, 5.25]}><boxGeometry args={[1.45, 0.018, 0.07]} /><meshBasicMaterial color="#e8cf71" /></mesh>)}
+      <Suspense fallback={null}>
+        <FourSidedFacadeShell size={[7.1, 4.45, 4.5]} position={[-3.75, 0.05, -2.35]} accent="#65d8ff" verticalCoverage={0.48} />
+        <FourSidedFacadeShell size={[6.35, 3.35, 4.65]} position={[3.75, 0.05, -2.25]} accent="#ffb45d" verticalCoverage={0.36} />
+      </Suspense>
+      <mesh castShadow position={[-3.75, 4.58, -2.35]}><boxGeometry args={[7.65, 0.26, 5]} /><meshStandardMaterial color="#202c30" metalness={0.68} roughness={0.22} /></mesh>
+      <mesh position={[-3.75, 2.25, -0.06]}><boxGeometry args={[6.15, 2.9, 0.08]} /><meshPhysicalMaterial color="#77bdca" transmission={0.55} transparent opacity={0.65} roughness={0.12} /></mesh>
+      {[-1.95, 0, 1.95].map((offset, index) => <group key={`service-bay-${offset}`} position={[3.75 + offset, 0, 0.1]}>
+        <mesh position={[0, 1.34, 0]}><boxGeometry args={[1.62, 2.52, 0.08]} /><meshStandardMaterial color="#26373b" emissive={index === 1 ? '#8b4d22' : '#244856'} emissiveIntensity={0.22} metalness={0.42} roughness={0.28} /></mesh>
+        {[0.55, 1.1, 1.65, 2.2].map((y) => <mesh key={y} position={[0, y, 0.05]}><boxGeometry args={[1.45, 0.045, 0.03]} /><meshBasicMaterial color="#a9c4c5" transparent opacity={0.68} /></mesh>)}
+      </group>)}
       <Suspense fallback={null}>{displayCars.map((car) => <StaticAsset key={car.model} url={`${CAR_ASSET_ROOT}/${car.model}`} position={car.position} rotation={[0, car.rotation, 0]} scale={1.05} />)}</Suspense>
       {displayCars.map((car) => <mesh key={`${car.model}-pad`} position={[car.position[0], 0.13, car.position[2]]}><cylinderGeometry args={[1.35, 1.35, 0.12, 28]} /><meshStandardMaterial color="#5f7f82" metalness={0.5} roughness={0.22} /></mesh>)}
-      <LandmarkLabel position={[0, 6.1, 0]} label="APEX MOTORS 4S" place="dealership" atlasId="auto-4s" onEnter={onEnter} tone="auto-label" />
+      {[3.8, 5.1, 6.4].map((x, index) => <group key={`charger-${x}`} position={[x, 0, 2.2]}>
+        <mesh castShadow position={[0, 0.75, 0]}><boxGeometry args={[0.42, 1.5, 0.34]} /><meshPhysicalMaterial color="#e2e8e3" metalness={0.36} roughness={0.28} clearcoat={0.45} /></mesh>
+        <mesh position={[0, 0.95, 0.18]}><boxGeometry args={[0.24, 0.42, 0.025]} /><meshBasicMaterial color={index % 2 ? '#69f6bd' : '#65d8ff'} toneMapped={false} /></mesh>
+        <mesh position={[0, 1.55, 0]}><boxGeometry args={[0.56, 0.09, 0.42]} /><meshStandardMaterial color="#293438" metalness={0.7} /></mesh>
+      </group>)}
+      <LandmarkLabel position={[0, 6.25, 0]} label="APEX MOTORS CAMPUS · SHOWROOM / SERVICE / CHARGING" place="dealership" atlasId="auto-4s" onEnter={onEnter} tone="auto-label" />
+    </group>
+  );
+}
+
+function EnergyResearchCampus({ onEnter }: { onEnter: EnterPlace }) {
+  return (
+    <group position={[45.5, 0, 5]} onClick={() => onEnter('career', 'grid-energy')}>
+      <mesh receiveShadow position={[0, 0.06, 0]}><boxGeometry args={[13.4, 0.12, 11.8]} /><meshStandardMaterial color="#52615a" roughness={0.9} /></mesh>
+      <mesh receiveShadow position={[0, 0.14, 0]}><boxGeometry args={[11.7, 0.05, 10.2]} /><meshStandardMaterial color="#273236" roughness={0.72} /></mesh>
+      <Suspense fallback={null}>
+        <FourSidedFacadeShell size={[5.4, 4.15, 4.25]} position={[-3.25, 0.08, -2.15]} accent="#71f2c4" verticalCoverage={0.46} />
+        <FourSidedFacadeShell size={[3.9, 2.75, 3.7]} position={[2.55, 0.08, -2.4]} accent="#65d8ff" verticalCoverage={0.34} />
+      </Suspense>
+      <mesh position={[-3.25, 2.12, 0.01]}><boxGeometry args={[3.8, 2.45, 0.07]} /><meshPhysicalMaterial color="#5ea7ad" metalness={0.25} roughness={0.13} transmission={0.32} transparent opacity={0.76} /></mesh>
+      {[-3.7, 0, 3.7].map((x) => <group key={`utility-${x}`} position={[x, 0, 2.8]}>
+        <mesh castShadow position={[0, 0.72, 0]}><cylinderGeometry args={[0.58, 0.64, 1.36, 16]} /><meshStandardMaterial color="#708385" metalness={0.58} roughness={0.34} /></mesh>
+        <mesh position={[0, 1.35, 0]}><torusGeometry args={[0.42, 0.08, 8, 18]} /><meshStandardMaterial color="#bdc8c6" metalness={0.72} roughness={0.24} /></mesh>
+        <mesh position={[0, 0.8, 0.61]}><boxGeometry args={[0.48, 0.6, 0.08]} /><meshBasicMaterial color="#71f2c4" toneMapped={false} transparent opacity={0.66} /></mesh>
+      </group>)}
+      {[-3.8, 0, 3.8].map((x) => <group key={`canopy-${x}`} position={[x, 0, 4.75]}>
+        <mesh castShadow position={[0, 1.62, 0]} rotation={[-0.17, 0, 0]}><boxGeometry args={[3.15, 0.09, 1.55]} /><meshPhysicalMaterial color="#1c4b60" emissive="#163c50" emissiveIntensity={0.22} metalness={0.62} roughness={0.2} clearcoat={0.52} /></mesh>
+        {[-1.25, 1.25].map((support) => <mesh key={support} position={[support, 0.8, 0]}><boxGeometry args={[0.08, 1.6, 0.08]} /><meshStandardMaterial color="#9ca9a5" metalness={0.72} /></mesh>)}
+      </group>)}
+      <mesh position={[5.3, 3.25, -2.9]}><cylinderGeometry args={[0.07, 0.1, 6.5, 10]} /><meshStandardMaterial color="#abb7b3" metalness={0.72} /></mesh>
+      {[1.25, 2.45, 3.65].map((y) => <mesh key={`mast-ring-${y}`} position={[5.3, y, -2.9]}><torusGeometry args={[0.22, 0.035, 7, 14]} /><meshBasicMaterial color="#71f2c4" toneMapped={false} /></mesh>)}
+      <group position={[3.65, 0, 0.85]}>
+        <mesh castShadow position={[0, 0.72, 0]}><cylinderGeometry args={[1.32, 1.55, 1.35, 28]} /><meshStandardMaterial color="#cbd2cc" metalness={0.28} roughness={0.42} /></mesh>
+        <mesh castShadow position={[0, 1.42, 0]}><sphereGeometry args={[1.32, 28, 16, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshPhysicalMaterial color="#d9e1db" metalness={0.2} roughness={0.33} clearcoat={0.38} /></mesh>
+        <mesh position={[0, 1.03, 1.34]}><boxGeometry args={[0.9, 0.42, 0.05]} /><meshBasicMaterial color="#65d8ff" toneMapped={false} /></mesh>
+      </group>
+      <LandmarkLabel position={[0, 6.4, 0]} label="GRID LAB · POWER + NUCLEAR SYSTEMS CAMPUS" place="career" atlasId="grid-energy" onEnter={onEnter} tone="signal" />
+    </group>
+  );
+}
+
+function DiningPrecinct({ onEnter }: { onEnter: EnterPlace }) {
+  const tables = [-1.25, 1.25];
+  return (
+    <group position={[-17.35, 0, 0]} onClick={() => onEnter('restaurant', 'dining-campus')}>
+      <mesh receiveShadow position={[0, 0.06, 0]}><boxGeometry args={[4.75, 0.12, 6.2]} /><meshStandardMaterial color="#8e8171" roughness={0.84} /></mesh>
+      <Suspense fallback={null}>
+        <FourSidedFacadeShell size={[4.15, 2.35, 1.82]} position={[0, 0.07, -1.92]} accent="#ffb45d" verticalCoverage={0.29} />
+        <FourSidedFacadeShell size={[1.85, 1.85, 1.7]} position={[-1.12, 0.07, 0.12]} accent="#f17367" verticalCoverage={0.25} />
+        <FourSidedFacadeShell size={[1.85, 1.85, 1.7]} position={[1.12, 0.07, 0.12]} accent="#71f2c4" verticalCoverage={0.25} />
+      </Suspense>
+      {tables.map((x, index) => <group key={`table-${x}`} position={[x, 0, 2.12]}>
+        <mesh castShadow position={[0, 0.52, 0]}><cylinderGeometry args={[0.46, 0.46, 0.08, 18]} /><meshStandardMaterial color="#72523d" roughness={0.65} /></mesh>
+        <mesh position={[0, 0.27, 0]}><cylinderGeometry args={[0.055, 0.065, 0.5, 10]} /><meshStandardMaterial color="#2f3533" metalness={0.48} /></mesh>
+        <mesh castShadow position={[0, 1.6, 0]} rotation={[0, index * 0.45, 0]}><coneGeometry args={[1.02, 0.34, 16, 1, true]} /><meshStandardMaterial color={index ? '#d86d61' : '#e0b15d'} roughness={0.72} side={THREE.DoubleSide} /></mesh>
+      </group>)}
+      <mesh position={[0, 2.52, -0.98]}><boxGeometry args={[3.35, 0.22, 0.12]} /><meshStandardMaterial color="#1d2928" emissive="#d77c36" emissiveIntensity={0.35} metalness={0.55} /></mesh>
+      <LandmarkLabel position={[0, 4.3, 0]} label="NOVA DINING CAMPUS · CAFE / GRILL / NIGHT KITCHEN" place="restaurant" atlasId="dining-campus" onEnter={onEnter} tone="signal" />
     </group>
   );
 }
@@ -1273,8 +1507,7 @@ function MidriseCommunity({ onEnter }: { onEnter: EnterPlace }) {
     <group position={[-26, 0, 29]} onClick={() => onEnter('residences', 'midrise')}>
       <mesh receiveShadow position={[0, 0.05, 0]}><boxGeometry args={[22.5, 0.1, 14]} /><meshStandardMaterial color="#71816e" roughness={0.96} /></mesh>
       {buildings.map((building) => <group key={building.label} position={[building.x, 0, building.z]}>
-        <mesh castShadow receiveShadow position={[0, building.floors * 0.72, 0]}><boxGeometry args={[5.4, building.floors * 1.44, 5.2]} /><meshStandardMaterial color={building.label === '1B' ? '#d7d0c0' : '#e1ddd2'} roughness={0.78} /></mesh>
-        {Array.from({ length: building.floors }, (_, floor) => <mesh key={floor} position={[0, 0.75 + floor * 1.42, 2.62]}><boxGeometry args={[4.25, 0.42, 0.06]} /><meshStandardMaterial color="#5d98a0" emissive="#25575f" emissiveIntensity={0.2} metalness={0.25} /></mesh>)}
+        <Suspense fallback={null}><FourSidedFacadeShell size={[5.4, building.floors * 1.44, 5.2]} accent={building.label === '1B' ? '#65d8ff' : '#d8b275'} /></Suspense>
         <mesh position={[0, 0.95, 2.67]}><boxGeometry args={[1.15, 1.65, 0.08]} /><meshStandardMaterial color="#394943" /></mesh>
         <Html position={[0, building.floors * 1.45 + 0.8, 0]} center distanceFactor={14} zIndexRange={[3, 0]}><span className="zone-label residence-tier">{building.label} · {building.floors} FLOORS</span></Html>
       </group>)}
@@ -1338,8 +1571,8 @@ function WaterfrontMarina({ onEnter }: { onEnter: EnterPlace }) {
   const piers = [-18, -2, 14, 29];
   return (
     <group>
-      <mesh receiveShadow position={[-47, -0.18, 1]}><boxGeometry args={[22, 0.32, 90]} /><meshPhysicalMaterial color="#267f9c" roughness={0.16} metalness={0.04} transmission={0.12} transparent opacity={0.9} /></mesh>
-      <AnimatedWaterSurface position={[-47, -0.005, 1]} size={[22, 90]} />
+      <mesh receiveShadow position={[-47, 0.025, 1]}><boxGeometry args={[22, 0.08, 90]} /><meshPhysicalMaterial color="#267f9c" roughness={0.16} metalness={0.04} transmission={0.12} transparent opacity={0.9} /></mesh>
+      <AnimatedWaterSurface position={[-47, 0.075, 1]} size={[22, 90]} />
       <mesh receiveShadow position={[-36.5, 0.06, 1]}><boxGeometry args={[1.4, 0.28, 90]} /><StoneQuayMaterial width={1.4} length={90} /></mesh>
       {piers.map((z, pier) => <group key={z}><mesh castShadow receiveShadow position={[-42, 0.18, z]}><boxGeometry args={[11.2, 0.28, 1.15]} /><DeckSurfaceMaterial width={11.2} length={1.15} /></mesh>{[-47, -43, -39].map((x) => <mesh key={x} position={[x, -0.15, z]}><cylinderGeometry args={[0.12, 0.16, 1.2, 8]} /><meshStandardMaterial color="#493829" roughness={0.96} /></mesh>)}{pier < 3 && <Suspense fallback={null}><StaticAsset url={`${WATERCRAFT_ASSET_ROOT}/buoy.glb`} position={[-46.5, 0.05, z + 2.8]} scale={1.5} shadows={false} /></Suspense>}</group>)}
       <FloatingWatercraft model="boat-fishing-small" position={[-42.5, 0.2, -14]} rotation={Math.PI / 2} scale={2.45} phase={1} />
@@ -1445,15 +1678,10 @@ function CatalogVilla({ id, name, style, position, rotation, onEnter }: {
   );
 }
 
-function AzureYachtMarinaScene({ onEnter, onPositionChange, playerEnabled = true }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean }) {
+function AzureYachtMarinaScene({ onEnter, onPositionChange, playerEnabled = true, horizonVisibility = 1, playerSpawn, playerHeading }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean; horizonVisibility?: number; playerSpawn?: [number, number, number]; playerHeading?: number }) {
   return (
     <>
-      <fog attach="fog" args={['#b8c8c9', 76, 200]} />
-      <Sky sunPosition={[-18, 7, -25]} turbidity={4.2} rayleigh={1.08} mieCoefficient={0.006} mieDirectionalG={0.8} />
-      <ambientLight intensity={0.38} color="#e6f6ff" />
-      <hemisphereLight intensity={0.44} color="#d8f4ff" groundColor="#6d5c44" />
-      <directionalLight castShadow position={[-18, 28, 12]} intensity={3.1} color="#ffd6a1" shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-42} shadow-camera-right={42} shadow-camera-top={42} shadow-camera-bottom={-42} />
-      <Suspense fallback={null}><CinematicHorizon src="/visuals/ampliworld-world-asset-master-v1.png" position={[11, 32, -86]} size={[158, 75]} opacity={0.82} /></Suspense>
+      <Suspense fallback={null}><CinematicHorizon src="/visuals/ampliworld-world-asset-master-v1.png" position={[11, 32, -86]} size={[158, 75]} opacity={0.82 * horizonVisibility} /></Suspense>
       <mesh receiveShadow position={[-28, -0.18, 0]}><boxGeometry args={[56, 0.3, 96]} /><meshPhysicalMaterial color="#197d9e" roughness={0.09} metalness={0.08} transmission={0.16} transparent opacity={0.94} clearcoat={0.62} /></mesh>
       <AnimatedWaterSurface position={[-28, -0.005, 0]} size={[56, 96]} />
       <mesh receiveShadow position={[-4.5, 0.015, 0]}><boxGeometry args={[11, 0.08, 84]} /><DeckSurfaceMaterial width={11} length={84} /></mesh>
@@ -1484,21 +1712,15 @@ function AzureYachtMarinaScene({ onEnter, onPositionChange, playerEnabled = true
       <LandmarkLabel position={[23, 7.2, -15]} label="AZURE YACHT CLUB" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
       <WayfindingPylon position={[8, 0.08, 28]} label="MAP · CBD · RESIDENCES" onEnter={onEnter} accent="#8deaff" />
       <PopulationLayer count={22} position={[4, 0, 10]} />
-      <Player scene="AZURE_YACHT_MARINA" onPositionChange={onPositionChange} enabled={playerEnabled} />
-      <Environment preset="sunset" />
+      <Player scene="AZURE_YACHT_MARINA" onPositionChange={onPositionChange} enabled={playerEnabled} spawnOverride={playerSpawn} headingOverride={playerHeading} />
     </>
   );
 }
 
-function CrownResidentialScene({ onEnter, onPositionChange, playerEnabled = true }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean }) {
+function CrownResidentialScene({ onEnter, onPositionChange, playerEnabled = true, horizonVisibility = 1, playerSpawn, playerHeading }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean; horizonVisibility?: number; playerSpawn?: [number, number, number]; playerHeading?: number }) {
   return (
     <>
-      <fog attach="fog" args={['#a9b9b7', 72, 188]} />
-      <Sky sunPosition={[-10, 8, -20]} turbidity={4.8} rayleigh={1.12} mieCoefficient={0.006} mieDirectionalG={0.82} />
-      <ambientLight intensity={0.36} color="#e4f4ff" />
-      <hemisphereLight intensity={0.4} color="#dff5ff" groundColor="#5b5140" />
-      <directionalLight castShadow position={[-16, 27, 16]} intensity={3.1} color="#ffd7a2" shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-36} shadow-camera-right={36} shadow-camera-top={48} shadow-camera-bottom={-32} />
-      <Suspense fallback={null}><CinematicHorizon src="/visuals/ampliworld-cbd-skyline-matte-v1.jpg" position={[0, 32, -84]} size={[148, 78]} opacity={0.78} /></Suspense>
+      <Suspense fallback={null}><CinematicHorizon src="/visuals/ampliworld-cbd-skyline-matte-v1.jpg" position={[0, 32, -84]} size={[148, 78]} opacity={0.78 * horizonVisibility} /></Suspense>
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[72, 74]} /><meshStandardMaterial color="#7d8378" roughness={0.74} /></mesh>
       <mesh receiveShadow position={[0, 0.035, 5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[25, 45]} /><meshPhysicalMaterial color="#c7c3b8" metalness={0.22} roughness={0.3} clearcoat={0.45} /></mesh>
       <mesh receiveShadow position={[0, 0.02, -32]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[72, 18]} /><meshPhysicalMaterial color="#288ca7" roughness={0.12} transparent opacity={0.88} /></mesh>
@@ -1511,13 +1733,12 @@ function CrownResidentialScene({ onEnter, onPositionChange, playerEnabled = true
       <LandmarkLabel position={[0, 4.4, 7]} label="RESIDENT SKY POOL · SEA VIEW" place="residences" atlasId="crown-residences" onEnter={onEnter} tone="residential-label" />
       <WayfindingPylon position={[-11, 0.08, 24]} label="MAP · MARINA · RIDGE" onEnter={onEnter} accent="#ffd598" />
       <PopulationLayer count={24} position={[0, 0, 14]} />
-      <Player scene="CROWN_RESIDENTIAL_TOWERS" onPositionChange={onPositionChange} enabled={playerEnabled} />
-      <Environment preset="sunset" />
+      <Player scene="CROWN_RESIDENTIAL_TOWERS" onPositionChange={onPositionChange} enabled={playerEnabled} spawnOverride={playerSpawn} headingOverride={playerHeading} />
     </>
   );
 }
 
-function MillionaireRidgeScene({ onEnter, onPositionChange, playerEnabled = true }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean }) {
+function MillionaireRidgeScene({ onEnter, onPositionChange, playerEnabled = true, horizonVisibility = 1, playerSpawn, playerHeading }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean; horizonVisibility?: number; playerSpawn?: [number, number, number]; playerHeading?: number }) {
   const villas = [
     { id: 'BLD-B01', name: 'HUA COURT', style: 'CHINESE' as const, position: [-15, 0, 18] as [number, number, number], rotation: Math.PI / 2 },
     { id: 'BLD-B02', name: 'COTSWOLD HOUSE', style: 'ENGLISH' as const, position: [15, 0, 18] as [number, number, number], rotation: -Math.PI / 2 },
@@ -1529,12 +1750,7 @@ function MillionaireRidgeScene({ onEnter, onPositionChange, playerEnabled = true
   ];
   return (
     <>
-      <fog attach="fog" args={['#b8b5a7', 76, 205]} />
-      <Sky sunPosition={[-15, 9, -22]} turbidity={5.5} rayleigh={1.15} mieCoefficient={0.006} mieDirectionalG={0.8} />
-      <ambientLight intensity={0.4} color="#f2ead7" />
-      <hemisphereLight intensity={0.34} color="#daeefe" groundColor="#554b3c" />
-      <directionalLight castShadow position={[-18, 28, 15]} intensity={3.05} color="#ffd3a0" shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-44} shadow-camera-right={44} shadow-camera-top={44} shadow-camera-bottom={-44} />
-      <Suspense fallback={null}><CinematicHorizon src="/visuals/ampliworld-millionaire-ridge.jpg" position={[0, 31, -83]} size={[150, 80]} opacity={0.88} /></Suspense>
+      <Suspense fallback={null}><CinematicHorizon src="/visuals/ampliworld-millionaire-ridge.jpg" position={[0, 31, -83]} size={[150, 80]} opacity={0.88 * horizonVisibility} /></Suspense>
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[84, 94]} /><meshStandardMaterial color="#687b60" roughness={0.76} /></mesh>
       <mesh receiveShadow position={[0, 0.035, 8]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[9, 66]} /><meshPhysicalMaterial color="#343b3b" metalness={0.24} roughness={0.44} clearcoat={0.35} /></mesh>
       {[-6.1, 6.1].map((x) => <mesh key={x} receiveShadow position={[x, 0.045, 8]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[2.1, 66]} /><meshStandardMaterial color="#bbb8aa" roughness={0.9} /></mesh>)}
@@ -1552,8 +1768,7 @@ function MillionaireRidgeScene({ onEnter, onPositionChange, playerEnabled = true
       </Suspense>
       <WayfindingPylon position={[-6.2, 0.08, 30]} label="VILLA DIRECTORY · MAP" onEnter={onEnter} accent="#ffd598" />
       <PopulationLayer count={14} position={[0, 0, 15]} />
-      <Player scene="MILLIONAIRE_RIDGE" onPositionChange={onPositionChange} enabled={playerEnabled} />
-      <Environment preset="sunset" />
+      <Player scene="MILLIONAIRE_RIDGE" onPositionChange={onPositionChange} enabled={playerEnabled} spawnOverride={playerSpawn} headingOverride={playerHeading} />
     </>
   );
 }
@@ -1597,40 +1812,98 @@ function StudioInterior({ onEnter, onPositionChange, playerEnabled = true }: { o
   );
 }
 
-function CyberCBD({ onEnter, onPositionChange, playerEnabled = true }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean }) {
-  const streetLights = [-30, -18, -4, 10, 24, 36];
+function GroundRoadSegment({ from, to, width = 7.2, accent = '#d8ca7c' }: {
+  from: [number, number];
+  to: [number, number];
+  width?: number;
+  accent?: string;
+}) {
+  const dx = to[0] - from[0];
+  const dz = to[1] - from[1];
+  const length = Math.hypot(dx, dz);
+  const rotation = Math.atan2(dx, dz);
+  return (
+    <group position={[(from[0] + to[0]) / 2, 0, (from[1] + to[1]) / 2]} rotation={[0, rotation, 0]}>
+      <mesh receiveShadow position={[0, 0.055, 0]}><boxGeometry args={[width, 0.11, length]} /><meshStandardMaterial color="#293033" roughness={0.9} /></mesh>
+      {[-1, 1].map((side) => <mesh key={side} position={[side * (width / 2 - 0.25), 0.125, 0]}><boxGeometry args={[0.09, 0.025, Math.max(0.1, length - 0.7)]} /><meshBasicMaterial color={accent} /></mesh>)}
+    </group>
+  );
+}
+
+function DistrictApproachGateway({ position, rotation, label, accent, onEnter }: {
+  position: [number, number, number];
+  rotation: number;
+  label: string;
+  accent: string;
+  onEnter: EnterPlace;
+}) {
+  return (
+    <group position={position} rotation={[0, rotation, 0]}>
+      <mesh receiveShadow position={[0, 0.07, 0]}><boxGeometry args={[12.6, 0.14, 20]} /><meshStandardMaterial color="#323b3b" roughness={0.82} /></mesh>
+      {[-5, 5].map((x) => <group key={`gate-${x}`} position={[x, 0, 0]}>
+        <mesh castShadow receiveShadow position={[0, 2.8, 0]}><boxGeometry args={[0.72, 5.6, 0.92]} /><meshPhysicalMaterial color="#d9d9cf" metalness={0.26} roughness={0.3} clearcoat={0.38} /></mesh>
+        <mesh position={[0, 4.42, 0.5]}><boxGeometry args={[0.45, 1.25, 0.06]} /><meshBasicMaterial color={accent} toneMapped={false} transparent opacity={0.78} /></mesh>
+      </group>)}
+      <mesh castShadow position={[0, 5.32, 0]}><boxGeometry args={[10.7, 0.58, 1.05]} /><meshPhysicalMaterial color="#d9d9cf" metalness={0.28} roughness={0.28} clearcoat={0.42} /></mesh>
+      <mesh position={[0, 5.34, 0.56]}><boxGeometry args={[7.8, 0.18, 0.05]} /><meshBasicMaterial color={accent} toneMapped={false} /></mesh>
+      {[-1, 1].flatMap((side) => [-7.4, -2.9, 3.2, 7.7].map((z, index) => <group key={`${side}-${z}`} position={[side * 7.05, 0, z]}>
+        <mesh receiveShadow position={[0, 0.28, 0]}><boxGeometry args={[2, 0.56, 1.25]} /><meshStandardMaterial color="#d1d3ca" roughness={0.5} /></mesh>
+        <ParkTree position={[0, 0.56, 0]} scale={0.78 + index * 0.04} />
+      </group>))}
+      <WayfindingPylon position={[-6.1, 0.1, -6.2]} label={label} onEnter={onEnter} accent={accent} />
+    </group>
+  );
+}
+
+function CBDEdgeApproaches({ onEnter }: { onEnter: EnterPlace }) {
+  return (
+    <group>
+      <GroundRoadSegment from={[0, -58]} to={[-33, -58]} width={7.6} accent="#75e6f4" />
+      <GroundRoadSegment from={[-33, -58]} to={[-34, -42]} width={6.4} accent="#75e6f4" />
+      <DistrictApproachGateway position={[-33, 0, -58]} rotation={Math.PI / 2} label="AZURE WATERFRONT · DISTRICT MAP" accent="#75e6f4" onEnter={onEnter} />
+
+      <GroundRoadSegment from={[0, 53]} to={[63, 55]} width={8.2} accent="#f2cf91" />
+      <GroundRoadSegment from={[63, 55]} to={[69, 39]} width={7.2} accent="#f2cf91" />
+      <DistrictApproachGateway position={[63, 0, 55]} rotation={Math.PI / 2} label="MILLIONAIRE RIDGE · DISTRICT MAP" accent="#f2cf91" onEnter={onEnter} />
+
+      <DistrictApproachGateway position={[0, 0, -69]} rotation={0} label="CROWN TOWERS · NORTH CITY LINK" accent="#bba1ff" onEnter={onEnter} />
+
+      <GroundRoadSegment from={[37, -8]} to={[37, 5]} width={5.4} accent="#71f2c4" />
+    </group>
+  );
+}
+
+function CyberCBD({ onEnter, onPositionChange, playerEnabled = true, horizonVisibility = 1, playerSpawn, playerHeading }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean; horizonVisibility?: number; playerSpawn?: [number, number, number]; playerHeading?: number }) {
+  const streetLights = [-68, -52, -36, -20, -4, 12, 28, 44, 60, 72];
+  const crossStreets = [-58, -8, 19, 53];
   return (
     <>
-      <fog attach="fog" args={['#c89b72', 72, 185]} />
-      <Sky sunPosition={[-11, 6, -16]} turbidity={5.2} rayleigh={1.18} mieCoefficient={0.008} mieDirectionalG={0.82} />
-      <ambientLight intensity={0.34} color="#ffe3bd" />
-      <hemisphereLight intensity={0.4} color="#cce9ff" groundColor="#504737" />
-      <directionalLight castShadow position={[-14, 28, 13]} intensity={3.05} color="#ffd29a" shadow-mapSize-width={2048} shadow-mapSize-height={2048} shadow-camera-left={-42} shadow-camera-right={42} shadow-camera-top={42} shadow-camera-bottom={-42} />
+      <Suspense fallback={null}><CinematicHorizon src="/visuals/ampliworld-cbd-skyline-matte-v1.jpg" position={[0, 34, -92]} size={[154, 82]} opacity={0.9 * horizonVisibility} /></Suspense>
 
-      <Suspense fallback={null}><CinematicHorizon src="/visuals/ampliworld-cbd-skyline-matte-v1.jpg" position={[0, 34, -92]} size={[154, 82]} opacity={0.9} /></Suspense>
-
-      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[112, 112]} /><meshStandardMaterial color="#74796f" roughness={0.76} /></mesh>
-      <mesh receiveShadow position={[0, 0.018, -5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[17.5, 104]} /><meshPhysicalMaterial color="#aaa79e" metalness={0.26} roughness={0.28} clearcoat={0.48} clearcoatRoughness={0.24} /></mesh>
-      {[-12, 12].map((x) => <mesh key={x} receiveShadow position={[x, 0.025, -5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[6.5, 104]} /><meshStandardMaterial color="#272e30" roughness={0.78} /></mesh>)}
-      {[-9.25, 9.25].map((x) => <mesh key={x} position={[x, 0.046, -5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.72, 102]} /><meshStandardMaterial color="#318e9b" metalness={0.18} roughness={0.22} transparent opacity={0.88} /></mesh>)}
-      {[-8, 19].map((z) => <group key={z}><mesh receiveShadow position={[2, 0.031, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[76, 6.5]} /><meshStandardMaterial color="#2a3032" roughness={0.96} /></mesh>{[-31, -17, -3, 11, 25, 36].map((x) => <mesh key={x} position={[x, 0.052, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[5.5, 0.09]} /><meshBasicMaterial color="#ddc878" /></mesh>)}</group>)}
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[160, 160]} /><meshStandardMaterial color="#74796f" roughness={0.76} /></mesh>
+      <mesh receiveShadow position={[0, 0.018, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[18.8, 154]} /><meshPhysicalMaterial color="#aaa79e" metalness={0.26} roughness={0.28} clearcoat={0.48} clearcoatRoughness={0.24} /></mesh>
+      {[-12.65, 12.65].map((x) => <mesh key={x} receiveShadow position={[x, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[7.4, 154]} /><meshStandardMaterial color="#272e30" roughness={0.78} /></mesh>)}
+      {[-9.75, 9.75].map((x) => <mesh key={x} position={[x, 0.046, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.74, 152]} /><meshStandardMaterial color="#318e9b" metalness={0.18} roughness={0.22} transparent opacity={0.88} /></mesh>)}
+      {crossStreets.map((z) => <group key={z}><mesh receiveShadow position={[0, 0.031, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[150, 7.2]} /><meshStandardMaterial color="#2a3032" roughness={0.96} /></mesh>{streetLights.map((x) => <mesh key={x} position={[x, 0.052, z]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[6.1, 0.09]} /><meshBasicMaterial color="#ddc878" /></mesh>)}</group>)}
 
       <Suspense fallback={null}><LuxuryRetailArcades /></Suspense>
       <WaterfrontMarina onEnter={onEnter} />
+      <CBDEdgeApproaches onEnter={onEnter} />
       <SciFiResidenceTower position={[-27, 0, -28]} variant="HELIX" label="HELIX ONE" onEnter={onEnter} />
       <SciFiResidenceTower position={[28, 0, -30]} variant="PRISM" label="PRISM HOUSE" onEnter={onEnter} />
       <SciFiResidenceTower position={[-31, 0, -42]} variant="BRIDGE" label="SKYBRIDGE RESIDENCES" onEnter={onEnter} />
       <StockExchangeRotunda onEnter={onEnter} />
       <Building position={[-18, 0, -12]} size={[4.4, 5.1, 3.5]} color="#1d2434" glow="#718cff" label="CAREER TOWER" place="career" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-skyscraper-d.glb`} assetScale={1.12} labelHeight={5.7} />
       <Building position={[18, 0, -12]} size={[4.2, 3.3, 3.4]} color="#291b36" glow="#c366ff" label="NEON ATELIER" place="fashion" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-k.glb`} assetScale={2.05} labelHeight={3.8} />
-      <Building position={[-18, 0, 0]} size={[4.1, 3.2, 3.5]} color="#36241a" glow="#ff9d45" label="NOVA DINING" place="restaurant" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-h.glb`} assetScale={2.2} labelHeight={3.65} />
-      <Building position={[18, 0, 0]} size={[4.4, 5.3, 3.7]} color="#172b36" glow="#4dbdff" label="SKYLINE REALTY" place="property" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-skyscraper-a.glb`} assetScale={1.65} labelHeight={5.8} />
+      <DiningPrecinct onEnter={onEnter} />
+      <Building position={[17.55, 0, 0]} size={[4.4, 5.3, 3.7]} color="#172b36" glow="#4dbdff" label="SKYLINE REALTY" place="property" onEnter={onEnter} assetUrl={`${COMMERCIAL_ASSET_ROOT}/building-skyscraper-a.glb`} assetScale={1.65} labelHeight={5.8} />
 
       <CivicHospital onEnter={onEnter} />
       <CivicSafetyHQ onEnter={onEnter} />
       <AcademyCampus onEnter={onEnter} />
       <FreshMarket onEnter={onEnter} />
       <Auto4SDealership onEnter={onEnter} />
+      <EnergyResearchCampus onEnter={onEnter} />
       <MidriseCommunity onEnter={onEnter} />
 
       <group position={[0, 0, 13]}>
@@ -1641,23 +1914,22 @@ function CyberCBD({ onEnter, onPositionChange, playerEnabled = true }: { onEnter
         <Html position={[3.9, 2.8, -1]} center distanceFactor={13} zIndexRange={[3, 0]}><button className="world-label enterable" onClick={() => onEnter('social')}>SOCIAL PLAZA · PREVIEW</button></Html>
       </group>
 
-      <ArrivalSpine tone="CBD" position={[0, 0.02, 11]} length={48} width={15.6} />
+      <ArrivalSpine tone="CBD" position={[0, 0.02, 16]} length={102} width={16.6} />
 
       <Suspense fallback={null}>
         {streetLights.flatMap((z) => [-7.7, 7.7].map((x) => <StaticAsset key={`${x}-${z}`} url={`${ROAD_ASSET_ROOT}/light-curved.glb`} position={[x, 0.05, z]} rotation={[0, x < 0 ? 0 : Math.PI, 0]} scale={1.3} shadows={false} />))}
         <StaticAsset url={`${ROAD_ASSET_ROOT}/traffic-light-object-vertical.glb`} position={[-8.4, 0.05, -8]} scale={1.4} shadows={false} />
         <StaticAsset url={`${ROAD_ASSET_ROOT}/traffic-light-object-vertical.glb`} position={[8.4, 0.05, 19]} rotation={[0, Math.PI, 0]} scale={1.4} shadows={false} />
       </Suspense>
-      <WayfindingPylon position={[-7.7, 0.08, 26.5]} label="CITY DIRECTORY · MAP" onEnter={onEnter} />
+      <WayfindingPylon position={[-8.15, 0.08, 63]} label="6.4 KM CITY CORE · DIRECTORY" onEnter={onEnter} />
       <CityTraffic />
       <PopulationLayer count={36} position={[0, 0, 18]} />
-      <Player scene="CBD" onPositionChange={onPositionChange} enabled={playerEnabled} />
-      <Environment preset="sunset" />
+      <Player scene="CBD" onPositionChange={onPositionChange} enabled={playerEnabled} spawnOverride={playerSpawn} headingOverride={playerHeading} />
     </>
   );
 }
 
-function World({ onEnter, onNotice, onPositionChange, scene = 'STARTER_ARCOLOGY', residenceBlock = '071', place, controlsEnabled = true }: {
+function World({ onEnter, onNotice, onPositionChange, scene = 'STARTER_ARCOLOGY', residenceBlock = '071', place, controlsEnabled = true, horizonVisibility = 1, playerEntry }: {
   onEnter: EnterPlace;
   onNotice: (message: string) => void;
   onPositionChange?: (location: PlayerLocation) => void;
@@ -1665,18 +1937,20 @@ function World({ onEnter, onNotice, onPositionChange, scene = 'STARTER_ARCOLOGY'
   residenceBlock?: string;
   place?: Place;
   controlsEnabled?: boolean;
+  horizonVisibility?: number;
+  playerEntry?: SceneEntryOverride | null;
 }) {
+  const entry = playerEntry?.scene === scene ? playerEntry : null;
   if (scene === 'STARTER_ARCOLOGY' && place === 'studio') return <StudioInterior onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} />;
-  if (scene === 'CBD') return <CyberCBD onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} />;
-  if (scene === 'AZURE_YACHT_MARINA') return <AzureYachtMarinaScene onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} />;
-  if (scene === 'CROWN_RESIDENTIAL_TOWERS') return <CrownResidentialScene onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} />;
-  if (scene === 'MILLIONAIRE_RIDGE') return <MillionaireRidgeScene onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} />;
+  if (scene === 'CBD') return <CyberCBD onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} horizonVisibility={horizonVisibility} playerSpawn={entry?.spawn} playerHeading={entry?.heading} />;
+  if (scene === 'AZURE_YACHT_MARINA') return <AzureYachtMarinaScene onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} horizonVisibility={horizonVisibility} playerSpawn={entry?.spawn} playerHeading={entry?.heading} />;
+  if (scene === 'CROWN_RESIDENTIAL_TOWERS') return <CrownResidentialScene onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} horizonVisibility={horizonVisibility} playerSpawn={entry?.spawn} playerHeading={entry?.heading} />;
+  if (scene === 'MILLIONAIRE_RIDGE') return <MillionaireRidgeScene onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} horizonVisibility={horizonVisibility} playerSpawn={entry?.spawn} playerHeading={entry?.heading} />;
   return (
     <>
       <StarterArcology onEnter={onEnter} onNotice={onNotice} residenceBlock={residenceBlock} />
       <PopulationLayer position={[0, 0, 4]} />
       <Player scene="STARTER_ARCOLOGY" onPositionChange={onPositionChange} enabled={controlsEnabled} />
-      <Environment preset="dawn" />
     </>
   );
 }
@@ -1690,9 +1964,7 @@ function MiniMap({ scene, residenceBlock, location, onOpen }: {
   const effectiveLocation = location.scene === scene
     ? location
     : { scene, x: SCENE_PROFILES[scene].spawn[0], z: SCENE_PROFILES[scene].spawn[2] };
-  const profile = SCENE_PROFILES[effectiveLocation.scene];
-  const markerX = THREE.MathUtils.clamp((effectiveLocation.x - profile.bounds.minX) / (profile.bounds.maxX - profile.bounds.minX) * 100, 4, 96);
-  const markerY = THREE.MathUtils.clamp((profile.bounds.maxZ - effectiveLocation.z) / (profile.bounds.maxZ - profile.bounds.minZ) * 100, 4, 96);
+  const localRadius = scene === 'CBD' ? 18 : scene === 'STARTER_ARCOLOGY' ? 16 : 14;
   const label = scene === 'STARTER_ARCOLOGY'
     ? `BLOCK ${residenceBlock}`
     : scene === 'CBD'
@@ -1714,6 +1986,16 @@ function MiniMap({ scene, residenceBlock, location, onOpen }: {
             { id: 'home', label: 'HOME', x: -15, z: -6, kind: 'home' },
             { id: 'metro', label: 'METRO', x: 0, z: -18, kind: 'market' },
           ];
+  const nearbyLandmarks = landmarks.flatMap((node) => {
+    const offsetX = node.x - effectiveLocation.x;
+    const offsetZ = node.z - effectiveLocation.z;
+    if (Math.abs(offsetX) > localRadius || Math.abs(offsetZ) > localRadius) return [];
+    return [{
+      ...node,
+      screenX: THREE.MathUtils.clamp(50 + offsetX / (localRadius * 2) * 100, 4, 96),
+      screenY: THREE.MathUtils.clamp(50 - offsetZ / (localRadius * 2) * 100, 4, 96),
+    }];
+  });
   return (
     <button
       className={`mini-map ${scene === 'STARTER_ARCOLOGY' ? 'arcology' : 'city'}`}
@@ -1725,14 +2007,10 @@ function MiniMap({ scene, residenceBlock, location, onOpen }: {
       <span className="mini-map-header"><MapIcon /><b>{label}</b><small>OPEN MAP</small></span>
       <span className="mini-map-surface">
         <i className="mini-road vertical" /><i className="mini-road horizontal" />
-        {landmarks.map((node) => {
-          const nodeX = THREE.MathUtils.clamp((node.x - profile.bounds.minX) / (profile.bounds.maxX - profile.bounds.minX) * 100, 4, 96);
-          const nodeY = THREE.MathUtils.clamp((profile.bounds.maxZ - node.z) / (profile.bounds.maxZ - profile.bounds.minZ) * 100, 4, 96);
-          return <i className={`mini-landmark ${node.kind}`} style={{ left: `${nodeX}%`, bottom: `${nodeY}%` }} title={node.label} key={node.id} />;
-        })}
-        <span className="mini-player" style={{ left: `${markerX}%`, bottom: `${markerY}%` }}><MapPin /></span>
+        {nearbyLandmarks.map((node) => <i className={`mini-landmark ${node.kind}`} style={{ left: `${node.screenX}%`, top: `${node.screenY}%` }} title={`${node.label} · nearby point of interest`} key={node.id} />)}
+        <span className="mini-player" style={{ left: '50%', top: '50%' }}><MapPin /></span>
       </span>
-      <span className="mini-coordinates">LOCAL X {effectiveLocation.x.toFixed(1)} · Z {effectiveLocation.z.toFixed(1)}</span>
+      <span className="mini-coordinates">LOCAL WINDOW · X {effectiveLocation.x.toFixed(1)} · Z {effectiveLocation.z.toFixed(1)}</span>
     </button>
   );
 }
@@ -1742,31 +2020,125 @@ function CityAtlas({ selectedId, playerNodeId, onSelect }: {
   playerNodeId: string;
   onSelect: (nodeId: string) => void;
 }) {
-  const playerNode = WORLD_ATLAS.find((node) => node.id === playerNodeId) ?? WORLD_ATLAS[0];
+  const atlasNodes: readonly AtlasNode[] = WORLD_ATLAS;
+  const playerNode = atlasNodes.find((node) => node.id === playerNodeId) ?? atlasNodes[0];
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{ pointerId: number; x: number; y: number; panX: number; panY: number } | null>(null);
+  const metroStations = [
+    { id: 'M0', name: 'Arcology Terminal', x: 2, y: 4, nodeId: 'starter' },
+    { id: 'M2', name: 'Azure Harbor', x: 2.8, y: 21, nodeId: 'yacht-marina' },
+    { id: 'M4', name: 'Grand Exchange', x: 14, y: 18, nodeId: 'cbd' },
+    { id: 'M5', name: 'Crown Central', x: 15, y: 20.5, nodeId: 'crown-residences' },
+    { id: 'M6', name: 'Ridge Gate', x: 16.5, y: 24.5, nodeId: 'ridge' },
+  ] as const;
+
+  const clampPan = (next: { x: number; y: number }, nextZoom = zoom) => {
+    const viewport = viewportRef.current;
+    const width = viewport?.clientWidth ?? 600;
+    const height = viewport?.clientHeight ?? 390;
+    const maxX = width * Math.max(0, nextZoom - 1) / 2;
+    const maxY = height * Math.max(0, nextZoom - 1) / 2;
+    return {
+      x: THREE.MathUtils.clamp(next.x, -maxX, maxX),
+      y: THREE.MathUtils.clamp(next.y, -maxY, maxY),
+    };
+  };
+  const changeZoom = (amount: number) => {
+    const nextZoom = THREE.MathUtils.clamp(Number((zoom + amount).toFixed(2)), 1, 4);
+    setZoom(nextZoom);
+    setPan((current) => clampPan(current, nextZoom));
+  };
+  const resetView = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+  const startPan = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if ((event.target as HTMLElement).closest('button')) return;
+    dragRef.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, panX: pan.x, panY: pan.y };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+  const movePan = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    setPan(clampPan({ x: drag.panX + event.clientX - drag.x, y: drag.panY + event.clientY - drag.y }));
+  };
+  const endPan = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragRef.current?.pointerId !== event.pointerId) return;
+    dragRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  };
+
   return (
     <div className="atlas-map-column">
-      <div className="world-atlas full" aria-label="Interactive 20 by 30 kilometer AmpliWorld city atlas">
-        <span className="atlas-sea">WEST COAST</span><span className="atlas-mountains">NORTH HIGHLANDS</span><span className="atlas-width">20 KM</span><span className="atlas-height">30 KM</span>
-        <svg className="atlas-routes" viewBox="0 0 20 30" preserveAspectRatio="none" aria-hidden="true">
-          <polyline className="green-line" points="2,26 5.5,22 8,19 11,14 14,12" />
-          <polyline className="blue-line" points="1,20 2,15 11,14 14,12" />
-          <polyline className="east-line" points="8,19 18,20.5 16.5,16 14,12" />
-          <polyline className="ferry-line" points="2,15 2.8,9" />
-        </svg>
-        {WORLD_ATLAS.map((node) => <button
-          type="button"
-          className={`atlas-node ${node.kind.toLowerCase()} ${selectedId === node.id ? 'selected' : ''}`}
-          style={{ left: `${node.x / 20 * 100}%`, bottom: `${node.y / 30 * 100}%` }}
-          onClick={() => onSelect(node.id)}
-          aria-label={`${node.name}, ${node.zone}, grid ${node.x} east ${node.y} north`}
-          aria-pressed={selectedId === node.id}
-          title={node.name}
-          key={node.id}
-        ><i /><b>{node.name}</b></button>)}
-        <span className="atlas-player" style={{ left: `${playerNode.x / 20 * 100}%`, bottom: `${playerNode.y / 30 * 100}%` }}><MapPin /><b>YOU</b></span>
+      <div className="atlas-toolbar" aria-label="Map view controls">
+        <span><b>AMPLIWORLD CONTINENTAL ATLAS</b><small>{PLAYABLE_CORE_KM} × {PLAYABLE_CORE_KM} KM LIVE CORE · {REPRESENTED_REGION_KM} × {REPRESENTED_REGION_HEIGHT_KM} KM REGION</small></span>
+        <button type="button" onClick={() => changeZoom(-0.35)} disabled={zoom <= 1} aria-label="Zoom map out">−</button>
+        <output aria-live="polite">{Math.round(zoom * 100)}%</output>
+        <button type="button" onClick={() => changeZoom(0.35)} disabled={zoom >= 4} aria-label="Zoom map in">+</button>
+        <button type="button" className="atlas-reset" onClick={resetView}>RESET</button>
       </div>
-      <div className="atlas-node-list" aria-label="City locations">
-        {WORLD_ATLAS.map((node) => <button type="button" className={selectedId === node.id ? 'selected' : ''} onClick={() => onSelect(node.id)} aria-pressed={selectedId === node.id} key={`${node.id}-list`}>{node.name}</button>)}
+      <div
+        ref={viewportRef}
+        className="world-atlas full"
+        aria-label={`Interactive compressed AmpliWorld atlas representing a ${REPRESENTED_REGION_KM} by ${REPRESENTED_REGION_HEIGHT_KM} kilometer regional economy`}
+        onPointerDown={startPan}
+        onPointerMove={movePan}
+        onPointerUp={endPan}
+        onPointerCancel={endPan}
+        onDoubleClick={resetView}
+        onWheel={(event) => {
+          event.preventDefault();
+          changeZoom(event.deltaY < 0 ? 0.22 : -0.22);
+        }}
+      >
+        <div className="atlas-camera" style={{ transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})` }}>
+          <div className="atlas-terrain">
+            <span className="atlas-region atlas-coast"><b>AZURE COAST</b><i>MARINAS · PORT · ISLANDS</i></span>
+            <span className="atlas-region atlas-starter"><b>SOUTH ARCOLOGY</b><i>1,000 TOWERS</i></span>
+            <span className="atlas-region atlas-civic"><b>MERIDIAN CIVIC CAMPUS</b><i>HOSPITAL · SAFETY · ACADEMY</i></span>
+            <span className="atlas-region atlas-cbd"><b>GREATER CYBER CBD</b><i>{PLAYABLE_CORE_KM} × {PLAYABLE_CORE_KM} KM LIVE CORE</i></span>
+            <span className="atlas-region atlas-ridge"><b>MILLIONAIRE RIDGE</b><i>HILLSIDE ESTATES</i></span>
+            <span className="atlas-region atlas-highlands"><b>NORTH HIGHLANDS</b><i>ENERGY · RESEARCH · RESERVOIRS</i></span>
+            <span className="atlas-sea">WESTERN OCEAN</span><span className="atlas-mountains">NORTH HIGHLANDS</span><span className="atlas-width">{REPRESENTED_REGION_KM} KM</span><span className="atlas-height">{REPRESENTED_REGION_HEIGHT_KM} KM</span>
+            <svg className="atlas-roads" viewBox="0 0 20 30" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M2 26 C5 23 8 20 11 16 S14 13 14 12" />
+              <path d="M1 20 C5 18 9 16 14 12 S17 10 18 8" />
+              <path d="M5.5 22 C9 20 13 18 16.5 16 S17 12 18 9.5" />
+            </svg>
+            <svg className="atlas-routes" viewBox="0 0 20 30" preserveAspectRatio="none" aria-hidden="true">
+              <polyline className="green-line" points="2,26 5.5,22 8,19 11,14 14,12 15,9.5 16.5,5.5" />
+              <polyline className="blue-line" points="1,20 2,15 11,14 14,12" />
+              <polyline className="east-line" points="8,19 18,20.5 16.5,16 14,12" />
+              <polyline className="ferry-line" points="2,15 2.8,9" />
+            </svg>
+            {metroStations.map((station) => <button
+              type="button"
+              className="atlas-station"
+              style={{ left: `${station.x / 20 * 100}%`, bottom: `${station.y / 30 * 100}%` }}
+              onClick={() => onSelect(station.nodeId)}
+              aria-label={`${station.id} ${station.name} metro station`}
+              title={`${station.id} · ${station.name}`}
+              key={station.id}
+            ><TrainFront /><b>{station.id}</b></button>)}
+            {atlasNodes.map((node) => <button
+              type="button"
+              className={`atlas-node ${node.kind.toLowerCase()} ${node.scene ? 'hub' : 'poi'} ${selectedId === node.id ? 'selected' : ''}`}
+              style={{ left: `${node.x / 20 * 100}%`, bottom: `${node.y / 30 * 100}%` }}
+              onClick={() => onSelect(node.id)}
+              aria-label={`${node.name}, ${node.zone}, grid ${node.x} east ${node.y} north, ${node.scene ? 'transit district hub' : 'inspectable point of interest'}`}
+              aria-pressed={selectedId === node.id}
+              title={`${node.name} · ${node.scene ? 'district hub' : 'inspect only'}`}
+              key={node.id}
+            ><i /><b>{node.name}</b></button>)}
+            <span className="atlas-player" style={{ left: `${playerNode.x / 20 * 100}%`, bottom: `${playerNode.y / 30 * 100}%` }}><MapPin /><b>YOU</b></span>
+          </div>
+        </div>
+        <span className="atlas-gesture-hint">DRAG TO PAN · SCROLL TO ZOOM · DOUBLE-CLICK TO RESET</span>
+      </div>
+      <div className="atlas-node-list" aria-label="District hubs and city points of interest">
+        {atlasNodes.map((node) => <button type="button" className={`${selectedId === node.id ? 'selected' : ''} ${node.scene ? 'hub' : 'poi'}`} onClick={() => onSelect(node.id)} aria-pressed={selectedId === node.id} key={`${node.id}-list`}><i>{node.scene ? 'HUB' : 'POI'}</i>{node.name}</button>)}
       </div>
     </div>
   );
@@ -1776,6 +2148,25 @@ function TouchControls() {
   const move = (key: string, pressed: boolean) => window.dispatchEvent(new CustomEvent('ampliworld-move', { detail: { key, pressed } }));
   const bind = (key: string) => ({ onPointerDown: () => move(key, true), onPointerUp: () => move(key, false), onPointerCancel: () => move(key, false), onPointerLeave: () => move(key, false) });
   return <div className="touch-controls"><button {...bind('w')} aria-label="Walk forward"><ChevronUp /></button><button {...bind('a')} aria-label="Turn left"><ChevronLeft /></button><button {...bind('s')} aria-label="Walk backward"><ChevronDown /></button><button {...bind('d')} aria-label="Turn right"><ChevronRight /></button></div>;
+}
+
+function CameraLookControls() {
+  const look = (direction: number, pressed: boolean) => window.dispatchEvent(new CustomEvent('ampliworld-look', { detail: { direction, pressed } }));
+  const startLook = (direction: number, event: ReactPointerEvent<HTMLButtonElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    look(direction, true);
+  };
+  const stopLook = (direction: number, event: ReactPointerEvent<HTMLButtonElement>) => {
+    look(direction, false);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  };
+  const bind = (direction: number) => ({ onPointerDown: (event: ReactPointerEvent<HTMLButtonElement>) => startLook(direction, event), onPointerUp: (event: ReactPointerEvent<HTMLButtonElement>) => stopLook(direction, event), onPointerCancel: (event: ReactPointerEvent<HTMLButtonElement>) => stopLook(direction, event), onLostPointerCapture: () => look(direction, false) });
+  const keyboardLook = (direction: number, clickDetail: number) => {
+    if (clickDetail !== 0) return;
+    look(direction, true);
+    look(direction, false);
+  };
+  return <div className="camera-look-controls" aria-label="Camera tilt controls"><small>CAMERA</small><button type="button" {...bind(1)} onClick={(event) => keyboardLook(1, event.detail)} aria-label="Look up at the skyline and sky" title="Look up"><ChevronUp /><span>SKY</span></button><i /><button type="button" {...bind(-1)} onClick={(event) => keyboardLook(-1, event.detail)} aria-label="Look down toward the street" title="Look down"><ChevronDown /><span>GROUND</span></button></div>;
 }
 
 function VisionPanel({ image, label, alt }: { image: string; label: string; alt: string }) {
@@ -1806,6 +2197,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
   const [reliefClaimsRemaining, setReliefClaimsRemaining] = useState(2);
   const [currentDistrict, setCurrentDistrict] = useState<WorldDistrict>('STARTER_ARCOLOGY');
   const [activeScene, setActiveScene] = useState<WorldSceneId>('STARTER_ARCOLOGY');
+  const [sceneEntry, setSceneEntry] = useState<SceneEntryOverride | null>(null);
   const [starterTower, setStarterTower] = useState(71);
   const [starterFloor, setStarterFloor] = useState(38);
   const [starterUnit, setStarterUnit] = useState(184);
@@ -1835,7 +2227,42 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
   const [journey, setJourney] = useState<Journey | null>(null);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
   const [missions, setMissions] = useState({ firstTrade: false, firstPurchase: false, firstJob: false });
+  const [worldMinutes, setWorldMinutes] = useState(WORLD_CLOCK_START_MINUTES);
   const actionLock = useRef(false);
+
+  useEffect(() => {
+    const clock = window.setInterval(() => {
+      setWorldMinutes((minutes) => (minutes + WORLD_MINUTES_PER_SECOND) % 1440);
+    }, 1000);
+    return () => window.clearInterval(clock);
+  }, []);
+
+  const handlePositionChange = useCallback((location: PlayerLocation) => {
+    setLocalPosition(location);
+    if (place || journey) return;
+    const { scene, x, z } = location;
+    let transition: (SceneEntryOverride & { message: string }) | null = null;
+
+    if (scene === 'CBD' && x <= -41 && z <= -50) {
+      transition = { scene: 'AZURE_YACHT_MARINA', spawn: [30, 0, 0], heading: -Math.PI / 2, message: 'CONTINUOUS ROAD LINK · ENTERED AZURE WATERFRONT ON FOOT' };
+    } else if (scene === 'CBD' && x >= 71 && z >= 48) {
+      transition = { scene: 'MILLIONAIRE_RIDGE', spawn: [0, 0, 32], heading: Math.PI, message: 'CONTINUOUS ROAD LINK · CLIMBED INTO MILLIONAIRE RIDGE' };
+    } else if (scene === 'CBD' && z <= -75 && Math.abs(x) <= 10) {
+      transition = { scene: 'CROWN_RESIDENTIAL_TOWERS', spawn: [0, 0, 25], heading: Math.PI, message: 'CONTINUOUS ROAD LINK · ENTERED CROWN RESIDENTIAL' };
+    } else if (scene === 'AZURE_YACHT_MARINA' && x >= 33) {
+      transition = { scene: 'CBD', spawn: [-39, 0, -58], heading: Math.PI / 2, message: 'CONTINUOUS ROAD LINK · RETURNED TO THE CBD WATERFRONT ROAD' };
+    } else if (scene === 'MILLIONAIRE_RIDGE' && z >= 36 && Math.abs(x) <= 8) {
+      transition = { scene: 'CBD', spawn: [68, 0, 55], heading: -Math.PI / 2, message: 'CONTINUOUS ROAD LINK · DESCENDED TO THE CBD RIDGE ROAD' };
+    } else if (scene === 'CROWN_RESIDENTIAL_TOWERS' && z >= 29 && Math.abs(x) <= 8) {
+      transition = { scene: 'CBD', spawn: [0, 0, -72], heading: 0, message: 'CONTINUOUS ROAD LINK · RETURNED TO GRAND MARKET AVENUE' };
+    }
+
+    if (!transition) return;
+    setSceneEntry({ scene: transition.scene, spawn: transition.spawn, heading: transition.heading });
+    setActiveScene(transition.scene);
+    setSelectedAtlasId(SCENE_ATLAS_IDS[transition.scene]);
+    setNotice(transition.message);
+  }, [journey, place]);
 
   const portfolio = useMemo(() => holdings.reduce((total, holding) => {
     const price = stocks.find((stock) => stock.symbol === holding.symbol)?.price ?? holding.avgPrice;
@@ -1850,6 +2277,10 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
     return total + holding.quantity * price * rate;
   }, 0);
   const marginExcess = cash + portfolioEquity - maintenanceMargin;
+  const worldHour = worldMinutes / 60;
+  const dayPhase = getDayPhase(worldHour);
+  const horizonVisibility = getHorizonVisibility(worldHour);
+  const atmosphereFog = ATMOSPHERE_FOG_RANGES[activeScene];
 
   const applySnapshot = (data: GameApiResponse, syncActiveScene = true) => {
     const player = data.player ?? data;
@@ -1869,7 +2300,10 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
     setReliefClaimsRemaining(readableNumber(player.reliefClaimsRemaining, 2));
     if (district === 'STARTER_ARCOLOGY' || district === 'CBD') {
       setCurrentDistrict(district);
-      if (syncActiveScene) setActiveScene((current) => sceneDistrict(current) === district ? current : district);
+      if (syncActiveScene) {
+        setSceneEntry(null);
+        setActiveScene((current) => sceneDistrict(current) === district ? current : district);
+      }
     }
     setStarterTower(readableNumber(residence?.tower ?? player.starterTower, 71));
     setStarterFloor(readableNumber(residence?.floor ?? player.starterFloor, 38));
@@ -1969,6 +2403,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
     const atlasNode: AtlasNode | undefined = atlasId ? WORLD_ATLAS.find((node) => node.id === atlasId) : undefined;
     if (atlasNode) setSelectedAtlasId(atlasNode.id);
     if (atlasNode?.scene && atlasNode.scene !== activeScene && sceneDistrict(atlasNode.scene) === currentDistrict) {
+      setSceneEntry(null);
       setActiveScene(atlasNode.scene);
       setPlace(null);
       setPendingDestination(null);
@@ -2050,6 +2485,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
       setPendingDestination(null);
       setPendingAtlasId(null);
       setSelectedAtlasId(nextAtlasId ?? (destination === 'CBD' ? 'cbd' : 'starter'));
+      setSceneEntry(null);
       setActiveScene(nextScene);
       setPlace(nextAtlasNode?.scene
         ? null
@@ -2426,6 +2862,13 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
   };
 
   const openSelectedAtlasNode = () => {
+    if (selectedIsCurrent) {
+      setPlace(null);
+      setPendingDestination(null);
+      setPendingAtlasId(null);
+      setNotice(`${selectedAtlasNode.name.toUpperCase()} · RETURNED TO THE STREET`);
+      return;
+    }
     if (selectedAtlasNode.availability === 'PLANNED' || !selectedAtlasNode.place) {
       setNotice(`${selectedAtlasNode.name.toUpperCase()} · PLANNED AREA · NO FALSE ENTRY POINT`);
       return;
@@ -2441,6 +2884,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
       return;
     }
     if (selectedAtlasNode.scene) {
+      setSceneEntry(null);
       setActiveScene(selectedAtlasNode.scene);
       setPlace(null);
       setPendingDestination(null);
@@ -2453,12 +2897,15 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
 
   return (
     <main className="game">
-      <header><div className="logo">A</div><div><b>AMPLIWORLD</b><small>THE LIVING MARKET</small></div><div className="day">DAY {String(day).padStart(3, '0')} · 20:42 · {locationLabel}</div><div className="player"><span>{playerName}</span>{signedIn ? <i>CLOUD SAVE</i> : <a href={signInPath} target="_top">SIGN IN TO SAVE</a>}</div></header>
+      <header><div className="logo">A</div><div><b>AMPLIWORLD</b><small>THE LIVING MARKET</small></div><div className="day">DAY {String(day).padStart(3, '0')} · {formatWorldTime(worldMinutes)} {dayPhase} · {locationLabel}</div><div className="player"><span>{playerName}</span>{signedIn ? <i>CLOUD SAVE</i> : <a href={signInPath} target="_top">SIGN IN TO SAVE</a>}</div></header>
       <section className="playfield">
-        <Canvas aria-label="Playable AmpliWorld city" tabIndex={0} shadows dpr={[1, 1.5]} camera={{ position: [0, 3.5, 6.4], fov: 48 }}><World key={activeScene} onEnter={openPlace} onNotice={setNotice} onPositionChange={setLocalPosition} scene={activeScene} residenceBlock={residenceBlock} place={place} controlsEnabled={(!place || place === 'studio') && !journey} /></Canvas>
+        <Canvas aria-label="Playable AmpliWorld city" tabIndex={0} shadows dpr={[1, 1.5]} camera={{ position: [0, 3.5, 6.4], fov: 48 }}>
+          {place !== 'studio' && <DynamicAtmosphere hour={worldHour} fogNear={atmosphereFog.near} fogFar={atmosphereFog.far} />}
+          <World key={activeScene} onEnter={openPlace} onNotice={setNotice} onPositionChange={handlePositionChange} scene={activeScene} residenceBlock={residenceBlock} place={place} controlsEnabled={(!place || place === 'studio') && !journey} horizonVisibility={horizonVisibility} playerEntry={sceneEntry} />
+        </Canvas>
         {!place && <MiniMap scene={activeScene} residenceBlock={residenceBlock} location={localPosition} onOpen={() => openPlace('map')} />}
         <div className={`mission ${activeScene === 'STARTER_ARCOLOGY' ? 'arcology-mission' : ''}`}><small>{activeScene === 'STARTER_ARCOLOGY' ? `BLOCK ${residenceBlock} · FLOOR ${starterFloor} · UNIT ${starterUnit}` : locationLabel}</small><b>{activeScene === 'STARTER_ARCOLOGY' ? 'Turn $10,000 into a way out' : activeScene === 'CBD' ? 'Make every paid trip count' : 'Walk the district · learn the living market'}</b><span aria-live="polite">{notice}</span><div className="mission-track"><i className={missions.firstTrade ? 'done' : ''}>TRADE</i><i className={missions.firstJob ? 'done' : ''}>JOB</i><i className={missions.firstPurchase ? 'done' : ''}>MOVE UP</i></div></div>
-        <div className="controls"><kbd>W</kbd>/<kbd>S</kbd> WALK · <kbd>A</kbd>/<kbd>D</kbd> TURN · CAMERA FOLLOWS FROM BEHIND · <kbd>M</kbd> MAP</div><TouchControls />
+        <div className="controls"><kbd>W</kbd>/<kbd>S</kbd> WALK · <kbd>A</kbd>/<kbd>D</kbd> TURN · TWO-FINGER SWIPE LOOK · <kbd>M</kbd> MAP</div><TouchControls />{(!place || place === 'studio') && !journey && <CameraLookControls />}
         <aside className="hud"><div><WalletCards /><span>CASH<big>${cash.toLocaleString(undefined, { maximumFractionDigits: 0 })}</big></span></div><div><Banknote /><span>MARKET EQUITY<big>${portfolioEquity.toLocaleString(undefined, { maximumFractionDigits: 0 })}</big></span></div><div><Smile /><span>HAPPINESS<big>{happiness}%</big></span></div><div><Leaf /><span>NUTRITION · FEE<big>{nutrition}% · {tradingFeeBps} bps</big></span></div><div><Trophy /><span>CITY STATUS<big>{netWorth >= 1_000_000 ? 'VIRTUAL RIDGE' : netWorth >= 100_000 ? 'ISLAND ELIGIBLE' : 'ARCOLOGY RESIDENT'}</big></span></div></aside>
         <nav><button onClick={() => openPlace('studio')}><Home />HOME</button><button onClick={() => openPlace('map')}><MapIcon />MAP</button><button onClick={() => openPlace('market')}><Banknote />TRADE</button><button onClick={() => openPlace('news')}><Newspaper />WORLD</button><button onClick={() => openPlace('wellness')}><Heart />LIFE</button><button onClick={() => openPlace('career')}><BriefcaseBusiness />WORK</button><button onClick={() => openPlace('social')}><Users />SOCIAL</button><button onClick={() => openPlace('inventory')}><ShoppingBag />ITEMS <em>{inventory.length}</em></button><button disabled={pendingAction !== null} onClick={() => void closeDay()}><Clock3 />{pendingAction === 'end-day' ? 'CLOSING…' : 'END DAY'}</button><button onClick={() => openPlace('menu')}><Menu />MENU</button></nav>
 
@@ -2468,29 +2915,30 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
           {place === 'market' && <><small>CYBER CITY EXCHANGE · EXECUTABLE VIRTUAL QUOTES</small><VisionPanel image="/visuals/ampliworld-trading-terminal.jpg" label="PRODUCT VISION · PLAYABLE VIRTUAL TRADING LOOP" alt="Concept visualization of the AmpliWorld trading terminal" /><h1>Trade the living world</h1><p>Every order is virtual. Allocate $500 of margin, choose 1×–5× exposure, and manage the risk of server-enforced liquidation.</p><div className="fee-banner"><Heart /><span><b>{tradingFeeBps} BPS CURRENT TRADING FEE</b>Today&apos;s lifestyle settles only at END DAY. City trading tax remains 5 bps; forced liquidation remains 10 bps.</span><button onClick={() => setPlace('wellness')}>IMPROVE NEXT DAY</button></div><div className="leverage-desk"><span><b>LEVERAGE</b>{([1, 2, 3, 5] as const).map((level) => <button key={level} className={leverage === level ? 'active' : ''} onClick={() => setLeverage(level)}>{level}×</button>)}</span><i>$500 margin → ${(500 * leverage).toLocaleString()} gross exposure</i></div><div className="market-table"><div className="market-row header"><span>Asset</span><span>Price</span><span>Day</span><span>Position</span><span>Order</span></div>{stocks.map((stock) => { const move = marketMove(stock); const holding = holdings.find((item) => item.symbol === stock.symbol); const buyPending = pendingAction === `buy:${stock.symbol}`; const sellPending = pendingAction === `sell:${stock.symbol}`; return <div className="market-row" key={stock.symbol}><span><b>{stock.symbol}</b><small>{stock.name}</small></span><span>${stock.price.toFixed(2)}</span><span className={move >= 0 ? 'gain' : 'loss'}>{move >= 0 ? '+' : ''}{move.toFixed(2)}%</span><span>{holding ? `${holding.quantity.toFixed(2)} sh · ${holding.leverage}×` : '—'}</span><span className="order-buttons"><button disabled={pendingAction !== null} onClick={() => void order(stock.symbol, 'buy')}>{buyPending ? '…' : `BUY ${leverage}×`}</button><button disabled={pendingAction !== null || !holding} onClick={() => void order(stock.symbol, 'sell')}>{sellPending ? '…' : 'SELL ALL'}</button></span></div>; })}</div><div className="portfolio-summary risk"><span>Gross exposure <b>${portfolio.toFixed(2)}</b></span><span>Account equity <b>${portfolioEquity.toFixed(2)}</b></span><span>Borrowed <b>${borrowedExposure.toFixed(2)}</b></span><span>Margin excess <b className={marginExcess >= 0 ? 'gain' : 'loss'}>${marginExcess.toFixed(2)}</b><small>Maintenance ${maintenanceMargin.toFixed(2)}</small></span></div>{canClaimRelief && <div className="relief-panel"><span><b>Paper-account relief available</b>Up to $1,000 virtual cash · {reliefClaimsRemaining} lifetime claim{reliefClaimsRemaining === 1 ? '' : 's'} remaining</span><button disabled={pendingAction !== null} onClick={() => void claimRelief()}>{pendingAction === 'relief' ? 'ISSUING…' : 'CLAIM VIRTUAL RELIEF'}</button></div>}</>}
           {place === 'news' && <><small>AMPLIWORLD NEWSWIRE · DAY {String(day).padStart(3, '0')}</small><VisionPanel image="/visuals/ampliworld-population-simulation.jpg" label="WORLD ENGINE · POPULATION TO SIGNAL" alt="Concept visualization of the AmpliWorld population simulation engine" /><h1>Today&apos;s world state</h1><p>The lead event is part of the active simulation state: close the day and its asset impacts settle into tomorrow&apos;s prices.</p><div className="population-strip"><span><b>8.3B</b>upstream population frame</span><span><b>1M</b>target weighted core</span><span><b>4,096</b>planned active cohorts</span><span><b>32</b>visible representative NPCs</span></div><div className="news-list">{visibleNews.map((event, index) => <article className={index === 0 ? 'lead' : ''} key={event.id}><i>{index === 0 ? `ACTIVE SIMULATION · ${event.domain}` : event.domain}</i><b>{event.headline}</b><span>{event.impacts.join(' · ')}</span></article>)}</div></>}
           {place === 'map' && <>
-            <small>LIVE CITY ATLAS · PRESS M ANYWHERE · 20 × 30 KM</small>
-            <h1>Your position inside the city plan.</h1>
-            <p>The 20 × 30 km atlas connects five playable 3D districts through the city&apos;s metro, taxi and waterfront network. The pulsing marker identifies your district, while the corner minimap tracks your actual walking position. Select a live destination to travel there, or open a city-service panel.</p>
+            <small>CONTINENTAL ATLAS · PRESS M ANYWHERE · {PLAYABLE_CORE_KM} × {PLAYABLE_CORE_KM} KM LIVE CORE / {REPRESENTED_REGION_KM} × {REPRESENTED_REGION_HEIGHT_KM} KM REGION</small>
+            <h1>One connected world—not a row of teleport buttons.</h1>
+            <p>The map compresses a {REPRESENTED_REGION_KM} × {REPRESENTED_REGION_HEIGHT_KM} km regional economy—coast, city, ridge and highlands—around a dense {PLAYABLE_CORE_KM} × {PLAYABLE_CORE_KM} km live core. Drag to pan, scroll to zoom and select any building to inspect it. Long-distance travel begins at a metro hub; ordinary buildings remain places you reach on foot or by road after arrival.</p>
             <div className="atlas-layout">
               <CityAtlas selectedId={selectedAtlasId} playerNodeId={playerAtlasId} onSelect={selectAtlasNode} />
               <aside className="atlas-inspector">
                 <span className={`atlas-kind ${selectedAtlasNode.kind.toLowerCase()}`}>
-                  {selectedAtlasNode.kind === 'HOSPITAL' ? <Hospital /> : selectedAtlasNode.kind === 'POLICE' ? <Shield /> : selectedAtlasNode.kind === 'SCHOOL' ? <GraduationCap /> : selectedAtlasNode.kind === 'AUTO' ? <Car /> : selectedAtlasNode.kind === 'MARINA' || selectedAtlasNode.kind === 'PORT' ? <Ship /> : selectedAtlasNode.kind === 'GROCER' ? <Store /> : selectedAtlasNode.kind === 'RESIDENTIAL' || selectedAtlasNode.kind === 'VILLAS' ? <Building2 /> : <MapPin />}
+                  {selectedAtlasNode.kind === 'HOSPITAL' ? <Hospital /> : selectedAtlasNode.kind === 'POLICE' ? <Shield /> : selectedAtlasNode.kind === 'SCHOOL' ? <GraduationCap /> : selectedAtlasNode.kind === 'AUTO' ? <Car /> : selectedAtlasNode.kind === 'MARINA' || selectedAtlasNode.kind === 'PORT' ? <Ship /> : selectedAtlasNode.kind === 'GROCER' ? <Store /> : selectedAtlasNode.kind === 'DINING' ? <Utensils /> : selectedAtlasNode.kind === 'ENERGY' ? <Zap /> : selectedAtlasNode.kind === 'RESIDENTIAL' || selectedAtlasNode.kind === 'VILLAS' ? <Building2 /> : <MapPin />}
                 </span>
                 <small>{selectedAtlasNode.zone}</small>
                 <h2>{selectedAtlasNode.name}</h2>
                 <p>{selectedAtlasNode.detail}</p>
-                <dl><div><dt>WORLD GRID</dt><dd>{selectedAtlasNode.x.toFixed(1)}E · {selectedAtlasNode.y.toFixed(1)}N</dd></div><div><dt>STATUS</dt><dd>{selectedAtlasStatus}</dd></div><div><dt>YOUR LOCAL POSITION</dt><dd>X {localPosition.x.toFixed(1)} · Z {localPosition.z.toFixed(1)}</dd></div></dl>
-                <button disabled={selectedAtlasNode.availability === 'PLANNED' || (selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000)} onClick={openSelectedAtlasNode}>{selectedAtlasNode.availability === 'PLANNED' ? 'AREA NOT PLAYABLE YET' : selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000 ? 'VIRTUAL NET WORTH REQUIRED' : selectedRequiresTravel ? `TRAVEL TO ${selectedRequiredDistrict === 'CBD' ? 'CBD' : 'HOME'} + ${selectedAtlasNode.scene ? 'ENTER 3D SCENE' : 'OPEN LOCATION'}` : selectedAtlasNode.scene ? `ENTER ${selectedAtlasNode.name.toUpperCase()} · 3D` : `OPEN ${selectedAtlasNode.name.toUpperCase()}`}</button>
+                <dl><div><dt>ATLAS SECTOR</dt><dd>{selectedAtlasNode.x.toFixed(1)}E · {selectedAtlasNode.y.toFixed(1)}N</dd></div><div><dt>MAP ROLE</dt><dd>{selectedAtlasNode.scene ? 'METRO / DISTRICT HUB' : 'INSPECTABLE POI'}</dd></div><div><dt>STATUS</dt><dd>{selectedAtlasStatus}</dd></div><div><dt>YOUR LOCAL POSITION</dt><dd>X {localPosition.x.toFixed(1)} · Z {localPosition.z.toFixed(1)}</dd></div></dl>
+                <button disabled={!selectedAtlasNode.scene || selectedAtlasNode.availability === 'PLANNED' || (selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000)} onClick={openSelectedAtlasNode}>{selectedAtlasNode.availability === 'PLANNED' ? 'AREA NOT PLAYABLE YET' : selectedAtlasNode.availability === 'GATED' && netWorth < 1_000_000 ? 'VIRTUAL NET WORTH REQUIRED' : !selectedAtlasNode.scene ? 'POI ONLY · USE NEAREST METRO, THEN WALK OR DRIVE' : selectedIsCurrent ? 'RETURN TO STREET' : selectedRequiresTravel ? `ROUTE VIA METRO TO ${selectedRequiredDistrict === 'CBD' ? 'CITY' : 'HOME'} HUB` : `ENTER ${selectedAtlasNode.name.toUpperCase()} DISTRICT · 3D`}</button>
               </aside>
             </div>
-            <div className="atlas-legend"><span><i className="you" />YOU</span><span><i className="open" />INTERACTIVE NODE</span><span><i className="route" />TRANSIT LINE</span><span><i className="gated" />GATED</span><span><i className="planned" />PLANNED</span></div>
+            <div className="atlas-legend"><span><i className="you" />YOU</span><span><i className="hub" />METRO / DISTRICT HUB</span><span><i className="poi" />INSPECTABLE POI</span><span><i className="route" />TRANSIT LINE</span><span><i className="gated" />GATED</span><span><i className="planned" />PLANNED</span></div>
             <div className="city-layer-grid">
               <article><Hospital /><b>PUBLIC CITY</b><span>Hospital · police · academy</span></article>
               <article><Store /><b>DAILY CITY</b><span>Fresh market · dining · park</span></article>
               <article><Building2 /><b>RESIDENTIAL CITY</b><span>Studio · 1B · 2B · full-floor homes</span></article>
-              <article><Car /><b>MOBILITY CITY</b><span>Metro · taxi · 4S auto district</span></article>
+              <article><Car /><b>MOBILITY CITY</b><span>Metro hubs · continuous roads · 4S campus</span></article>
               <article><Ship /><b>WATERFRONT CITY</b><span>Public boats · yachts · cargo · liners</span></article>
+              <article><Building2 /><b>UTILITY CITY</b><span>Power campus · grid · nuclear district</span></article>
             </div>
             <div className="population-strip"><span><b>{WORLD_ASSET_COUNTS.buildings}</b>numbered buildings</span><span><b>{WORLD_ASSET_COUNTS.watercraft}</b>numbered watercraft</span><span><b>{WORLD_ASSET_COUNTS.vehicles}</b>numbered vehicles</span><span><b>5</b>playable 3D districts</span></div>
             <section className="transit-desk">
@@ -2597,7 +3045,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
           {place === 'career' && <><small>ACTIVE WORK · VIRTUAL WAGES</small><h1>Earn enough to keep moving.</h1><p>Work pays immediately when you complete a short prototype task. It can fund food and transit after a bad trading day, but it cannot build a fortune: one shift per game day, two shifts and $40 maximum per real UTC day.</p><div className="work-ledger"><span><b>{shiftsToday} / 2</b>shifts today</span><span><b>${wagesToday.toFixed(2)} / $40</b>today&apos;s wages</span><span><b>${lifetimeWages.toFixed(2)}</b>lifetime wages</span><span><b>{lastWorkTurn === day ? 'COMPLETE' : 'OPEN'}</b>game-day shift</span></div><div className="interview"><BriefcaseBusiness /><div><b>{career === 'UNEMPLOYED' ? 'Market assistant interview' : career}</b><span>Unlock the Market Brief Review role-play shift in the CBD.</span></div>{career === 'UNEMPLOYED' ? <button disabled={pendingAction !== null} onClick={() => void acceptJob()}>{pendingAction === 'hire' ? 'INTERVIEWING…' : atCbd ? 'INTERVIEW' : 'TRAVEL TO INTERVIEW'}</button> : <i>HIRED</i>}</div><div className="job-grid">{JOB_OPTIONS.map((job) => { const travel = job.district === 'CBD' && !atCbd; const locked = Boolean(job.requiresCareer && career === 'UNEMPLOYED'); const complete = lastWorkTurn === day || shiftsToday >= 2 || wagesToday >= 40; return <article key={job.code}><BriefcaseBusiness /><small>{job.district === 'CBD' ? 'CYBER CBD' : 'ANYWHERE'} · PROTOTYPE TASK</small><h2>{job.name}</h2><p>{job.description}</p><div><span>{job.durationMinutes} game min</span><b>${Math.min(job.pay, Math.max(0, 40 - wagesToday))} virtual pay</b></div><button disabled={pendingAction !== null || locked || complete} onClick={() => void completeShift(job)}>{locked ? 'INTERVIEW REQUIRED' : complete ? 'SHIFT LIMIT REACHED' : pendingAction === `work:${job.code}` ? 'WORKING…' : travel ? 'TRAVEL TO CBD' : 'COMPLETE DEMO SHIFT'}</button></article>; })}</div><p className="truth-note">Prototype shifts currently resolve through a server-validated one-click action; skill challenges and timed tasks are planned.</p></>}
         </dialog>}
       </section>
-      <footer><span>NET WORTH <b>${netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</b></span><span>TOTAL PROGRESS <b className={netWorth >= 10000 ? 'gain' : 'loss'}>{netWorth >= 10000 ? '+' : ''}${(netWorth - 10000).toFixed(2)}</b></span><span>TRADING FEE <b>{tradingFeeBps} BPS</b></span><span>LOCATION <b>{activeScene === 'STARTER_ARCOLOGY' ? `BLOCK ${residenceBlock}` : SCENE_LABELS[activeScene]}</b></span><span>TRANSIT SPEND <b>${transitSpend.toFixed(2)}</b></span><span>CITY TAX <b>${tax.toFixed(2)}</b></span><span>WORLD <b>20 × 30 KM</b></span><span>STUDIO <b>10 m² · {leaseDays} DAYS</b></span></footer>
+      <footer><span>NET WORTH <b>${netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</b></span><span>TOTAL PROGRESS <b className={netWorth >= 10000 ? 'gain' : 'loss'}>{netWorth >= 10000 ? '+' : ''}${(netWorth - 10000).toFixed(2)}</b></span><span>TRADING FEE <b>{tradingFeeBps} BPS</b></span><span>LOCATION <b>{activeScene === 'STARTER_ARCOLOGY' ? `BLOCK ${residenceBlock}` : SCENE_LABELS[activeScene]}</b></span><span>TRANSIT SPEND <b>${transitSpend.toFixed(2)}</b></span><span>CITY TAX <b>${tax.toFixed(2)}</b></span><span>WORLD <b>{REPRESENTED_REGION_KM} × {REPRESENTED_REGION_HEIGHT_KM} KM</b></span><span>STUDIO <b>10 m² · {leaseDays} DAYS</b></span></footer>
     </main>
   );
 }

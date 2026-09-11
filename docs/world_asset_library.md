@@ -8,7 +8,9 @@
 
 云端生成的原创场景母版保存为 `web/public/visuals/ampliworld-world-asset-master-v1.png`。它是建模方向与质量基准，不冒充当前浏览器原型的实时截图。
 
-CBD 的原创精品商业外立面保存为 `web/public/visuals/ampliworld-luxury-retail-facade-v1.jpg`，并已经映射到 `BLD-C02` 的实体几何上。步道、码头和水面使用本地托管的 PBR 贴图；来源与许可保存在 `web/public/assets/pbr/README.md`，运行时不会向第三方素材站请求资源。
+CBD 的原创精品商业外立面保存为 `web/public/visuals/ampliworld-luxury-retail-facade-v1.jpg`。新的四面模块化外立面保存为 `web/public/visuals/ampliworld-modular-facade-v1.jpg`，已用于 4S、医院、警务、学院、生鲜商业、中层住宅与通用城市建筑的四个立面，不再只在正面贴一张图。步道、码头和水面使用本地托管的 PBR 贴图；来源与许可保存在 `web/public/assets/pbr/README.md`，运行时不会向第三方素材站请求资源。
+
+昼夜天空的原创透明云层素材保存为 `web/public/assets/sky/cloud-soft.png`。它只提供云团的透明形态，位置、速度、密度、黎明/黄昏染色与夜间暗化均由实时天空系统计算；运行时不依赖外部云图 CDN。
 
 ## 编号规则
 
