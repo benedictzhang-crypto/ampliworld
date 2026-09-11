@@ -752,9 +752,10 @@ function Player({ scene, onPositionChange, enabled = true }: {
       return normalized;
     };
     const update = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || (event.target instanceof HTMLElement && event.target.isContentEditable)) return;
       const key = normalizeControlKey(event.key);
       const pressed = event.type === 'keydown';
+      const isTextEntry = event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || (event.target instanceof HTMLElement && event.target.isContentEditable);
+      if (pressed && isTextEntry) return;
       const wasPressed = Boolean(keys.current[key]);
       keys.current[key] = pressed;
       if (pressed && !wasPressed && ['w', 'a', 's', 'd'].includes(key)) queuedKeys.current.push(key);
@@ -1149,7 +1150,7 @@ function CatalogVilla({ id, name, style, position, rotation, onEnter }: {
   );
 }
 
-function AzureYachtMarinaScene({ onEnter, onPositionChange }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void }) {
+function AzureYachtMarinaScene({ onEnter, onPositionChange, playerEnabled = true }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean }) {
   const palms = [
     [8, -27, 'tree_palmDetailedTall.glb', 3.4], [9, -16, 'tree_palmBend.glb', 3.1], [7.5, -4, 'tree_palmDetailedShort.glb', 3.5],
     [8.5, 9, 'tree_palmDetailedTall.glb', 3.3], [7.2, 22, 'tree_palmBend.glb', 3.2], [10, 30, 'tree_palmDetailedShort.glb', 3.6],
@@ -1189,13 +1190,13 @@ function AzureYachtMarinaScene({ onEnter, onPositionChange }: { onEnter: EnterPl
       <LandmarkLabel position={[23, 7.2, -15]} label="AZURE YACHT CLUB" place="marina" atlasId="yacht-marina" onEnter={onEnter} tone="marina-label" />
       <Html position={[4, 3.4, 32]} center distanceFactor={13} zIndexRange={[3, 0]}><button className="world-label enterable transit-label" onClick={() => onEnter('map')}>CITY MAP · CBD · RESIDENCES</button></Html>
       <PopulationLayer count={18} />
-      <Player scene="AZURE_YACHT_MARINA" onPositionChange={onPositionChange} />
+      <Player scene="AZURE_YACHT_MARINA" onPositionChange={onPositionChange} enabled={playerEnabled} />
       <Environment preset="sunset" />
     </>
   );
 }
 
-function CrownResidentialScene({ onEnter, onPositionChange }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void }) {
+function CrownResidentialScene({ onEnter, onPositionChange, playerEnabled = true }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean }) {
   return (
     <>
       <fog attach="fog" args={['#99b8bf', 55, 150]} />
@@ -1213,13 +1214,13 @@ function CrownResidentialScene({ onEnter, onPositionChange }: { onEnter: EnterPl
       <LandmarkLabel position={[0, 4.4, 7]} label="RESIDENT SKY POOL · SEA VIEW" place="residences" atlasId="crown-residences" onEnter={onEnter} tone="residential-label" />
       <Html position={[0, 3.2, 27]} center distanceFactor={13} zIndexRange={[3, 0]}><button className="world-label enterable transit-label" onClick={() => onEnter('map')}>CITY MAP · MARINA · VILLA RIDGE</button></Html>
       <PopulationLayer count={20} />
-      <Player scene="CROWN_RESIDENTIAL_TOWERS" onPositionChange={onPositionChange} />
+      <Player scene="CROWN_RESIDENTIAL_TOWERS" onPositionChange={onPositionChange} enabled={playerEnabled} />
       <Environment preset="sunset" />
     </>
   );
 }
 
-function MillionaireRidgeScene({ onEnter, onPositionChange }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void }) {
+function MillionaireRidgeScene({ onEnter, onPositionChange, playerEnabled = true }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean }) {
   const villas = [
     { id: 'BLD-B01', name: 'HUA COURT', style: 'CHINESE' as const, position: [-15, 0, 18] as [number, number, number], rotation: Math.PI / 2 },
     { id: 'BLD-B02', name: 'COTSWOLD HOUSE', style: 'ENGLISH' as const, position: [15, 0, 18] as [number, number, number], rotation: -Math.PI / 2 },
@@ -1249,13 +1250,13 @@ function MillionaireRidgeScene({ onEnter, onPositionChange }: { onEnter: EnterPl
         <StaticAsset url={`${CAR_ASSET_ROOT}/race-future.glb`} position={[-2.1, 0.12, -13]} scale={0.92} shadows={false} />
       </Suspense>
       <Html position={[0, 3.3, 34]} center distanceFactor={13} zIndexRange={[3, 0]}><button className="world-label enterable transit-label" onClick={() => onEnter('map')}>VILLA DIRECTORY · CITY MAP</button></Html>
-      <Player scene="MILLIONAIRE_RIDGE" onPositionChange={onPositionChange} />
+      <Player scene="MILLIONAIRE_RIDGE" onPositionChange={onPositionChange} enabled={playerEnabled} />
       <Environment preset="sunset" />
     </>
   );
 }
 
-function StudioInterior({ onEnter, onPositionChange }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void }) {
+function StudioInterior({ onEnter, onPositionChange, playerEnabled = true }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean }) {
   return (
     <>
       <fog attach="fog" args={['#171816', 15, 36]} />
@@ -1288,13 +1289,13 @@ function StudioInterior({ onEnter, onPositionChange }: { onEnter: EnterPlace; on
         <Html position={[0, 3.05, 0]} center distanceFactor={10} zIndexRange={[3, 0]}><button className="world-label enterable residence-label" onClick={() => onEnter(null)}>EXIT TO COURTYARD</button></Html>
       </group>
       <Html position={[-2.8, 3.6, -4.05]} center distanceFactor={11} zIndexRange={[3, 0]}><span className="zone-label">10 m² LEGAL FOOTPRINT · 2.1× NAVIGATION SCALE</span></Html>
-      <Player scene="STUDIO_INTERIOR" onPositionChange={onPositionChange} />
+      <Player scene="STUDIO_INTERIOR" onPositionChange={onPositionChange} enabled={playerEnabled} />
       <Environment preset="apartment" />
     </>
   );
 }
 
-function CyberCBD({ onEnter, onPositionChange }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void }) {
+function CyberCBD({ onEnter, onPositionChange, playerEnabled = true }: { onEnter: EnterPlace; onPositionChange?: (location: PlayerLocation) => void; playerEnabled?: boolean }) {
   const streetLights = [-30, -18, -6, 6, 18, 30];
   return (
     <>
@@ -1343,30 +1344,31 @@ function CyberCBD({ onEnter, onPositionChange }: { onEnter: EnterPlace; onPositi
       <Html position={[0, 2.5, 35]} center distanceFactor={12} zIndexRange={[3, 0]}><button className="world-label enterable transit-label" onClick={() => onEnter('map')}>CITY DIRECTORY · OPEN LIVE MAP</button></Html>
       <CityTraffic />
       <PopulationLayer count={32} />
-      <Player scene="CBD" onPositionChange={onPositionChange} />
+      <Player scene="CBD" onPositionChange={onPositionChange} enabled={playerEnabled} />
       <Environment preset="sunset" />
     </>
   );
 }
 
-function World({ onEnter, onNotice, onPositionChange, scene = 'STARTER_ARCOLOGY', residenceBlock = '071', place }: {
+function World({ onEnter, onNotice, onPositionChange, scene = 'STARTER_ARCOLOGY', residenceBlock = '071', place, controlsEnabled = true }: {
   onEnter: EnterPlace;
   onNotice: (message: string) => void;
   onPositionChange?: (location: PlayerLocation) => void;
   scene?: WorldSceneId;
   residenceBlock?: string;
   place?: Place;
+  controlsEnabled?: boolean;
 }) {
-  if (scene === 'STARTER_ARCOLOGY' && place === 'studio') return <StudioInterior onEnter={onEnter} onPositionChange={onPositionChange} />;
-  if (scene === 'CBD') return <CyberCBD onEnter={onEnter} onPositionChange={onPositionChange} />;
-  if (scene === 'AZURE_YACHT_MARINA') return <AzureYachtMarinaScene onEnter={onEnter} onPositionChange={onPositionChange} />;
-  if (scene === 'CROWN_RESIDENTIAL_TOWERS') return <CrownResidentialScene onEnter={onEnter} onPositionChange={onPositionChange} />;
-  if (scene === 'MILLIONAIRE_RIDGE') return <MillionaireRidgeScene onEnter={onEnter} onPositionChange={onPositionChange} />;
+  if (scene === 'STARTER_ARCOLOGY' && place === 'studio') return <StudioInterior onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} />;
+  if (scene === 'CBD') return <CyberCBD onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} />;
+  if (scene === 'AZURE_YACHT_MARINA') return <AzureYachtMarinaScene onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} />;
+  if (scene === 'CROWN_RESIDENTIAL_TOWERS') return <CrownResidentialScene onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} />;
+  if (scene === 'MILLIONAIRE_RIDGE') return <MillionaireRidgeScene onEnter={onEnter} onPositionChange={onPositionChange} playerEnabled={controlsEnabled} />;
   return (
     <>
       <StarterArcology onEnter={onEnter} onNotice={onNotice} residenceBlock={residenceBlock} />
       <PopulationLayer />
-      <Player scene="STARTER_ARCOLOGY" onPositionChange={onPositionChange} />
+      <Player scene="STARTER_ARCOLOGY" onPositionChange={onPositionChange} enabled={controlsEnabled} />
       <Environment preset="night" />
     </>
   );
@@ -2146,7 +2148,7 @@ export function GameShell({ playerName, signedIn, signInPath }: { playerName: st
     <main className="game">
       <header><div className="logo">A</div><div><b>AMPLIWORLD</b><small>THE LIVING MARKET</small></div><div className="day">DAY {String(day).padStart(3, '0')} · 20:42 · {locationLabel}</div><div className="player"><span>{playerName}</span>{signedIn ? <i>CLOUD SAVE</i> : <a href={signInPath} target="_top">SIGN IN TO SAVE</a>}</div></header>
       <section className="playfield">
-        <Canvas aria-label="Playable AmpliWorld city" tabIndex={0} shadows dpr={[1, 1.5]} camera={{ position: [0, 3.5, 6.4], fov: 48 }}><World key={activeScene} onEnter={openPlace} onNotice={setNotice} onPositionChange={setLocalPosition} scene={activeScene} residenceBlock={residenceBlock} place={place} /></Canvas>
+        <Canvas aria-label="Playable AmpliWorld city" tabIndex={0} shadows dpr={[1, 1.5]} camera={{ position: [0, 3.5, 6.4], fov: 48 }}><World key={activeScene} onEnter={openPlace} onNotice={setNotice} onPositionChange={setLocalPosition} scene={activeScene} residenceBlock={residenceBlock} place={place} controlsEnabled={(!place || place === 'studio') && !journey} /></Canvas>
         {!place && <MiniMap scene={activeScene} residenceBlock={residenceBlock} location={localPosition} onOpen={() => openPlace('map')} />}
         <div className={`mission ${activeScene === 'STARTER_ARCOLOGY' ? 'arcology-mission' : ''}`}><small>{activeScene === 'STARTER_ARCOLOGY' ? `BLOCK ${residenceBlock} · FLOOR ${starterFloor} · UNIT ${starterUnit}` : locationLabel}</small><b>{activeScene === 'STARTER_ARCOLOGY' ? 'Turn $10,000 into a way out' : activeScene === 'CBD' ? 'Make every paid trip count' : 'Walk the district · learn the living market'}</b><span aria-live="polite">{notice}</span><div className="mission-track"><i className={missions.firstTrade ? 'done' : ''}>TRADE</i><i className={missions.firstJob ? 'done' : ''}>JOB</i><i className={missions.firstPurchase ? 'done' : ''}>MOVE UP</i></div></div>
         <div className="controls"><kbd>W</kbd>/<kbd>S</kbd> WALK · <kbd>A</kbd>/<kbd>D</kbd> TURN · CAMERA FOLLOWS FROM BEHIND · <kbd>M</kbd> MAP</div><TouchControls />
