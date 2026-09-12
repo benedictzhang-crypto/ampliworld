@@ -3,6 +3,7 @@
 import { Html } from '@react-three/drei';
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { createJoinedOffsetPolyline } from './linear-infrastructure-geometry';
 import {
   F1_CIRCUIT_POINTS,
   F1_PIT_LANE_POINTS,
@@ -12,9 +13,36 @@ import {
   getWorldFootprintElevationRange,
   getWorldGroundElevation,
 } from './world-spatial-registry';
-import type { WorldPoint } from './world-topology';
+import type { WorldPoint, WorldSectorId } from './world-topology';
 
 type LandmarkSelect = (id: string) => void;
+
+export function getMetropolitanExpansionVisibility({
+  playerPosition,
+  detailedSectorIds,
+  overview,
+}: {
+  playerPosition: WorldPoint;
+  detailedSectorIds: ReadonlySet<WorldSectorId>;
+  overview: boolean;
+}) {
+  const distanceTo = (point: WorldPoint) =>
+    Math.hypot(playerPosition[0] - point[0], playerPosition[1] - point[1]);
+  let nearestSkyrailDistance = Number.POSITIVE_INFINITY;
+  for (const point of OCEAN_SKYRAIL_ROUTE)
+    nearestSkyrailDistance = Math.min(
+      nearestSkyrailDistance,
+      distanceTo(point),
+    );
+  return {
+    sanctuary: !overview && detailedSectorIds.has('CIVIC_MEDICAL'),
+    summit: !overview && detailedSectorIds.has('SUMMIT_ESTATES'),
+    ocean: !overview && detailedSectorIds.has('OFFSHORE_CITY'),
+    skyrail: !overview && nearestSkyrailDistance < 88,
+    motorsport: !overview && detailedSectorIds.has('MOTORSPORT_PARK'),
+    easternInterchange: !overview && distanceTo([102, -48]) < 100,
+  } as const;
+}
 
 function SegmentBox({
   from,
@@ -811,6 +839,19 @@ function GrandPrixCircuit({
       })),
     [],
   );
+  const circuitBands = useMemo(
+    () =>
+      ([-1, 1] as const).map((side) => ({
+        side,
+        curb: createJoinedOffsetPolyline(F1_CIRCUIT_POINTS, 3.05 * side, {
+          closed: true,
+        }),
+        barrier: createJoinedOffsetPolyline(F1_CIRCUIT_POINTS, 3.72 * side, {
+          closed: true,
+        }),
+      })),
+    [],
+  );
   const pit = NAMED_WORLD_SOLIDS.find(
     (solid) => solid.id === 'F1-PIT-COMPLEX',
   )!;
@@ -830,10 +871,6 @@ function GrandPrixCircuit({
   return (
     <group name="Ampli Grand Prix Circuit">
       {track.map(({ from, to }, index) => {
-        const dx = to[0] - from[0];
-        const dz = to[1] - from[1];
-        const length = Math.max(0.001, Math.hypot(dx, dz));
-        const normal: WorldPoint = [-dz / length, dx / length];
         const fromGround = getWorldGroundElevation(from[0], from[1]);
         const toGround = getWorldGroundElevation(to[0], to[1]);
         return (
@@ -847,43 +884,85 @@ function GrandPrixCircuit({
               thickness={0.16}
               color="#25292b"
             />
-            {[-1, 1].map((side) => (
-              <group key={side}>
-                <SegmentBox
-                  from={[
-                    from[0] + normal[0] * 3.05 * side,
-                    from[1] + normal[1] * 3.05 * side,
-                  ]}
-                  to={[
-                    to[0] + normal[0] * 3.05 * side,
-                    to[1] + normal[1] * 3.05 * side,
-                  ]}
-                  y={fromGround + 0.29}
-                  endY={toGround + 0.29}
-                  width={0.42}
-                  thickness={0.08}
-                  color={index % 2 ? '#f0ede4' : '#b93b35'}
-                />
-                <SegmentBox
-                  from={[
-                    from[0] + normal[0] * 3.72 * side,
-                    from[1] + normal[1] * 3.72 * side,
-                  ]}
-                  to={[
-                    to[0] + normal[0] * 3.72 * side,
-                    to[1] + normal[1] * 3.72 * side,
-                  ]}
-                  y={fromGround + 0.74}
-                  endY={toGround + 0.74}
-                  width={0.12}
-                  thickness={1.15}
-                  color="#bfc3c0"
-                />
-              </group>
-            ))}
+            {circuitBands.map(({ side, curb, barrier }) => {
+              const curbFrom = curb[index];
+              const curbTo = curb[index + 1];
+              const barrierFrom = barrier[index];
+              const barrierTo = barrier[index + 1];
+              return (
+                <group key={side}>
+                  <SegmentBox
+                    from={curbFrom}
+                    to={curbTo}
+                    y={getWorldGroundElevation(curbFrom[0], curbFrom[1]) + 0.29}
+                    endY={getWorldGroundElevation(curbTo[0], curbTo[1]) + 0.29}
+                    width={0.42}
+                    thickness={0.08}
+                    color={index % 2 ? '#f0ede4' : '#b93b35'}
+                  />
+                  <SegmentBox
+                    from={barrierFrom}
+                    to={barrierTo}
+                    y={
+                      getWorldGroundElevation(barrierFrom[0], barrierFrom[1]) +
+                      0.74
+                    }
+                    endY={
+                      getWorldGroundElevation(barrierTo[0], barrierTo[1]) + 0.74
+                    }
+                    width={0.12}
+                    thickness={1.15}
+                    color="#bfc3c0"
+                  />
+                </group>
+              );
+            })}
           </group>
         );
       })}
+      {circuitBands.flatMap(({ side, curb, barrier }) =>
+        curb.slice(0, -1).flatMap((curbPoint, index) => {
+          const barrierPoint = barrier[index];
+          const curbGround = getWorldGroundElevation(
+            curbPoint[0],
+            curbPoint[1],
+          );
+          const barrierGround = getWorldGroundElevation(
+            barrierPoint[0],
+            barrierPoint[1],
+          );
+          return [
+            <mesh
+              key={`curb-join:${side}:${index}`}
+              receiveShadow
+              position={[curbPoint[0], curbGround + 0.29, curbPoint[1]]}
+            >
+              <boxGeometry args={[0.5, 0.08, 0.5]} />
+              <meshStandardMaterial
+                color={index % 2 ? '#f0ede4' : '#b93b35'}
+                roughness={0.68}
+                metalness={0.2}
+              />
+            </mesh>,
+            <mesh
+              key={`barrier-join:${side}:${index}`}
+              castShadow
+              position={[
+                barrierPoint[0],
+                barrierGround + 0.74,
+                barrierPoint[1],
+              ]}
+            >
+              <boxGeometry args={[0.24, 1.15, 0.24]} />
+              <meshStandardMaterial
+                color="#bfc3c0"
+                roughness={0.68}
+                metalness={0.2}
+              />
+            </mesh>,
+          ];
+        }),
+      )}
       <SegmentBox
         from={F1_PIT_LANE_POINTS[1]}
         to={F1_PIT_LANE_POINTS[2]}
@@ -1017,40 +1096,35 @@ function EasternInterchange() {
 export function MetropolitanExpansion({
   onLandmarkSelect,
   playerPosition,
+  detailedSectorIds,
+  overview = false,
 }: {
   onLandmarkSelect?: LandmarkSelect;
   playerPosition: WorldPoint;
+  detailedSectorIds: ReadonlySet<WorldSectorId>;
+  overview?: boolean;
 }) {
-  const distanceTo = (point: WorldPoint) =>
-    Math.hypot(playerPosition[0] - point[0], playerPosition[1] - point[1]);
-  const showSanctuary = distanceTo([31, 64]) < 105;
-  const showSummit = distanceTo([103, 18]) < 95;
-  const showOcean = distanceTo([-120, -60]) < 112;
-  let nearestSkyrailDistance = Number.POSITIVE_INFINITY;
-  for (const point of OCEAN_SKYRAIL_ROUTE)
-    nearestSkyrailDistance = Math.min(
-      nearestSkyrailDistance,
-      distanceTo(point),
-    );
-  const showSkyrail = nearestSkyrailDistance < 88;
-  const showMotorsport = distanceTo([131, -56]) < 108;
-  const showEasternInterchange = distanceTo([102, -48]) < 100;
+  const visibility = getMetropolitanExpansionVisibility({
+    playerPosition,
+    detailedSectorIds,
+    overview,
+  });
   return (
     <group name="Named metropolitan expansion">
-      {showSanctuary && (
+      {visibility.sanctuary && (
         <CyberSanctuary onSelect={onLandmarkSelect} viewer={playerPosition} />
       )}
-      {showSummit && (
+      {visibility.summit && (
         <SummitEstates onSelect={onLandmarkSelect} viewer={playerPosition} />
       )}
-      {showSkyrail && <OceanSkyrail />}
-      {showOcean && (
+      {visibility.skyrail && <OceanSkyrail />}
+      {visibility.ocean && (
         <OceanCrown onSelect={onLandmarkSelect} viewer={playerPosition} />
       )}
-      {showMotorsport && (
+      {visibility.motorsport && (
         <GrandPrixCircuit onSelect={onLandmarkSelect} viewer={playerPosition} />
       )}
-      {showEasternInterchange && <EasternInterchange />}
+      {visibility.easternInterchange && <EasternInterchange />}
     </group>
   );
 }

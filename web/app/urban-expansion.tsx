@@ -19,21 +19,25 @@ export type ResidentialTypology =
   | 'DETACHED'
   | 'MIXED';
 
-type BoxInstance = {
+export type BoxInstance = {
   position: readonly [number, number, number];
   scale: readonly [number, number, number];
   rotationY?: number;
   color?: THREE.ColorRepresentation;
 };
 
-type RoundInstance = {
+export type RoundInstance = {
   position: readonly [number, number, number];
   scale: readonly [number, number, number];
   rotation?: readonly [number, number, number];
   color?: THREE.ColorRepresentation;
 };
 
-type BuildingSite = {
+export type BuildingSite = {
+  /** Stable 1-based input site index, independent of suppression. */
+  sourceSiteIndex?: number;
+  /** Stable 1-based rendered-building index, independent of suppression. */
+  stableBuildingIndex?: number;
   x: number;
   z: number;
   width: number;
@@ -653,11 +657,8 @@ function makeWaterfallCurtainGeometry(
     const progress = index / segments;
     const ratio = THREE.MathUtils.lerp(startRatio, endRatio, progress);
     const top =
-      dropHeight -
-      0.14 -
-      Math.abs(Math.sin(index * 1.73 + phase)) * 0.38;
-    const bottom =
-      0.18 + Math.abs(Math.sin(index * 2.17 + phase * 0.7)) * 0.42;
+      dropHeight - 0.14 - Math.abs(Math.sin(index * 1.73 + phase)) * 0.38;
+    const bottom = 0.18 + Math.abs(Math.sin(index * 2.17 + phase * 0.7)) * 0.42;
     const z = -0.3 - Math.sin(progress * Math.PI * 2 + phase) * 0.08;
     positions.push(ratio * width, bottom, z, ratio * width, top, z);
     uvs.push(progress, 0, progress, 1);
@@ -778,8 +779,7 @@ export function RiverHeadwaterFalls({
     for (let row = 0; row < 5; row += 1) {
       for (let column = 0; column < 9; column += 1) {
         const stagger = row % 2 === 0 ? 0 : width / 18;
-        const x =
-          -width * 0.68 + (column / 8) * width * 1.36 + stagger;
+        const x = -width * 0.68 + (column / 8) * width * 1.36 + stagger;
         cliffFace.push({
           position: [
             x,
@@ -1149,8 +1149,387 @@ export type ResidentialQuarterProps = {
   count?: number;
   footprint?: readonly [width: number, depth: number];
   seed?: number;
+  suppressSourceSiteIndices?: readonly number[];
   onEnter?: EnterHandler;
 };
+
+export type ResidentialQuarterPlanOptions = Pick<
+  ResidentialQuarterProps,
+  | 'tier'
+  | 'typology'
+  | 'count'
+  | 'footprint'
+  | 'seed'
+  | 'suppressSourceSiteIndices'
+>;
+
+export type ResidentialQuarterPlan = Readonly<{
+  sites: readonly BuildingSite[];
+  paths: readonly BoxInstance[];
+  gardenTrunks: readonly RoundInstance[];
+  gardenCrowns: readonly RoundInstance[];
+  areaWidth: number;
+  areaDepth: number;
+  avenueWidth: number;
+}>;
+
+export type MetropolitanResidentialQuarterPlacement = Readonly<{
+  id: string;
+  /** Existing parent position retained by the legacy scene composition. */
+  renderParentPosition: WorldPosition;
+  /** Canonical world-space centre shared by rendering and collision. */
+  position: WorldPosition;
+  rotationY: number;
+  uniformScale: number;
+  plan: ResidentialQuarterPlanOptions;
+}>;
+
+export type LegacyRidgeResidentialQuarterSpec = Readonly<{
+  id: string;
+  localPosition: WorldPosition;
+  uniformScale: number;
+  plan: ResidentialQuarterPlanOptions;
+}>;
+
+/**
+ * The legacy Ridge metro anchor stays fixed while its authored outdoor content
+ * occupies the adjacent collision-free parcel. Both rendering and collision
+ * compose this offset after the canonical legacy district origin.
+ */
+export const LEGACY_RIDGE_CONTENT_OFFSET: WorldPosition = [16, 0, 0];
+
+/** Foundation lifts for the two east-facing villas that meet the foothill. */
+export const LEGACY_RIDGE_VILLA_FOUNDATION_Y = Object.freeze({
+  'BLD-B01': 0,
+  'BLD-B02': 2.75,
+  'BLD-B03': 0,
+  'BLD-B04': 0.61,
+  'BLD-B05': 0,
+  'BLD-B06': 0,
+  'BLD-B07': 0,
+} as const);
+
+/**
+ * Authored local villa centres shared by rendering and measured collision.
+ * The east-facing homes are set back from the ring-road junctions; B02 and
+ * B04 sit on the continuous highland and use the foundation lifts above.
+ */
+export const LEGACY_RIDGE_VILLA_LAYOUT = Object.freeze({
+  'BLD-B01': {
+    position: [-15, 0, 11] as WorldPosition,
+    rotationY: Math.PI / 2,
+  },
+  'BLD-B02': {
+    position: [22, 0, 18] as WorldPosition,
+    rotationY: -Math.PI / 2,
+  },
+  'BLD-B03': { position: [-15, 0, 2] as WorldPosition, rotationY: Math.PI / 2 },
+  'BLD-B04': { position: [21, 0, 2] as WorldPosition, rotationY: -Math.PI / 2 },
+  'BLD-B05': {
+    position: [-15, 0, -14] as WorldPosition,
+    rotationY: Math.PI / 2,
+  },
+  'BLD-B06': {
+    position: [17.3, 0, -5] as WorldPosition,
+    rotationY: -Math.PI / 2,
+  },
+  'BLD-B07': { position: [0, 0, -31] as WorldPosition, rotationY: 0 },
+} as const);
+
+export const LEGACY_RIDGE_VILLA_FOUNDATION_GEOMETRY = Object.freeze({
+  'BLD-B02': { centerZ: -0.7, width: 4.5, depth: 2.65 },
+  'BLD-B04': { centerZ: -0.644, width: 3.38, depth: 2.42 },
+} as const);
+
+/**
+ * Canonical placement registry for the five metropolitan residential quarters.
+ * The render parent positions preserve the existing GameShell composition,
+ * while `position` and `rotationY` are the single world-space source of truth.
+ */
+export const METROPOLITAN_RESIDENTIAL_QUARTER_SPECS = [
+  {
+    id: 'N-RIV-01',
+    renderParentPosition: [-48, 0, 58],
+    position: [-39, 0, 68],
+    rotationY: Math.PI / 6,
+    uniformScale: 0.48,
+    plan: {
+      tier: 'MID_MARKET',
+      typology: 'TOWERS',
+      count: 10,
+      footprint: [44, 38],
+      seed: 101,
+    },
+  },
+  {
+    id: 'N-EAS-03',
+    renderParentPosition: [54, 0, 68],
+    position: [47, 0, 74],
+    rotationY: Math.PI / 4,
+    uniformScale: 0.46,
+    plan: {
+      tier: 'UPGRADE',
+      typology: 'TOWERS',
+      count: 9,
+      footprint: [46, 40],
+      seed: 203,
+    },
+  },
+  {
+    id: 'N-MER-01',
+    renderParentPosition: [60, 0, 7],
+    position: [60, 0, 7],
+    rotationY: -Math.PI / 2,
+    uniformScale: 0.43,
+    plan: {
+      tier: 'MID_MARKET',
+      typology: 'MIXED',
+      count: 8,
+      footprint: [42, 40],
+      seed: 307,
+      suppressSourceSiteIndices: [5, 6, 7, 8],
+    },
+  },
+  {
+    id: 'N-CAN-02',
+    renderParentPosition: [-53, 0, -59],
+    position: [-47, 0, -84],
+    rotationY: 0,
+    uniformScale: 0.45,
+    plan: {
+      tier: 'AFFORDABLE',
+      typology: 'TOWERS',
+      count: 11,
+      footprint: [45, 40],
+      seed: 409,
+    },
+  },
+  {
+    id: 'N-CBD-03',
+    renderParentPosition: [51, 0, -59],
+    position: [59, 0, -74],
+    rotationY: -Math.PI / 3,
+    uniformScale: 0.44,
+    plan: {
+      tier: 'PREMIUM',
+      typology: 'TOWERS',
+      count: 7,
+      footprint: [43, 39],
+      seed: 503,
+    },
+  },
+] as const satisfies readonly MetropolitanResidentialQuarterPlacement[];
+
+export const LEGACY_RIDGE_RESIDENTIAL_QUARTER_SPECS = [
+  {
+    id: 'N-RDG-01',
+    localPosition: [-44, 0, 85],
+    uniformScale: 0.32,
+    plan: {
+      tier: 'UPGRADE',
+      typology: 'TOWNHOMES',
+      count: 6,
+      footprint: [28, 44],
+      seed: 607,
+    },
+  },
+  {
+    id: 'N-RDG-02',
+    localPosition: [-22, 0, 85],
+    uniformScale: 0.32,
+    plan: {
+      tier: 'PREMIUM',
+      typology: 'SEMI_DETACHED',
+      count: 5,
+      footprint: [28, 44],
+      seed: 709,
+      suppressSourceSiteIndices: [4],
+    },
+  },
+] as const satisfies readonly LegacyRidgeResidentialQuarterSpec[];
+
+export function getMetropolitanResidentialQuarterPlacement(id: string) {
+  return METROPOLITAN_RESIDENTIAL_QUARTER_SPECS.find(
+    (quarter) => quarter.id === id,
+  );
+}
+
+export function getRegisteredResidentialQuarterPlan(
+  id: string,
+): ResidentialQuarterPlanOptions | undefined {
+  return (
+    getMetropolitanResidentialQuarterPlacement(id)?.plan ??
+    LEGACY_RIDGE_RESIDENTIAL_QUARTER_SPECS.find((quarter) => quarter.id === id)
+      ?.plan
+  );
+}
+
+/**
+ * Deterministic source of truth for both the rendered residential buildings and
+ * their physical footprints. Keeping the public cross avenues clear here means
+ * render and collision cannot disagree about whether those routes are open.
+ */
+export function createResidentialQuarterPlan({
+  tier = 'MID_MARKET',
+  typology = 'MIXED',
+  count = 12,
+  footprint = [68, 58],
+  seed = 42,
+  suppressSourceSiteIndices = [],
+}: ResidentialQuarterPlanOptions = {}): ResidentialQuarterPlan {
+  const random = seededRandom(seed);
+  const palette = RESIDENTIAL_PALETTES[tier];
+  const sites: BuildingSite[] = [];
+  const paths: BoxInstance[] = [];
+  const gardenTrunks: RoundInstance[] = [];
+  const gardenCrowns: RoundInstance[] = [];
+  let nextStableBuildingIndex = 1;
+  const [areaWidth, areaDepth] = footprint;
+  const avenueWidth = tier === 'ULTRA' ? 5.4 : 4.2;
+  const avenueHalfWidth = avenueWidth / 2;
+  const columns = Math.max(
+    2,
+    Math.ceil(Math.sqrt((count * areaWidth) / areaDepth)),
+  );
+  const rows = Math.max(2, Math.ceil(count / columns));
+  const westColumns = Math.ceil(columns / 2);
+  const eastColumns = columns - westColumns;
+  const southRows = Math.ceil(rows / 2);
+  const northRows = rows - southRows;
+  const parcelInset = 0.8;
+
+  const dividedAxisCell = (
+    index: number,
+    negativeCells: number,
+    positiveCells: number,
+    extent: number,
+  ) => {
+    const sideSpan = extent / 2 - avenueHalfWidth - parcelInset;
+    const onNegativeSide = index < negativeCells;
+    const cellsOnSide = onNegativeSide ? negativeCells : positiveCells;
+    const sideIndex = onNegativeSide ? index : index - negativeCells;
+    const size = sideSpan / Math.max(1, cellsOnSide);
+    return {
+      center: onNegativeSide
+        ? -extent / 2 + parcelInset + size * (sideIndex + 0.5)
+        : avenueHalfWidth + size * (sideIndex + 0.5),
+      size,
+    };
+  };
+
+  for (let index = 0; index < count; index += 1) {
+    const sourceSiteIndex = index + 1;
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    const xCell = dividedAxisCell(column, westColumns, eastColumns, areaWidth);
+    const zCell = dividedAxisCell(row, southRows, northRows, areaDepth);
+    const candidateX = xCell.center + (random() - 0.5) * xCell.size * 0.12;
+    const candidateZ = zCell.center + (random() - 0.5) * zCell.size * 0.12;
+    const mixedChoice =
+      index % 5 < (tier === 'AFFORDABLE' ? 4 : 3) ? 'TOWERS' : 'TOWNHOMES';
+    const resolved = typology === 'MIXED' ? mixedChoice : typology;
+    const isTower = resolved === 'TOWERS';
+    const baseHeight =
+      palette.height[0] + random() * (palette.height[1] - palette.height[0]);
+    const houseHeight =
+      resolved === 'TOWNHOMES' ? 5.8 : resolved === 'SEMI_DETACHED' ? 6.8 : 7.8;
+    const width = isTower
+      ? Math.min(xCell.size * 0.54, tier === 'ULTRA' ? 12 : 10)
+      : Math.min(xCell.size * 0.62, 8.5);
+    const depth = isTower
+      ? Math.min(zCell.size * 0.52, tier === 'ULTRA' ? 14 : 10)
+      : Math.min(zCell.size * 0.64, 10.5);
+    const rotationY = (random() - 0.5) * 0.1;
+    const isSemiDetached = resolved === 'SEMI_DETACHED';
+    const renderedWidth = isSemiDetached ? width * 0.46 : width;
+    const pairOffset = isSemiDetached ? (renderedWidth + 0.18) / 2 : 0;
+
+    const firstStableBuildingIndex = nextStableBuildingIndex;
+    const generatedSites: BuildingSite[] = [
+      {
+        sourceSiteIndex,
+        stableBuildingIndex: firstStableBuildingIndex,
+        x: candidateX - pairOffset,
+        z: candidateZ,
+        width: renderedWidth,
+        depth,
+        height: isTower ? baseHeight : houseHeight,
+        rotationY: isSemiDetached ? 0 : rotationY,
+        body: palette.body[index % palette.body.length],
+        glass: palette.glass[index % palette.glass.length],
+      },
+    ];
+
+    // Semi-detached homes share one cell but retain two separate envelopes.
+    if (isSemiDetached) {
+      generatedSites.push({
+        sourceSiteIndex,
+        stableBuildingIndex: firstStableBuildingIndex + 1,
+        x: candidateX + pairOffset,
+        z: candidateZ,
+        width: renderedWidth,
+        depth,
+        height: houseHeight - 0.35,
+        rotationY: 0,
+        body: palette.body[(index + 1) % palette.body.length],
+        glass: palette.glass[index % palette.glass.length],
+      });
+    }
+    nextStableBuildingIndex += generatedSites.length;
+    if (!suppressSourceSiteIndices.includes(sourceSiteIndex)) {
+      sites.push(...generatedSites);
+    }
+  }
+
+  paths.push(
+    {
+      position: [0, 0.1, 0],
+      scale: [avenueWidth, 0.2, areaDepth],
+      color: '#8d8b84',
+    },
+    {
+      position: [0, 0.12, 0],
+      scale: [areaWidth, 0.2, avenueWidth],
+      color: '#8d8b84',
+    },
+    {
+      position: [0, 0.2, areaDepth / 2 - 3],
+      scale: [areaWidth - 6, 0.16, 3.4],
+      color: '#c9c2ad',
+    },
+  );
+
+  const gardenCount = Math.max(
+    8,
+    Math.round(count * (tier === 'AFFORDABLE' ? 0.8 : 1.45)),
+  );
+  for (let index = 0; index < gardenCount; index += 1) {
+    let x = (random() - 0.5) * (areaWidth - 7);
+    let z = (random() - 0.5) * (areaDepth - 7);
+    if (Math.abs(x) < avenueWidth) x += Math.sign(x || 1) * avenueWidth * 1.4;
+    if (Math.abs(z) < avenueWidth) z += Math.sign(z || 1) * avenueWidth * 1.4;
+    gardenTrunks.push({
+      position: [x, 1, z],
+      scale: [0.36, 2, 0.36],
+      color: '#5a4531',
+    });
+    gardenCrowns.push({
+      position: [x, 2.8, z],
+      scale: [2.2, 2.6, 2.2],
+      color: index % 3 === 0 ? '#496b45' : '#597952',
+    });
+  }
+
+  return {
+    sites,
+    paths,
+    gardenTrunks,
+    gardenCrowns,
+    areaWidth,
+    areaDepth,
+    avenueWidth,
+  };
+}
 
 /**
  * Procedural residential superblock. Tier changes density, height, garden ratio
@@ -1165,136 +1544,54 @@ export function ResidentialQuarter({
   count = 12,
   footprint = [68, 58],
   seed = 42,
+  suppressSourceSiteIndices,
   onEnter,
 }: ResidentialQuarterProps) {
-  const generated = useMemo(() => {
-    const random = seededRandom(seed);
-    const palette = RESIDENTIAL_PALETTES[tier];
-    const sites: BuildingSite[] = [];
-    const paths: BoxInstance[] = [];
-    const gardenTrunks: RoundInstance[] = [];
-    const gardenCrowns: RoundInstance[] = [];
-    const [areaWidth, areaDepth] = footprint;
-    const columns = Math.max(
-      2,
-      Math.ceil(Math.sqrt((count * areaWidth) / areaDepth)),
-    );
-    const rows = Math.max(2, Math.ceil(count / columns));
-    const cellWidth = areaWidth / columns;
-    const cellDepth = areaDepth / rows;
-
-    for (let index = 0; index < count; index += 1) {
-      const column = index % columns;
-      const row = Math.floor(index / columns);
-      const x =
-        -areaWidth / 2 +
-        cellWidth * (column + 0.5) +
-        (random() - 0.5) * cellWidth * 0.18;
-      const z =
-        -areaDepth / 2 +
-        cellDepth * (row + 0.5) +
-        (random() - 0.5) * cellDepth * 0.18;
-      const mixedChoice =
-        index % 5 < (tier === 'AFFORDABLE' ? 4 : 3) ? 'TOWERS' : 'TOWNHOMES';
-      const resolved = typology === 'MIXED' ? mixedChoice : typology;
-      const isTower = resolved === 'TOWERS';
-      const baseHeight =
-        palette.height[0] + random() * (palette.height[1] - palette.height[0]);
-      const houseHeight =
-        resolved === 'TOWNHOMES'
-          ? 5.8
-          : resolved === 'SEMI_DETACHED'
-            ? 6.8
-            : 7.8;
-      const width = isTower
-        ? Math.min(cellWidth * 0.58, tier === 'ULTRA' ? 12 : 10)
-        : Math.min(cellWidth * 0.7, 8.5);
-      const depth = isTower
-        ? Math.min(cellDepth * 0.57, tier === 'ULTRA' ? 14 : 10)
-        : Math.min(cellDepth * 0.72, 10.5);
-
-      sites.push({
-        x,
-        z,
-        width,
-        depth,
-        height: isTower ? baseHeight : houseHeight,
-        rotationY: (random() - 0.5) * 0.1,
-        body: palette.body[index % palette.body.length],
-        glass: palette.glass[index % palette.glass.length],
-      });
-
-      // Semi-detached units read as paired homes, not a single oversized mass.
-      if (resolved === 'SEMI_DETACHED' && x + width < areaWidth / 2) {
-        sites.push({
-          x: x + width * 0.76,
-          z,
-          width: width * 0.68,
-          depth,
-          height: houseHeight - 0.35,
-          rotationY: 0,
-          body: palette.body[(index + 1) % palette.body.length],
-          glass: palette.glass[index % palette.glass.length],
-        });
-      }
-    }
-
-    const avenueWidth = tier === 'ULTRA' ? 5.4 : 4.2;
-    paths.push(
-      {
-        position: [0, 0.1, 0],
-        scale: [avenueWidth, 0.2, areaDepth],
-        color: '#8d8b84',
-      },
-      {
-        position: [0, 0.12, 0],
-        scale: [areaWidth, 0.2, avenueWidth],
-        color: '#8d8b84',
-      },
-      {
-        position: [0, 0.2, areaDepth / 2 - 3],
-        scale: [areaWidth - 6, 0.16, 3.4],
-        color: '#c9c2ad',
-      },
-    );
-
-    const gardenCount = Math.max(
-      8,
-      Math.round(count * (tier === 'AFFORDABLE' ? 0.8 : 1.45)),
-    );
-    for (let index = 0; index < gardenCount; index += 1) {
-      let x = (random() - 0.5) * (areaWidth - 7);
-      let z = (random() - 0.5) * (areaDepth - 7);
-      if (Math.abs(x) < avenueWidth) x += Math.sign(x || 1) * avenueWidth * 1.4;
-      if (Math.abs(z) < avenueWidth) z += Math.sign(z || 1) * avenueWidth * 1.4;
-      gardenTrunks.push({
-        position: [x, 1, z],
-        scale: [0.36, 2, 0.36],
-        color: '#5a4531',
-      });
-      gardenCrowns.push({
-        position: [x, 2.8, z],
-        scale: [2.2, 2.6, 2.2],
-        color: index % 3 === 0 ? '#496b45' : '#597952',
-      });
-    }
-
-    return { sites, paths, gardenTrunks, gardenCrowns, areaWidth, areaDepth };
-  }, [count, footprint, seed, tier, typology]);
-
+  const registeredPlan = getRegisteredResidentialQuarterPlan(id);
+  const resolvedTier = registeredPlan?.tier ?? tier;
+  const resolvedTypology = registeredPlan?.typology ?? typology;
+  const resolvedCount = registeredPlan?.count ?? count;
+  const resolvedFootprint = registeredPlan?.footprint ?? footprint;
+  const resolvedSeed = registeredPlan?.seed ?? seed;
+  const resolvedSuppressSourceSiteIndices =
+    registeredPlan?.suppressSourceSiteIndices ?? suppressSourceSiteIndices;
+  const generated = useMemo(
+    () =>
+      createResidentialQuarterPlan({
+        tier: resolvedTier,
+        typology: resolvedTypology,
+        count: resolvedCount,
+        footprint: resolvedFootprint,
+        seed: resolvedSeed,
+        suppressSourceSiteIndices: resolvedSuppressSourceSiteIndices,
+      }),
+    [
+      resolvedCount,
+      resolvedFootprint,
+      resolvedSeed,
+      resolvedSuppressSourceSiteIndices,
+      resolvedTier,
+      resolvedTypology,
+    ],
+  );
   return (
     <group
       position={position}
       rotation-y={rotationY}
       name={id}
-      userData={{ id, tier, typology, category: 'RESIDENTIAL_QUARTER' }}
+      userData={{
+        id,
+        tier: resolvedTier,
+        typology: resolvedTypology,
+        category: 'RESIDENTIAL_QUARTER',
+      }}
     >
       <mesh position={[0, -0.12, 0]} receiveShadow>
         <boxGeometry
           args={[generated.areaWidth + 4, 0.24, generated.areaDepth + 4]}
         />
         <meshStandardMaterial
-          color={tier === 'ULTRA' ? '#55604f' : '#65705d'}
+          color={resolvedTier === 'ULTRA' ? '#55604f' : '#65705d'}
           roughness={0.96}
         />
       </mesh>
@@ -1343,8 +1640,141 @@ export type MarinaHotelDistrictProps = {
   hotelCount?: number;
   berthCount?: number;
   seed?: number;
+  suppressSourceSiteIndices?: readonly number[];
   onEnter?: EnterHandler;
 };
+
+export type MarinaHotelDistrictPlanOptions = Pick<
+  MarinaHotelDistrictProps,
+  'hotelCount' | 'berthCount' | 'seed' | 'suppressSourceSiteIndices'
+>;
+
+export const AZURE_BAY_HOTEL_PLAN_OPTIONS = Object.freeze({
+  hotelCount: 6,
+  berthCount: 18,
+  seed: 811,
+  suppressSourceSiteIndices: [1, 2, 4, 5, 6] as readonly number[],
+});
+
+export type MarinaHotelDistrictPlan = Readonly<{
+  hotels: readonly BuildingSite[];
+  promenade: readonly BoxInstance[];
+  piers: readonly BoxInstance[];
+  hulls: readonly RoundInstance[];
+  cabins: readonly BoxInstance[];
+  upperDecks: readonly BoxInstance[];
+  masts: readonly RoundInstance[];
+  trunks: readonly RoundInstance[];
+  crowns: readonly RoundInstance[];
+}>;
+
+/** Deterministic plan shared by the marina renderer and world collision. */
+export function createMarinaHotelDistrictPlan({
+  hotelCount = 6,
+  berthCount = 18,
+  seed = 91,
+  suppressSourceSiteIndices = [],
+}: MarinaHotelDistrictPlanOptions = {}): MarinaHotelDistrictPlan {
+  const random = seededRandom(seed);
+  const hotels: BuildingSite[] = [];
+  const promenade: BoxInstance[] = [
+    { position: [-18, 0.18, 0], scale: [34, 0.36, 8], color: '#d8cdb4' },
+    { position: [8, 0.16, 0], scale: [18, 0.32, 7], color: '#cabf9f' },
+  ];
+  const piers: BoxInstance[] = [];
+  const hulls: RoundInstance[] = [];
+  const cabins: BoxInstance[] = [];
+  const upperDecks: BoxInstance[] = [];
+  const masts: RoundInstance[] = [];
+  const trunks: RoundInstance[] = [];
+  const crowns: RoundInstance[] = [];
+
+  for (let index = 0; index < hotelCount; index += 1) {
+    const row = Math.floor(index / 3);
+    const column = index % 3;
+    const sourceSiteIndex = index + 1;
+    const hotel: BuildingSite = {
+      sourceSiteIndex,
+      stableBuildingIndex: sourceSiteIndex,
+      x: -25 + column * 14 + (row % 2) * 4,
+      z: -18 - row * 15,
+      width: 9 + random() * 3,
+      depth: 8 + random() * 4,
+      height: 18 + random() * 22,
+      rotationY: (column - 1) * 0.08,
+      body: index % 2 ? '#ddd4c4' : '#c9c4b8',
+      glass: index % 2 ? '#386f81' : '#2e6074',
+    };
+    if (!suppressSourceSiteIndices.includes(sourceSiteIndex))
+      hotels.push(hotel);
+  }
+
+  const pierCount = Math.max(4, Math.ceil(berthCount / 4));
+  for (let index = 0; index < pierCount; index += 1) {
+    const x = -23 + index * 10;
+    piers.push(
+      { position: [x, 0.2, 16], scale: [2.2, 0.38, 26], color: '#9e8162' },
+      { position: [x, 0.2, 29], scale: [8.5, 0.38, 2.1], color: '#9e8162' },
+    );
+  }
+
+  for (let index = 0; index < berthCount; index += 1) {
+    const pier = index % pierCount;
+    const lane = Math.floor(index / pierCount);
+    const side = lane % 2 === 0 ? -1 : 1;
+    const sizeClass = index % 9 === 0 ? 2.05 : index % 4 === 0 ? 1.45 : 0.92;
+    const x = -23 + pier * 10 + side * (2.6 + sizeClass * 1.2);
+    const z = 8 + Math.floor(lane / 2) * 7.3 + random() * 1.2;
+    hulls.push({
+      position: [x, 0.8, z],
+      scale: [1.5 * sizeClass, 0.72 * sizeClass, 4.6 * sizeClass],
+      color: index % 3 === 0 ? '#1e4055' : '#e7e9e5',
+    });
+    cabins.push({
+      position: [x, 1.45 * sizeClass, z - 0.4 * sizeClass],
+      scale: [1.35 * sizeClass, 0.7 * sizeClass, 1.8 * sizeClass],
+      color: '#e8e5da',
+    });
+    upperDecks.push({
+      position: [x, 1.9 * sizeClass, z + 0.1 * sizeClass],
+      scale: [1.05 * sizeClass, 0.17 * sizeClass, 2.2 * sizeClass],
+      color: '#52798a',
+    });
+    if (sizeClass > 1) {
+      masts.push({
+        position: [x, 3.1 * sizeClass, z],
+        scale: [0.14, 3.2 * sizeClass, 0.14],
+        color: '#545c60',
+      });
+    }
+  }
+
+  for (let index = 0; index < 13; index += 1) {
+    const x = -31 + index * 5.2;
+    trunks.push({
+      position: [x, 1.35, -1.2],
+      scale: [0.46, 2.7, 0.46],
+      color: '#6d5032',
+    });
+    crowns.push({
+      position: [x, 3.6, -1.2],
+      scale: [2.4, 2.7, 2.4],
+      color: '#4f7853',
+    });
+  }
+
+  return {
+    hotels,
+    promenade,
+    piers,
+    hulls,
+    cabins,
+    upperDecks,
+    masts,
+    trunks,
+    crowns,
+  };
+}
 
 /** Resort hotels, a public waterfront and a mixed-size recreational marina. */
 export function MarinaHotelDistrict({
@@ -1354,104 +1784,23 @@ export function MarinaHotelDistrict({
   hotelCount = 6,
   berthCount = 18,
   seed = 91,
+  suppressSourceSiteIndices,
   onEnter,
 }: MarinaHotelDistrictProps) {
-  const district = useMemo(() => {
-    const random = seededRandom(seed);
-    const hotels: BuildingSite[] = [];
-    const promenade: BoxInstance[] = [
-      { position: [-18, 0.18, 0], scale: [34, 0.36, 8], color: '#d8cdb4' },
-      { position: [8, 0.16, 0], scale: [18, 0.32, 7], color: '#cabf9f' },
-    ];
-    const piers: BoxInstance[] = [];
-    const hulls: RoundInstance[] = [];
-    const cabins: BoxInstance[] = [];
-    const upperDecks: BoxInstance[] = [];
-    const masts: RoundInstance[] = [];
-    const trunks: RoundInstance[] = [];
-    const crowns: RoundInstance[] = [];
-
-    for (let index = 0; index < hotelCount; index += 1) {
-      const row = Math.floor(index / 3);
-      const column = index % 3;
-      hotels.push({
-        x: -25 + column * 14 + (row % 2) * 4,
-        z: -18 - row * 15,
-        width: 9 + random() * 3,
-        depth: 8 + random() * 4,
-        height: 18 + random() * 22,
-        rotationY: (column - 1) * 0.08,
-        body: index % 2 ? '#ddd4c4' : '#c9c4b8',
-        glass: index % 2 ? '#386f81' : '#2e6074',
-      });
-    }
-
-    const pierCount = Math.max(4, Math.ceil(berthCount / 4));
-    for (let index = 0; index < pierCount; index += 1) {
-      const x = -23 + index * 10;
-      piers.push(
-        { position: [x, 0.2, 16], scale: [2.2, 0.38, 26], color: '#9e8162' },
-        { position: [x, 0.2, 29], scale: [8.5, 0.38, 2.1], color: '#9e8162' },
-      );
-    }
-
-    for (let index = 0; index < berthCount; index += 1) {
-      const pier = index % pierCount;
-      const lane = Math.floor(index / pierCount);
-      const side = lane % 2 === 0 ? -1 : 1;
-      const sizeClass = index % 9 === 0 ? 2.05 : index % 4 === 0 ? 1.45 : 0.92;
-      const x = -23 + pier * 10 + side * (2.6 + sizeClass * 1.2);
-      const z = 8 + Math.floor(lane / 2) * 7.3 + random() * 1.2;
-      hulls.push({
-        position: [x, 0.8, z],
-        scale: [1.5 * sizeClass, 0.72 * sizeClass, 4.6 * sizeClass],
-        color: index % 3 === 0 ? '#1e4055' : '#e7e9e5',
-      });
-      cabins.push({
-        position: [x, 1.45 * sizeClass, z - 0.4 * sizeClass],
-        scale: [1.35 * sizeClass, 0.7 * sizeClass, 1.8 * sizeClass],
-        color: '#e8e5da',
-      });
-      upperDecks.push({
-        position: [x, 1.9 * sizeClass, z + 0.1 * sizeClass],
-        scale: [1.05 * sizeClass, 0.17 * sizeClass, 2.2 * sizeClass],
-        color: '#52798a',
-      });
-      if (sizeClass > 1) {
-        masts.push({
-          position: [x, 3.1 * sizeClass, z],
-          scale: [0.14, 3.2 * sizeClass, 0.14],
-          color: '#545c60',
-        });
-      }
-    }
-
-    for (let index = 0; index < 13; index += 1) {
-      const x = -31 + index * 5.2;
-      trunks.push({
-        position: [x, 1.35, -1.2],
-        scale: [0.46, 2.7, 0.46],
-        color: '#6d5032',
-      });
-      crowns.push({
-        position: [x, 3.6, -1.2],
-        scale: [2.4, 2.7, 2.4],
-        color: '#4f7853',
-      });
-    }
-
-    return {
-      hotels,
-      promenade,
-      piers,
-      hulls,
-      cabins,
-      upperDecks,
-      masts,
-      trunks,
-      crowns,
-    };
-  }, [berthCount, hotelCount, seed]);
+  const district = useMemo(
+    () =>
+      createMarinaHotelDistrictPlan({
+        hotelCount,
+        berthCount,
+        seed,
+        suppressSourceSiteIndices:
+          suppressSourceSiteIndices ??
+          (id === 'AZURE-BAY-HOTEL-MARINA'
+            ? AZURE_BAY_HOTEL_PLAN_OPTIONS.suppressSourceSiteIndices
+            : undefined),
+      }),
+    [berthCount, hotelCount, id, seed, suppressSourceSiteIndices],
+  );
 
   return (
     <group

@@ -3,7 +3,7 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   Clone,
-  Environment,
+  Detailed,
   Html,
   useAnimations,
   useGLTF,
@@ -46,15 +46,22 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import {
+  Component,
+  Fragment,
   memo,
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
-import type { PointerEvent as ReactPointerEvent } from 'react';
+import type {
+  ErrorInfo,
+  PointerEvent as ReactPointerEvent,
+  ReactNode,
+} from 'react';
 import * as THREE from 'three';
 import {
   DynamicAtmosphere,
@@ -63,9 +70,15 @@ import {
   getWorldMinutesAtCycleTime,
 } from './dynamic-atmosphere';
 import { MetropolitanExpansion } from './metropolitan-expansion';
+import { PersistentInfrastructureShells } from './persistent-infrastructure-shells';
 import {
   CONTINUOUS_WORLD_BOUNDS,
   ContinuousWorldBase,
+  LEGACY_CBD_LAYOUT,
+  LEGACY_CBD_ENERGY_UTILITY_OFFSETS,
+  LEGACY_CBD_ENERGY_CANOPY_CENTERS,
+  LEGACY_CBD_ENERGY_MAST_OFFSET,
+  LEGACY_CBD_ENERGY_REACTOR_OFFSET,
   LEGACY_DISTRICT_WORLD_ORIGINS,
   SectorLodMassing,
   canStepBetweenContinuousWorldPoints,
@@ -73,21 +86,46 @@ import {
   getContinuousWorldMetroArrival,
   getContinuousWorldMetroEntrancePosition,
   getContinuousWorldSectorAt,
+  getContinuousWorldSectorLod,
   getNearestContinuousWorldMetro,
   getWorldSurfaceElevationXZ,
   isWorldCameraPointOccluded,
+  WORLD_CAMERA_GROUND_CLEARANCE,
 } from './continuous-world';
 import {
+  CAMERA_AVATAR_HIDE_DISTANCE,
   isStudioCameraPointOccluded,
   resolveCameraOcclusion,
+  resolveCameraTransition,
 } from './camera-safety';
 import {
+  THIRD_PERSON_DEFAULT_PITCH,
+  THIRD_PERSON_MAX_PITCH,
+  THIRD_PERSON_MIN_PITCH,
+  getThirdPersonRig,
+  lerpAngle,
+  resolveThirdPersonLook,
+  resolveThirdPersonMovement,
+} from './third-person-controller';
+import {
   GrandRiverSystem,
+  LEGACY_RIDGE_CONTENT_OFFSET,
+  LEGACY_RIDGE_RESIDENTIAL_QUARTER_SPECS,
+  LEGACY_RIDGE_VILLA_FOUNDATION_GEOMETRY,
+  LEGACY_RIDGE_VILLA_FOUNDATION_Y,
+  LEGACY_RIDGE_VILLA_LAYOUT,
   MarinaHotelDistrict,
+  METROPOLITAN_RESIDENTIAL_QUARTER_SPECS,
   MetroEntrance,
   ResidentialQuarter,
 } from './urban-expansion';
 import { WORLD_ASSET_COUNTS } from './world-asset-catalog';
+import {
+  WATERCRAFT_MODEL_BOUNDS,
+  WORLD_WATERCRAFT,
+  type WorldWatercraftModel,
+  type WorldWatercraftPlacement,
+} from './world-watercraft';
 import {
   NAMED_WORLD_SOLIDS,
   STARTER_TOWER_SPECS,
@@ -108,10 +146,20 @@ import {
   PLAYABLE_CORE_KM,
   REPRESENTED_REGION_HEIGHT_KM,
   REPRESENTED_REGION_KM,
+  WORLD_SECTORS,
   metroHubById,
   type WorldSector,
   type WorldSectorId,
 } from './world-topology';
+import {
+  WORLD_OVERVIEW_CAMERA_FAR,
+  WORLD_OVERVIEW_CAMERA_NEAR,
+  WORLD_OVERVIEW_FOG_FAR,
+  WORLD_OVERVIEW_FOG_NEAR,
+  WORLD_OVERVIEW_VERTICAL_FOV_DEGREES,
+  clampWorldOverviewZoom,
+  getWorldOverviewPose,
+} from './world-overview-camera';
 
 type Place =
   | 'market'
@@ -143,6 +191,7 @@ type WorldSceneId =
   | 'CROWN_RESIDENTIAL_TOWERS'
   | 'MILLIONAIRE_RIDGE';
 type SceneProfileId = WorldSceneId | 'CONTINUOUS_WORLD' | 'STUDIO_INTERIOR';
+type WorldViewMode = 'FOLLOW' | 'OBLIQUE' | 'TOP';
 type PlayerLocation = { scene: SceneProfileId; x: number; z: number };
 type OutdoorPlayerEntry = {
   id: number;
@@ -1448,7 +1497,7 @@ function CharacterAsset({
     };
   }, [actions, animation]);
   return (
-    <group ref={root} scale={scale}>
+    <group ref={root} rotation={[0, Math.PI, 0]} scale={scale}>
       <Clone object={scene} castShadow={shadows} receiveShadow={shadows} />
     </group>
   );
@@ -2036,18 +2085,6 @@ function StarterArcology({
           <meshBasicMaterial color="#d6c476" transparent opacity={0.56} />
         </mesh>
       ))}
-      <group position={[0, 0, 66.1]}>
-        <mesh position={[0, 0.16, 0]}>
-          <boxGeometry args={[20, 0.3, 0.22]} />
-          <meshStandardMaterial color="#414a45" metalness={0.56} />
-        </mesh>
-        {[-9.5, -6.3, -3.1, 0, 3.1, 6.3, 9.5].map((x) => (
-          <mesh key={x} position={[x, 1.15, 0]}>
-            <boxGeometry args={[0.12, 2.2, 0.12]} />
-            <meshStandardMaterial color="#343e39" />
-          </mesh>
-        ))}
-      </group>
       <Html
         position={[0, 10.8, 65.2]}
         center
@@ -2067,10 +2104,9 @@ const ACTIVE_TRAFFIC_POSITIONS = Array.from(
   { length: 4 },
   () => new THREE.Vector3(9999, 0, 9999),
 );
-const CAMERA_LOOK_DISTANCE = 7.4;
-const DEFAULT_CAMERA_PITCH = -0.06;
-const MIN_CAMERA_PITCH = -0.44;
-const MAX_CAMERA_PITCH = 0.7;
+const DEFAULT_CAMERA_PITCH = THIRD_PERSON_DEFAULT_PITCH;
+const MIN_CAMERA_PITCH = THIRD_PERSON_MIN_PITCH;
+const MAX_CAMERA_PITCH = THIRD_PERSON_MAX_PITCH;
 const INPUT_FORWARD = 1;
 const INPUT_LEFT = 2;
 const INPUT_BACKWARD = 4;
@@ -2125,6 +2161,7 @@ function Player({
   traversalPredicate,
   stepTraversalPredicate,
   cameraOcclusionPredicate,
+  cameraEnabled = true,
 }: {
   scene: SceneProfileId;
   onPositionChange?: (location: PlayerLocation) => void;
@@ -2142,21 +2179,30 @@ function Player({
     y: number;
     z: number;
   }) => boolean;
+  cameraEnabled?: boolean;
 }) {
   const body = useRef<THREE.Group>(null);
+  const avatarVisual = useRef<THREE.Group>(null);
   const keys = useRef<Record<string, boolean>>({});
   const queuedInputMask = useRef(0);
   const facingAngle = useRef(SCENE_PROFILES[scene].heading);
   const cameraPitch = useRef(DEFAULT_CAMERA_PITCH);
   const targetCameraPitch = useRef(DEFAULT_CAMERA_PITCH);
-  const cameraYawOffset = useRef(0);
-  const targetCameraYawOffset = useRef(0);
+  const cameraHeading = useRef(SCENE_PROFILES[scene].heading);
+  const targetCameraHeading = useRef(SCENE_PROFILES[scene].heading);
   const heldLookDirection = useRef(0);
+  const pointerLook = useRef({
+    pointerId: -1,
+    x: 0,
+    y: 0,
+  });
   const lastPositionReport = useRef(0);
   const lastReportedPosition = useRef(
     new THREE.Vector2(Number.NaN, Number.NaN),
   );
   const cameraTarget = useRef(new THREE.Vector3());
+  const wasCameraEnabled = useRef(cameraEnabled);
+  const followCameraReset = useRef(true);
   const frameScratch = useRef({
     direction: new THREE.Vector3(),
     movement: new THREE.Vector3(),
@@ -2172,7 +2218,9 @@ function Player({
     desiredCamera: new THREE.Vector3(),
     safeCamera: new THREE.Vector3(),
     cameraProbe: new THREE.Vector3(),
+    transitionCamera: new THREE.Vector3(),
     desiredTarget: new THREE.Vector3(),
+    movementOutput: { x: 0, z: 0, heading: 0, magnitude: 0 },
   });
   const [movementAction, setMovementAction] = useState<'idle' | 'walk'>('idle');
   const { camera, gl } = useThree();
@@ -2189,37 +2237,12 @@ function Player({
     facingAngle.current = heading;
     cameraPitch.current = DEFAULT_CAMERA_PITCH;
     targetCameraPitch.current = DEFAULT_CAMERA_PITCH;
-    cameraYawOffset.current = 0;
-    targetCameraYawOffset.current = 0;
+    cameraHeading.current = heading;
+    targetCameraHeading.current = heading;
     heldLookDirection.current = 0;
-    const initialForward = new THREE.Vector3(
-      Math.sin(heading),
-      0,
-      Math.cos(heading),
-    );
-    const initialRight = new THREE.Vector3(
-      initialForward.z,
-      0,
-      -initialForward.x,
-    );
-    const initialLookSpan = CAMERA_LOOK_DISTANCE + profile.cameraOffset[2];
-    cameraTarget.current
-      .set(
-        spawn[0],
-        spawn[1] +
-          profile.cameraOffset[1] +
-          Math.tan(DEFAULT_CAMERA_PITCH) * initialLookSpan,
-        spawn[2],
-      )
-      .addScaledVector(initialForward, CAMERA_LOOK_DISTANCE);
-    camera.position
-      .set(spawn[0], spawn[1], spawn[2])
-      .addScaledVector(initialForward, -profile.cameraOffset[2])
-      .addScaledVector(initialRight, profile.cameraOffset[0])
-      .add(new THREE.Vector3(0, profile.cameraOffset[1], 0));
-    camera.lookAt(cameraTarget.current);
+    followCameraReset.current = true;
     onPositionChangeRef.current?.({ scene, x: spawn[0], z: spawn[2] });
-  }, [camera, heading, profile.cameraOffset, scene, spawn, teleportKey]);
+  }, [heading, scene, spawn, teleportKey]);
   useEffect(() => {
     const normalizeControlKey = (key: string) => {
       const normalized = key.toLowerCase();
@@ -2278,26 +2301,109 @@ function Player({
       const deltaY = THREE.MathUtils.clamp(event.deltaY * unit, -90, 90);
       if (Math.abs(deltaX) < 0.01 && Math.abs(deltaY) < 0.01) return;
       event.preventDefault();
-      targetCameraYawOffset.current = THREE.MathUtils.clamp(
-        targetCameraYawOffset.current - deltaX * 0.0032,
-        -Math.PI,
-        Math.PI,
+      const look = resolveThirdPersonLook(
+        targetCameraHeading.current,
+        targetCameraPitch.current,
+        deltaX,
+        deltaY,
+        0.0032,
+        0.0027,
       );
-      targetCameraPitch.current = THREE.MathUtils.clamp(
-        targetCameraPitch.current - deltaY * 0.0027,
-        MIN_CAMERA_PITCH,
-        MAX_CAMERA_PITCH,
+      targetCameraHeading.current = look.heading;
+      targetCameraPitch.current = look.pitch;
+    };
+    const beginPointerLook = (event: PointerEvent) => {
+      if (!enabled || event.pointerType === 'touch') return;
+      pointerLook.current.pointerId = event.pointerId;
+      pointerLook.current.x = event.clientX;
+      pointerLook.current.y = event.clientY;
+      gl.domElement.setPointerCapture?.(event.pointerId);
+      gl.domElement.style.cursor = 'grabbing';
+    };
+    const updatePointerLook = (event: PointerEvent) => {
+      if (
+        !enabled ||
+        pointerLook.current.pointerId !== event.pointerId ||
+        event.pointerType === 'touch'
+      )
+        return;
+      const deltaX = THREE.MathUtils.clamp(
+        event.clientX - pointerLook.current.x,
+        -90,
+        90,
+      );
+      const deltaY = THREE.MathUtils.clamp(
+        event.clientY - pointerLook.current.y,
+        -90,
+        90,
+      );
+      pointerLook.current.x = event.clientX;
+      pointerLook.current.y = event.clientY;
+      const look = resolveThirdPersonLook(
+        targetCameraHeading.current,
+        targetCameraPitch.current,
+        deltaX,
+        deltaY,
+        0.006,
+        0.0048,
+      );
+      targetCameraHeading.current = look.heading;
+      targetCameraPitch.current = look.pitch;
+    };
+    const endPointerLook = (event: PointerEvent) => {
+      if (pointerLook.current.pointerId !== event.pointerId) return;
+      pointerLook.current.pointerId = -1;
+      if (gl.domElement.hasPointerCapture?.(event.pointerId))
+        gl.domElement.releasePointerCapture(event.pointerId);
+      gl.domElement.style.cursor = '';
+    };
+    const preventCameraMenu = (event: MouseEvent) => event.preventDefault();
+    const reportControllerState = () => {
+      const player = body.current;
+      if (!player) return;
+      window.dispatchEvent(
+        new CustomEvent('ampliworld-controller-state', {
+          detail: {
+            playerX: player.position.x,
+            playerY: player.position.y,
+            playerZ: player.position.z,
+            playerHeading: facingAngle.current,
+            cameraHeading: targetCameraHeading.current,
+            cameraPitch: targetCameraPitch.current,
+            cameraX: camera.position.x,
+            cameraY: camera.position.y,
+            cameraZ: camera.position.z,
+            cameraPointOccluded: Boolean(
+              cameraOcclusionPredicate?.(camera.position),
+            ),
+            avatarVisible: avatarVisual.current?.visible ?? true,
+          },
+        }),
       );
     };
     window.addEventListener('keydown', update);
     window.addEventListener('keyup', update);
     window.addEventListener('ampliworld-move', virtual);
     window.addEventListener('ampliworld-look', virtualLook);
+    window.addEventListener(
+      'ampliworld-read-controller-state',
+      reportControllerState,
+    );
     gl.domElement.addEventListener('wheel', trackpadLook, { passive: false });
+    gl.domElement.addEventListener('pointerdown', beginPointerLook);
+    gl.domElement.addEventListener('pointermove', updatePointerLook);
+    gl.domElement.addEventListener('pointerup', endPointerLook);
+    gl.domElement.addEventListener('pointercancel', endPointerLook);
+    gl.domElement.addEventListener('contextmenu', preventCameraMenu);
     const release = () => {
+      const pointerId = pointerLook.current.pointerId;
+      if (pointerId >= 0 && gl.domElement.hasPointerCapture?.(pointerId))
+        gl.domElement.releasePointerCapture(pointerId);
       keys.current = {};
       queuedInputMask.current = 0;
       heldLookDirection.current = 0;
+      pointerLook.current.pointerId = -1;
+      gl.domElement.style.cursor = '';
     };
     window.addEventListener('blur', release);
     return () => {
@@ -2305,10 +2411,20 @@ function Player({
       window.removeEventListener('keyup', update);
       window.removeEventListener('ampliworld-move', virtual);
       window.removeEventListener('ampliworld-look', virtualLook);
+      window.removeEventListener(
+        'ampliworld-read-controller-state',
+        reportControllerState,
+      );
       gl.domElement.removeEventListener('wheel', trackpadLook);
+      gl.domElement.removeEventListener('pointerdown', beginPointerLook);
+      gl.domElement.removeEventListener('pointermove', updatePointerLook);
+      gl.domElement.removeEventListener('pointerup', endPointerLook);
+      gl.domElement.removeEventListener('pointercancel', endPointerLook);
+      gl.domElement.removeEventListener('contextmenu', preventCameraMenu);
       window.removeEventListener('blur', release);
+      release();
     };
-  }, [enabled, gl]);
+  }, [camera, cameraOcclusionPredicate, enabled, gl]);
   useEffect(() => {
     if (enabled) return;
     keys.current = {};
@@ -2339,49 +2455,41 @@ function Player({
     const heldForward = enabled
       ? (keysDown.w ? 1 : 0) - (keysDown.s ? 1 : 0)
       : 0;
-    const heldTurn = enabled ? (keysDown.a ? 1 : 0) - (keysDown.d ? 1 : 0) : 0;
+    const heldLateral = enabled
+      ? (keysDown.d ? 1 : 0) - (keysDown.a ? 1 : 0)
+      : 0;
     const pendingInputMask = queuedInputMask.current;
     queuedInputMask.current = 0;
     const forwardInput =
       (enabled && (keysDown.w || pendingInputMask & INPUT_FORWARD) ? 1 : 0) -
       (enabled && (keysDown.s || pendingInputMask & INPUT_BACKWARD) ? 1 : 0);
-    const turnInput =
-      (enabled && (keysDown.a || pendingInputMask & INPUT_LEFT) ? 1 : 0) -
-      (enabled && (keysDown.d || pendingInputMask & INPUT_RIGHT) ? 1 : 0);
-    const usingTap = !heldForward && !heldTurn && pendingInputMask !== 0;
-    if (forwardInput || turnInput) {
-      targetCameraYawOffset.current = THREE.MathUtils.lerp(
-        targetCameraYawOffset.current,
-        0,
-        1 - Math.exp(-delta * 4.8),
-      );
-    }
-    cameraYawOffset.current = THREE.MathUtils.lerp(
-      cameraYawOffset.current,
-      targetCameraYawOffset.current,
+    const lateralInput =
+      (enabled && (keysDown.d || pendingInputMask & INPUT_RIGHT) ? 1 : 0) -
+      (enabled && (keysDown.a || pendingInputMask & INPUT_LEFT) ? 1 : 0);
+    const usingTap = !heldForward && !heldLateral && pendingInputMask !== 0;
+    cameraHeading.current = lerpAngle(
+      cameraHeading.current,
+      targetCameraHeading.current,
       1 - Math.exp(-delta * 8),
     );
-    if (turnInput) {
-      const turnStep = usingTap ? 0.14 : Math.min(delta, 1 / 30) * 2.45;
-      facingAngle.current = THREE.MathUtils.euclideanModulo(
-        facingAngle.current + turnInput * turnStep,
-        Math.PI * 2,
-      );
-      body.current.rotation.y = facingAngle.current;
-    }
     const scratch = frameScratch.current;
     scratch.applied.set(0, 0, 0);
-    if (forwardInput) {
-      scratch.direction.set(
-        Math.sin(facingAngle.current),
-        0,
-        Math.cos(facingAngle.current),
-      );
+    const stableViewHeading = cameraHeading.current;
+    const movement = resolveThirdPersonMovement(
+      forwardInput,
+      lateralInput,
+      stableViewHeading,
+      scratch.movementOutput,
+    );
+    if (movement.magnitude > 0) {
+      scratch.direction.set(movement.x, 0, movement.z);
+      facingAngle.current = movement.heading;
+      body.current.rotation.y = movement.heading;
       scratch.movement
         .copy(scratch.direction)
         .multiplyScalar(
           (usingTap ? 0.42 : Math.min(delta, 1 / 30) * profile.speed) *
-            (forwardInput > 0 ? 1 : -0.68),
+            movement.magnitude,
         );
       scratch.start.copy(body.current.position);
       const substeps = Math.max(1, Math.ceil(scratch.movement.length() / 0.18));
@@ -2472,14 +2580,43 @@ function Player({
       );
     }
     ACTIVE_PLAYER_POSITION.copy(body.current.position);
-    const viewHeading = facingAngle.current + cameraYawOffset.current;
+    const reactivatingCamera =
+      cameraEnabled && (!wasCameraEnabled.current || followCameraReset.current);
+    wasCameraEnabled.current = cameraEnabled;
+    if (!cameraEnabled) {
+      if (avatarVisual.current) avatarVisual.current.visible = true;
+      return;
+    }
+    followCameraReset.current = false;
+    camera.up.set(0, 1, 0);
+    const viewHeading = cameraHeading.current;
     scratch.forward.set(Math.sin(viewHeading), 0, Math.cos(viewHeading));
     scratch.right.set(scratch.forward.z, 0, -scratch.forward.x);
-    scratch.desiredCamera
+    const rig = getThirdPersonRig(
+      profile.cameraOffset[1],
+      profile.cameraOffset[2],
+      cameraPitch.current,
+    );
+    scratch.desiredTarget
       .copy(body.current.position)
-      .addScaledVector(scratch.forward, -profile.cameraOffset[2])
+      .addScaledVector(scratch.forward, rig.focusLead);
+    scratch.desiredTarget.y += rig.focusHeight;
+    scratch.desiredCamera
+      .copy(scratch.desiredTarget)
+      .addScaledVector(scratch.forward, -rig.horizontalDistance)
       .addScaledVector(scratch.right, profile.cameraOffset[0]);
-    scratch.desiredCamera.y += profile.cameraOffset[1];
+    scratch.desiredCamera.y += rig.verticalOffset;
+    if (scene === 'CONTINUOUS_WORLD') {
+      scratch.desiredCamera.y = Math.max(
+        scratch.desiredCamera.y,
+        getWorldSurfaceElevationXZ(
+          scratch.desiredCamera.x,
+          scratch.desiredCamera.z,
+        ) +
+          WORLD_CAMERA_GROUND_CLEARANCE +
+          0.01,
+      );
+    }
     scratch.cameraAnchor.copy(body.current.position);
     scratch.cameraAnchor.y += 1.7;
     const cameraWasOccluded = resolveCameraOcclusion(
@@ -2489,51 +2626,53 @@ function Player({
       scratch.cameraProbe,
       cameraOcclusionPredicate,
     );
-    if (scene === 'CONTINUOUS_WORLD') {
-      scratch.safeCamera.y = Math.max(
-        scratch.safeCamera.y,
-        getWorldSurfaceElevationXZ(scratch.safeCamera.x, scratch.safeCamera.z) +
-          0.35,
-      );
-    }
     const cameraAlpha = 1 - Math.exp(-delta * 5.4);
     const targetAlpha = 1 - Math.exp(-delta * 7);
-    if (cameraWasOccluded) camera.position.copy(scratch.safeCamera);
-    else camera.position.lerp(scratch.safeCamera, cameraAlpha);
-    const lookDistance =
-      scene === 'STUDIO_INTERIOR' ? 4.2 : CAMERA_LOOK_DISTANCE;
-    const lookSpan = lookDistance + profile.cameraOffset[2];
-    const lookHeight =
-      profile.cameraOffset[1] + Math.tan(cameraPitch.current) * lookSpan;
-    scratch.desiredTarget
-      .copy(body.current.position)
-      .addScaledVector(scratch.forward, lookDistance);
-    scratch.desiredTarget.y += lookHeight;
-    cameraTarget.current.lerp(scratch.desiredTarget, targetAlpha);
+    if (cameraWasOccluded || reactivatingCamera) {
+      camera.position.copy(scratch.safeCamera);
+    } else {
+      resolveCameraTransition(
+        camera.position,
+        scratch.safeCamera,
+        cameraAlpha,
+        scratch.transitionCamera,
+        scratch.cameraProbe,
+        cameraOcclusionPredicate,
+      );
+      camera.position.copy(scratch.transitionCamera);
+    }
+    if (avatarVisual.current)
+      avatarVisual.current.visible =
+        camera.position.distanceToSquared(scratch.cameraAnchor) >=
+        CAMERA_AVATAR_HIDE_DISTANCE * CAMERA_AVATAR_HIDE_DISTANCE;
+    if (reactivatingCamera) cameraTarget.current.copy(scratch.desiredTarget);
+    else cameraTarget.current.lerp(scratch.desiredTarget, targetAlpha);
     camera.lookAt(cameraTarget.current);
   });
   return (
     <group ref={body} position={spawn} rotation={[0, heading, 0]}>
-      <Suspense
-        fallback={
-          <mesh castShadow position={[0, 0.8, 0]}>
-            <capsuleGeometry args={[0.38, 0.9, 6, 12]} />
-            <meshStandardMaterial
-              color="#e7fff5"
-              metalness={0.65}
-              roughness={0.22}
-              emissive="#27e8a1"
-              emissiveIntensity={0.25}
-            />
-          </mesh>
-        }
-      >
-        <CharacterAsset
-          url={`${HERO_CHARACTER_ASSET_ROOT}/male-casual-hoodie.glb`}
-          animation={movementAction === 'walk' ? 'Walk' : 'Idle'}
-          scale={0.98}
-        />
-      </Suspense>
+      <group ref={avatarVisual}>
+        <Suspense
+          fallback={
+            <mesh castShadow position={[0, 0.8, 0]}>
+              <capsuleGeometry args={[0.38, 0.9, 6, 12]} />
+              <meshStandardMaterial
+                color="#e7fff5"
+                metalness={0.65}
+                roughness={0.22}
+                emissive="#27e8a1"
+                emissiveIntensity={0.25}
+              />
+            </mesh>
+          }
+        >
+          <CharacterAsset
+            url={`${HERO_CHARACTER_ASSET_ROOT}/male-casual-hoodie.glb`}
+            animation={movementAction === 'walk' ? 'Walk' : 'Idle'}
+            scale={0.98}
+          />
+        </Suspense>
+      </group>
       <pointLight
         position={[0, 1.45, 0.22]}
         intensity={0.32}
@@ -2542,6 +2681,55 @@ function Player({
       />
     </group>
   );
+}
+
+function WorldOverviewCamera({
+  mode,
+  zoom,
+  onZoom,
+}: {
+  mode: Exclude<WorldViewMode, 'FOLLOW'>;
+  zoom: number;
+  onZoom: (amount: number) => void;
+}) {
+  const { camera, gl, size } = useThree();
+  const pose = useMemo(
+    () =>
+      getWorldOverviewPose(
+        mode,
+        CONTINUOUS_WORLD_BOUNDS,
+        size.width / Math.max(1, size.height),
+        camera instanceof THREE.PerspectiveCamera
+          ? camera.fov
+          : WORLD_OVERVIEW_VERTICAL_FOV_DEGREES,
+        zoom,
+      ),
+    [camera, mode, size.height, size.width, zoom],
+  );
+  const position = useMemo(
+    () => new THREE.Vector3(...pose.position),
+    [pose.position],
+  );
+  const target = useMemo(
+    () => new THREE.Vector3(...pose.target),
+    [pose.target],
+  );
+  useLayoutEffect(() => {
+    camera.position.copy(position);
+    camera.up.set(...pose.up);
+    camera.lookAt(target);
+    camera.updateProjectionMatrix();
+  }, [camera, pose.up, position, target]);
+  useEffect(() => {
+    const handleWheel = (event: WheelEvent) => {
+      if (Math.abs(event.deltaY) < 0.01) return;
+      event.preventDefault();
+      onZoom(event.deltaY > 0 ? 0.08 : -0.08);
+    };
+    gl.domElement.addEventListener('wheel', handleWheel, { passive: false });
+    return () => gl.domElement.removeEventListener('wheel', handleWheel);
+  }, [gl, onZoom]);
+  return null;
 }
 
 function ParkTree({
@@ -3678,7 +3866,7 @@ function CivicSafetyHQ({ onEnter }: { onEnter: EnterPlace }) {
 function AcademyCampus({ onEnter }: { onEnter: EnterPlace }) {
   return (
     <group
-      position={[-25, 0, 16]}
+      position={LEGACY_CBD_LAYOUT.ACADEMY_CAMPUS}
       onClick={() => onEnter('academy', 'academy')}
     >
       <mesh receiveShadow position={[0, 0.06, 0]}>
@@ -4071,7 +4259,7 @@ function Auto4SDealership({ onEnter }: { onEnter: EnterPlace }) {
 function EnergyResearchCampus({ onEnter }: { onEnter: EnterPlace }) {
   return (
     <group
-      position={[45.5, 0, 5]}
+      position={LEGACY_CBD_LAYOUT.ENERGY_CAMPUS}
       onClick={() => onEnter('career', 'grid-energy')}
     >
       <mesh receiveShadow position={[0, 0.06, 0]}>
@@ -4107,8 +4295,8 @@ function EnergyResearchCampus({ onEnter }: { onEnter: EnterPlace }) {
           opacity={0.76}
         />
       </mesh>
-      {[-3.7, 0, 3.7].map((x) => (
-        <group key={`utility-${x}`} position={[x, 0, 2.8]}>
+      {LEGACY_CBD_ENERGY_UTILITY_OFFSETS.map(([x, z]) => (
+        <group key={`utility-${x}-${z}`} position={[x, 0, z]}>
           <mesh castShadow position={[0, 0.72, 0]}>
             <cylinderGeometry args={[0.58, 0.64, 1.36, 16]} />
             <meshStandardMaterial
@@ -4136,7 +4324,7 @@ function EnergyResearchCampus({ onEnter }: { onEnter: EnterPlace }) {
           </mesh>
         </group>
       ))}
-      {[-3.8, 0, 3.8].map((x) => (
+      {LEGACY_CBD_ENERGY_CANOPY_CENTERS.map((x) => (
         <group key={`canopy-${x}`} position={[x, 0, 4.75]}>
           <mesh castShadow position={[0, 1.62, 0]} rotation={[-0.17, 0, 0]}>
             <boxGeometry args={[3.15, 0.09, 1.55]} />
@@ -4157,17 +4345,36 @@ function EnergyResearchCampus({ onEnter }: { onEnter: EnterPlace }) {
           ))}
         </group>
       ))}
-      <mesh position={[5.3, 3.25, -2.9]}>
+      <mesh
+        position={[
+          LEGACY_CBD_ENERGY_MAST_OFFSET[0],
+          3.25,
+          LEGACY_CBD_ENERGY_MAST_OFFSET[1],
+        ]}
+      >
         <cylinderGeometry args={[0.07, 0.1, 6.5, 10]} />
         <meshStandardMaterial color="#abb7b3" metalness={0.72} />
       </mesh>
       {[1.25, 2.45, 3.65].map((y) => (
-        <mesh key={`mast-ring-${y}`} position={[5.3, y, -2.9]}>
+        <mesh
+          key={`mast-ring-${y}`}
+          position={[
+            LEGACY_CBD_ENERGY_MAST_OFFSET[0],
+            y,
+            LEGACY_CBD_ENERGY_MAST_OFFSET[1],
+          ]}
+        >
           <torusGeometry args={[0.22, 0.035, 7, 14]} />
           <meshBasicMaterial color="#71f2c4" toneMapped={false} />
         </mesh>
       ))}
-      <group position={[3.65, 0, 0.85]}>
+      <group
+        position={[
+          LEGACY_CBD_ENERGY_REACTOR_OFFSET[0],
+          0,
+          LEGACY_CBD_ENERGY_REACTOR_OFFSET[1],
+        ]}
+      >
         <mesh castShadow position={[0, 0.72, 0]}>
           <cylinderGeometry args={[1.32, 1.55, 1.35, 28]} />
           <meshStandardMaterial
@@ -4503,7 +4710,86 @@ function SciFiResidenceTower({
   );
 }
 
+function WatercraftSilhouette({
+  model,
+  scale,
+}: {
+  model: WorldWatercraftModel;
+  scale: number;
+}) {
+  const bounds = WATERCRAFT_MODEL_BOUNDS[model];
+  const hullRadius = bounds.width * 0.34;
+  const hullLength = Math.max(0.2, bounds.length - hullRadius * 2);
+  const hullY = Math.max(0.14, hullRadius * 0.66);
+  const cabinHeight = Math.min(
+    bounds.height * 0.34,
+    Math.max(0.28, bounds.width * 0.62),
+  );
+  const isSailboat = model === 'boat-sail-a';
+  return (
+    <group
+      name={`${model} persistent distance silhouette`}
+      scale={scale}
+      userData={{ lod: 'WATERCRAFT_SHELL', model }}
+    >
+      <mesh
+        position={[0, hullY, 0]}
+        rotation={[Math.PI / 2, 0, 0]}
+        frustumCulled={false}
+      >
+        <capsuleGeometry args={[hullRadius, hullLength, 4, 8]} />
+        <meshStandardMaterial
+          color="#d8dfdc"
+          metalness={0.22}
+          roughness={0.42}
+        />
+      </mesh>
+      <mesh position={[0, hullY * 2 + cabinHeight / 2, bounds.length * 0.06]}>
+        <boxGeometry
+          args={[bounds.width * 0.66, cabinHeight, bounds.length * 0.32]}
+        />
+        <meshStandardMaterial
+          color="#edf2ef"
+          metalness={0.16}
+          roughness={0.34}
+        />
+      </mesh>
+      {isSailboat && (
+        <>
+          <mesh position={[0, bounds.height * 0.48, 0]}>
+            <cylinderGeometry
+              args={[
+                bounds.width * 0.025,
+                bounds.width * 0.035,
+                bounds.height * 0.88,
+                6,
+              ]}
+            />
+            <meshStandardMaterial color="#8f7958" roughness={0.56} />
+          </mesh>
+          <mesh
+            position={[bounds.width * 0.17, bounds.height * 0.55, 0]}
+            rotation={[0, 0, -0.28]}
+          >
+            <coneGeometry
+              args={[bounds.width * 0.34, bounds.height * 0.62, 3]}
+            />
+            <meshStandardMaterial
+              color="#f2eee1"
+              roughness={0.7}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        </>
+      )}
+    </group>
+  );
+}
+
 function FloatingWatercraft({
+  id,
+  name,
+  basin,
   model,
   position,
   rotation = 0,
@@ -4511,7 +4797,10 @@ function FloatingWatercraft({
   phase = 0,
   shadows = true,
 }: {
-  model: string;
+  id: string;
+  name: string;
+  basin: WorldWatercraftPlacement['basin'];
+  model: WorldWatercraftModel;
   position: [number, number, number];
   rotation?: number;
   scale?: number;
@@ -4526,17 +4815,63 @@ function FloatingWatercraft({
     craft.current.rotation.z =
       Math.sin(clock.elapsedTime * 0.48 + phase) * 0.018;
   });
+  const bounds = WATERCRAFT_MODEL_BOUNDS[model];
+  const detailDistance = Math.min(
+    220,
+    Math.max(72, bounds.length * scale * 4.2),
+  );
   return (
-    <group ref={craft} position={position} rotation={[0, rotation, 0]}>
-      <Suspense fallback={null}>
-        <StaticAsset
-          url={`${WATERCRAFT_ASSET_ROOT}/${model}.glb`}
-          scale={scale}
-          shadows={shadows}
-        />
-      </Suspense>
+    <group
+      ref={craft}
+      name={`${id} · ${name}`}
+      position={position}
+      rotation={[0, rotation, 0]}
+      userData={{ entityId: id, name, basin, physics: 'SOLID_HULL' }}
+    >
+      <Detailed distances={[0, detailDistance]} hysteresis={0.12}>
+        <Suspense
+          fallback={<WatercraftSilhouette model={model} scale={scale} />}
+        >
+          <StaticAsset
+            url={`${WATERCRAFT_ASSET_ROOT}/${model}.glb`}
+            scale={scale}
+            shadows={shadows}
+          />
+        </Suspense>
+        <WatercraftSilhouette model={model} scale={scale} />
+      </Detailed>
     </group>
   );
+}
+
+function WatercraftFleet({
+  placements,
+  worldOrigin = [0, 0, 0],
+}: {
+  placements: readonly WorldWatercraftPlacement[];
+  worldOrigin?: readonly [x: number, y: number, z: number];
+}) {
+  return placements.map((craft) => {
+    const localPosition: [number, number, number] = [
+      craft.position[0] - worldOrigin[0],
+      craft.position[1] - worldOrigin[1],
+      craft.position[2] - worldOrigin[2],
+    ];
+    return (
+      <FloatingWatercraft
+        key={craft.id}
+        id={craft.id}
+        name={craft.name}
+        basin={craft.basin}
+        model={craft.model}
+        position={localPosition}
+        rotation={craft.rotationRadians}
+        scale={craft.scale}
+        phase={craft.phase}
+        shadows={craft.shadows}
+      />
+    );
+  });
 }
 
 function WaterfrontMarina({
@@ -4547,6 +4882,7 @@ function WaterfrontMarina({
   embedded?: boolean;
 }) {
   const piers = [-18, -2, 14, 29];
+  if (embedded) return null;
   return (
     <group>
       {!embedded && (
@@ -4593,65 +4929,6 @@ function WaterfrontMarina({
           )}
         </group>
       ))}
-      <FloatingWatercraft
-        model="boat-fishing-small"
-        position={[-42.5, 0.2, -14]}
-        rotation={Math.PI / 2}
-        scale={2.45}
-        phase={1}
-      />
-      <FloatingWatercraft
-        model="boat-speed-a"
-        position={[-43.8, 0.2, -5]}
-        rotation={Math.PI / 2}
-        scale={2.7}
-        phase={2}
-      />
-      <FloatingWatercraft
-        model="boat-speed-f"
-        position={[-43, 0.2, 7]}
-        rotation={Math.PI / 2}
-        scale={2.8}
-        phase={3}
-      />
-      <FloatingWatercraft
-        model="boat-sail-a"
-        position={[-44.5, 0.2, 18]}
-        rotation={Math.PI / 2}
-        scale={2.7}
-        phase={4}
-      />
-      <FloatingWatercraft
-        model="ship-large"
-        position={[-48, 0.3, 28]}
-        rotation={Math.PI / 2}
-        scale={2.25}
-        phase={5}
-      />
-      <FloatingWatercraft
-        model="boat-tug-a"
-        position={[-50, 0.2, -28]}
-        rotation={Math.PI / 2}
-        scale={2.2}
-        phase={6}
-        shadows={false}
-      />
-      <FloatingWatercraft
-        model="ship-cargo-a"
-        position={[-54, 0.35, -17]}
-        rotation={Math.PI / 2}
-        scale={2.7}
-        phase={7}
-        shadows={false}
-      />
-      <FloatingWatercraft
-        model="ship-ocean-liner"
-        position={[-56, 0.4, 9]}
-        rotation={Math.PI / 2}
-        scale={2.5}
-        phase={8}
-        shadows={false}
-      />
       <LandmarkLabel
         position={[-35.6, 4.1, 4]}
         label="HARBOR STEPS · BOATS / YACHTS / SHIPS"
@@ -4805,6 +5082,14 @@ function CatalogVilla({
   onEnter: EnterPlace;
 }) {
   const asset = VILLA_STYLE_MODELS[style];
+  const villaId = id as keyof typeof LEGACY_RIDGE_VILLA_FOUNDATION_Y;
+  const foundationLift = LEGACY_RIDGE_VILLA_FOUNDATION_Y[villaId];
+  const foundation =
+    id in LEGACY_RIDGE_VILLA_FOUNDATION_GEOMETRY
+      ? LEGACY_RIDGE_VILLA_FOUNDATION_GEOMETRY[
+          id as keyof typeof LEGACY_RIDGE_VILLA_FOUNDATION_GEOMETRY
+        ]
+      : undefined;
   const isCyber = style === 'CYBER';
   const hasPool = ['AMERICAN', 'CONCRETE', 'WHITEWOOD', 'CYBER'].includes(
     style,
@@ -4822,7 +5107,29 @@ function CatalogVilla({
           roughness={0.96}
         />
       </mesh>
-      <Suspense fallback={null}>
+      {foundation && foundationLift > 0 && (
+        <mesh
+          castShadow
+          receiveShadow
+          position={[0, -foundationLift / 2, foundation.centerZ]}
+        >
+          <boxGeometry
+            args={[foundation.width, foundationLift, foundation.depth]}
+          />
+          <meshStandardMaterial color="#77786f" roughness={0.96} />
+        </mesh>
+      )}
+      <Suspense
+        fallback={
+          <mesh castShadow position={[0, 2.25, -0.7]}>
+            <boxGeometry args={[8.6, 4.3, 7.2]} />
+            <meshStandardMaterial
+              color={style === 'CONCRETE' ? '#a8aaa4' : '#d5cec0'}
+              roughness={0.82}
+            />
+          </mesh>
+        }
+      >
         <StaticAsset
           url={`${SUBURBAN_ASSET_ROOT}/${asset.model}`}
           position={[0, 0.11, -0.7]}
@@ -4974,7 +5281,7 @@ function AzureYachtMarinaScene({
           width={5.8}
         />
       )}
-      <WaterfrontRailing x={0.35} length={72} />
+      {!embedded && <WaterfrontRailing x={0.35} length={72} />}
       <group scale={0.62}>
         <MarinaHotelDistrict
           id="AZURE-BAY-HOTEL-MARINA"
@@ -5000,61 +5307,23 @@ function AzureYachtMarinaScene({
           ))}
         </group>
       ))}
-      <FloatingWatercraft
-        model="boat-sail-a"
-        position={[-22, 0.08, -17]}
-        rotation={Math.PI / 2}
-        scale={3.4}
-        phase={1}
-      />
-      <FloatingWatercraft
-        model="boat-speed-a"
-        position={[-22, 0.08, 5.5]}
-        rotation={Math.PI / 2}
-        scale={4.05}
-        phase={2}
-      />
-      <FloatingWatercraft
-        model="boat-speed-f"
-        position={[-30, 0.08, -6]}
-        rotation={Math.PI / 2}
-        scale={5.85}
-        phase={3}
-      />
-      <FloatingWatercraft
-        model="boat-speed-f"
-        position={[-29, 0.08, -29]}
-        rotation={Math.PI / 2}
-        scale={6.35}
-        phase={3.6}
-      />
-      <FloatingWatercraft
-        model="boat-fishing-small"
-        position={[-28, 0.08, 13.5]}
-        rotation={Math.PI / 2}
-        scale={3}
-        phase={4}
-      />
-      <FloatingWatercraft
-        model="ship-large"
-        position={[-40, 0.08, -42]}
-        rotation={Math.PI / 2}
-        scale={1.86}
-        phase={5}
-        shadows={false}
-      />
-      <FloatingWatercraft
-        model="ship-ocean-liner-small"
-        position={[-40.5, 0.06, 22.5]}
-        rotation={Math.PI / 2}
-        scale={2}
-        phase={6}
-        shadows={false}
-      />
-      <Suspense fallback={null}>
+      <Suspense
+        fallback={
+          <>
+            <mesh castShadow position={[27, 3.1, -15]}>
+              <boxGeometry args={[5.8, 6, 6.5]} />
+              <meshStandardMaterial color="#d5d0c5" roughness={0.72} />
+            </mesh>
+            <mesh castShadow position={[25, 4.2, 14]}>
+              <boxGeometry args={[7.4, 8.2, 5.2]} />
+              <meshStandardMaterial color="#c7c5bd" roughness={0.7} />
+            </mesh>
+          </>
+        }
+      >
         <StaticAsset
           url={`${COMMERCIAL_ASSET_ROOT}/building-h.glb`}
-          position={[23, 0.1, -15]}
+          position={[27, 0.1, -15]}
           rotation={[0, -Math.PI / 2, 0]}
           scale={3.4}
         />
@@ -5074,64 +5343,68 @@ function AzureYachtMarinaScene({
           />
         ))}
       </Suspense>
+      {!embedded && (
+        <>
+          <LandmarkLabel
+            position={[-10, 4.3, -17]}
+            label="SAI-C42 · 42 FT SAILING YACHT"
+            place="marina"
+            atlasId="yacht-marina"
+            onEnter={onEnter}
+            tone="marina-label"
+          />
+          <LandmarkLabel
+            position={[-10, 4.3, 5.5]}
+            label="YHT-A45 · 45 FT SPORT CRUISER"
+            place="marina"
+            atlasId="yacht-marina"
+            onEnter={onEnter}
+            tone="marina-label"
+          />
+          <LandmarkLabel
+            position={[-11, 5.1, -6]}
+            label="YHT-A55 · 55 FT FLYBRIDGE"
+            place="marina"
+            atlasId="yacht-marina"
+            onEnter={onEnter}
+            tone="marina-label"
+          />
+          <LandmarkLabel
+            position={[-11, 5.1, -29]}
+            label="YHT-A60 · 60 FT OPEN YACHT"
+            place="marina"
+            atlasId="yacht-marina"
+            onEnter={onEnter}
+            tone="marina-label"
+          />
+          <LandmarkLabel
+            position={[-11, 4.5, 13.5]}
+            label="FSH-B38 · 38 FT SPORT FISHER"
+            place="marina"
+            atlasId="yacht-marina"
+            onEnter={onEnter}
+            tone="marina-label"
+          />
+          <LandmarkLabel
+            position={[-19, 6.1, -32]}
+            label="YHT-A80 · 80 FT SKYLOUNGE"
+            place="marina"
+            atlasId="yacht-marina"
+            onEnter={onEnter}
+            tone="marina-label"
+          />
+          <LandmarkLabel
+            position={[-19, 6.1, 22.5]}
+            label="YHT-A100 · 100+ FT FLAGSHIP"
+            place="marina"
+            atlasId="yacht-marina"
+            onEnter={onEnter}
+            tone="marina-label"
+          />
+        </>
+      )}
       <LandmarkLabel
-        position={[-10, 4.3, -17]}
-        label="SAI-C42 · 42 FT SAILING YACHT"
-        place="marina"
-        atlasId="yacht-marina"
-        onEnter={onEnter}
-        tone="marina-label"
-      />
-      <LandmarkLabel
-        position={[-10, 4.3, 5.5]}
-        label="YHT-A45 · 45 FT SPORT CRUISER"
-        place="marina"
-        atlasId="yacht-marina"
-        onEnter={onEnter}
-        tone="marina-label"
-      />
-      <LandmarkLabel
-        position={[-11, 5.1, -6]}
-        label="YHT-A55 · 55 FT FLYBRIDGE"
-        place="marina"
-        atlasId="yacht-marina"
-        onEnter={onEnter}
-        tone="marina-label"
-      />
-      <LandmarkLabel
-        position={[-11, 5.1, -29]}
-        label="YHT-A60 · 60 FT OPEN YACHT"
-        place="marina"
-        atlasId="yacht-marina"
-        onEnter={onEnter}
-        tone="marina-label"
-      />
-      <LandmarkLabel
-        position={[-11, 4.5, 13.5]}
-        label="FSH-B38 · 38 FT SPORT FISHER"
-        place="marina"
-        atlasId="yacht-marina"
-        onEnter={onEnter}
-        tone="marina-label"
-      />
-      <LandmarkLabel
-        position={[-19, 6.1, -32]}
-        label="YHT-A80 · 80 FT SKYLOUNGE"
-        place="marina"
-        atlasId="yacht-marina"
-        onEnter={onEnter}
-        tone="marina-label"
-      />
-      <LandmarkLabel
-        position={[-19, 6.1, 22.5]}
-        label="YHT-A100 · 100+ FT FLAGSHIP"
-        place="marina"
-        atlasId="yacht-marina"
-        onEnter={onEnter}
-        tone="marina-label"
-      />
-      <LandmarkLabel
-        position={[23, 7.2, -15]}
+        position={[27, 7.2, -15]}
         label="AZURE YACHT CLUB"
         place="marina"
         atlasId="yacht-marina"
@@ -5315,55 +5588,63 @@ function MillionaireRidgeScene({
   playerHeading?: number;
   embedded?: boolean;
 }) {
+  const villaPosition = (id: keyof typeof LEGACY_RIDGE_VILLA_LAYOUT) => {
+    const layout = LEGACY_RIDGE_VILLA_LAYOUT[id];
+    return [
+      layout.position[0],
+      LEGACY_RIDGE_VILLA_FOUNDATION_Y[id],
+      layout.position[2],
+    ] as [number, number, number];
+  };
   const villas = [
     {
       id: 'BLD-B01',
       name: 'HUA COURT',
       style: 'CHINESE' as const,
-      position: [-15, 0, 18] as [number, number, number],
-      rotation: Math.PI / 2,
+      position: villaPosition('BLD-B01'),
+      rotation: LEGACY_RIDGE_VILLA_LAYOUT['BLD-B01'].rotationY,
     },
     {
       id: 'BLD-B02',
       name: 'COTSWOLD HOUSE',
       style: 'ENGLISH' as const,
-      position: [15, 0, 18] as [number, number, number],
-      rotation: -Math.PI / 2,
+      position: villaPosition('BLD-B02'),
+      rotation: LEGACY_RIDGE_VILLA_LAYOUT['BLD-B02'].rotationY,
     },
     {
       id: 'BLD-B03',
       name: 'PACIFIC TERRACE',
       style: 'AMERICAN' as const,
-      position: [-15, 0, 2] as [number, number, number],
-      rotation: Math.PI / 2,
+      position: villaPosition('BLD-B03'),
+      rotation: LEGACY_RIDGE_VILLA_LAYOUT['BLD-B03'].rotationY,
     },
     {
       id: 'BLD-B04',
       name: 'ATLAS CONCRETE',
       style: 'CONCRETE' as const,
-      position: [15, 0, 2] as [number, number, number],
-      rotation: -Math.PI / 2,
+      position: villaPosition('BLD-B04'),
+      rotation: LEGACY_RIDGE_VILLA_LAYOUT['BLD-B04'].rotationY,
     },
     {
       id: 'BLD-B05',
       name: 'WHITEWOOD HOUSE',
       style: 'WHITEWOOD' as const,
-      position: [-15, 0, -14] as [number, number, number],
-      rotation: Math.PI / 2,
+      position: villaPosition('BLD-B05'),
+      rotation: LEGACY_RIDGE_VILLA_LAYOUT['BLD-B05'].rotationY,
     },
     {
       id: 'BLD-B06',
       name: 'MEADOW HOUSE',
       style: 'PASTORAL' as const,
-      position: [15, 0, -14] as [number, number, number],
-      rotation: -Math.PI / 2,
+      position: villaPosition('BLD-B06'),
+      rotation: LEGACY_RIDGE_VILLA_LAYOUT['BLD-B06'].rotationY,
     },
     {
       id: 'BLD-B07',
       name: 'NEON CLIFF HOUSE',
       style: 'CYBER' as const,
-      position: [0, 0, -31] as [number, number, number],
-      rotation: 0,
+      position: villaPosition('BLD-B07'),
+      rotation: LEGACY_RIDGE_VILLA_LAYOUT['BLD-B07'].rotationY,
     },
   ];
   return (
@@ -5432,44 +5713,33 @@ function MillionaireRidgeScene({
         </>
       )}
       <RidgeTerraces />
-      <group position={[-30, 0, 18]} scale={0.32}>
-        <ResidentialQuarter
-          id="N-RDG-01"
-          tier="UPGRADE"
-          typology="TOWNHOMES"
-          count={6}
-          footprint={[28, 44]}
-          seed={607}
-          onEnter={() => onEnter('residences', 'N-RDG-01')}
-        />
-      </group>
-      <group position={[30, 0, 18]} scale={0.32}>
-        <ResidentialQuarter
-          id="N-RDG-02"
-          tier="PREMIUM"
-          typology="SEMI_DETACHED"
-          count={5}
-          footprint={[28, 44]}
-          seed={709}
-          onEnter={() => onEnter('residences', 'N-RDG-02')}
-        />
-      </group>
-      <LandmarkLabel
-        position={[-30, 5.2, 18]}
-        label="N-RDG-01 · CEDAR GATE ROWS"
-        place="residences"
-        atlasId="N-RDG-01"
-        onEnter={onEnter}
-        tone="residential-label"
-      />
-      <LandmarkLabel
-        position={[30, 5.5, 18]}
-        label="N-RDG-02 · TWIN OAK COMMONS"
-        place="residences"
-        atlasId="N-RDG-02"
-        onEnter={onEnter}
-        tone="residential-label"
-      />
+      {LEGACY_RIDGE_RESIDENTIAL_QUARTER_SPECS.map((quarter) => (
+        <Fragment key={quarter.id}>
+          <group position={quarter.localPosition} scale={quarter.uniformScale}>
+            <ResidentialQuarter
+              id={quarter.id}
+              {...quarter.plan}
+              onEnter={() => onEnter('residences', quarter.id)}
+            />
+          </group>
+          <LandmarkLabel
+            position={[
+              quarter.localPosition[0],
+              quarter.id === 'N-RDG-01' ? 5.2 : 5.5,
+              quarter.localPosition[2],
+            ]}
+            label={
+              quarter.id === 'N-RDG-01'
+                ? 'N-RDG-01 · CEDAR GATE ROWS'
+                : 'N-RDG-02 · TWIN OAK COMMONS'
+            }
+            place="residences"
+            atlasId={quarter.id}
+            onEnter={onEnter}
+            tone="residential-label"
+          />
+        </Fragment>
+      ))}
       {villas.map((villa) => (
         <CatalogVilla key={villa.id} {...villa} onEnter={onEnter} />
       ))}
@@ -5696,7 +5966,6 @@ function StudioInterior({
         enabled={playerEnabled}
         cameraOcclusionPredicate={isStudioCameraPointOccluded}
       />
-      <Environment preset="apartment" />
     </>
   );
 }
@@ -5872,107 +6141,49 @@ function CBDEdgeApproaches({ onEnter }: { onEnter: EnterPlace }) {
 }
 
 function MetropolitanResidentialFabric({ onEnter }: { onEnter: EnterPlace }) {
+  const labels: Record<
+    (typeof METROPOLITAN_RESIDENTIAL_QUARTER_SPECS)[number]['id'],
+    { title: string; height: number }
+  > = {
+    'N-RIV-01': { title: 'NORTHBANK GLASSWORKS', height: 9.2 },
+    'N-EAS-03': { title: 'MAGNOLIA PARK', height: 11.4 },
+    'N-MER-01': { title: 'MERIDIAN QUARTER', height: 8.8 },
+    'N-CAN-02': { title: 'LANTERN LANE', height: 8 },
+    'N-CBD-03': { title: 'FORUM SKY GARDENS', height: 14.8 },
+  };
+
   return (
     <group name="Metropolitan residential shell districts">
-      <group position={[-48, 0, 58]} scale={0.48}>
-        <ResidentialQuarter
-          id="N-RIV-01"
-          tier="MID_MARKET"
-          typology="TOWERS"
-          count={10}
-          footprint={[44, 38]}
-          seed={101}
-          onEnter={() => onEnter('residences', 'N-RIV-01')}
-        />
-      </group>
-      <LandmarkLabel
-        position={[-48, 9.2, 58]}
-        label="N-RIV-01 · NORTHBANK GLASSWORKS"
-        place="residences"
-        atlasId="N-RIV-01"
-        onEnter={onEnter}
-        tone="residential-label"
-      />
-
-      <group position={[54, 0, 68]} scale={0.46}>
-        <ResidentialQuarter
-          id="N-EAS-03"
-          tier="UPGRADE"
-          typology="TOWERS"
-          count={9}
-          footprint={[46, 40]}
-          seed={203}
-          onEnter={() => onEnter('residences', 'N-EAS-03')}
-        />
-      </group>
-      <LandmarkLabel
-        position={[54, 11.4, 68]}
-        label="N-EAS-03 · MAGNOLIA PARK"
-        place="residences"
-        atlasId="N-EAS-03"
-        onEnter={onEnter}
-        tone="residential-label"
-      />
-
-      <group position={[60, 0, 7]} scale={0.43}>
-        <ResidentialQuarter
-          id="N-MER-01"
-          tier="MID_MARKET"
-          typology="MIXED"
-          count={8}
-          footprint={[42, 40]}
-          seed={307}
-          onEnter={() => onEnter('residences', 'N-MER-01')}
-        />
-      </group>
-      <LandmarkLabel
-        position={[60, 8.8, 7]}
-        label="N-MER-01 · MERIDIAN QUARTER"
-        place="residences"
-        atlasId="N-MER-01"
-        onEnter={onEnter}
-        tone="residential-label"
-      />
-
-      <group position={[-53, 0, -59]} scale={0.45}>
-        <ResidentialQuarter
-          id="N-CAN-02"
-          tier="AFFORDABLE"
-          typology="TOWERS"
-          count={11}
-          footprint={[45, 40]}
-          seed={409}
-          onEnter={() => onEnter('residences', 'N-CAN-02')}
-        />
-      </group>
-      <LandmarkLabel
-        position={[-53, 8, -59]}
-        label="N-CAN-02 · LANTERN LANE"
-        place="residences"
-        atlasId="N-CAN-02"
-        onEnter={onEnter}
-        tone="residential-label"
-      />
-
-      <group position={[51, 0, -59]} scale={0.44}>
-        <ResidentialQuarter
-          id="N-CBD-03"
-          tier="PREMIUM"
-          typology="TOWERS"
-          count={7}
-          footprint={[43, 39]}
-          seed={503}
-          onEnter={() => onEnter('residences', 'N-CBD-03')}
-        />
-      </group>
-      <LandmarkLabel
-        position={[51, 14.8, -59]}
-        label="N-CBD-03 · FORUM SKY GARDENS"
-        place="residences"
-        atlasId="N-CBD-03"
-        onEnter={onEnter}
-        tone="residential-label"
-      />
+      {METROPOLITAN_RESIDENTIAL_QUARTER_SPECS.map((quarter) => {
+        const label = labels[quarter.id];
+        return (
+          <Fragment key={quarter.id}>
+            <group
+              position={quarter.position}
+              rotation={[0, quarter.rotationY, 0]}
+              scale={quarter.uniformScale}
+            >
+              <ResidentialQuarter
+                id={quarter.id}
+                {...quarter.plan}
+                onEnter={() => onEnter('residences', quarter.id)}
+              />
+            </group>
+            <LandmarkLabel
+              position={[
+                quarter.position[0],
+                quarter.position[1] + label.height,
+                quarter.position[2],
+              ]}
+              label={`${quarter.id} · ${label.title}`}
+              place="residences"
+              atlasId={quarter.id}
+              onEnter={onEnter}
+              tone="residential-label"
+            />
+          </Fragment>
+        );
+      })}
     </group>
   );
 }
@@ -6188,7 +6399,7 @@ function CyberCBD({
         onEnter={onEnter}
       />
       <SciFiResidenceTower
-        position={[28, 0, -30]}
+        position={[...LEGACY_CBD_LAYOUT.PRISM_HOUSE]}
         variant="PRISM"
         label="PRISM HOUSE"
         onEnter={onEnter}
@@ -6201,7 +6412,7 @@ function CyberCBD({
       />
       <StockExchangeRotunda onEnter={onEnter} />
       <Building
-        position={[-18, 0, -12]}
+        position={[...LEGACY_CBD_LAYOUT.CAREER_TOWER]}
         size={[4.4, 5.1, 3.5]}
         color="#1d2434"
         glow="#718cff"
@@ -6411,7 +6622,9 @@ function LegacyDistrictChunk({
   if (sector.id === 'MIDSLOPE_VILLAS') {
     return (
       <group position={LEGACY_DISTRICT_WORLD_ORIGINS.MILLIONAIRE_RIDGE}>
-        <MillionaireRidgeScene onEnter={onEnter} embedded />
+        <group position={LEGACY_RIDGE_CONTENT_OFFSET}>
+          <MillionaireRidgeScene onEnter={onEnter} embedded />
+        </group>
       </group>
     );
   }
@@ -6457,6 +6670,9 @@ const World = memo(function World({
   controlsEnabled = true,
   playerEntry,
   playerPosition,
+  viewMode,
+  overviewZoom,
+  onOverviewZoom,
 }: {
   onEnter: EnterPlace;
   onNotice: (message: string) => void;
@@ -6466,14 +6682,32 @@ const World = memo(function World({
   controlsEnabled?: boolean;
   playerEntry: OutdoorPlayerEntry;
   playerPosition: PlayerLocation;
+  viewMode: WorldViewMode;
+  overviewZoom: number;
+  onOverviewZoom: (amount: number) => void;
 }) {
+  const detailedSectorIds = useMemo(
+    () =>
+      new Set<WorldSectorId>(
+        viewMode === 'FOLLOW'
+          ? WORLD_SECTORS.filter(
+              (sector) =>
+                getContinuousWorldSectorLod(
+                  [playerPosition.x, playerPosition.z],
+                  sector,
+                ) === 'DETAIL',
+            ).map(({ id }) => id)
+          : [],
+      ),
+    [playerPosition.x, playerPosition.z, viewMode],
+  );
   if (place === 'studio')
     return <StudioInterior onEnter={onEnter} playerEnabled={controlsEnabled} />;
-  const showAuto4S =
-    Math.hypot(playerPosition.x - 82, playerPosition.z + 55) < 110;
+  const showAuto4S = detailedSectorIds.has('MOTORSPORT_PARK');
   return (
     <ContinuousWorldBase
       playerPosition={playerPosition}
+      overview={viewMode !== 'FOLLOW'}
       renderSector={(sector, lod) => (
         <LegacyDistrictChunk
           sector={sector}
@@ -6485,8 +6719,17 @@ const World = memo(function World({
       )}
     >
       <ContinuousMetroEntrances onEnter={onEnter} />
+      <PersistentInfrastructureShells />
+      <group
+        name="Persistent Azure waterfront railing"
+        position={LEGACY_DISTRICT_WORLD_ORIGINS.AZURE_YACHT_MARINA}
+      >
+        <WaterfrontRailing x={0.35} length={72} />
+      </group>
       <MetropolitanExpansion
         playerPosition={[playerPosition.x, playerPosition.z]}
+        overview={viewMode !== 'FOLLOW'}
+        detailedSectorIds={detailedSectorIds}
         onLandmarkSelect={(id) => {
           if (id.startsWith('VIL-')) {
             onEnter('villa', id);
@@ -6505,6 +6748,7 @@ const World = memo(function World({
           );
         }}
       />
+      <WatercraftFleet placements={WORLD_WATERCRAFT} />
       {showAuto4S && <Auto4SDealership onEnter={onEnter} />}
       <Player
         scene="CONTINUOUS_WORLD"
@@ -6516,7 +6760,15 @@ const World = memo(function World({
         traversalPredicate={canTraverseContinuousWorld}
         stepTraversalPredicate={canStepBetweenContinuousWorldPoints}
         cameraOcclusionPredicate={isWorldCameraPointOccluded}
+        cameraEnabled={viewMode === 'FOLLOW'}
       />
+      {viewMode !== 'FOLLOW' && (
+        <WorldOverviewCamera
+          mode={viewMode}
+          zoom={overviewZoom}
+          onZoom={onOverviewZoom}
+        />
+      )}
     </ContinuousWorldBase>
   );
 });
@@ -7036,6 +7288,64 @@ function VisionPanel({
   );
 }
 
+function WebGlRecoveryMonitor({
+  onContextLost,
+  onContextRestored,
+}: {
+  onContextLost: () => void;
+  onContextRestored: () => void;
+}) {
+  const { gl } = useThree();
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const handleLost = (event: Event) => {
+      event.preventDefault();
+      onContextLost();
+    };
+    canvas.addEventListener('webglcontextlost', handleLost);
+    canvas.addEventListener('webglcontextrestored', onContextRestored);
+    return () => {
+      canvas.removeEventListener('webglcontextlost', handleLost);
+      canvas.removeEventListener('webglcontextrestored', onContextRestored);
+    };
+  }, [gl, onContextLost, onContextRestored]);
+  return null;
+}
+
+class WorldRenderBoundary extends Component<
+  {
+    children: ReactNode;
+    onFailure: (error: Error, info: ErrorInfo) => void;
+    onRetry: () => void;
+  },
+  { error: Error | null }
+> {
+  state: { error: Error | null } = { error: null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    this.props.onFailure(error, info);
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <div className="world-render-fallback" role="alert">
+        <b>3D WORLD PAUSED</b>
+        <span>
+          The renderer stopped safely instead of leaving a black screen.
+        </span>
+        <button type="button" onClick={this.props.onRetry}>
+          RESTART 3D WORLD
+        </button>
+      </div>
+    );
+  }
+}
+
 export function GameShell({
   playerName,
   signedIn,
@@ -7050,6 +7360,8 @@ export function GameShell({
   const [happiness, setHappiness] = useState(52);
   const [worldEvent, setWorldEvent] = useState<WorldEvent>(WORLD_EVENTS[0]);
   const [place, setPlace] = useState<Place>(null);
+  const [worldViewMode, setWorldViewMode] = useState<WorldViewMode>('FOLLOW');
+  const [overviewZoom, setOverviewZoom] = useState(1);
   const [inventory, setInventory] = useState<string[]>([]);
   const [tax, setTax] = useState(0);
   const [notice, setNotice] = useState(
@@ -7114,7 +7426,61 @@ export function GameShell({
   const [worldMinutes, setWorldMinutes] = useState(() =>
     getWorldMinutesAtCycleTime(WORLD_CLOCK_START_OFFSET_MS),
   );
+  const [rendererEpoch, setRendererEpoch] = useState(0);
+  const [rendererRecovering, setRendererRecovering] = useState(false);
+  const rendererRecoveryTimer = useRef<number | null>(null);
+  const rendererRecoverySequence = useRef(0);
+  const exactPlayerLocation = useRef<PlayerLocation>({
+    scene: 'CONTINUOUS_WORLD',
+    x: INITIAL_OUTDOOR_ENTRY.spawn[0],
+    z: INITIAL_OUTDOOR_ENTRY.spawn[2],
+  });
   const actionLock = useRef(false);
+
+  const remountWorldRenderer = useCallback(() => {
+    const latest = exactPlayerLocation.current;
+    if (latest.scene === 'CONTINUOUS_WORLD') {
+      rendererRecoverySequence.current += 1;
+      setPlayerEntry((current) => ({
+        ...current,
+        id: current.id + 1_000_000 + rendererRecoverySequence.current,
+        spawn: [
+          latest.x,
+          getWorldSurfaceElevationXZ(latest.x, latest.z),
+          latest.z,
+        ],
+      }));
+    }
+    setRendererEpoch((current) => current + 1);
+    setRendererRecovering(false);
+    rendererRecoveryTimer.current = null;
+  }, []);
+
+  const scheduleWorldRendererRecovery = useCallback(() => {
+    if (rendererRecoveryTimer.current !== null) return;
+    setRendererRecovering(true);
+    setNotice('3D CONTEXT LOST · RESTORING THE WORLD AT YOUR CURRENT POSITION');
+    rendererRecoveryTimer.current = window.setTimeout(
+      remountWorldRenderer,
+      550,
+    );
+  }, [remountWorldRenderer]);
+
+  const cancelWorldRendererRecovery = useCallback(() => {
+    if (rendererRecoveryTimer.current !== null) {
+      window.clearTimeout(rendererRecoveryTimer.current);
+      rendererRecoveryTimer.current = null;
+    }
+    setRendererRecovering(false);
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (rendererRecoveryTimer.current !== null)
+        window.clearTimeout(rendererRecoveryTimer.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     const startedAt = performance.now() - WORLD_CLOCK_START_OFFSET_MS;
@@ -7144,6 +7510,7 @@ export function GameShell({
   }, [signedIn]);
 
   const handlePositionChange = useCallback((location: PlayerLocation) => {
+    exactPlayerLocation.current = location;
     const positionStep = 2;
     const quantizedLocation: PlayerLocation = {
       ...location,
@@ -7175,6 +7542,12 @@ export function GameShell({
     ) {
       setCurrentAtlasNodeId(nearestStation.nodeId);
     }
+  }, []);
+
+  const adjustOverviewZoom = useCallback((amount: number) => {
+    setOverviewZoom((current) =>
+      clampWorldOverviewZoom(Number((current + amount).toFixed(2))),
+    );
   }, []);
 
   const portfolio = useMemo(
@@ -7467,6 +7840,7 @@ export function GameShell({
       setPendingDestination(null);
       setPendingAtlasId(null);
       if (target === 'studio') {
+        setWorldViewMode('FOLLOW');
         setPlayerEntry((current) => ({
           id: current.id + 1,
           spawn: [localPosition.x, 0.12, localPosition.z],
@@ -8295,32 +8669,70 @@ export function GameShell({
         </div>
       </header>
       <section className="playfield">
-        <Canvas
-          aria-label="Playable AmpliWorld city"
-          tabIndex={0}
-          shadows
-          dpr={[1, 1.5]}
-          camera={{ position: [0, 3.5, 6.4], fov: 48, near: 0.08, far: 620 }}
+        <WorldRenderBoundary
+          key={rendererEpoch}
+          onFailure={() =>
+            setNotice('3D RENDERER PAUSED · USE RESTART 3D WORLD TO RECOVER')
+          }
+          onRetry={remountWorldRenderer}
         >
-          {place !== 'studio' && (
-            <DynamicAtmosphere
-              hour={worldHour}
-              fogNear={atmosphereFog.near}
-              fogFar={atmosphereFog.far}
+          <Canvas
+            aria-label="Playable AmpliWorld city"
+            tabIndex={0}
+            shadows
+            dpr={[1, 1.5]}
+            style={{ touchAction: 'none' }}
+            camera={{
+              position: [0, 3.5, 6.4],
+              fov: WORLD_OVERVIEW_VERTICAL_FOV_DEGREES,
+              near: WORLD_OVERVIEW_CAMERA_NEAR,
+              far: WORLD_OVERVIEW_CAMERA_FAR,
+            }}
+          >
+            <WebGlRecoveryMonitor
+              onContextLost={scheduleWorldRendererRecovery}
+              onContextRestored={cancelWorldRendererRecovery}
             />
-          )}
-          <World
-            onEnter={openPlace}
-            onNotice={setNotice}
-            onPositionChange={handlePositionChange}
-            residenceBlock={residenceBlock}
-            place={place}
-            controlsEnabled={(!place || place === 'studio') && !journey}
-            playerEntry={playerEntry}
-            playerPosition={localPosition}
-          />
-        </Canvas>
-        {!place && (
+            {place !== 'studio' && (
+              <DynamicAtmosphere
+                hour={worldHour}
+                fogNear={
+                  worldViewMode === 'FOLLOW'
+                    ? atmosphereFog.near
+                    : WORLD_OVERVIEW_FOG_NEAR
+                }
+                fogFar={
+                  worldViewMode === 'FOLLOW'
+                    ? atmosphereFog.far
+                    : WORLD_OVERVIEW_FOG_FAR
+                }
+              />
+            )}
+            <World
+              onEnter={openPlace}
+              onNotice={setNotice}
+              onPositionChange={handlePositionChange}
+              residenceBlock={residenceBlock}
+              place={place}
+              controlsEnabled={
+                (!place || place === 'studio') &&
+                !journey &&
+                worldViewMode === 'FOLLOW'
+              }
+              playerEntry={playerEntry}
+              playerPosition={localPosition}
+              viewMode={worldViewMode}
+              overviewZoom={overviewZoom}
+              onOverviewZoom={adjustOverviewZoom}
+            />
+          </Canvas>
+        </WorldRenderBoundary>
+        {rendererRecovering && (
+          <output className="world-render-recovering" aria-live="polite">
+            RESTORING 3D WORLD…
+          </output>
+        )}
+        {!place && worldViewMode === 'FOLLOW' && (
           <MiniMap
             scene={activeScene}
             residenceBlock={residenceBlock}
@@ -8328,6 +8740,58 @@ export function GameShell({
             worldLocationLabel={locationLabel}
             onOpen={() => openPlace('map')}
           />
+        )}
+        {!place && (
+          <div
+            className={`world-view-controls ${worldViewMode === 'FOLLOW' ? 'follow' : 'overview'}`}
+            aria-label="3D world view"
+          >
+            <button
+              type="button"
+              className={worldViewMode === 'FOLLOW' ? 'active' : ''}
+              onClick={() => setWorldViewMode('FOLLOW')}
+              aria-pressed={worldViewMode === 'FOLLOW'}
+              title="Return to the third-person player camera"
+            >
+              PLAYER
+            </button>
+            <button
+              type="button"
+              className={worldViewMode === 'OBLIQUE' ? 'active' : ''}
+              onClick={() => setWorldViewMode('OBLIQUE')}
+              aria-pressed={worldViewMode === 'OBLIQUE'}
+              title="View the complete physical continent at 45 degrees"
+            >
+              45° WORLD
+            </button>
+            <button
+              type="button"
+              className={worldViewMode === 'TOP' ? 'active' : ''}
+              onClick={() => setWorldViewMode('TOP')}
+              aria-pressed={worldViewMode === 'TOP'}
+              title="View the complete physical continent from directly above"
+            >
+              TOP
+            </button>
+            {worldViewMode !== 'FOLLOW' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => adjustOverviewZoom(-0.12)}
+                  aria-label="Zoom 3D world in"
+                >
+                  +
+                </button>
+                <button
+                  type="button"
+                  onClick={() => adjustOverviewZoom(0.12)}
+                  aria-label="Zoom 3D world out"
+                >
+                  −
+                </button>
+              </>
+            )}
+          </div>
         )}
         <div
           className={`mission ${activeScene === 'STARTER_ARCOLOGY' ? 'arcology-mission' : ''}`}
@@ -8352,11 +8816,22 @@ export function GameShell({
           </div>
         </div>
         <div className="controls">
-          <kbd>W</kbd>/<kbd>S</kbd> WALK · <kbd>A</kbd>/<kbd>D</kbd> TURN ·
-          TWO-FINGER SWIPE LOOK · <kbd>M</kbd> MAP
+          {worldViewMode === 'FOLLOW' ? (
+            <>
+              <kbd>W</kbd>
+              <kbd>A</kbd>
+              <kbd>S</kbd>
+              <kbd>D</kbd> MOVE PLAYER · DRAG OR TWO-FINGER SWIPE TO LOOK ·{' '}
+              <kbd>M</kbd> MAP
+            </>
+          ) : (
+            <>3D CONTINENT MODEL · SCROLL OR + / − TO ZOOM</>
+          )}
         </div>
-        <TouchControls />
-        {(!place || place === 'studio') && !journey && <CameraLookControls />}
+        {worldViewMode === 'FOLLOW' && <TouchControls />}
+        {worldViewMode === 'FOLLOW' &&
+          (!place || place === 'studio') &&
+          !journey && <CameraLookControls />}
         <aside className="hud">
           <div>
             <WalletCards />

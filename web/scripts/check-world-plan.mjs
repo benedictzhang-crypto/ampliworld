@@ -1,19 +1,54 @@
 import assert from 'node:assert/strict';
 import {
+  CONTINUOUS_OCEAN_BAY,
+  CONTINUOUS_OCEAN_RECTANGLE,
   CONTINUOUS_WORLD_BOUNDS,
+  CONTINUOUS_WORLD_LEGACY_ARCHITECTURE_BLOCKERS,
   CONTINUOUS_WORLD_LEGACY_BLOCKERS,
+  CONTINUOUS_WORLD_MEASURED_CBD_BLOCKERS,
+  CONTINUOUS_WORLD_MEASURED_ASSET_BLOCKERS,
+  CONTINUOUS_WORLD_ROADSIDE_TREE_FOOTPRINTS,
+  CONTINUOUS_WORLD_ROAD_RENDER_BAND_BLOCKERS,
+  LEGACY_DISTRICT_WORLD_ORIGINS,
+  LEGACY_RIDGE_RESIDENTIAL_BUILDING_BLOCKERS,
+  AZURE_HOTEL_BUILDING_BLOCKERS,
   MAX_CONTINUOUS_WORLD_STEP,
+  METROPOLITAN_RESIDENTIAL_BUILDING_BLOCKERS,
+  METROPOLITAN_RESIDENTIAL_MASSING_RESERVATIONS,
+  METROPOLITAN_RESIDENTIAL_QUARTER_COLLISION_SPECS,
   canStepBetweenContinuousWorldPoints,
   canTraverseContinuousWorld,
+  distanceToGrandRiver,
+  getContinuousWorldMetroArrival,
+  getContinuousWorldMetroEntrancePosition,
+  getContinuousWorldLegacyBlockerAtXZ,
+  getLegacyDistrictContentOrigin,
   getContinuousWorldProceduralSolids,
+  getContinuousWorldSectorMassing,
   getContinuousWorldSectorLod,
   getRoadRenderWidth,
   getWorldSurfaceElevationXZ,
   getVisibleContinuousWorldSectors,
   isWorldCameraPointOccluded,
   isWorldPointBlockedBySolidGeometry,
+  isWorldPointInWater,
   isWorldPointOnWalkableDeck,
+  transformBuildingSitesToWorldBlockers,
 } from '../app/continuous-world.tsx';
+import { WORLD_ROAD_OUTER_MARGIN } from '../app/world-road-geometry.ts';
+import {
+  AZURE_BAY_HOTEL_PLAN_OPTIONS,
+  LEGACY_RIDGE_VILLA_FOUNDATION_Y,
+  LEGACY_RIDGE_RESIDENTIAL_QUARTER_SPECS,
+  METROPOLITAN_RESIDENTIAL_QUARTER_SPECS,
+  createMarinaHotelDistrictPlan,
+  createResidentialQuarterPlan,
+} from '../app/urban-expansion.tsx';
+import {
+  WORLD_WATERCRAFT,
+  WORLD_WATERCRAFT_FOOTPRINTS,
+  getWorldWatercraftAtXZ,
+} from '../app/world-watercraft.ts';
 import {
   F1_CIRCUIT_POINTS,
   F1_PIT_LANE_POINTS,
@@ -27,6 +62,7 @@ import {
   WORLD_SOLID_FOOTPRINTS,
   getWorldFootprintElevationRange,
   getWorldGroundElevation,
+  isPointInNamedWorldSolidXZ,
   isPointInReservedWorldSite,
 } from '../app/world-spatial-registry.ts';
 import {
@@ -55,6 +91,19 @@ function assertPointInBounds(label, [x, z]) {
   );
 }
 
+function isPointInRenderedOceanMask([x, z]) {
+  const inRectangle =
+    x >= CONTINUOUS_OCEAN_RECTANGLE.minX &&
+    x <= CONTINUOUS_OCEAN_RECTANGLE.maxX &&
+    z >= CONTINUOUS_OCEAN_RECTANGLE.minZ &&
+    z <= CONTINUOUS_OCEAN_RECTANGLE.maxZ;
+  const bayX =
+    (x - CONTINUOUS_OCEAN_BAY.center[0]) / CONTINUOUS_OCEAN_BAY.radii[0];
+  const bayZ =
+    (z - CONTINUOUS_OCEAN_BAY.center[1]) / CONTINUOUS_OCEAN_BAY.radii[1];
+  return inRectangle || bayX * bayX + bayZ * bayZ <= 1;
+}
+
 function axesFor(footprint) {
   const angle = footprint.rotationRadians ?? 0;
   return [
@@ -73,7 +122,43 @@ function projectedRadius(footprint, axis) {
   );
 }
 
+function circularRadius(footprint) {
+  if (footprint.shape !== 'ELLIPSE') return undefined;
+  return Math.abs(footprint.halfExtents[0] - footprint.halfExtents[1]) < 1e-9
+    ? footprint.halfExtents[0]
+    : undefined;
+}
+
+function circleOverlapsRectangle(circle, rectangle, radius) {
+  const [right, forward] = axesFor(rectangle);
+  const deltaX = circle.center[0] - rectangle.center[0];
+  const deltaZ = circle.center[1] - rectangle.center[1];
+  const localX = deltaX * right[0] + deltaZ * right[1];
+  const localZ = deltaX * forward[0] + deltaZ * forward[1];
+  const nearestX = Math.max(
+    -rectangle.halfExtents[0],
+    Math.min(rectangle.halfExtents[0], localX),
+  );
+  const nearestZ = Math.max(
+    -rectangle.halfExtents[1],
+    Math.min(rectangle.halfExtents[1], localZ),
+  );
+  return Math.hypot(localX - nearestX, localZ - nearestZ) < radius;
+}
+
 function overlaps(a, b, clearance = 0.02) {
+  const radiusA = circularRadius(a);
+  const radiusB = circularRadius(b);
+  if (radiusA !== undefined && radiusB !== undefined) {
+    return (
+      Math.hypot(b.center[0] - a.center[0], b.center[1] - a.center[1]) <
+      radiusA + radiusB + clearance
+    );
+  }
+  if (radiusA !== undefined)
+    return circleOverlapsRectangle(a, b, radiusA + clearance);
+  if (radiusB !== undefined)
+    return circleOverlapsRectangle(b, a, radiusB + clearance);
   const delta = [b.center[0] - a.center[0], b.center[1] - a.center[1]];
   for (const axis of [...axesFor(a), ...axesFor(b)]) {
     const centerDistance = Math.abs(delta[0] * axis[0] + delta[1] * axis[1]);
@@ -86,12 +171,563 @@ function overlaps(a, b, clearance = 0.02) {
   return true;
 }
 
+function containsPoint(footprint, point, margin = 0) {
+  const angle = footprint.rotationRadians ?? 0;
+  const cosine = Math.cos(angle);
+  const sine = Math.sin(angle);
+  const dx = point[0] - footprint.center[0];
+  const dz = point[1] - footprint.center[1];
+  const localX = dx * cosine - dz * sine;
+  const localZ = dx * sine + dz * cosine;
+  if (footprint.shape === 'ELLIPSE') {
+    const radiusX = footprint.halfExtents[0] + margin;
+    const radiusZ = footprint.halfExtents[1] + margin;
+    return (
+      (localX * localX) / (radiusX * radiusX) +
+        (localZ * localZ) / (radiusZ * radiusZ) <
+      1
+    );
+  }
+  return (
+    Math.abs(localX) < footprint.halfExtents[0] + margin &&
+    Math.abs(localZ) < footprint.halfExtents[1] + margin
+  );
+}
+
+function sampleFootprint(footprint, divisions = 4) {
+  const [right, forward] = axesFor(footprint);
+  const points = [];
+  for (let xIndex = 0; xIndex <= divisions; xIndex += 1) {
+    for (let zIndex = 0; zIndex <= divisions; zIndex += 1) {
+      const localX =
+        -footprint.halfExtents[0] +
+        (footprint.halfExtents[0] * 2 * xIndex) / divisions;
+      const localZ =
+        -footprint.halfExtents[1] +
+        (footprint.halfExtents[1] * 2 * zIndex) / divisions;
+      points.push([
+        footprint.center[0] + right[0] * localX + forward[0] * localZ,
+        footprint.center[1] + right[1] * localX + forward[1] * localZ,
+      ]);
+    }
+  }
+  return points;
+}
+
+function assertClose(actual, expected, message, epsilon = 1e-9) {
+  assert.ok(
+    Math.abs(actual - expected) <= epsilon,
+    `${message}: expected ${expected}, received ${actual}`,
+  );
+}
+
+function assertBlockerMatchesTransformedSite(
+  blocker,
+  site,
+  { position, rotationY = 0, uniformScale = 1 },
+) {
+  const scale = Math.abs(uniformScale);
+  const cosine = Math.cos(rotationY);
+  const sine = Math.sin(rotationY);
+  const scaledX = site.x * scale;
+  const scaledZ = site.z * scale;
+  assertClose(
+    blocker.center[0],
+    position[0] + scaledX * cosine + scaledZ * sine,
+    `${blocker.id} transformed X`,
+  );
+  assertClose(
+    blocker.center[1],
+    position[2] - scaledX * sine + scaledZ * cosine,
+    `${blocker.id} transformed Z`,
+  );
+  assertClose(
+    blocker.halfExtents[0],
+    (site.width * scale) / 2,
+    `${blocker.id} transformed half-width`,
+  );
+  assertClose(
+    blocker.halfExtents[1],
+    (site.depth * scale) / 2,
+    `${blocker.id} transformed half-depth`,
+  );
+  assertClose(
+    blocker.rotationRadians,
+    rotationY + site.rotationY,
+    `${blocker.id} transformed rotation`,
+  );
+  assertClose(
+    blocker.height,
+    site.height * scale,
+    `${blocker.id} transformed height`,
+  );
+  assertClose(
+    blocker.baseElevation,
+    position[1],
+    `${blocker.id} transformed base elevation`,
+  );
+}
+
 assertUniqueIds('Sector', WORLD_SECTORS);
 assertUniqueIds('Metro hub', METRO_HUBS);
 assertUniqueIds('Metro station', METRO_STATION_REGISTRY);
 assertUniqueIds('Road', ROAD_CONNECTORS);
 assertUniqueIds('Reserved site', WORLD_SITE_RESERVATIONS);
 assertUniqueIds('Solid building', WORLD_SOLID_FOOTPRINTS);
+assertUniqueIds('Watercraft', WORLD_WATERCRAFT);
+assertUniqueIds('Legacy building collider', CONTINUOUS_WORLD_LEGACY_BLOCKERS);
+assert.equal(
+  WORLD_WATERCRAFT.length,
+  WORLD_WATERCRAFT_FOOTPRINTS.length,
+  'Every rendered watercraft placement must own exactly one physical footprint',
+);
+
+for (const playerCorner of [
+  [CONTINUOUS_WORLD_BOUNDS.minX, CONTINUOUS_WORLD_BOUNDS.minZ],
+  [CONTINUOUS_WORLD_BOUNDS.minX, CONTINUOUS_WORLD_BOUNDS.maxZ],
+  [CONTINUOUS_WORLD_BOUNDS.maxX, CONTINUOUS_WORLD_BOUNDS.minZ],
+  [CONTINUOUS_WORLD_BOUNDS.maxX, CONTINUOUS_WORLD_BOUNDS.maxZ],
+]) {
+  const visible = getVisibleContinuousWorldSectors(playerCorner);
+  assert.equal(
+    visible.length,
+    WORLD_SECTORS.length,
+    `Every sector shell must remain visible from world corner ${playerCorner.join(',')}`,
+  );
+}
+
+for (const solid of WORLD_SOLID_FOOTPRINTS) {
+  const sector = WORLD_SECTORS.find(
+    (candidate) => candidate.id === solid.sectorId,
+  );
+  assert.ok(sector, `${solid.id} must reference a real world sector`);
+  if (solid.kind === 'STARTER_TOWER') continue;
+  assert.ok(
+    getContinuousWorldSectorMassing(sector, 'SHELL').some(
+      (instance) => instance.id === `${solid.id}-PERSISTENT-SHELL`,
+    ),
+    `${solid.id} must retain a persistent distance shell`,
+  );
+}
+
+const azureHotelSites = createMarinaHotelDistrictPlan({
+  ...AZURE_BAY_HOTEL_PLAN_OPTIONS,
+}).hotels;
+assert.equal(AZURE_HOTEL_BUILDING_BLOCKERS.length, azureHotelSites.length);
+AZURE_HOTEL_BUILDING_BLOCKERS.forEach((blocker, index) => {
+  assert.equal(
+    blocker.id,
+    `AZURE-BAY-HOTEL-${String(azureHotelSites[index].stableBuildingIndex).padStart(2, '0')}`,
+  );
+  assertBlockerMatchesTransformedSite(blocker, azureHotelSites[index], {
+    position: LEGACY_DISTRICT_WORLD_ORIGINS.AZURE_YACHT_MARINA,
+    rotationY: -Math.PI / 2,
+    uniformScale: 0.62,
+  });
+  assert.ok(
+    isWorldPointBlockedBySolidGeometry(blocker.center, 0),
+    `${blocker.id} world-space render centre must be physically solid`,
+  );
+});
+assert.deepEqual(
+  azureHotelSites.map((site) => site.sourceSiteIndex),
+  [3],
+  'Only the collision-free Azure hotel 03 parcel may remain active',
+);
+assert.ok(
+  !AZURE_HOTEL_BUILDING_BLOCKERS.some(
+    (blocker) => blocker.id === 'AZURE-BAY-HOTEL-04',
+  ),
+  'Suppressed Azure hotel 04 must leave no collision blocker',
+);
+assertClose(
+  AZURE_HOTEL_BUILDING_BLOCKERS[0].center[0],
+  -52.34,
+  'Azure hotel 03 fixed X',
+);
+
+assert.equal(CONTINUOUS_WORLD_MEASURED_ASSET_BLOCKERS.length, 9);
+for (const measured of CONTINUOUS_WORLD_MEASURED_ASSET_BLOCKERS) {
+  assert.ok(
+    isWorldPointBlockedBySolidGeometry(measured.center, 0),
+    `${measured.id} measured render centre must be physically solid`,
+  );
+}
+for (const [index, expected] of [
+  {
+    id: 'AZURE_YACHT_MARINA-BUILDING-H',
+    center: [-36.4999997, -73],
+    halfExtents: [1.5020993, 1.7134149],
+    rotationRadians: -Math.PI / 2,
+  },
+  {
+    id: 'AZURE_YACHT_MARINA-BUILDING-J',
+    center: [-38.5, -43.9999998],
+    halfExtents: [3.2295614, 2.0770001],
+    rotationRadians: -Math.PI / 2,
+  },
+].entries()) {
+  const actual = CONTINUOUS_WORLD_MEASURED_ASSET_BLOCKERS[index];
+  assert.equal(actual.id, expected.id);
+  assertClose(actual.center[0], expected.center[0], `${actual.id} centre X`);
+  assertClose(actual.center[1], expected.center[1], `${actual.id} centre Z`);
+  assertClose(
+    actual.halfExtents[0],
+    expected.halfExtents[0],
+    `${actual.id} half-width`,
+  );
+  assertClose(
+    actual.halfExtents[1],
+    expected.halfExtents[1],
+    `${actual.id} half-depth`,
+  );
+  assertClose(
+    actual.rotationRadians,
+    expected.rotationRadians,
+    `${actual.id} rotation`,
+  );
+}
+assert.ok(
+  CONTINUOUS_WORLD_LEGACY_BLOCKERS.every(
+    (blocker) =>
+      !(
+        (blocker.district === 'CBD' &&
+          /^CBD-(?:1[6-9]|[23]\d)$/.test(blocker.id)) ||
+        (blocker.district === 'CROWN_RESIDENTIAL_TOWERS' &&
+          /^CROWN_RESIDENTIAL_TOWERS-(?:[5-9]|1[0-2])$/.test(blocker.id))
+      ),
+  ),
+  'Embedded-only ghost arrival furniture must not leave invisible colliders',
+);
+assertClose(
+  AZURE_HOTEL_BUILDING_BLOCKERS[0].center[1],
+  -56.14,
+  'Azure hotel 03 fixed Z',
+);
+{
+  const hotel = AZURE_HOTEL_BUILDING_BLOCKERS[0];
+  const cosine = Math.cos(hotel.rotationRadians);
+  const sine = Math.sin(hotel.rotationRadians);
+  const localZ = hotel.halfExtents[1] - 0.05;
+  const insideRotatedEdge = [
+    hotel.center[0] + sine * localZ,
+    hotel.center[1] + cosine * localZ,
+  ];
+  assert.equal(
+    getContinuousWorldLegacyBlockerAtXZ(...insideRotatedEdge, 0)?.id,
+    hotel.id,
+    'Azure hotel collision must honor the rendered parent and site rotations',
+  );
+}
+assert.ok(
+  !getContinuousWorldLegacyBlockerAtXZ(-51.8, -42.5, 0)?.id.startsWith(
+    'AZURE-BAY-HOTEL',
+  ),
+  'The former mirrored Azure hotel collider must not survive at -51.8,-42.5',
+);
+
+for (const blocker of CONTINUOUS_WORLD_LEGACY_BLOCKERS.filter(
+  (candidate) => candidate.shape === 'ELLIPSE',
+)) {
+  const circularBlockerId = blocker.id;
+  assertClose(
+    blocker.halfExtents[0],
+    blocker.halfExtents[1],
+    `${circularBlockerId} circular collider radii`,
+  );
+  assert.equal(
+    blocker.shape,
+    'ELLIPSE',
+    `${circularBlockerId} must use its visible circular silhouette`,
+  );
+  assert.equal(
+    getContinuousWorldLegacyBlockerAtXZ(...blocker.center, 0)?.id,
+    circularBlockerId,
+    `${circularBlockerId} centre must remain solid`,
+  );
+  const openCorner = [
+    blocker.center[0] + blocker.halfExtents[0] * 0.91,
+    blocker.center[1] + blocker.halfExtents[1] * 0.91,
+  ];
+  assert.notEqual(
+    getContinuousWorldLegacyBlockerAtXZ(...openCorner, 0)?.id,
+    circularBlockerId,
+    `${circularBlockerId} bounding-box corner must not become an invisible wall`,
+  );
+  assert.equal(
+    getContinuousWorldLegacyBlockerAtXZ(
+      blocker.center[0] + blocker.halfExtents[0] + 0.2,
+      blocker.center[1],
+      0.25,
+    )?.id,
+    circularBlockerId,
+    `${circularBlockerId} player-radius margin must expand the visible circle`,
+  );
+}
+
+assert.ok(
+  !CONTINUOUS_WORLD_LEGACY_BLOCKERS.some((blocker) => blocker.id === 'CBD-15'),
+  'The former whole-parcel Energy Campus collider must not survive',
+);
+assert.deepEqual(
+  CONTINUOUS_WORLD_LEGACY_BLOCKERS.filter((blocker) =>
+    blocker.id.startsWith('CBD-15-'),
+  ).map((blocker) => blocker.id),
+  [
+    'CBD-15-RESEARCH',
+    'CBD-15-SERVICE',
+    'CBD-15-UTILITY-W',
+    'CBD-15-UTILITY-C',
+    'CBD-15-REACTOR',
+    'CBD-15-MAST',
+    'CBD-15-CANOPY-SUPPORT-1',
+    'CBD-15-CANOPY-SUPPORT-2',
+    'CBD-15-CANOPY-SUPPORT-3',
+    'CBD-15-CANOPY-SUPPORT-4',
+    'CBD-15-CANOPY-SUPPORT-5',
+    'CBD-15-CANOPY-SUPPORT-6',
+  ],
+  'Energy Campus must register only visible buildings, equipment and supports',
+);
+assert.equal(
+  canTraverseContinuousWorld([44.5, 5.3]),
+  true,
+  'Energy Campus central public realm must remain walkable',
+);
+assert.equal(
+  canTraverseContinuousWorld([46.8, 5.85]),
+  false,
+  'Energy reactor visible perimeter must be physically solid',
+);
+
+assert.equal(
+  isPointInNamedWorldSolidXZ(-120, -58, 0),
+  true,
+  'Ocean Crown Casino centre must remain solid',
+);
+assert.equal(
+  isPointInNamedWorldSolidXZ(-108.5, -46.5, 0),
+  false,
+  'Ocean Crown Casino square corner must not become an invisible wall',
+);
+
+assert.equal(METROPOLITAN_RESIDENTIAL_QUARTER_COLLISION_SPECS.length, 5);
+assert.equal(
+  METROPOLITAN_RESIDENTIAL_QUARTER_COLLISION_SPECS,
+  METROPOLITAN_RESIDENTIAL_QUARTER_SPECS,
+  'Rendering and collision must consume the exact same residential placement registry',
+);
+{
+  const ridgeSpec = LEGACY_RIDGE_RESIDENTIAL_QUARTER_SPECS.find(
+    (quarter) => quarter.id === 'N-RDG-02',
+  );
+  assert.ok(ridgeSpec);
+  const ridgePlan = createResidentialQuarterPlan(ridgeSpec.plan);
+  assert.deepEqual(
+    ridgePlan.sites.map((site) => site.sourceSiteIndex),
+    [1, 1, 2, 2, 3, 3, 5, 5],
+    'N-RDG-02 source site 04 suppression must remove both semi-detached homes',
+  );
+  assert.deepEqual(
+    ridgePlan.sites.map((site) => site.stableBuildingIndex),
+    [1, 2, 3, 4, 5, 6, 9, 10],
+    'Residential building IDs must stay stable after source-site suppression',
+  );
+  assert.ok(
+    !LEGACY_RIDGE_RESIDENTIAL_BUILDING_BLOCKERS.some(
+      (blocker) =>
+        blocker.id === 'N-RDG-02-BUILDING-07' ||
+        blocker.id === 'N-RDG-02-BUILDING-08',
+    ),
+    'Suppressed N-RDG-02 source site 04 must leave no collision blockers',
+  );
+}
+assert.equal(METROPOLITAN_RESIDENTIAL_MASSING_RESERVATIONS.length, 5);
+assert.equal(
+  METROPOLITAN_RESIDENTIAL_BUILDING_BLOCKERS.length,
+  METROPOLITAN_RESIDENTIAL_QUARTER_COLLISION_SPECS.reduce(
+    (total, quarter) =>
+      total + createResidentialQuarterPlan(quarter.plan).sites.length,
+    0,
+  ),
+  'Every retained metropolitan residential building must own one collider',
+);
+for (const quarter of METROPOLITAN_RESIDENTIAL_QUARTER_COLLISION_SPECS) {
+  const plan = createResidentialQuarterPlan(quarter.plan);
+  const blockers = METROPOLITAN_RESIDENTIAL_BUILDING_BLOCKERS.filter(
+    (blocker) => blocker.id.startsWith(`${quarter.id}-BUILDING-`),
+  );
+  assert.equal(
+    blockers.length,
+    plan.sites.length,
+    `${quarter.id} must have one collider for every rendered BuildingSite`,
+  );
+  blockers.forEach((blocker, index) => {
+    assertBlockerMatchesTransformedSite(blocker, plan.sites[index], {
+      position: quarter.position,
+      rotationY: quarter.rotationY,
+      uniformScale: quarter.uniformScale,
+    });
+    const [quarterRight, quarterForward] = axesFor({
+      rotationRadians: quarter.rotationY,
+    });
+    const delta = [
+      blocker.center[0] - quarter.position[0],
+      blocker.center[1] - quarter.position[2],
+    ];
+    const pathHalfWidth = (plan.avenueWidth * quarter.uniformScale) / 2;
+    const xClearance =
+      Math.abs(delta[0] * quarterRight[0] + delta[1] * quarterRight[1]) -
+      projectedRadius(blocker, quarterRight);
+    const zClearance =
+      Math.abs(delta[0] * quarterForward[0] + delta[1] * quarterForward[1]) -
+      projectedRadius(blocker, quarterForward);
+    assert.ok(
+      xClearance >= pathHalfWidth + 0.38,
+      `${blocker.id} must leave the north-south public avenue walkable`,
+    );
+    assert.ok(
+      zClearance >= pathHalfWidth + 0.38,
+      `${blocker.id} must leave the east-west public avenue walkable`,
+    );
+  });
+  assert.ok(
+    blockers.every(
+      (blocker) =>
+        !containsPoint(
+          blocker,
+          [quarter.position[0], quarter.position[2]],
+          0.38,
+        ),
+    ),
+    `${quarter.id} centre crossing must not use the former superblock collider`,
+  );
+  for (let left = 0; left < blockers.length; left += 1) {
+    for (let right = left + 1; right < blockers.length; right += 1) {
+      assert.ok(
+        !overlaps(blockers[left], blockers[right]),
+        `${blockers[left].id} overlaps ${blockers[right].id}`,
+      );
+    }
+  }
+}
+
+assert.equal(LEGACY_RIDGE_RESIDENTIAL_QUARTER_SPECS.length, 2);
+assert.equal(
+  LEGACY_RIDGE_RESIDENTIAL_BUILDING_BLOCKERS.length,
+  LEGACY_RIDGE_RESIDENTIAL_QUARTER_SPECS.reduce(
+    (total, quarter) =>
+      total + createResidentialQuarterPlan(quarter.plan).sites.length,
+    0,
+  ),
+  'Every retained Ridge residential building must own one collider',
+);
+assert.deepEqual(
+  LEGACY_DISTRICT_WORLD_ORIGINS.MILLIONAIRE_RIDGE,
+  [48, 0, -29],
+  'The Ridge district origin must remain on its canonical metro-aligned anchor',
+);
+assert.deepEqual(
+  getLegacyDistrictContentOrigin('MILLIONAIRE_RIDGE'),
+  [64, 0, -29],
+  'Ridge visuals and collision must compose the same adjacent content offset',
+);
+for (const quarter of LEGACY_RIDGE_RESIDENTIAL_QUARTER_SPECS) {
+  const plan = createResidentialQuarterPlan(quarter.plan);
+  const blockers = LEGACY_RIDGE_RESIDENTIAL_BUILDING_BLOCKERS.filter(
+    (blocker) => blocker.id.startsWith(`${quarter.id}-BUILDING-`),
+  );
+  const ridgeOrigin = getLegacyDistrictContentOrigin('MILLIONAIRE_RIDGE');
+  const position = [
+    ridgeOrigin[0] + quarter.localPosition[0],
+    ridgeOrigin[1] + quarter.localPosition[1],
+    ridgeOrigin[2] + quarter.localPosition[2],
+  ];
+  assert.equal(
+    blockers.length,
+    plan.sites.length,
+    `${quarter.id} must replace its former broad parcel blocker with one collider per rendered building`,
+  );
+  blockers.forEach((blocker, index) => {
+    assertBlockerMatchesTransformedSite(blocker, plan.sites[index], {
+      position,
+      uniformScale: quarter.uniformScale,
+    });
+  });
+}
+assert.deepEqual(
+  LEGACY_RIDGE_RESIDENTIAL_QUARTER_SPECS.map((quarter) => {
+    const origin = getLegacyDistrictContentOrigin('MILLIONAIRE_RIDGE');
+    return [
+      origin[0] + quarter.localPosition[0],
+      origin[2] + quarter.localPosition[2],
+    ];
+  }),
+  [
+    [20, 56],
+    [42, 56],
+  ],
+  'Both Ridge residential quarters must remain on their registered north-ridge parcels',
+);
+const ridgeMetroArrival = getContinuousWorldMetroArrival('MTR-H01');
+assert.ok(ridgeMetroArrival, 'Ridge Gate metro must remain registered');
+assert.ok(
+  LEGACY_RIDGE_RESIDENTIAL_QUARTER_SPECS.every((quarter) => {
+    const origin = getLegacyDistrictContentOrigin('MILLIONAIRE_RIDGE');
+    const center = [
+      origin[0] + quarter.localPosition[0],
+      origin[2] + quarter.localPosition[2],
+    ];
+    return METRO_HUBS.some(
+      (hub) =>
+        Math.hypot(hub.position[0] - center[0], hub.position[1] - center[1]) <=
+        20,
+    );
+  }),
+  'Every detailed Ridge quarter must remain inside a metro catchment',
+);
+assert.ok(
+  !CONTINUOUS_WORLD_LEGACY_BLOCKERS.some(
+    (blocker) =>
+      blocker.district === 'MILLIONAIRE_RIDGE' &&
+      ((blocker.center[0] === 18 && blocker.center[1] === -11) ||
+        (blocker.center[0] === 78 && blocker.center[1] === -11)) &&
+      blocker.halfExtents[0] === 5 &&
+      blocker.halfExtents[1] === 7.5,
+  ),
+  'The two former whole-quarter Ridge blockers must not survive',
+);
+
+assert.equal(
+  CONTINUOUS_WORLD_MEASURED_CBD_BLOCKERS.length,
+  8,
+  'CBD lawns, parking and pool plots must be replaced by eight measured building envelopes',
+);
+for (const blocker of CONTINUOUS_WORLD_LEGACY_BLOCKERS.filter((candidate) =>
+  Number.isFinite(candidate.height),
+)) {
+  const terrain = getWorldFootprintElevationRange(
+    blocker.center,
+    blocker.halfExtents,
+    blocker.rotationRadians ?? 0,
+    9,
+  );
+  const base = blocker.baseElevation ?? 0;
+  const ridgeVillaId = blocker.id.startsWith('MILLIONAIRE_RIDGE-BUILDING-')
+    ? `BLD-${blocker.id.slice('MILLIONAIRE_RIDGE-BUILDING-'.length)}`
+    : undefined;
+  const foundationLift = ridgeVillaId
+    ? (LEGACY_RIDGE_VILLA_FOUNDATION_Y[ridgeVillaId] ?? 0)
+    : 0;
+  assert.ok(
+    terrain.maximum <= base + foundationLift + 0.18,
+    `${blocker.id} base ${base} must clear terrain maximum ${terrain.maximum}`,
+  );
+  assert.ok(
+    base + blocker.height >= terrain.maximum + 0.35,
+    `${blocker.id} roof must remain visibly above its complete terrain footprint`,
+  );
+}
 
 for (const solid of WORLD_SOLID_FOOTPRINTS) {
   assertPointInBounds(solid.id, solid.center);
@@ -124,14 +760,194 @@ const roadFootprints = ROAD_CONNECTORS.flatMap((road) =>
     return {
       id: `${road.id}:${index + 1}`,
       center: [(from[0] + to[0]) / 2, (from[1] + to[1]) / 2],
-      halfExtents: [getRoadRenderWidth(road) / 2 + 1.8, Math.hypot(dx, dz) / 2],
+      halfExtents: [
+        getRoadRenderWidth(road) / 2 + WORLD_ROAD_OUTER_MARGIN,
+        Math.hypot(dx, dz) / 2,
+      ],
       rotationRadians: Math.atan2(dx, dz),
     };
   }),
 );
+
+const metroEntranceFootprints = METRO_HUBS.map((hub) => {
+  const arrival = getContinuousWorldMetroArrival(hub.id);
+  assert.ok(arrival, `${hub.id} must resolve to a physical metro arrival`);
+  const entrance = getContinuousWorldMetroEntrancePosition(arrival);
+  const entranceEnvelopeOffset = 1.375;
+  return {
+    id: `${hub.id}-ENTRANCE-A`,
+    center: [
+      entrance[0] + Math.sin(arrival.heading) * entranceEnvelopeOffset,
+      entrance[2] + Math.cos(arrival.heading) * entranceEnvelopeOffset,
+    ],
+    halfExtents: [1.55, 1.475],
+    rotationRadians: arrival.heading,
+  };
+});
+
+const metropolitanResidentialPrefixes =
+  METROPOLITAN_RESIDENTIAL_QUARTER_COLLISION_SPECS.map(
+    (quarter) => `${quarter.id}-BUILDING-`,
+  );
+const nonResidentialLegacyBlockers = CONTINUOUS_WORLD_LEGACY_BLOCKERS.filter(
+  (blocker) =>
+    !metropolitanResidentialPrefixes.some((prefix) =>
+      blocker.id.startsWith(prefix),
+    ),
+);
+const originalResidentialPlacementObstacles = [
+  ...nonResidentialLegacyBlockers,
+  ...WORLD_SOLID_FOOTPRINTS,
+  ...roadFootprints,
+  ...metroEntranceFootprints,
+];
+
+const residentialPlacementObstacles = [
+  ...nonResidentialLegacyBlockers,
+  ...WORLD_SOLID_FOOTPRINTS,
+  ...CONTINUOUS_WORLD_ROAD_RENDER_BAND_BLOCKERS,
+  ...metroEntranceFootprints,
+];
+
+const originalResidentialConflicts = Object.fromEntries(
+  METROPOLITAN_RESIDENTIAL_QUARTER_COLLISION_SPECS.map((quarter) => {
+    const originalBlockers = transformBuildingSitesToWorldBlockers({
+      idPrefix: `${quarter.id}-BUILDING`,
+      district: 'CBD',
+      sites: createResidentialQuarterPlan(quarter.plan).sites,
+      transform: {
+        position: quarter.renderParentPosition,
+        uniformScale: quarter.uniformScale,
+      },
+    });
+    const conflicts = [];
+    for (const blocker of originalBlockers) {
+      for (const obstacle of originalResidentialPlacementObstacles) {
+        if (overlaps(blocker, obstacle))
+          conflicts.push(`${blocker.id} × ${obstacle.id}`);
+      }
+    }
+    return [quarter.id, conflicts];
+  }),
+);
+assert.ok(
+  Object.values(originalResidentialConflicts).some(
+    (conflicts) => conflicts.length > 0,
+  ),
+  'The pre-relocation baseline must retain conflicts that justify the registered parcel moves',
+);
+
+const relocatedResidentialConflicts = [];
+for (const blocker of METROPOLITAN_RESIDENTIAL_BUILDING_BLOCKERS) {
+  assertPointInBounds(blocker.id, blocker.center);
+  for (const obstacle of residentialPlacementObstacles) {
+    if (overlaps(blocker, obstacle, 0.18))
+      relocatedResidentialConflicts.push(`${blocker.id} × ${obstacle.id}`);
+  }
+  for (const craft of WORLD_WATERCRAFT_FOOTPRINTS) {
+    if (overlaps(blocker, craft, 0.3))
+      relocatedResidentialConflicts.push(`${blocker.id} × ${craft.id}`);
+  }
+  for (const point of sampleFootprint(blocker)) {
+    assertPointInBounds(`${blocker.id} footprint`, point);
+    const river = distanceToGrandRiver(point);
+    assert.ok(
+      river.distance > river.halfWidth + 0.18,
+      `${blocker.id} must not occupy the raw Grand River channel`,
+    );
+    assert.equal(
+      isPointInRenderedOceanMask(point),
+      false,
+      `${blocker.id} must not occupy the rendered ocean`,
+    );
+    assert.equal(
+      isWorldPointInWater(point),
+      false,
+      `${blocker.id} must not occupy any rendered water`,
+    );
+  }
+}
+for (
+  let left = 0;
+  left < METROPOLITAN_RESIDENTIAL_BUILDING_BLOCKERS.length;
+  left += 1
+) {
+  for (
+    let right = left + 1;
+    right < METROPOLITAN_RESIDENTIAL_BUILDING_BLOCKERS.length;
+    right += 1
+  ) {
+    if (
+      overlaps(
+        METROPOLITAN_RESIDENTIAL_BUILDING_BLOCKERS[left],
+        METROPOLITAN_RESIDENTIAL_BUILDING_BLOCKERS[right],
+      )
+    )
+      relocatedResidentialConflicts.push(
+        `${METROPOLITAN_RESIDENTIAL_BUILDING_BLOCKERS[left].id} × ${METROPOLITAN_RESIDENTIAL_BUILDING_BLOCKERS[right].id}`,
+      );
+  }
+}
+assert.deepEqual(
+  relocatedResidentialConflicts,
+  [],
+  `Relocated residential architecture must be disjoint from all roads, water, metro entrances, named and legacy solids: ${relocatedResidentialConflicts.join(', ')}`,
+);
+
+const legacyRoadConflicts = [];
+for (const building of CONTINUOUS_WORLD_LEGACY_ARCHITECTURE_BLOCKERS) {
+  for (const road of CONTINUOUS_WORLD_ROAD_RENDER_BAND_BLOCKERS) {
+    if (overlaps(building, road))
+      legacyRoadConflicts.push(`${building.id} × ${road.id}`);
+  }
+}
+assert.deepEqual(
+  legacyRoadConflicts,
+  [],
+  `Visible global road bands must be clipped around legacy architecture: ${legacyRoadConflicts.join(', ')}`,
+);
+
+const legacyArchitectureConflicts = [];
+for (
+  let left = 0;
+  left < CONTINUOUS_WORLD_LEGACY_ARCHITECTURE_BLOCKERS.length;
+  left += 1
+) {
+  for (
+    let right = left + 1;
+    right < CONTINUOUS_WORLD_LEGACY_ARCHITECTURE_BLOCKERS.length;
+    right += 1
+  ) {
+    const leftBuilding = CONTINUOUS_WORLD_LEGACY_ARCHITECTURE_BLOCKERS[left];
+    const rightBuilding = CONTINUOUS_WORLD_LEGACY_ARCHITECTURE_BLOCKERS[right];
+    if (overlaps(leftBuilding, rightBuilding))
+      legacyArchitectureConflicts.push(
+        `${leftBuilding.id} × ${rightBuilding.id}`,
+      );
+  }
+}
+assert.deepEqual(
+  legacyArchitectureConflicts,
+  [],
+  `Authored legacy buildings must be pairwise disjoint: ${legacyArchitectureConflicts.join(', ')}`,
+);
+
+const legacyNamedArchitectureConflicts = [];
+for (const legacy of CONTINUOUS_WORLD_LEGACY_ARCHITECTURE_BLOCKERS) {
+  for (const named of WORLD_SOLID_FOOTPRINTS) {
+    if (overlaps(legacy, named, 0.18))
+      legacyNamedArchitectureConflicts.push(`${legacy.id} × ${named.id}`);
+  }
+}
+assert.deepEqual(
+  legacyNamedArchitectureConflicts,
+  [],
+  `Legacy buildings must remain clear of every named solid: ${legacyNamedArchitectureConflicts.join(', ')}`,
+);
+
 const solidRoadOverlaps = [];
 for (const solid of WORLD_SOLID_FOOTPRINTS) {
-  for (const road of roadFootprints) {
+  for (const road of CONTINUOUS_WORLD_ROAD_RENDER_BAND_BLOCKERS) {
     if (overlaps(solid, road, 0.18))
       solidRoadOverlaps.push(`${solid.id} × ${road.id}`);
   }
@@ -141,6 +957,141 @@ assert.deepEqual(
   [],
   `Named architecture must not overlap road, sidewalk or cycleway corridors: ${solidRoadOverlaps.join(', ')}`,
 );
+
+const roadsideTreeArchitectureOverlaps = [];
+for (const tree of CONTINUOUS_WORLD_ROADSIDE_TREE_FOOTPRINTS) {
+  for (const architecture of [
+    ...CONTINUOUS_WORLD_LEGACY_ARCHITECTURE_BLOCKERS,
+    ...WORLD_SOLID_FOOTPRINTS,
+  ]) {
+    if (overlaps(tree, architecture))
+      roadsideTreeArchitectureOverlaps.push(`${tree.id} × ${architecture.id}`);
+  }
+}
+assert.deepEqual(
+  roadsideTreeArchitectureOverlaps,
+  [],
+  `Roadside tree crowns must be skipped at every authored building envelope: ${roadsideTreeArchitectureOverlaps.join(', ')}`,
+);
+
+const watercraftRoadOverlaps = [];
+for (const craft of WORLD_WATERCRAFT_FOOTPRINTS) {
+  assertPointInBounds(craft.id, craft.center);
+  assert.ok(
+    getWorldWatercraftAtXZ(craft.center[0], craft.center[1]),
+    `${craft.id} must resolve through the shared watercraft registry`,
+  );
+  assert.equal(
+    canTraverseContinuousWorld(craft.center),
+    false,
+    `${craft.id} hull must stop the avatar`,
+  );
+  assert.equal(
+    isWorldCameraPointOccluded({
+      x: craft.center[0],
+      y: (craft.minimumY + craft.maximumY) / 2,
+      z: craft.center[1],
+    }),
+    true,
+    `${craft.id} hull must stop the trailing camera`,
+  );
+  assert.equal(
+    isWorldCameraPointOccluded({
+      x: craft.center[0],
+      y: craft.maximumY + 0.8,
+      z: craft.center[1],
+    }),
+    false,
+    `${craft.id} must stop occluding above its superstructure`,
+  );
+  const angle = craft.rotationRadians;
+  const cosine = Math.cos(angle);
+  const sine = Math.sin(angle);
+  for (const [localX, localZ] of [
+    [0, 0],
+    [craft.halfExtents[0], craft.halfExtents[1]],
+    [craft.halfExtents[0], -craft.halfExtents[1]],
+    [-craft.halfExtents[0], craft.halfExtents[1]],
+    [-craft.halfExtents[0], -craft.halfExtents[1]],
+  ]) {
+    const point = [
+      craft.center[0] + cosine * localX + sine * localZ,
+      craft.center[1] - sine * localX + cosine * localZ,
+    ];
+    assertPointInBounds(`${craft.id} hull corner`, point);
+    assert.ok(
+      isWorldPointInWater(point),
+      `${craft.id} complete hull must remain over visible navigable water`,
+    );
+  }
+  for (const road of CONTINUOUS_WORLD_ROAD_RENDER_BAND_BLOCKERS) {
+    if (overlaps(craft, road, 0.18))
+      watercraftRoadOverlaps.push(`${craft.id} × ${road.id}`);
+  }
+}
+assert.deepEqual(
+  watercraftRoadOverlaps,
+  [],
+  `Watercraft must never occupy a road, sidewalk or cycleway envelope: ${watercraftRoadOverlaps.join(', ')}`,
+);
+const watercraftArchitectureOverlaps = [];
+for (const craft of WORLD_WATERCRAFT_FOOTPRINTS) {
+  for (const solid of WORLD_SOLID_FOOTPRINTS) {
+    if (overlaps(craft, solid, 0.3))
+      watercraftArchitectureOverlaps.push(`${craft.id} × ${solid.id}`);
+  }
+  for (const blocker of CONTINUOUS_WORLD_LEGACY_BLOCKERS) {
+    if (overlaps(craft, blocker, 0.3))
+      watercraftArchitectureOverlaps.push(`${craft.id} × ${blocker.id}`);
+  }
+}
+assert.deepEqual(
+  watercraftArchitectureOverlaps,
+  [],
+  `Watercraft must remain clear of every building footprint: ${watercraftArchitectureOverlaps.join(', ')}`,
+);
+for (let left = 0; left < WORLD_WATERCRAFT_FOOTPRINTS.length; left += 1) {
+  for (
+    let right = left + 1;
+    right < WORLD_WATERCRAFT_FOOTPRINTS.length;
+    right += 1
+  ) {
+    assert.ok(
+      !overlaps(
+        WORLD_WATERCRAFT_FOOTPRINTS[left],
+        WORLD_WATERCRAFT_FOOTPRINTS[right],
+        0.3,
+      ),
+      `${WORLD_WATERCRAFT_FOOTPRINTS[left].id} overlaps ${WORLD_WATERCRAFT_FOOTPRINTS[right].id}`,
+    );
+  }
+}
+assert.equal(
+  getWorldWatercraftAtXZ(-58, 12.4),
+  undefined,
+  'The reported West Harbor camera path must remain clear of every vessel',
+);
+
+for (const point of [
+  [-60, -6],
+  [-47, 0],
+]) {
+  assert.equal(
+    isPointInRenderedOceanMask(point),
+    false,
+    `${point.join(',')} must be rendered as continuous-world land`,
+  );
+  assert.equal(
+    isWorldPointInWater(point),
+    false,
+    `${point.join(',')} must not retain an invisible legacy marina water mask`,
+  );
+  assert.equal(
+    isWorldPointOnWalkableDeck(point),
+    false,
+    `${point.join(',')} must not retain an invisible legacy marina deck`,
+  );
+}
 
 const proceduralSolids = getContinuousWorldProceduralSolids().map(
   (building) => ({

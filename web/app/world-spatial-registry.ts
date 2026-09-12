@@ -1,4 +1,4 @@
-import type { WorldPoint } from './world-topology';
+import type { WorldPoint, WorldSectorId } from './world-topology';
 
 export type WorldBuildingKind =
   | 'STARTER_TOWER'
@@ -12,8 +12,10 @@ export type WorldSolidFootprint = Readonly<{
   id: string;
   name: string;
   kind: WorldBuildingKind;
+  sectorId: WorldSectorId;
   center: WorldPoint;
   halfExtents: WorldPoint;
+  shape?: 'RECTANGLE' | 'ELLIPSE';
   height: number;
   rotationRadians?: number;
   baseElevation?: number;
@@ -83,6 +85,7 @@ const STARTER_TOWER_SOLIDS: readonly WorldSolidFootprint[] =
     id: tower.id,
     name: tower.name,
     kind: 'STARTER_TOWER' as const,
+    sectorId: 'STARTER_OUTER_RING' as const,
     center: tower.center,
     halfExtents: [tower.width / 2, tower.depth / 2],
     height: tower.height,
@@ -95,6 +98,7 @@ export const NAMED_WORLD_SOLIDS: readonly WorldSolidFootprint[] = [
     id: 'CIV-SANCTUARY-NAVE',
     name: 'Aurelian Cyber Sanctuary Nave',
     kind: 'CIVIC',
+    sectorId: 'CIVIC_MEDICAL',
     center: [30, 64],
     halfExtents: [4.8, 9.2],
     height: 15,
@@ -103,6 +107,7 @@ export const NAMED_WORLD_SOLIDS: readonly WorldSolidFootprint[] = [
     id: 'CIV-SANCTUARY-TOWER',
     name: 'Aurelian Cyber Sanctuary Bell Tower',
     kind: 'CIVIC',
+    sectorId: 'CIVIC_MEDICAL',
     center: [37.4, 67.2],
     halfExtents: [2.15, 2.15],
     height: 29,
@@ -111,6 +116,7 @@ export const NAMED_WORLD_SOLIDS: readonly WorldSolidFootprint[] = [
     id: 'AUTO-APEX-SHOWROOM',
     name: 'Apex Motors Flagship Showroom',
     kind: 'AUTOMOTIVE',
+    sectorId: 'MOTORSPORT_PARK',
     center: [75.7, -59.9],
     halfExtents: [5.4, 3.35],
     height: 6.8,
@@ -120,6 +126,7 @@ export const NAMED_WORLD_SOLIDS: readonly WorldSolidFootprint[] = [
     id: 'AUTO-APEX-SERVICE',
     name: 'Apex Motors Service Hall',
     kind: 'AUTOMOTIVE',
+    sectorId: 'MOTORSPORT_PARK',
     center: [88.3, -60],
     halfExtents: [5.8, 3.5],
     height: 5.4,
@@ -129,6 +136,7 @@ export const NAMED_WORLD_SOLIDS: readonly WorldSolidFootprint[] = [
     id: 'VIL-HK-01',
     name: 'Harbour Fold House',
     kind: 'VILLA',
+    sectorId: 'SUMMIT_ESTATES',
     center: [92, 49],
     halfExtents: [5.6, 4.8],
     height: 7.2,
@@ -138,6 +146,7 @@ export const NAMED_WORLD_SOLIDS: readonly WorldSolidFootprint[] = [
     id: 'VIL-LA-02',
     name: 'Bel Air Cantilever',
     kind: 'VILLA',
+    sectorId: 'SUMMIT_ESTATES',
     center: [104, 36],
     halfExtents: [6.4, 4.9],
     height: 7.8,
@@ -148,6 +157,7 @@ export const NAMED_WORLD_SOLIDS: readonly WorldSolidFootprint[] = [
     id: 'VIL-HK-03',
     name: 'Victoria Glass Court',
     kind: 'VILLA',
+    sectorId: 'SUMMIT_ESTATES',
     center: [112, 19],
     halfExtents: [5.5, 5.2],
     height: 9.2,
@@ -158,6 +168,7 @@ export const NAMED_WORLD_SOLIDS: readonly WorldSolidFootprint[] = [
     id: 'VIL-LA-04',
     name: 'Mulholland Horizon House',
     kind: 'VILLA',
+    sectorId: 'SUMMIT_ESTATES',
     center: [88, 2],
     halfExtents: [6.3, 4.7],
     height: 6.8,
@@ -168,6 +179,7 @@ export const NAMED_WORLD_SOLIDS: readonly WorldSolidFootprint[] = [
     id: 'VIL-SUMMIT-05',
     name: 'Ampli Summit Estate',
     kind: 'VILLA',
+    sectorId: 'SUMMIT_ESTATES',
     center: [118, -8],
     halfExtents: [7.2, 5.6],
     height: 10.5,
@@ -178,14 +190,17 @@ export const NAMED_WORLD_SOLIDS: readonly WorldSolidFootprint[] = [
     id: 'SEA-CROWN-CASINO',
     name: 'Ocean Crown Casino',
     kind: 'RESORT',
+    sectorId: 'OFFSHORE_CITY',
     center: [-120, -58],
     halfExtents: [12.5, 12.5],
+    shape: 'ELLIPSE',
     height: 25,
   },
   {
     id: 'SEA-CROWN-HOTEL',
     name: 'Ocean Crown Sky Hotel',
     kind: 'RESORT',
+    sectorId: 'OFFSHORE_CITY',
     center: [-120, -40],
     halfExtents: [5.2, 3.4],
     height: 42,
@@ -194,6 +209,7 @@ export const NAMED_WORLD_SOLIDS: readonly WorldSolidFootprint[] = [
     id: 'F1-PIT-COMPLEX',
     name: 'Ampli Grand Prix Pit Complex',
     kind: 'MOTORSPORT',
+    sectorId: 'MOTORSPORT_PARK',
     center: [130, -67],
     halfExtents: [15, 2.8],
     height: 6.4,
@@ -202,6 +218,7 @@ export const NAMED_WORLD_SOLIDS: readonly WorldSolidFootprint[] = [
     id: 'F1-GRANDSTAND',
     name: 'Ampli Grand Prix Main Grandstand',
     kind: 'MOTORSPORT',
+    sectorId: 'MOTORSPORT_PARK',
     center: [136, -20],
     halfExtents: [9.5, 2.4],
     height: 8.2,
@@ -348,11 +365,12 @@ export const WORLD_SURFACE_PLATEAUS: readonly WorldSurfacePlateau[] = [
 export const WORLD_SURFACE_RAMPS: readonly WorldSurfaceRamp[] = [
   {
     id: 'SURFACE-OCEAN-CROWN-TERMINAL-RAMP',
-    from: [-120, -72],
+    from: [-116, -76],
     // Stop at the north edge of the terminal plateau. Extending beneath the
     // plateau made the height field jump by a full metre at its front edge.
     to: [-120, -81.3],
-    width: 3.1,
+    // Exactly matches the physical A13 sea-bridge deck footprint.
+    width: 10.12,
     startElevation: 0.28,
     endElevation: 4.75,
   },
@@ -413,6 +431,7 @@ type WorldCollisionMask = Readonly<{
   centerZ: number;
   halfX: number;
   halfZ: number;
+  shape: 'RECTANGLE' | 'ELLIPSE';
   cosine: number;
   sine: number;
 }>;
@@ -420,7 +439,7 @@ type WorldCollisionMask = Readonly<{
 function collisionMaskFor(
   footprint: Pick<
     WorldSolidFootprint,
-    'center' | 'halfExtents' | 'rotationRadians'
+    'center' | 'halfExtents' | 'shape' | 'rotationRadians'
   >,
 ): WorldCollisionMask {
   const angle = footprint.rotationRadians ?? 0;
@@ -429,6 +448,7 @@ function collisionMaskFor(
     centerZ: footprint.center[1],
     halfX: footprint.halfExtents[0],
     halfZ: footprint.halfExtents[1],
+    shape: footprint.shape ?? 'RECTANGLE',
     cosine: Math.cos(angle),
     sine: Math.sin(angle),
   };
@@ -498,7 +518,7 @@ export function pointInFootprint(
   point: WorldPoint,
   footprint: Pick<
     WorldSolidFootprint,
-    'center' | 'halfExtents' | 'rotationRadians'
+    'center' | 'halfExtents' | 'shape' | 'rotationRadians'
   >,
   margin = 0,
 ) {
@@ -510,7 +530,7 @@ export function pointInFootprintXZ(
   z: number,
   footprint: Pick<
     WorldSolidFootprint,
-    'center' | 'halfExtents' | 'rotationRadians'
+    'center' | 'halfExtents' | 'shape' | 'rotationRadians'
   >,
   margin = 0,
 ) {
@@ -521,6 +541,16 @@ export function pointInFootprintXZ(
   const sine = Math.sin(angle);
   const localX = dx * cosine - dz * sine;
   const localZ = dx * sine + dz * cosine;
+  if (footprint.shape === 'ELLIPSE') {
+    const radiusX = footprint.halfExtents[0] + margin;
+    const radiusZ = footprint.halfExtents[1] + margin;
+    if (radiusX <= 0 || radiusZ <= 0) return false;
+    return (
+      (localX * localX) / (radiusX * radiusX) +
+        (localZ * localZ) / (radiusZ * radiusZ) <
+      1
+    );
+  }
   return (
     Math.abs(localX) < footprint.halfExtents[0] + margin &&
     Math.abs(localZ) < footprint.halfExtents[1] + margin
@@ -537,6 +567,16 @@ function pointInCollisionMaskXZ(
   const dz = z - mask.centerZ;
   const localX = dx * mask.cosine - dz * mask.sine;
   const localZ = dx * mask.sine + dz * mask.cosine;
+  if (mask.shape === 'ELLIPSE') {
+    const radiusX = mask.halfX + margin;
+    const radiusZ = mask.halfZ + margin;
+    if (radiusX <= 0 || radiusZ <= 0) return false;
+    return (
+      (localX * localX) / (radiusX * radiusX) +
+        (localZ * localZ) / (radiusZ * radiusZ) <
+      1
+    );
+  }
   return (
     Math.abs(localX) < mask.halfX + margin &&
     Math.abs(localZ) < mask.halfZ + margin

@@ -13,7 +13,12 @@
     "format": "oxfmt",
     "check:metro": "node --import tsx scripts/check-metro-network.mjs",
     "check:camera": "node --import tsx scripts/check-camera-safety.mjs",
+    "check:linear": "node --import tsx scripts/check-linear-infrastructure.mjs",
+    "check:roads": "node --import tsx scripts/check-road-route-resolver.mjs",
+    "check:crossings": "node --import tsx scripts/check-road-water-crossings.mjs",
+    "check:overview": "node --import tsx scripts/check-world-overview.mjs",
     "check:world-plan": "node --import tsx scripts/check-world-plan.mjs",
+    "check:headless": "node scripts/check-headless-gameplay.mjs",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {

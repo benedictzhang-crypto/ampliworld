@@ -6,6 +6,16 @@ export type CameraOcclusionPredicate = (position: {
   z: number;
 }) => boolean;
 
+/** Keep a resolved third-person camera outside the shipped hero's upper body. */
+export const CAMERA_MIN_ANCHOR_DISTANCE = 1.02;
+export const CAMERA_AVATAR_HIDE_DISTANCE = 0.9;
+
+const CAMERA_PROBE_SPACING = 0.12;
+const CAMERA_MAX_ESCAPE_RING = 70;
+const CAMERA_MIN_ESCAPE_RING = Math.ceil(
+  CAMERA_MIN_ANCHOR_DISTANCE / CAMERA_PROBE_SPACING,
+);
+
 // Preferred escape direction first, followed by increasingly lateral options.
 // This array is allocated once; the per-frame resolver remains allocation-free.
 const CAMERA_ESCAPE_ANGLE_OFFSETS = [
@@ -27,6 +37,47 @@ const CAMERA_ESCAPE_ANGLE_OFFSETS = [
   Math.PI,
 ] as const;
 
+function findClearCameraEscape(
+  anchor: THREE.Vector3,
+  desired: THREE.Vector3,
+  output: THREE.Vector3,
+  probe: THREE.Vector3,
+  predicate: CameraOcclusionPredicate,
+) {
+  const awayX = anchor.x - desired.x;
+  const awayZ = anchor.z - desired.z;
+  const preferredAngle = Math.atan2(awayX, awayZ);
+  for (
+    let ring = CAMERA_MIN_ESCAPE_RING;
+    ring <= CAMERA_MAX_ESCAPE_RING;
+    ring += 1
+  ) {
+    const radius = ring * CAMERA_PROBE_SPACING;
+    for (const angleOffset of CAMERA_ESCAPE_ANGLE_OFFSETS) {
+      const angle = preferredAngle + angleOffset;
+      probe.set(
+        anchor.x + Math.sin(angle) * radius,
+        anchor.y,
+        anchor.z + Math.cos(angle) * radius,
+      );
+      if (!predicate(probe)) {
+        output.copy(probe);
+        return true;
+      }
+    }
+  }
+
+  // Dense foliage can surround the horizontal ring while leaving open sky.
+  for (let step = CAMERA_MIN_ESCAPE_RING; step <= 28; step += 1) {
+    probe.set(anchor.x, anchor.y + step * CAMERA_PROBE_SPACING, anchor.z);
+    if (!predicate(probe)) {
+      output.copy(probe);
+      return true;
+    }
+  }
+  return false;
+}
+
 /**
  * Resolve a trailing camera against an opaque world predicate without ever
  * deliberately advancing it into the first obstruction. If the player's
@@ -45,24 +96,8 @@ export function resolveCameraOcclusion(
   if (!predicate) return false;
 
   if (predicate(anchor)) {
-    const awayX = anchor.x - desired.x;
-    const awayZ = anchor.z - desired.z;
-    const preferredAngle = Math.atan2(awayX, awayZ);
-    for (let ring = 1; ring <= 70; ring += 1) {
-      const radius = ring * 0.12;
-      for (const angleOffset of CAMERA_ESCAPE_ANGLE_OFFSETS) {
-        const angle = preferredAngle + angleOffset;
-        probe.set(
-          anchor.x + Math.sin(angle) * radius,
-          anchor.y,
-          anchor.z + Math.cos(angle) * radius,
-        );
-        if (!predicate(probe)) {
-          output.copy(probe);
-          return true;
-        }
-      }
-    }
+    if (findClearCameraEscape(anchor, desired, output, probe, predicate))
+      return true;
 
     // A valid player anchor should always have a clear side within the 8.4 m
     // search radius. Preserve the anchor as the least disruptive fallback only
@@ -78,9 +113,54 @@ export function resolveCameraOcclusion(
     probe.lerpVectors(anchor, desired, progress);
     if (predicate(probe)) {
       output.lerpVectors(anchor, desired, Math.max(0, (index - 2) / steps));
-      if (predicate(output)) output.copy(anchor);
+      if (
+        output.distanceToSquared(anchor) <
+          CAMERA_MIN_ANCHOR_DISTANCE * CAMERA_MIN_ANCHOR_DISTANCE ||
+        predicate(output)
+      ) {
+        if (findClearCameraEscape(anchor, desired, output, probe, predicate))
+          return true;
+        output.copy(anchor);
+      }
       return true;
     }
+  }
+  return false;
+}
+
+/**
+ * Advance between two already-resolved camera points without letting the
+ * smoothing chord spend a rendered frame inside an opaque object.
+ */
+export function resolveCameraTransition(
+  current: THREE.Vector3,
+  target: THREE.Vector3,
+  alpha: number,
+  output: THREE.Vector3,
+  probe: THREE.Vector3,
+  predicate?: CameraOcclusionPredicate,
+) {
+  const transitionAlpha = Math.min(1, Math.max(0, alpha));
+  output.lerpVectors(current, target, transitionAlpha);
+  if (!predicate) return false;
+  if (predicate(target) || predicate(current)) {
+    output.copy(predicate(target) ? current : target);
+    return true;
+  }
+
+  const distance = current.distanceTo(output);
+  const steps = Math.max(1, Math.ceil(distance / CAMERA_PROBE_SPACING));
+  for (let index = 1; index <= steps; index += 1) {
+    probe.lerpVectors(current, output, index / steps);
+    if (!predicate(probe)) continue;
+    // Stop on the current side of the obstruction. Jumping straight to the
+    // clear target would make the camera visibly teleport through a wall.
+    output.lerpVectors(
+      current,
+      target,
+      transitionAlpha * Math.max(0, (index - 1) / steps),
+    );
+    return true;
   }
   return false;
 }
