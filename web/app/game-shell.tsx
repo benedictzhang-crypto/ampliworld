@@ -7439,6 +7439,7 @@ export function GameShell({
 
   const remountWorldRenderer = useCallback(() => {
     const latest = exactPlayerLocation.current;
+    setWorldViewMode('FOLLOW');
     if (latest.scene === 'CONTINUOUS_WORLD') {
       rendererRecoverySequence.current += 1;
       setPlayerEntry((current) => ({
@@ -7766,6 +7767,7 @@ export function GameShell({
   useEffect(() => {
     const handleMapKeys = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && place) {
+        setWorldViewMode('FOLLOW');
         setPlace(null);
         setPendingDestination(null);
         setPendingAtlasId(null);
@@ -7776,17 +7778,17 @@ export function GameShell({
         !(event.target instanceof HTMLTextAreaElement)
       ) {
         event.preventDefault();
-        setPlace((current) => {
-          if (current === 'map') {
-            setPendingDestination(null);
-            setPendingAtlasId(null);
-            return null;
-          }
+        if (place === 'map') {
+          setWorldViewMode('FOLLOW');
+          setPlace(null);
+          setPendingDestination(null);
+          setPendingAtlasId(null);
+        } else {
           setSelectedAtlasId(currentAtlasNodeId);
           setPendingDestination(null);
           setPendingAtlasId(null);
-          return 'map';
-        });
+          setPlace('map');
+        }
       }
     };
     window.addEventListener('keydown', handleMapKeys);
@@ -7796,6 +7798,7 @@ export function GameShell({
   const openPlace = useCallback<EnterPlace>(
     (target, atlasId) => {
       if (!target) {
+        setWorldViewMode('FOLLOW');
         setPlace(null);
         setPendingDestination(null);
         setPendingAtlasId(null);
@@ -7949,6 +7952,7 @@ export function GameShell({
         spawn: [...arrivalStation.spawn],
         heading: arrivalStation.heading,
       }));
+      setWorldViewMode('FOLLOW');
       setActiveScene(nextScene);
       setPlace(
         targetStation
@@ -8598,6 +8602,7 @@ export function GameShell({
         localPosition.z - station.spawn[2],
       ) < 2.5
     ) {
+      setWorldViewMode('FOLLOW');
       setPlace(null);
       setNotice(`${station.name.toUpperCase()} · YOU ARE ALREADY HERE`);
       return;
@@ -8607,6 +8612,7 @@ export function GameShell({
 
   const openSelectedAtlasNode = () => {
     if (selectedIsCurrent) {
+      setWorldViewMode('FOLLOW');
       setPlace(null);
       setPendingDestination(null);
       setPendingAtlasId(null);

@@ -358,6 +358,22 @@ try {
     });
     assert.equal(result.result.value, true, `${label} view control must exist`);
   };
+  const readActiveView = async () => {
+    const result = await cdp.send('Runtime.evaluate', {
+      expression: `document.querySelector('.world-view-controls button[aria-pressed="true"]')?.textContent?.trim() ?? null`,
+      returnByValue: true,
+    });
+    return result.result.value;
+  };
+  const tapWorldKey = async (key, code) => {
+    await cdp.send('Runtime.evaluate', {
+      expression: `(() => {
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: ${JSON.stringify(key)}, code: ${JSON.stringify(code)}, bubbles: true }));
+        window.dispatchEvent(new KeyboardEvent('keyup', { key: ${JSON.stringify(key)}, code: ${JSON.stringify(code)}, bubbles: true }));
+      })()`,
+    });
+    await delay(180);
+  };
   const captureScreenshot = async (outputPath) => {
     const screenshot = await cdp.send('Page.captureScreenshot', {
       format: 'png',
@@ -405,10 +421,24 @@ try {
 
   const initialHud = coordinatesFromBody(await readBody());
   const initial = await readController();
+  assert.equal(
+    await readActiveView(),
+    'PLAYER',
+    'A fresh city load must default to the third-person player view',
+  );
   assertFollowCameraSafe(initial, 'Initial follow');
   await assertWebGlHealthy('Initial follow');
   assert.ok(Math.abs(initialHud.x - initial.x) <= 2);
   assert.ok(Math.abs(initialHud.z - initial.z) <= 2);
+
+  await clickViewButton('45° WORLD');
+  await tapWorldKey('m', 'KeyM');
+  await tapWorldKey('m', 'KeyM');
+  assert.equal(
+    await readActiveView(),
+    'PLAYER',
+    'Closing the city map must return control to the third-person player view',
+  );
 
   const contextLossProbe = await cdp.send('Runtime.evaluate', {
     expression: `(() => {
