@@ -1,0 +1,2057 @@
+{
+  "schemaVersion": 1,
+  "status": "DESIGN_STUDY",
+  "source": "world-core-geography.ts",
+  "spatialContract": {
+    "id": "GOLDEN-CITY-CORE",
+    "name": "AmpliWorld Golden City",
+    "coordinateSpace": "WORLD_METERS",
+    "axisConvention": {
+      "positiveX": "EAST",
+      "positiveZ": "NORTH",
+      "origin": "GOLDEN_CITY_CENTER"
+    },
+    "bounds": {
+      "coordinateSpace": "WORLD_METERS",
+      "minXMeters": -1000,
+      "maxXMeters": 1000,
+      "minZMeters": -1000,
+      "maxZMeters": 1000
+    },
+    "terrain": {
+      "profile": "RIVER_TERRACES_TO_EASTERN_RIDGE",
+      "continuousSurfaceRequired": true
+    },
+    "water": {
+      "primaryCorridor": "GRAND_RIVER",
+      "continuityRule": "CROSS_BOUNDARY_OR_END_IN_MODELLED_WATERFALL"
+    },
+    "skyline": {
+      "profile": "POLYCENTRIC_CORE_WITH_GRADED_EDGES",
+      "completeRoofsRequired": true
+    },
+    "renderMigration": {
+      "currentPrototype": "LEGACY_COMPRESSED_RENDER_UNITS",
+      "rule": "EXPLICIT_ADAPTER_REQUIRED"
+    }
+  },
+  "terrain": {
+    "units": "METERS",
+    "upAxis": "Y",
+    "northAxis": "+Z",
+    "verticalDatum": "LOCAL_MEAN_SEA_LEVEL",
+    "seaLevelYMeters": 0,
+    "sampleSpacingMeters": 20,
+    "baseElevationMeters": 8,
+    "eastRidgeRiseMeters": 100,
+    "ridgeStartXMeters": 350,
+    "ridgeEndXMeters": 1000,
+    "northRiseMeters": 22,
+    "riverBedDepthMeters": 5,
+    "channelBlendWidthMeters": 60,
+    "mesh": "golden-city-terrain.obj",
+    "vertices": 10201,
+    "triangles": 20000
+  },
+  "water": {
+    "mesh": "golden-city-water.obj",
+    "river": [
+      {
+        "id": "UPSTREAM",
+        "position": [
+          1000,
+          680
+        ],
+        "surfaceYMeters": 62,
+        "widthMeters": 50
+      },
+      {
+        "id": "FALLS-CREST",
+        "position": [
+          850,
+          640
+        ],
+        "surfaceYMeters": 60,
+        "widthMeters": 50
+      },
+      {
+        "id": "FALLS-TOE",
+        "position": [
+          850,
+          640
+        ],
+        "surfaceYMeters": 26,
+        "widthMeters": 50
+      },
+      {
+        "id": "UPPER-GARDENS",
+        "position": [
+          650,
+          580
+        ],
+        "surfaceYMeters": 24,
+        "widthMeters": 70
+      },
+      {
+        "id": "NORTHBANK",
+        "position": [
+          380,
+          430
+        ],
+        "surfaceYMeters": 19,
+        "widthMeters": 90
+      },
+      {
+        "id": "CIVIC-REACH",
+        "position": [
+          50,
+          300
+        ],
+        "surfaceYMeters": 13,
+        "widthMeters": 110
+      },
+      {
+        "id": "EXCHANGE-REACH",
+        "position": [
+          -160,
+          100
+        ],
+        "surfaceYMeters": 9,
+        "widthMeters": 110
+      },
+      {
+        "id": "RIVER-PARK",
+        "position": [
+          -320,
+          -180
+        ],
+        "surfaceYMeters": 5,
+        "widthMeters": 120
+      },
+      {
+        "id": "MARINA-REACH",
+        "position": [
+          -600,
+          -500
+        ],
+        "surfaceYMeters": 1,
+        "widthMeters": 140
+      },
+      {
+        "id": "OCEAN-MOUTH",
+        "position": [
+          -820,
+          -740
+        ],
+        "surfaceYMeters": 0,
+        "widthMeters": 180
+      }
+    ],
+    "oceanPolygon": [
+      [
+        -1000,
+        -1000
+      ],
+      [
+        -1000,
+        -460
+      ],
+      [
+        -780,
+        -560
+      ],
+      [
+        -620,
+        -760
+      ],
+      [
+        -520,
+        -1000
+      ],
+      [
+        -1000,
+        -1000
+      ]
+    ],
+    "waterfall": {
+      "id": "GC-WATERFALL-01",
+      "name": "Aurelian Falls",
+      "crestStationId": "FALLS-CREST",
+      "toeStationId": "FALLS-TOE",
+      "dropMeters": 34,
+      "status": "SCHEMATIC_MESH"
+    }
+  },
+  "precincts": [
+    {
+      "id": "EXCHANGE",
+      "name": "Exchange & cultural axis",
+      "color": "#d1b36a",
+      "maxHeightAGLMeters": 220,
+      "uses": [
+        "OFFICE",
+        "RETAIL",
+        "CULTURE",
+        "HOUSING"
+      ]
+    },
+    {
+      "id": "NORTHBANK",
+      "name": "Northbank homes",
+      "color": "#c7c6b9",
+      "maxHeightAGLMeters": 72,
+      "uses": [
+        "HOUSING",
+        "SCHOOL",
+        "LOCAL_RETAIL"
+      ]
+    },
+    {
+      "id": "CIVIC",
+      "name": "Civic & health quarter",
+      "color": "#b7c8c7",
+      "maxHeightAGLMeters": 48,
+      "uses": [
+        "HOSPITAL",
+        "POLICE",
+        "SCHOOL",
+        "HOUSING"
+      ]
+    },
+    {
+      "id": "GARDENS",
+      "name": "Garden neighbourhoods",
+      "color": "#b6c9ac",
+      "maxHeightAGLMeters": 36,
+      "uses": [
+        "HOUSING",
+        "GROCERY",
+        "PARK"
+      ]
+    },
+    {
+      "id": "RIDGE",
+      "name": "Mid-slope & summit estates",
+      "color": "#cfbfa7",
+      "maxHeightAGLMeters": 14,
+      "uses": [
+        "VILLA",
+        "PARK",
+        "LOCAL_RETAIL"
+      ]
+    },
+    {
+      "id": "MARINA",
+      "name": "Azure marina & hotels",
+      "color": "#b3cbd2",
+      "maxHeightAGLMeters": 36,
+      "uses": [
+        "HOTEL",
+        "MARINA",
+        "DINING",
+        "HOUSING"
+      ]
+    },
+    {
+      "id": "COAST",
+      "name": "Public coast & water",
+      "color": "#72a5b4",
+      "maxHeightAGLMeters": 0,
+      "uses": [
+        "WATER",
+        "PUBLIC_COAST"
+      ]
+    }
+  ],
+  "parcels": [
+    {
+      "id": "GC-X0-Z0",
+      "column": 0,
+      "row": 0,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -1000,
+        "maxXMeters": -750,
+        "minZMeters": -1000,
+        "maxZMeters": -750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -875,
+        "zMeters": -875
+      },
+      "neighbors": {
+        "north": "GC-X0-Z1",
+        "east": "GC-X1-Z0",
+        "south": null,
+        "west": null
+      },
+      "parcelId": "GC-X0-Z0",
+      "precinctId": "COAST",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X1-Z0",
+      "column": 1,
+      "row": 0,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -750,
+        "maxXMeters": -500,
+        "minZMeters": -1000,
+        "maxZMeters": -750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -625,
+        "zMeters": -875
+      },
+      "neighbors": {
+        "north": "GC-X1-Z1",
+        "east": "GC-X2-Z0",
+        "south": null,
+        "west": "GC-X0-Z0"
+      },
+      "parcelId": "GC-X1-Z0",
+      "precinctId": "COAST",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X2-Z0",
+      "column": 2,
+      "row": 0,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -500,
+        "maxXMeters": -250,
+        "minZMeters": -1000,
+        "maxZMeters": -750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -375,
+        "zMeters": -875
+      },
+      "neighbors": {
+        "north": "GC-X2-Z1",
+        "east": "GC-X3-Z0",
+        "south": null,
+        "west": "GC-X1-Z0"
+      },
+      "parcelId": "GC-X2-Z0",
+      "precinctId": "MARINA",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X3-Z0",
+      "column": 3,
+      "row": 0,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -250,
+        "maxXMeters": 0,
+        "minZMeters": -1000,
+        "maxZMeters": -750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -125,
+        "zMeters": -875
+      },
+      "neighbors": {
+        "north": "GC-X3-Z1",
+        "east": "GC-X4-Z0",
+        "south": null,
+        "west": "GC-X2-Z0"
+      },
+      "parcelId": "GC-X3-Z0",
+      "precinctId": "GARDENS",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X4-Z0",
+      "column": 4,
+      "row": 0,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 0,
+        "maxXMeters": 250,
+        "minZMeters": -1000,
+        "maxZMeters": -750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 125,
+        "zMeters": -875
+      },
+      "neighbors": {
+        "north": "GC-X4-Z1",
+        "east": "GC-X5-Z0",
+        "south": null,
+        "west": "GC-X3-Z0"
+      },
+      "parcelId": "GC-X4-Z0",
+      "precinctId": "GARDENS",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X5-Z0",
+      "column": 5,
+      "row": 0,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 250,
+        "maxXMeters": 500,
+        "minZMeters": -1000,
+        "maxZMeters": -750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 375,
+        "zMeters": -875
+      },
+      "neighbors": {
+        "north": "GC-X5-Z1",
+        "east": "GC-X6-Z0",
+        "south": null,
+        "west": "GC-X4-Z0"
+      },
+      "parcelId": "GC-X5-Z0",
+      "precinctId": "GARDENS",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X6-Z0",
+      "column": 6,
+      "row": 0,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 500,
+        "maxXMeters": 750,
+        "minZMeters": -1000,
+        "maxZMeters": -750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 625,
+        "zMeters": -875
+      },
+      "neighbors": {
+        "north": "GC-X6-Z1",
+        "east": "GC-X7-Z0",
+        "south": null,
+        "west": "GC-X5-Z0"
+      },
+      "parcelId": "GC-X6-Z0",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X7-Z0",
+      "column": 7,
+      "row": 0,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 750,
+        "maxXMeters": 1000,
+        "minZMeters": -1000,
+        "maxZMeters": -750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 875,
+        "zMeters": -875
+      },
+      "neighbors": {
+        "north": "GC-X7-Z1",
+        "east": null,
+        "south": null,
+        "west": "GC-X6-Z0"
+      },
+      "parcelId": "GC-X7-Z0",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X0-Z1",
+      "column": 0,
+      "row": 1,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -1000,
+        "maxXMeters": -750,
+        "minZMeters": -750,
+        "maxZMeters": -500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -875,
+        "zMeters": -625
+      },
+      "neighbors": {
+        "north": "GC-X0-Z2",
+        "east": "GC-X1-Z1",
+        "south": "GC-X0-Z0",
+        "west": null
+      },
+      "parcelId": "GC-X0-Z1",
+      "precinctId": "COAST",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X1-Z1",
+      "column": 1,
+      "row": 1,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -750,
+        "maxXMeters": -500,
+        "minZMeters": -750,
+        "maxZMeters": -500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -625,
+        "zMeters": -625
+      },
+      "neighbors": {
+        "north": "GC-X1-Z2",
+        "east": "GC-X2-Z1",
+        "south": "GC-X1-Z0",
+        "west": "GC-X0-Z1"
+      },
+      "parcelId": "GC-X1-Z1",
+      "precinctId": "MARINA",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X2-Z1",
+      "column": 2,
+      "row": 1,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -500,
+        "maxXMeters": -250,
+        "minZMeters": -750,
+        "maxZMeters": -500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -375,
+        "zMeters": -625
+      },
+      "neighbors": {
+        "north": "GC-X2-Z2",
+        "east": "GC-X3-Z1",
+        "south": "GC-X2-Z0",
+        "west": "GC-X1-Z1"
+      },
+      "parcelId": "GC-X2-Z1",
+      "precinctId": "MARINA",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X3-Z1",
+      "column": 3,
+      "row": 1,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -250,
+        "maxXMeters": 0,
+        "minZMeters": -750,
+        "maxZMeters": -500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -125,
+        "zMeters": -625
+      },
+      "neighbors": {
+        "north": "GC-X3-Z2",
+        "east": "GC-X4-Z1",
+        "south": "GC-X3-Z0",
+        "west": "GC-X2-Z1"
+      },
+      "parcelId": "GC-X3-Z1",
+      "precinctId": "EXCHANGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X4-Z1",
+      "column": 4,
+      "row": 1,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 0,
+        "maxXMeters": 250,
+        "minZMeters": -750,
+        "maxZMeters": -500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 125,
+        "zMeters": -625
+      },
+      "neighbors": {
+        "north": "GC-X4-Z2",
+        "east": "GC-X5-Z1",
+        "south": "GC-X4-Z0",
+        "west": "GC-X3-Z1"
+      },
+      "parcelId": "GC-X4-Z1",
+      "precinctId": "EXCHANGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X5-Z1",
+      "column": 5,
+      "row": 1,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 250,
+        "maxXMeters": 500,
+        "minZMeters": -750,
+        "maxZMeters": -500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 375,
+        "zMeters": -625
+      },
+      "neighbors": {
+        "north": "GC-X5-Z2",
+        "east": "GC-X6-Z1",
+        "south": "GC-X5-Z0",
+        "west": "GC-X4-Z1"
+      },
+      "parcelId": "GC-X5-Z1",
+      "precinctId": "EXCHANGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X6-Z1",
+      "column": 6,
+      "row": 1,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 500,
+        "maxXMeters": 750,
+        "minZMeters": -750,
+        "maxZMeters": -500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 625,
+        "zMeters": -625
+      },
+      "neighbors": {
+        "north": "GC-X6-Z2",
+        "east": "GC-X7-Z1",
+        "south": "GC-X6-Z0",
+        "west": "GC-X5-Z1"
+      },
+      "parcelId": "GC-X6-Z1",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X7-Z1",
+      "column": 7,
+      "row": 1,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 750,
+        "maxXMeters": 1000,
+        "minZMeters": -750,
+        "maxZMeters": -500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 875,
+        "zMeters": -625
+      },
+      "neighbors": {
+        "north": "GC-X7-Z2",
+        "east": null,
+        "south": "GC-X7-Z0",
+        "west": "GC-X6-Z1"
+      },
+      "parcelId": "GC-X7-Z1",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X0-Z2",
+      "column": 0,
+      "row": 2,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -1000,
+        "maxXMeters": -750,
+        "minZMeters": -500,
+        "maxZMeters": -250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -875,
+        "zMeters": -375
+      },
+      "neighbors": {
+        "north": "GC-X0-Z3",
+        "east": "GC-X1-Z2",
+        "south": "GC-X0-Z1",
+        "west": null
+      },
+      "parcelId": "GC-X0-Z2",
+      "precinctId": "MARINA",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X1-Z2",
+      "column": 1,
+      "row": 2,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -750,
+        "maxXMeters": -500,
+        "minZMeters": -500,
+        "maxZMeters": -250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -625,
+        "zMeters": -375
+      },
+      "neighbors": {
+        "north": "GC-X1-Z3",
+        "east": "GC-X2-Z2",
+        "south": "GC-X1-Z1",
+        "west": "GC-X0-Z2"
+      },
+      "parcelId": "GC-X1-Z2",
+      "precinctId": "MARINA",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X2-Z2",
+      "column": 2,
+      "row": 2,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -500,
+        "maxXMeters": -250,
+        "minZMeters": -500,
+        "maxZMeters": -250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -375,
+        "zMeters": -375
+      },
+      "neighbors": {
+        "north": "GC-X2-Z3",
+        "east": "GC-X3-Z2",
+        "south": "GC-X2-Z1",
+        "west": "GC-X1-Z2"
+      },
+      "parcelId": "GC-X2-Z2",
+      "precinctId": "MARINA",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X3-Z2",
+      "column": 3,
+      "row": 2,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -250,
+        "maxXMeters": 0,
+        "minZMeters": -500,
+        "maxZMeters": -250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -125,
+        "zMeters": -375
+      },
+      "neighbors": {
+        "north": "GC-X3-Z3",
+        "east": "GC-X4-Z2",
+        "south": "GC-X3-Z1",
+        "west": "GC-X2-Z2"
+      },
+      "parcelId": "GC-X3-Z2",
+      "precinctId": "EXCHANGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X4-Z2",
+      "column": 4,
+      "row": 2,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 0,
+        "maxXMeters": 250,
+        "minZMeters": -500,
+        "maxZMeters": -250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 125,
+        "zMeters": -375
+      },
+      "neighbors": {
+        "north": "GC-X4-Z3",
+        "east": "GC-X5-Z2",
+        "south": "GC-X4-Z1",
+        "west": "GC-X3-Z2"
+      },
+      "parcelId": "GC-X4-Z2",
+      "precinctId": "EXCHANGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X5-Z2",
+      "column": 5,
+      "row": 2,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 250,
+        "maxXMeters": 500,
+        "minZMeters": -500,
+        "maxZMeters": -250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 375,
+        "zMeters": -375
+      },
+      "neighbors": {
+        "north": "GC-X5-Z3",
+        "east": "GC-X6-Z2",
+        "south": "GC-X5-Z1",
+        "west": "GC-X4-Z2"
+      },
+      "parcelId": "GC-X5-Z2",
+      "precinctId": "EXCHANGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X6-Z2",
+      "column": 6,
+      "row": 2,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 500,
+        "maxXMeters": 750,
+        "minZMeters": -500,
+        "maxZMeters": -250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 625,
+        "zMeters": -375
+      },
+      "neighbors": {
+        "north": "GC-X6-Z3",
+        "east": "GC-X7-Z2",
+        "south": "GC-X6-Z1",
+        "west": "GC-X5-Z2"
+      },
+      "parcelId": "GC-X6-Z2",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X7-Z2",
+      "column": 7,
+      "row": 2,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 750,
+        "maxXMeters": 1000,
+        "minZMeters": -500,
+        "maxZMeters": -250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 875,
+        "zMeters": -375
+      },
+      "neighbors": {
+        "north": "GC-X7-Z3",
+        "east": null,
+        "south": "GC-X7-Z1",
+        "west": "GC-X6-Z2"
+      },
+      "parcelId": "GC-X7-Z2",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X0-Z3",
+      "column": 0,
+      "row": 3,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -1000,
+        "maxXMeters": -750,
+        "minZMeters": -250,
+        "maxZMeters": 0
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -875,
+        "zMeters": -125
+      },
+      "neighbors": {
+        "north": "GC-X0-Z4",
+        "east": "GC-X1-Z3",
+        "south": "GC-X0-Z2",
+        "west": null
+      },
+      "parcelId": "GC-X0-Z3",
+      "precinctId": "GARDENS",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X1-Z3",
+      "column": 1,
+      "row": 3,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -750,
+        "maxXMeters": -500,
+        "minZMeters": -250,
+        "maxZMeters": 0
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -625,
+        "zMeters": -125
+      },
+      "neighbors": {
+        "north": "GC-X1-Z4",
+        "east": "GC-X2-Z3",
+        "south": "GC-X1-Z2",
+        "west": "GC-X0-Z3"
+      },
+      "parcelId": "GC-X1-Z3",
+      "precinctId": "GARDENS",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X2-Z3",
+      "column": 2,
+      "row": 3,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -500,
+        "maxXMeters": -250,
+        "minZMeters": -250,
+        "maxZMeters": 0
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -375,
+        "zMeters": -125
+      },
+      "neighbors": {
+        "north": "GC-X2-Z4",
+        "east": "GC-X3-Z3",
+        "south": "GC-X2-Z2",
+        "west": "GC-X1-Z3"
+      },
+      "parcelId": "GC-X2-Z3",
+      "precinctId": "GARDENS",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X3-Z3",
+      "column": 3,
+      "row": 3,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -250,
+        "maxXMeters": 0,
+        "minZMeters": -250,
+        "maxZMeters": 0
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -125,
+        "zMeters": -125
+      },
+      "neighbors": {
+        "north": "GC-X3-Z4",
+        "east": "GC-X4-Z3",
+        "south": "GC-X3-Z2",
+        "west": "GC-X2-Z3"
+      },
+      "parcelId": "GC-X3-Z3",
+      "precinctId": "EXCHANGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X4-Z3",
+      "column": 4,
+      "row": 3,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 0,
+        "maxXMeters": 250,
+        "minZMeters": -250,
+        "maxZMeters": 0
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 125,
+        "zMeters": -125
+      },
+      "neighbors": {
+        "north": "GC-X4-Z4",
+        "east": "GC-X5-Z3",
+        "south": "GC-X4-Z2",
+        "west": "GC-X3-Z3"
+      },
+      "parcelId": "GC-X4-Z3",
+      "precinctId": "EXCHANGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X5-Z3",
+      "column": 5,
+      "row": 3,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 250,
+        "maxXMeters": 500,
+        "minZMeters": -250,
+        "maxZMeters": 0
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 375,
+        "zMeters": -125
+      },
+      "neighbors": {
+        "north": "GC-X5-Z4",
+        "east": "GC-X6-Z3",
+        "south": "GC-X5-Z2",
+        "west": "GC-X4-Z3"
+      },
+      "parcelId": "GC-X5-Z3",
+      "precinctId": "EXCHANGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X6-Z3",
+      "column": 6,
+      "row": 3,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 500,
+        "maxXMeters": 750,
+        "minZMeters": -250,
+        "maxZMeters": 0
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 625,
+        "zMeters": -125
+      },
+      "neighbors": {
+        "north": "GC-X6-Z4",
+        "east": "GC-X7-Z3",
+        "south": "GC-X6-Z2",
+        "west": "GC-X5-Z3"
+      },
+      "parcelId": "GC-X6-Z3",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X7-Z3",
+      "column": 7,
+      "row": 3,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 750,
+        "maxXMeters": 1000,
+        "minZMeters": -250,
+        "maxZMeters": 0
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 875,
+        "zMeters": -125
+      },
+      "neighbors": {
+        "north": "GC-X7-Z4",
+        "east": null,
+        "south": "GC-X7-Z2",
+        "west": "GC-X6-Z3"
+      },
+      "parcelId": "GC-X7-Z3",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X0-Z4",
+      "column": 0,
+      "row": 4,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -1000,
+        "maxXMeters": -750,
+        "minZMeters": 0,
+        "maxZMeters": 250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -875,
+        "zMeters": 125
+      },
+      "neighbors": {
+        "north": "GC-X0-Z5",
+        "east": "GC-X1-Z4",
+        "south": "GC-X0-Z3",
+        "west": null
+      },
+      "parcelId": "GC-X0-Z4",
+      "precinctId": "CIVIC",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X1-Z4",
+      "column": 1,
+      "row": 4,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -750,
+        "maxXMeters": -500,
+        "minZMeters": 0,
+        "maxZMeters": 250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -625,
+        "zMeters": 125
+      },
+      "neighbors": {
+        "north": "GC-X1-Z5",
+        "east": "GC-X2-Z4",
+        "south": "GC-X1-Z3",
+        "west": "GC-X0-Z4"
+      },
+      "parcelId": "GC-X1-Z4",
+      "precinctId": "CIVIC",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X2-Z4",
+      "column": 2,
+      "row": 4,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -500,
+        "maxXMeters": -250,
+        "minZMeters": 0,
+        "maxZMeters": 250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -375,
+        "zMeters": 125
+      },
+      "neighbors": {
+        "north": "GC-X2-Z5",
+        "east": "GC-X3-Z4",
+        "south": "GC-X2-Z3",
+        "west": "GC-X1-Z4"
+      },
+      "parcelId": "GC-X2-Z4",
+      "precinctId": "CIVIC",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X3-Z4",
+      "column": 3,
+      "row": 4,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -250,
+        "maxXMeters": 0,
+        "minZMeters": 0,
+        "maxZMeters": 250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -125,
+        "zMeters": 125
+      },
+      "neighbors": {
+        "north": "GC-X3-Z5",
+        "east": "GC-X4-Z4",
+        "south": "GC-X3-Z3",
+        "west": "GC-X2-Z4"
+      },
+      "parcelId": "GC-X3-Z4",
+      "precinctId": "EXCHANGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X4-Z4",
+      "column": 4,
+      "row": 4,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 0,
+        "maxXMeters": 250,
+        "minZMeters": 0,
+        "maxZMeters": 250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 125,
+        "zMeters": 125
+      },
+      "neighbors": {
+        "north": "GC-X4-Z5",
+        "east": "GC-X5-Z4",
+        "south": "GC-X4-Z3",
+        "west": "GC-X3-Z4"
+      },
+      "parcelId": "GC-X4-Z4",
+      "precinctId": "EXCHANGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X5-Z4",
+      "column": 5,
+      "row": 4,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 250,
+        "maxXMeters": 500,
+        "minZMeters": 0,
+        "maxZMeters": 250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 375,
+        "zMeters": 125
+      },
+      "neighbors": {
+        "north": "GC-X5-Z5",
+        "east": "GC-X6-Z4",
+        "south": "GC-X5-Z3",
+        "west": "GC-X4-Z4"
+      },
+      "parcelId": "GC-X5-Z4",
+      "precinctId": "EXCHANGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X6-Z4",
+      "column": 6,
+      "row": 4,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 500,
+        "maxXMeters": 750,
+        "minZMeters": 0,
+        "maxZMeters": 250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 625,
+        "zMeters": 125
+      },
+      "neighbors": {
+        "north": "GC-X6-Z5",
+        "east": "GC-X7-Z4",
+        "south": "GC-X6-Z3",
+        "west": "GC-X5-Z4"
+      },
+      "parcelId": "GC-X6-Z4",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X7-Z4",
+      "column": 7,
+      "row": 4,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 750,
+        "maxXMeters": 1000,
+        "minZMeters": 0,
+        "maxZMeters": 250
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 875,
+        "zMeters": 125
+      },
+      "neighbors": {
+        "north": "GC-X7-Z5",
+        "east": null,
+        "south": "GC-X7-Z3",
+        "west": "GC-X6-Z4"
+      },
+      "parcelId": "GC-X7-Z4",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X0-Z5",
+      "column": 0,
+      "row": 5,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -1000,
+        "maxXMeters": -750,
+        "minZMeters": 250,
+        "maxZMeters": 500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -875,
+        "zMeters": 375
+      },
+      "neighbors": {
+        "north": "GC-X0-Z6",
+        "east": "GC-X1-Z5",
+        "south": "GC-X0-Z4",
+        "west": null
+      },
+      "parcelId": "GC-X0-Z5",
+      "precinctId": "CIVIC",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X1-Z5",
+      "column": 1,
+      "row": 5,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -750,
+        "maxXMeters": -500,
+        "minZMeters": 250,
+        "maxZMeters": 500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -625,
+        "zMeters": 375
+      },
+      "neighbors": {
+        "north": "GC-X1-Z6",
+        "east": "GC-X2-Z5",
+        "south": "GC-X1-Z4",
+        "west": "GC-X0-Z5"
+      },
+      "parcelId": "GC-X1-Z5",
+      "precinctId": "CIVIC",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X2-Z5",
+      "column": 2,
+      "row": 5,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -500,
+        "maxXMeters": -250,
+        "minZMeters": 250,
+        "maxZMeters": 500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -375,
+        "zMeters": 375
+      },
+      "neighbors": {
+        "north": "GC-X2-Z6",
+        "east": "GC-X3-Z5",
+        "south": "GC-X2-Z4",
+        "west": "GC-X1-Z5"
+      },
+      "parcelId": "GC-X2-Z5",
+      "precinctId": "CIVIC",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X3-Z5",
+      "column": 3,
+      "row": 5,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -250,
+        "maxXMeters": 0,
+        "minZMeters": 250,
+        "maxZMeters": 500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -125,
+        "zMeters": 375
+      },
+      "neighbors": {
+        "north": "GC-X3-Z6",
+        "east": "GC-X4-Z5",
+        "south": "GC-X3-Z4",
+        "west": "GC-X2-Z5"
+      },
+      "parcelId": "GC-X3-Z5",
+      "precinctId": "GARDENS",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X4-Z5",
+      "column": 4,
+      "row": 5,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 0,
+        "maxXMeters": 250,
+        "minZMeters": 250,
+        "maxZMeters": 500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 125,
+        "zMeters": 375
+      },
+      "neighbors": {
+        "north": "GC-X4-Z6",
+        "east": "GC-X5-Z5",
+        "south": "GC-X4-Z4",
+        "west": "GC-X3-Z5"
+      },
+      "parcelId": "GC-X4-Z5",
+      "precinctId": "GARDENS",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X5-Z5",
+      "column": 5,
+      "row": 5,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 250,
+        "maxXMeters": 500,
+        "minZMeters": 250,
+        "maxZMeters": 500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 375,
+        "zMeters": 375
+      },
+      "neighbors": {
+        "north": "GC-X5-Z6",
+        "east": "GC-X6-Z5",
+        "south": "GC-X5-Z4",
+        "west": "GC-X4-Z5"
+      },
+      "parcelId": "GC-X5-Z5",
+      "precinctId": "GARDENS",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X6-Z5",
+      "column": 6,
+      "row": 5,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 500,
+        "maxXMeters": 750,
+        "minZMeters": 250,
+        "maxZMeters": 500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 625,
+        "zMeters": 375
+      },
+      "neighbors": {
+        "north": "GC-X6-Z6",
+        "east": "GC-X7-Z5",
+        "south": "GC-X6-Z4",
+        "west": "GC-X5-Z5"
+      },
+      "parcelId": "GC-X6-Z5",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X7-Z5",
+      "column": 7,
+      "row": 5,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 750,
+        "maxXMeters": 1000,
+        "minZMeters": 250,
+        "maxZMeters": 500
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 875,
+        "zMeters": 375
+      },
+      "neighbors": {
+        "north": "GC-X7-Z6",
+        "east": null,
+        "south": "GC-X7-Z4",
+        "west": "GC-X6-Z5"
+      },
+      "parcelId": "GC-X7-Z5",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X0-Z6",
+      "column": 0,
+      "row": 6,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -1000,
+        "maxXMeters": -750,
+        "minZMeters": 500,
+        "maxZMeters": 750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -875,
+        "zMeters": 625
+      },
+      "neighbors": {
+        "north": "GC-X0-Z7",
+        "east": "GC-X1-Z6",
+        "south": "GC-X0-Z5",
+        "west": null
+      },
+      "parcelId": "GC-X0-Z6",
+      "precinctId": "NORTHBANK",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X1-Z6",
+      "column": 1,
+      "row": 6,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -750,
+        "maxXMeters": -500,
+        "minZMeters": 500,
+        "maxZMeters": 750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -625,
+        "zMeters": 625
+      },
+      "neighbors": {
+        "north": "GC-X1-Z7",
+        "east": "GC-X2-Z6",
+        "south": "GC-X1-Z5",
+        "west": "GC-X0-Z6"
+      },
+      "parcelId": "GC-X1-Z6",
+      "precinctId": "NORTHBANK",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X2-Z6",
+      "column": 2,
+      "row": 6,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -500,
+        "maxXMeters": -250,
+        "minZMeters": 500,
+        "maxZMeters": 750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -375,
+        "zMeters": 625
+      },
+      "neighbors": {
+        "north": "GC-X2-Z7",
+        "east": "GC-X3-Z6",
+        "south": "GC-X2-Z5",
+        "west": "GC-X1-Z6"
+      },
+      "parcelId": "GC-X2-Z6",
+      "precinctId": "NORTHBANK",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X3-Z6",
+      "column": 3,
+      "row": 6,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -250,
+        "maxXMeters": 0,
+        "minZMeters": 500,
+        "maxZMeters": 750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -125,
+        "zMeters": 625
+      },
+      "neighbors": {
+        "north": "GC-X3-Z7",
+        "east": "GC-X4-Z6",
+        "south": "GC-X3-Z5",
+        "west": "GC-X2-Z6"
+      },
+      "parcelId": "GC-X3-Z6",
+      "precinctId": "NORTHBANK",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X4-Z6",
+      "column": 4,
+      "row": 6,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 0,
+        "maxXMeters": 250,
+        "minZMeters": 500,
+        "maxZMeters": 750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 125,
+        "zMeters": 625
+      },
+      "neighbors": {
+        "north": "GC-X4-Z7",
+        "east": "GC-X5-Z6",
+        "south": "GC-X4-Z5",
+        "west": "GC-X3-Z6"
+      },
+      "parcelId": "GC-X4-Z6",
+      "precinctId": "NORTHBANK",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X5-Z6",
+      "column": 5,
+      "row": 6,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 250,
+        "maxXMeters": 500,
+        "minZMeters": 500,
+        "maxZMeters": 750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 375,
+        "zMeters": 625
+      },
+      "neighbors": {
+        "north": "GC-X5-Z7",
+        "east": "GC-X6-Z6",
+        "south": "GC-X5-Z5",
+        "west": "GC-X4-Z6"
+      },
+      "parcelId": "GC-X5-Z6",
+      "precinctId": "NORTHBANK",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X6-Z6",
+      "column": 6,
+      "row": 6,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 500,
+        "maxXMeters": 750,
+        "minZMeters": 500,
+        "maxZMeters": 750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 625,
+        "zMeters": 625
+      },
+      "neighbors": {
+        "north": "GC-X6-Z7",
+        "east": "GC-X7-Z6",
+        "south": "GC-X6-Z5",
+        "west": "GC-X5-Z6"
+      },
+      "parcelId": "GC-X6-Z6",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X7-Z6",
+      "column": 7,
+      "row": 6,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 750,
+        "maxXMeters": 1000,
+        "minZMeters": 500,
+        "maxZMeters": 750
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 875,
+        "zMeters": 625
+      },
+      "neighbors": {
+        "north": "GC-X7-Z7",
+        "east": null,
+        "south": "GC-X7-Z5",
+        "west": "GC-X6-Z6"
+      },
+      "parcelId": "GC-X7-Z6",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X0-Z7",
+      "column": 0,
+      "row": 7,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -1000,
+        "maxXMeters": -750,
+        "minZMeters": 750,
+        "maxZMeters": 1000
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -875,
+        "zMeters": 875
+      },
+      "neighbors": {
+        "north": null,
+        "east": "GC-X1-Z7",
+        "south": "GC-X0-Z6",
+        "west": null
+      },
+      "parcelId": "GC-X0-Z7",
+      "precinctId": "NORTHBANK",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X1-Z7",
+      "column": 1,
+      "row": 7,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -750,
+        "maxXMeters": -500,
+        "minZMeters": 750,
+        "maxZMeters": 1000
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -625,
+        "zMeters": 875
+      },
+      "neighbors": {
+        "north": null,
+        "east": "GC-X2-Z7",
+        "south": "GC-X1-Z6",
+        "west": "GC-X0-Z7"
+      },
+      "parcelId": "GC-X1-Z7",
+      "precinctId": "NORTHBANK",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X2-Z7",
+      "column": 2,
+      "row": 7,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -500,
+        "maxXMeters": -250,
+        "minZMeters": 750,
+        "maxZMeters": 1000
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -375,
+        "zMeters": 875
+      },
+      "neighbors": {
+        "north": null,
+        "east": "GC-X3-Z7",
+        "south": "GC-X2-Z6",
+        "west": "GC-X1-Z7"
+      },
+      "parcelId": "GC-X2-Z7",
+      "precinctId": "NORTHBANK",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X3-Z7",
+      "column": 3,
+      "row": 7,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": -250,
+        "maxXMeters": 0,
+        "minZMeters": 750,
+        "maxZMeters": 1000
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": -125,
+        "zMeters": 875
+      },
+      "neighbors": {
+        "north": null,
+        "east": "GC-X4-Z7",
+        "south": "GC-X3-Z6",
+        "west": "GC-X2-Z7"
+      },
+      "parcelId": "GC-X3-Z7",
+      "precinctId": "NORTHBANK",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X4-Z7",
+      "column": 4,
+      "row": 7,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 0,
+        "maxXMeters": 250,
+        "minZMeters": 750,
+        "maxZMeters": 1000
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 125,
+        "zMeters": 875
+      },
+      "neighbors": {
+        "north": null,
+        "east": "GC-X5-Z7",
+        "south": "GC-X4-Z6",
+        "west": "GC-X3-Z7"
+      },
+      "parcelId": "GC-X4-Z7",
+      "precinctId": "NORTHBANK",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X5-Z7",
+      "column": 5,
+      "row": 7,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 250,
+        "maxXMeters": 500,
+        "minZMeters": 750,
+        "maxZMeters": 1000
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 375,
+        "zMeters": 875
+      },
+      "neighbors": {
+        "north": null,
+        "east": "GC-X6-Z7",
+        "south": "GC-X5-Z6",
+        "west": "GC-X4-Z7"
+      },
+      "parcelId": "GC-X5-Z7",
+      "precinctId": "NORTHBANK",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X6-Z7",
+      "column": 6,
+      "row": 7,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 500,
+        "maxXMeters": 750,
+        "minZMeters": 750,
+        "maxZMeters": 1000
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 625,
+        "zMeters": 875
+      },
+      "neighbors": {
+        "north": null,
+        "east": "GC-X7-Z7",
+        "south": "GC-X6-Z6",
+        "west": "GC-X5-Z7"
+      },
+      "parcelId": "GC-X6-Z7",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    },
+    {
+      "id": "GC-X7-Z7",
+      "column": 7,
+      "row": 7,
+      "bounds": {
+        "coordinateSpace": "WORLD_METERS",
+        "minXMeters": 750,
+        "maxXMeters": 1000,
+        "minZMeters": 750,
+        "maxZMeters": 1000
+      },
+      "center": {
+        "coordinateSpace": "WORLD_METERS",
+        "xMeters": 875,
+        "zMeters": 875
+      },
+      "neighbors": {
+        "north": null,
+        "east": null,
+        "south": "GC-X7-Z6",
+        "west": "GC-X6-Z7"
+      },
+      "parcelId": "GC-X7-Z7",
+      "precinctId": "RIDGE",
+      "status": "PLANNED",
+      "developmentRule": "EXCLUDE_WATER_CHANNEL_AND_PUBLIC_BANKS"
+    }
+  ],
+  "bridgeReservations": [
+    {
+      "id": "GC-BRIDGE-01",
+      "riverStationId": "NORTHBANK",
+      "from": [
+        339.8258807935432,
+        516.0873982995502
+      ],
+      "to": [
+        420.1741192064568,
+        343.9126017004498
+      ],
+      "spanMeters": 190,
+      "deckWidthMeters": 28,
+      "soffitClearanceMeters": 9,
+      "deckThicknessMeters": 2,
+      "deckYMeters": 30,
+      "status": "RESERVATION_ONLY"
+    },
+    {
+      "id": "GC-BRIDGE-02",
+      "riverStationId": "EXCHANGE-REACH",
+      "from": [
+        -243.16107070567804,
+        164.10332533562683
+      ],
+      "to": [
+        -76.83892929432196,
+        35.896674664373165
+      ],
+      "spanMeters": 210,
+      "deckWidthMeters": 28,
+      "soffitClearanceMeters": 9,
+      "deckThicknessMeters": 2,
+      "deckYMeters": 20,
+      "status": "RESERVATION_ONLY"
+    },
+    {
+      "id": "GC-BRIDGE-03",
+      "riverStationId": "MARINA-REACH",
+      "from": [
+        -689.5125193951097,
+        -420.0781076829377
+      ],
+      "to": [
+        -510.48748060489027,
+        -579.9218923170623
+      ],
+      "spanMeters": 240,
+      "deckWidthMeters": 28,
+      "soffitClearanceMeters": 9,
+      "deckThicknessMeters": 2,
+      "deckYMeters": 12,
+      "status": "RESERVATION_ONLY"
+    }
+  ],
+  "limitations": [
+    "Schematic channel and coastline need detailed grading.",
+    "Bridge ramps, road network, collision and navmesh are not yet built.",
+    "Height caps are above ground; parcels are planning allocations, not built property."
+  ]
+}

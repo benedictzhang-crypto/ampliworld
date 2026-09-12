@@ -160,3 +160,4 @@
 | AW-00001 | 2026-09-11 20:45 EDT | 2026-09-11 20:51 EDT | `game-shell.tsx`、`check-headless-gameplay.mjs` | TypeScript、目标 lint、无界面 WebGL 回归 | 完成：加载、关闭地图、到站和渲染恢复均回到 PLAYER | 同本次提交 |
 | AW-00031 | 2026-09-12 16:03 EDT | 2026-09-12 16:08 EDT | `world-core-plan.ts`、`check-world-plan.mjs` | `npm run check:world-plan` | 待验证：已建立中心原点、`[-1000,1000)` 米制边界和坐标隔离；尚未完成地形、水系与天际线实体总图 | 同本次提交 |
 | AW-00032 | 2026-09-12 16:08 EDT | 2026-09-12 16:13 EDT | `world-core-plan.ts`、`check-world-plan.mjs` | 64 格面积、接缝、查询、邻接与旧尺度保护断言 | 完成：8 × 8 个 250 米规划地块，稳定 ID 与 112 条双向邻接边全部通过 | 同本次提交 |
+| AW-00031 续 | 2026-09-12 19:39:51 EDT | 本轮保存时结束 | `world-core-geography.ts`、地形导出脚本及 `public/planning/` | 地理导出断言、world-plan、生产构建、总图目视检查 | 已完成规划级河谷/海湾/山脊、34 米瀑布水幕、三桥预留、64 地块功能分区与 OBJ；道路、精细地形、建筑及游戏接入仍待做 | 同本次提交 |
