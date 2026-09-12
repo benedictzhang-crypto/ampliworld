@@ -1,5 +1,16 @@
 import assert from 'node:assert/strict';
 import {
+  GOLDEN_CITY_BOUNDS,
+  GOLDEN_CITY_GRID_DIMENSION,
+  GOLDEN_CITY_PARCEL_COUNT,
+  GOLDEN_CITY_PARCEL_SIZE_METERS,
+  GOLDEN_CITY_PARCELS,
+  GOLDEN_CITY_SIZE_METERS,
+  getGoldenCityParcelAtWorldMeters,
+  getGoldenCityParcelById,
+  worldMetersPoint,
+} from '../app/world-core-plan.ts';
+import {
   CONTINUOUS_OCEAN_BAY,
   CONTINUOUS_OCEAN_RECTANGLE,
   CONTINUOUS_WORLD_BOUNDS,
@@ -66,6 +77,7 @@ import {
   isPointInReservedWorldSite,
 } from '../app/world-spatial-registry.ts';
 import {
+  METERS_PER_WORLD_UNIT,
   METRO_HUBS,
   METRO_STATION_REGISTRY,
   ROAD_CONNECTORS,
@@ -1443,6 +1455,177 @@ assert.ok(
   'Pit exit must rejoin a registered main-circuit vertex',
 );
 
+// Golden City is a planning-space contract in real metres. Keep these checks
+// beside the legacy assertions so no future edit can silently reinterpret or
+// stretch the existing compressed R3F world.
+assert.equal(
+  GOLDEN_CITY_BOUNDS.maxXMeters - GOLDEN_CITY_BOUNDS.minXMeters,
+  GOLDEN_CITY_SIZE_METERS,
+  'Golden City must be exactly 2 km wide',
+);
+assert.equal(
+  GOLDEN_CITY_BOUNDS.maxZMeters - GOLDEN_CITY_BOUNDS.minZMeters,
+  GOLDEN_CITY_SIZE_METERS,
+  'Golden City must be exactly 2 km deep',
+);
+assert.equal(
+  GOLDEN_CITY_SIZE_METERS * GOLDEN_CITY_SIZE_METERS,
+  4_000_000,
+  'Golden City must cover four square kilometres',
+);
+assert.equal(GOLDEN_CITY_GRID_DIMENSION, 8);
+assert.equal(GOLDEN_CITY_PARCEL_COUNT, 64);
+assert.equal(GOLDEN_CITY_PARCELS.length, GOLDEN_CITY_PARCEL_COUNT);
+assertUniqueIds('Golden City parcel', GOLDEN_CITY_PARCELS);
+
+const oppositeDirection = {
+  north: 'south',
+  east: 'west',
+  south: 'north',
+  west: 'east',
+};
+let directedGoldenCityNeighborCount = 0;
+let goldenCityParcelArea = 0;
+for (const parcel of GOLDEN_CITY_PARCELS) {
+  assert.equal(parcel.id, `GC-X${parcel.column}-Z${parcel.row}`);
+  assert.equal(
+    parcel.bounds.maxXMeters - parcel.bounds.minXMeters,
+    GOLDEN_CITY_PARCEL_SIZE_METERS,
+    `${parcel.id} must be 250 m wide`,
+  );
+  assert.equal(
+    parcel.bounds.maxZMeters - parcel.bounds.minZMeters,
+    GOLDEN_CITY_PARCEL_SIZE_METERS,
+    `${parcel.id} must be 250 m deep`,
+  );
+  goldenCityParcelArea +=
+    (parcel.bounds.maxXMeters - parcel.bounds.minXMeters) *
+    (parcel.bounds.maxZMeters - parcel.bounds.minZMeters);
+  assert.equal(
+    getGoldenCityParcelAtWorldMeters(parcel.center)?.id,
+    parcel.id,
+    `${parcel.id} center must resolve to itself`,
+  );
+
+  const neighbors = Object.entries(parcel.neighbors).filter(
+    ([, neighborId]) => neighborId !== null,
+  );
+  const isCorner =
+    (parcel.column === 0 || parcel.column === 7) &&
+    (parcel.row === 0 || parcel.row === 7);
+  const isEdge =
+    parcel.column === 0 ||
+    parcel.column === 7 ||
+    parcel.row === 0 ||
+    parcel.row === 7;
+  assert.equal(
+    neighbors.length,
+    isCorner ? 2 : isEdge ? 3 : 4,
+    `${parcel.id} must have the correct orthogonal neighbor count`,
+  );
+
+  for (const [direction, neighborId] of neighbors) {
+    directedGoldenCityNeighborCount += 1;
+    const neighbor = getGoldenCityParcelById(neighborId);
+    assert.ok(neighbor, `${parcel.id} neighbor ${neighborId} must exist`);
+    assert.equal(
+      neighbor.neighbors[oppositeDirection[direction]],
+      parcel.id,
+      `${parcel.id} and ${neighborId} must reference each other`,
+    );
+    if (direction === 'north')
+      assert.equal(parcel.bounds.maxZMeters, neighbor.bounds.minZMeters);
+    if (direction === 'east')
+      assert.equal(parcel.bounds.maxXMeters, neighbor.bounds.minXMeters);
+    if (direction === 'south')
+      assert.equal(parcel.bounds.minZMeters, neighbor.bounds.maxZMeters);
+    if (direction === 'west')
+      assert.equal(parcel.bounds.minXMeters, neighbor.bounds.maxXMeters);
+  }
+}
+assert.equal(goldenCityParcelArea, 4_000_000);
+assert.equal(directedGoldenCityNeighborCount, 224);
+assert.equal(directedGoldenCityNeighborCount / 2, 112);
+
+assert.equal(
+  getGoldenCityParcelAtWorldMeters(worldMetersPoint(-1_000, -1_000))?.id,
+  'GC-X0-Z0',
+);
+assert.equal(
+  getGoldenCityParcelAtWorldMeters(worldMetersPoint(0, 0))?.id,
+  'GC-X4-Z4',
+);
+assert.equal(
+  getGoldenCityParcelAtWorldMeters(worldMetersPoint(999.999, 999.999))?.id,
+  'GC-X7-Z7',
+);
+
+for (
+  let seamIndex = 1;
+  seamIndex < GOLDEN_CITY_GRID_DIMENSION;
+  seamIndex += 1
+) {
+  const seam =
+    GOLDEN_CITY_BOUNDS.minXMeters + seamIndex * GOLDEN_CITY_PARCEL_SIZE_METERS;
+  const epsilon = 0.001;
+  assert.equal(
+    getGoldenCityParcelAtWorldMeters(worldMetersPoint(seam - epsilon, -875))
+      ?.column,
+    seamIndex - 1,
+  );
+  assert.equal(
+    getGoldenCityParcelAtWorldMeters(worldMetersPoint(seam, -875))?.column,
+    seamIndex,
+  );
+  assert.equal(
+    getGoldenCityParcelAtWorldMeters(worldMetersPoint(seam + epsilon, -875))
+      ?.column,
+    seamIndex,
+  );
+  assert.equal(
+    getGoldenCityParcelAtWorldMeters(worldMetersPoint(-875, seam - epsilon))
+      ?.row,
+    seamIndex - 1,
+  );
+  assert.equal(
+    getGoldenCityParcelAtWorldMeters(worldMetersPoint(-875, seam))?.row,
+    seamIndex,
+  );
+  assert.equal(
+    getGoldenCityParcelAtWorldMeters(worldMetersPoint(-875, seam + epsilon))
+      ?.row,
+    seamIndex,
+  );
+}
+
+for (const point of [
+  worldMetersPoint(-1_000.001, 0),
+  worldMetersPoint(1_000, 0),
+  worldMetersPoint(0, -1_000.001),
+  worldMetersPoint(0, 1_000),
+  worldMetersPoint(Number.NaN, 0),
+  worldMetersPoint(0, Number.POSITIVE_INFINITY),
+  worldMetersPoint(Number.NEGATIVE_INFINITY, 0),
+]) {
+  assert.equal(getGoldenCityParcelAtWorldMeters(point), null);
+}
+
+assert.equal(
+  CONTINUOUS_WORLD_BOUNDS.maxX - CONTINUOUS_WORLD_BOUNDS.minX,
+  320,
+  'Legacy render bounds must remain 320 engine units wide during planning',
+);
+assert.equal(
+  CONTINUOUS_WORLD_BOUNDS.maxZ - CONTINUOUS_WORLD_BOUNDS.minZ,
+  205,
+  'Legacy render bounds must remain 205 engine units deep during planning',
+);
+assert.equal(
+  METERS_PER_WORLD_UNIT,
+  40,
+  'The legacy 40 m/unit compression must remain explicit until migration',
+);
+
 console.log(
-  `World-plan invariants passed: ${WORLD_SOLID_FOOTPRINTS.length} named solids, ${procedural.length} registered filler buildings, 15 metro stations, a closed circuit and a continuous summit climb.`,
+  `World-plan invariants passed: ${WORLD_SOLID_FOOTPRINTS.length} named solids, ${procedural.length} registered filler buildings, 15 metro stations, a closed circuit, a continuous summit climb and ${GOLDEN_CITY_PARCELS.length} Golden City planning parcels.`,
 );
