@@ -1,12 +1,14 @@
 # AmpliWorld
 
+**CBD skyline update:** three original full-geometry office towers now extend the new world behind the mall: Aurelia Helix / 曜旋中心 (500 m), Prism Gate / 棱境中心 (350 m), Celestial Spire / 星穹中心 (420 m). Each has a reusable GLB, a 96 × 96 m pedestrian plaza, sealed entrance podium, compound camera/player colliders and fixed metric coordinates. Connected CBD boulevards include cycle lanes and sidewalks. The ground envelope is now 880 × 1,560 m, not a claim of a fully developed city. Normal viewing retains full detail without distance-triggered tower removal. See `docs/CHECKPOINT_2026_09_12_CBD.md`.
+
 **Latest cleanup:** metric-height clouds now stay above the city, overview no longer resets the player, ramp approach geometry is continuous, and parking walkway support matches its surface. See `docs/CHECKPOINT_2026_09_12_WORLD_POLISH.md`. Upper-floor retail, full garage interiors and trading/life integration remain pending.
 
-**Mall campus update:** the main world now uses `GC-MALL-002`, a six-storey 225 × 180 m mall (6.25× the previous main footprint), walkable ground-floor galleries on both sides of the garden passage, 48 outdoor parking bays and a descending B1 entry ramp/vestibule. The 430 × 620 m ground envelope is not fully built out. Complete underground parking and upper-floor retail remain deferred. See `docs/CHECKPOINT_2026_09_12_MALL_CAMPUS.md`.
+**Mall campus update:** the main world now uses `GC-MALL-002`, a six-storey 225 × 180 m mall (6.25× the previous main footprint), walkable ground-floor galleries on both sides of the garden passage, 48 outdoor parking bays and a descending B1 entry ramp/vestibule. Complete underground parking and upper-floor retail remain deferred. See `docs/CHECKPOINT_2026_09_12_MALL_CAMPUS.md`.
 
 **Current world entry:** `/` opens the new metric-space street world directly; `/district` remains a compatible link to that same world. The compressed legacy scene is retired and has no player-facing route. All future city construction extends the new street/asset architecture. Legacy source is retained only as implementation reference; economy services and saved data are preserved for later integration, not exposed through the old scene.
 
-The upgraded `/district` now includes **Aurea Galleria / 金庭汇**, an original six-storey courtyard mall with curved floor ribbons, twenty geometric merchandise windows and four ground-level garden passages, alongside the four existing residences. Its reusable GLB, metric placement and compound colliders are stored as `GC-MALL-001`. The current 220 × 360 m ground envelope is a growing prototype block; upper retail floors and purchasing are not yet playable. See `docs/CHECKPOINT_2026_09_12_MALL.md`.
+The original smaller `GC-MALL-001` asset remains archived in the library; the active world uses its larger successor `GC-MALL-002` above. See `docs/CHECKPOINT_2026_09_12_MALL.md` for that historical construction stage.
 
 AmpliWorld is an open financial world model for event-driven market simulation.
 It injects a real-world event into a heterogeneous synthetic population,

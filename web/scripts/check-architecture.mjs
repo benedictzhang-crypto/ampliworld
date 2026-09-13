@@ -42,8 +42,7 @@ const chrome = spawn(
     '--remote-debugging-port=0',
     `--user-data-dir=${temp}`,
     '--disable-gpu-sandbox',
-    '--use-angle=swiftshader',
-    '--enable-unsafe-swiftshader',
+    ...(process.env.QA_NATIVE_GPU === '1' ? [] : ['--use-angle=swiftshader', '--enable-unsafe-swiftshader']),
     '--enable-webgl',
     '--ignore-gpu-blocklist',
     '--hide-scrollbars',
@@ -64,7 +63,7 @@ try {
     const f = join(temp, 'DevToolsActivePort');
     if (existsSync(f)) {
       port = Number(readFileSync(f, 'utf8').split('\n')[0]);
-      break;
+      if (Number.isInteger(port) && port > 0) break;
     }
     await wait(100);
   }
@@ -141,11 +140,17 @@ try {
       "JSON.parse(document.querySelector('canvas').dataset.player || '{}')",
     );
   const gaitA = await player();
-  await wait(300);
-  const gaitB = await player();
+  // Software-rendered tall skylines can take >300 ms per frame. Sample a
+  // changed rendered pose, with a deadline, instead of sampling the same frame.
+  let gaitB = gaitA;
+  for (let i = 0; i < 12; i++) {
+    await wait(300);
+    gaitB = await player();
+    if (Math.abs(gaitA.leftLeg - gaitB.leftLeg) > 0.01) break;
+  }
   assert.ok(
     Math.abs(gaitA.leftLeg - gaitB.leftLeg) > 0.01,
-    'Leg pose must animate while walking',
+    `Leg pose must animate while walking: ${JSON.stringify({gaitA,gaitB})}`,
   );
   assert.ok(
     Math.abs(gaitB.leftLeg + gaitB.rightLeg) < 0.001,

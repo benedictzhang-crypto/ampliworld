@@ -20,6 +20,19 @@ import {
 import { DISTRICT, districtGroundHeight, districtLocation } from './registry';
 import streetData from '../../public/assets/3d/ampliworld/GC-STREET-001/street-manifest.json';
 import mallData from '../../public/assets/3d/ampliworld/GC-MALL-002/mall-manifest.json';
+import cbdStreet from '../../public/assets/3d/ampliworld/GC-CBD-STREET-001/street-manifest.json';
+import officeOne from '../../public/assets/3d/ampliworld/GC-OFFICE-001/tower-manifest.json';
+import officeTwo from '../../public/assets/3d/ampliworld/GC-OFFICE-002/tower-manifest.json';
+import officeThree from '../../public/assets/3d/ampliworld/GC-OFFICE-003/tower-manifest.json';
+const officeManifests = [officeOne, officeTwo, officeThree];
+function Office({ assetId, x, z }: { assetId: string; x: number; z: number }) {
+  const { scene } = useGLTF(`/assets/3d/ampliworld/${assetId}/tower-lod0.glb`);
+  return <group position={[x, 0, z]}><Clone object={scene} castShadow receiveShadow /></group>;
+}
+function CBDBoulevards() {
+  const { scene } = useGLTF('/assets/3d/ampliworld/GC-CBD-STREET-001/cbd-streets.glb');
+  return <Clone object={scene} castShadow receiveShadow />;
+}
 
 function Mall() {
   const { scene } = useGLTF('/assets/3d/ampliworld/GC-MALL-002/mall-lod0.glb');
@@ -34,10 +47,10 @@ function MallApproach() {
     <group>
       {/* Real opening in the ground for the below-grade ramp; no hidden plane. */}
       {[
-        [-50.5, 0, 329, 620],
-        [171, 0, 88, 620],
-        [120.5, -219, 13, 182],
-        [120.5, 115.5, 13, 389],
+        [-163, 0, 554, 1560],
+        [283.5, 0, 313, 1560],
+        [120.5, -454, 13, 652],
+        [120.5, 350.5, 13, 859],
       ].map(([x, z, w, d], i) => (
         <mesh key={i} position={[x, -0.045, z]} receiveShadow>
           <boxGeometry args={[w, 0.06, d]} />
@@ -70,6 +83,10 @@ function SetupCamera({
     null,
   );
   useEffect(() => {
+    // Millimetre-scale street layers need more depth precision at kilometre
+    // overview distances. Keep the close near plane only for the walker.
+    camera.near = walking ? 0.1 : 8;
+    camera.updateProjectionMatrix();
     if (!walking && controls.current) {
       savedWalkCamera.current = {
         position: camera.position.clone(),
@@ -84,12 +101,12 @@ function SetupCamera({
       return;
     }
     camera.position.set(
-      ...((walking ? [0, 4, -59] : [285, 240, 85]) as [number, number, number]),
+      ...((walking ? [0, 4, -59] : [340, 560, 600]) as [number, number, number]),
     );
     controls.current?.target.set(
-      walking ? 0 : 30,
-      walking ? 1.5 : 0,
-      walking ? -68 : -110,
+      0,
+      walking ? 1.5 : 190,
+      walking ? -68 : -350,
     );
     controls.current?.update();
     invalidate();
@@ -116,6 +133,11 @@ export function DistrictClient() {
   }, []);
   const solids = useMemo(
     () => [
+      ...DISTRICT.offices.flatMap((b, i) => officeManifests[i].colliders.map(c => new Box3(
+        new Vector3(c.min[0] + b.x, c.min[1], c.min[2] + b.z),
+        new Vector3(c.max[0] + b.x, c.max[1], c.max[2] + b.z),
+      ))),
+      ...cbdStreet.colliders.map(c => new Box3(new Vector3(...c.min as [number,number,number]), new Vector3(...c.max as [number,number,number]))),
       ...mallData.colliders.map(
         (c) =>
           new Box3(
@@ -149,7 +171,7 @@ export function DistrictClient() {
               shadows
               frameloop="demand"
               dpr={[1, 1.3]}
-              camera={{ position: [0, 4, 34], fov: 55, near: 0.1, far: 2600 }}
+              camera={{ position: [0, 4, 34], fov: 55, near: 0.1, far: 4000 }}
             >
               <Suspense
                 fallback={
@@ -161,13 +183,15 @@ export function DistrictClient() {
                 <DynamicAtmosphere
                   hour={minutes / 60}
                   metricWorld
-                  fogNear={600}
-                  fogFar={2200}
+                  fogNear={1000}
+                  fogFar={3400}
                 />
                 <StudioLight />
                 <MallApproach />
                 <Street />
                 <Mall />
+                <CBDBoulevards />
+                {DISTRICT.offices.map(b => <Office key={b.id} {...b} />)}
                 {DISTRICT.buildings.map((b) => (
                   <group
                     key={b.id}
@@ -183,7 +207,7 @@ export function DistrictClient() {
                 makeDefault
                 enableDamping={false}
                 minDistance={walking ? 0.1 : 35}
-                maxDistance={walking ? 18 : 650}
+                maxDistance={walking ? 18 : 1800}
                 maxPolarAngle={Math.PI / 2 - 0.04}
                 enablePan={!walking}
               />
@@ -194,7 +218,7 @@ export function DistrictClient() {
                 onPosition={(x, z) => setPosition([x, z])}
                 spawn={DISTRICT.spawnLocalMeters}
                 obstacles={solids}
-                limits={[212, 307]}
+                limits={[438, 778]}
                 groundHeight={districtGroundHeight}
               />
             </Canvas>
@@ -204,8 +228,8 @@ export function DistrictClient() {
       <header className="district-hud">
         <div>
           <span>AMPLIWORLD · GOLDEN CITY</span>
-          <h1>花园街区 · 金庭汇</h1>
-          <p>大型六层商业街区 · 室内长廊 · 花园 · 停车场</p>
+          <h1>金庭汇 · 未来 CBD</h1>
+          <p>三座原创摩天楼 · 500 / 420 / 350 m · 连通商业街区</p>
         </div>
         <div className="district-time">
           {formatWorldTime(minutes)}

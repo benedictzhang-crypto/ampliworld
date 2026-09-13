@@ -1,8 +1,9 @@
+import cbdStreet from '../../public/assets/3d/ampliworld/GC-CBD-STREET-001/street-manifest.json';
 // New metre-space block. City origin and asset transforms are data, not mesh JSX.
 export const DISTRICT = {
   id: 'GC-GARDENS-B01',
   originWorldMeters: [-625, 8, -125],
-  sizeMeters: [430, 620],
+  sizeMeters: [880, 1560],
   status: 'WALKABLE_BLOCK_PROTOTYPE',
   buildings: [
     {
@@ -35,6 +36,11 @@ export const DISTRICT = {
     },
   ],
   mall: { id: 'GC-GARDENS-M01', assetId: 'GC-MALL-002', x: 0, z: -188 },
+  offices: [
+    { id: 'GC-CBD-O01', assetId: 'GC-OFFICE-001', name: '曜旋中心', heightMeters: 500, x: -150, z: -410 },
+    { id: 'GC-CBD-O02', assetId: 'GC-OFFICE-002', name: '棱境中心', heightMeters: 350, x: 150, z: -410 },
+    { id: 'GC-CBD-O03', assetId: 'GC-OFFICE-003', name: '星穹中心', heightMeters: 420, x: 0, z: -590 },
+  ],
   spawnLocalMeters: [0, -68],
   limitations: [
     'Four instances of one residential type, not four architectural designs.',
@@ -45,6 +51,12 @@ export const DISTRICT = {
 
 // Surface heights from the exported street kit, not a flat offset above every surface.
 export function districtGroundHeight(x: number, z: number) {
+  for (const b of DISTRICT.offices) {
+    const ax = Math.abs(x - b.x), az = Math.abs(z - b.z);
+    if (ax <= 48 && az <= 48 && (ax <= 38 || az <= 38 || Math.hypot(ax - 38, az - 38) <= 10)) return 0.18;
+  }
+  for (const s of cbdStreet.surfaces)
+    if (x >= s.min[0] && x <= s.max[0] && z >= s.min[1] && z <= s.max[1]) return s.y;
   const mz = z - DISTRICT.mall.z;
   if (x >= 115 && x <= 126 && mz >= 72 && mz <= 108)
     return -4.2 + ((mz - 72) * 4.37) / 36;
@@ -88,6 +100,8 @@ export function districtGroundHeight(x: number, z: number) {
 }
 
 export function districtLocation(x: number, z: number) {
+  if (z < -300) return '金庭 CBD · 曜旋 500 m / 棱境 350 m / 星穹 420 m · 办公室内部暂未开放';
+  if (Math.abs(x) > 215) return 'CBD 环线大道 · 沿道路北行抵达摩天楼广场';
   const mz = z - DISTRICT.mall.z;
   if (x >= 115 && x <= 126 && mz >= 60 && mz < 72)
     return 'B1 入口厅 · 后方车库尚未开放';
