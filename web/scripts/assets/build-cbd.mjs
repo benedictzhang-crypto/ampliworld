@@ -203,20 +203,172 @@ function generate(spec) {
     }
   }
   function bridge(points, halfHeight, halfDepth, mat, id) {
-    const curve = new T.CatmullRomCurve3(
+    // Preserve the existing local collision bands verbatim; only the visible
+    // engineering is refined. Ground access, tower bodies and crowns are untouched.
+    const legacyCurve = new T.CatmullRomCurve3(
       points.map((p) => new T.Vector3(...p)),
     );
-    const sample = (t, a) => {
-      const c = curve.getPoint(t),
-        d = curve.getTangent(t),
-        n = new T.Vector3(d.y, -d.x, 0).normalize();
+    const legacySample = (t, a) => {
+      const c = legacyCurve.getPoint(t),
+        d = legacyCurve.getTangent(t);
+      const n = new T.Vector3(d.y, -d.x, 0).normalize();
       return c
         .addScaledVector(n, Math.cos(a) * halfHeight)
         .add(new T.Vector3(0, 0, Math.sin(a) * halfDepth))
         .toArray();
     };
-    sweep(sample, 24, 20, mat, id);
-    for (const a of [0, Math.PI]) ribs(sample, [a], 'gold', 0.48);
+    for (let start = 0; start < 24; start += 4) {
+      const bounds = new T.Box3();
+      for (let i = start; i <= Math.min(start + 4, 24); i++)
+        for (let j = 0; j < 20; j++)
+          bounds.expandByPoint(
+            new T.Vector3(...legacySample(i / 24, (j / 20) * Math.PI * 2)),
+          );
+      solid(`${id}-${start / 4}`, bounds.min.toArray(), bounds.max.toArray());
+    }
+    const h = Math.max(2.2, halfHeight * 0.6),
+      d = halfDepth * 0.7;
+    const control = points.map((p) => new T.Vector3(...p));
+    const pieces = (control.length - 1) * 5;
+    function frame(t) {
+      const f = Math.min(t * (control.length - 1), control.length - 1 - 1e-9);
+      const i = Math.floor(f),
+        direction = control[i + 1].clone().sub(control[i]).normalize();
+      const side = new T.Vector3()
+        .crossVectors(direction, new T.Vector3(0, 1, 0))
+        .normalize();
+      const up = new T.Vector3().crossVectors(side, direction).normalize();
+      return { c: control[i].clone().lerp(control[i + 1], f - i), side, up };
+    }
+    function p(t, y, z) {
+      const f = frame(t);
+      return f.c.addScaledVector(f.up, y).addScaledVector(f.side, z);
+    }
+    function panel(a, b, c, d, material) {
+      add(
+        geometry(
+          [...a.toArray(), ...b.toArray(), ...c.toArray(), ...d.toArray()],
+          [0, 1, 2, 0, 2, 3],
+        ),
+        material,
+      );
+    }
+    function steel(a, b, width, depth, material = 'pearl') {
+      const delta = b.clone().sub(a),
+        length = delta.length();
+      if (length < 0.001) return;
+      const g = new T.BoxGeometry(width, length, depth);
+      g.applyQuaternion(
+        new T.Quaternion().setFromUnitVectors(
+          new T.Vector3(0, 1, 0),
+          delta.normalize(),
+        ),
+      );
+      g.translate(...a.clone().add(b).multiplyScalar(0.5).toArray());
+      add(g, material);
+    }
+    // An eight-sided chamfered box-girder shell gives flat glass sides, hard
+    // metal roof shoulders and a narrow blade-like soffit, not a swollen tube.
+    const section = [
+      [-h, -d * 0.72],
+      [-h * 0.66, -d],
+      [h * 0.66, -d],
+      [h, -d * 0.72],
+      [h, d * 0.72],
+      [h * 0.66, d],
+      [-h * 0.66, d],
+      [-h, d * 0.72],
+    ];
+    for (let i = 0; i < pieces; i++) {
+      const a = i / pieces,
+        b = (i + 1) / pieces;
+      for (let j = 0; j < section.length; j++) {
+        const k = (j + 1) % section.length;
+        const material = j === 1 || j === 5 ? 'glass' : j === 3 ? 'dark' : mat;
+        panel(
+          p(a, ...section[j]),
+          p(a, ...section[k]),
+          p(b, ...section[k]),
+          p(b, ...section[j]),
+          material,
+        );
+      }
+      // Paired external Warren-truss webs tie the steel edge chords together.
+      for (const side of [-1, 1]) {
+        const z = side * (d + 0.12);
+        const low = -h * 0.62,
+          high = h * 0.62;
+        steel(p(a, low, z), p(b, low, z), 0.23, 0.25, 'dark');
+        steel(p(a, high, z), p(b, high, z), 0.21, 0.24, 'pearl');
+        steel(
+          p(a, i % 2 ? high : low, z),
+          p(b, i % 2 ? low : high, z),
+          0.16,
+          0.2,
+          'pearl',
+        );
+        steel(
+          p(a, 0, z + side * 0.035),
+          p(b, 0, z + side * 0.035),
+          0.075,
+          0.08,
+          'gold',
+        );
+      }
+      // Thin luminous soffit channels are visible geometry, not facade images.
+      for (const side of [-1, 1])
+        steel(
+          p(a, -h - 0.035, side * d * 0.45),
+          p(b, -h - 0.035, side * d * 0.45),
+          0.085,
+          0.12,
+          'light',
+        );
+    }
+    for (let i = 0; i <= pieces; i++) {
+      const t = i / pieces;
+      for (let j = 0; j < section.length; j++)
+        steel(
+          p(t, ...section[j]),
+          p(t, ...section[(j + 1) % section.length]),
+          0.15,
+          0.19,
+          i % 5 === 0 ? 'gold' : 'pearl',
+        );
+    }
+    // Faceted bulkheads seat the enclosed bridge into the unchanged tower masses.
+    for (const t of [0, 1]) {
+      const ring = section.map(([y, z]) => p(t, y, z)),
+        c = frame(t).c;
+      for (let j = 0; j < ring.length; j++) {
+        const first = t === 0 ? ring[(j + 1) % ring.length] : ring[j];
+        const second = t === 0 ? ring[j] : ring[(j + 1) % ring.length];
+        add(
+          geometry(
+            [...c.toArray(), ...first.toArray(), ...second.toArray()],
+            [0, 1, 2],
+          ),
+          'dark',
+        );
+      }
+      const near = t === 0 ? 0.12 : 0.88;
+      for (const side of [-1, 1]) {
+        const seat = p(t, -h * 0.8, side * d * 0.66),
+          anchor = seat.clone();
+        anchor.y -= Math.min(halfHeight * 0.9, 6);
+        // Short paired bearing piers and diagonal haunches terminate inside the
+        // endpoint tower/crown, instead of introducing new ground obstructions.
+        steel(anchor, seat, 0.65, 0.75, 'dark');
+        steel(anchor, p(near, -h * 0.88, side * d * 0.66), 0.42, 0.5, 'pearl');
+        steel(
+          p(t, -h * 0.83, side * d * 0.87),
+          p(t, -h * 0.83, side * d * 0.4),
+          0.42,
+          0.45,
+          'gold',
+        );
+      }
+    }
   }
   function lobby(x, z, w = 33, d = 45) {
     roundedSlab('dark', x, 0.18, z, w, d, 6, 7);

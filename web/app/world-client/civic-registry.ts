@@ -1,5 +1,6 @@
 import stadium from '../../public/assets/3d/ampliworld/GC-STADIUM-001/stadium-manifest.json';
 import sushi from '../../public/assets/3d/ampliworld/GC-SUSHI-001/sushi-manifest.json';
+import dealership from '../../public/assets/3d/ampliworld/GC-AUTO-001/dealership-manifest.json';
 import streets from '../../public/assets/3d/ampliworld/GC-SPORT-STREET-001/street-manifest.json';
 
 export const CIVIC_PLACES = [
@@ -18,6 +19,14 @@ export const CIVIC_PLACES = [
     z: -38,
     file: 'sushi.glb',
     manifest: sushi,
+  },
+  {
+    id: 'GC-AUTO-001',
+    name: 'Aureline 汽车中心',
+    x: -565,
+    z: 655,
+    file: 'dealership.glb',
+    manifest: dealership,
   },
 ] as const;
 export const SPORTS_STREETS = streets;

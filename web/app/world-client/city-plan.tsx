@@ -286,6 +286,16 @@ export function CityPlan({
             <ellipse cx={0} cy={600} rx={72} ry={102} fill="#edf0df" />
             <rect x={-34} y={547.5} width={68} height={105} fill="#68a86b" />
             <rect x={170} y={-45} width={20} height={14} fill="#b47550" />
+            <rect
+              x={-660}
+              y={535}
+              width={190}
+              height={240}
+              fill="#b5bdc4"
+              stroke="#506875"
+              strokeWidth={4}
+            />
+            <path d="M-470 745H-440" stroke="#65787d" strokeWidth={12} />
             {CITY_INFRA.bridges.map((b, i) => (
               <g
                 key={b.id}
@@ -331,6 +341,9 @@ export function CityPlan({
                 </text>
                 <text x={-80} y={-1040}>
                   CBD
+                </text>
+                <text x={-640} y={510}>
+                  Aureline 汽车中心
                 </text>
               </g>
             )}

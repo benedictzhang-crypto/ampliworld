@@ -161,8 +161,8 @@ for (const sign of [-1, 1]) {
 box('bronze', 0, 5.51, 0, 22.75, 0.12, 0.22);
 colliders.push({
   id: 'roof-clearance',
-  min: [-10, 4.38, -7],
-  max: [10, 5.65, 7],
+  min: [-11.375, 4.38, -8.605],
+  max: [11.375, 5.65, 8.605],
 });
 // Hand-authored raised lettering, not a facade photograph or sign texture.
 const glyphs = {

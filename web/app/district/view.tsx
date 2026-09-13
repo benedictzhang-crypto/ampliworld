@@ -40,7 +40,10 @@ import officeOne from '../../public/assets/3d/ampliworld/GC-OFFICE-001/tower-man
 import officeTwo from '../../public/assets/3d/ampliworld/GC-OFFICE-002/tower-manifest.json';
 import officeThree from '../../public/assets/3d/ampliworld/GC-OFFICE-003/tower-manifest.json';
 const officeManifests = [officeOne, officeTwo, officeThree];
-function CoreReady({onReady}:{onReady:()=>void}){useEffect(onReady,[onReady]);return null;}
+function CoreReady({ onReady }: { onReady: () => void }) {
+  useEffect(onReady, [onReady]);
+  return null;
+}
 function Office({ assetId, x, z }: { assetId: string; x: number; z: number }) {
   const { scene } = useGLTF(`/assets/3d/ampliworld/${assetId}/tower-lod0.glb`);
   return (
@@ -167,7 +170,7 @@ function SetupCamera({
   walking: boolean;
   controls: React.RefObject<OrbitControlsImpl | null>;
   wide: boolean;
-  focus: 'cbd' | 'stadium' | 'sushi';
+  focus: 'cbd' | 'stadium' | 'sushi' | 'auto';
 }) {
   const { camera, invalidate } = useThree();
   const savedWalkCamera = useRef<{ position: Vector3; target: Vector3 } | null>(
@@ -201,30 +204,40 @@ function SetupCamera({
           ? [17000, 23000, 26000]
           : focus === 'stadium'
             ? [190, 430, 930]
-            : focus === 'sushi'
-              ? [210, 13, -5]
-              : [430, 660, 740]) as [number, number, number]),
+            : focus === 'auto'
+              ? [-425, 30, 815]
+              : focus === 'sushi'
+                ? [210, 13, -5]
+                : [430, 660, 740]) as [number, number, number]),
     );
     controls.current?.target.set(
-      !walking && !wide && focus === 'sushi' ? 180 : 0,
+      !walking && !wide && focus === 'auto'
+        ? -565
+        : !walking && !wide && focus === 'sushi'
+          ? 180
+          : 0,
       walking
         ? 1.5
         : wide
           ? 0
-          : focus === 'stadium'
-            ? 10
-            : focus === 'sushi'
-              ? 2.5
-              : 190,
+          : focus === 'auto'
+            ? 8
+            : focus === 'stadium'
+              ? 10
+              : focus === 'sushi'
+                ? 2.5
+                : 190,
       walking
         ? -68
         : wide
           ? 0
-          : focus === 'stadium'
-            ? 600
-            : focus === 'sushi'
-              ? -38
-              : -500,
+          : focus === 'auto'
+            ? 655
+            : focus === 'stadium'
+              ? 600
+              : focus === 'sushi'
+                ? -38
+                : -500,
     );
     controls.current?.update();
     invalidate();
@@ -234,13 +247,15 @@ function SetupCamera({
 
 export function DistrictClient() {
   const [mounted, setMounted] = useState(false);
-  const [coreReady,setCoreReady]=useState(false);
-  const onCoreReady=useCallback(()=>setCoreReady(true),[]);
+  const [coreReady, setCoreReady] = useState(false);
+  const onCoreReady = useCallback(() => setCoreReady(true), []);
   const [walking, setWalking] = useState(true);
   const [wide, setWide] = useState(false);
   const [planOpen, setPlanOpen] = useState(false);
   const look = useRef({ pitch: 0 });
-  const [focus, setFocus] = useState<'cbd' | 'stadium' | 'sushi'>('cbd');
+  const [focus, setFocus] = useState<'cbd' | 'stadium' | 'sushi' | 'auto'>(
+    'cbd',
+  );
   const [loadedTiles, setLoadedTiles] = useState<Set<string>>(() => new Set());
   const onTileReady = useCallback(
     (id: string) =>
@@ -439,7 +454,11 @@ export function DistrictClient() {
   return (
     <main className="district">
       <div className="district-canvas">
-        {!coreReady&&<div className="district-loading district-startup">正在载入街区、车辆与树木…</div>}
+        {!coreReady && (
+          <div className="district-loading district-startup">
+            正在载入街区、车辆与树木…
+          </div>
+        )}
         <CanvasBoundary>
           {mounted && (
             <Canvas
@@ -471,7 +490,7 @@ export function DistrictClient() {
                 <Concourse />
                 <CivicPlaces />
                 <StreetTrees />
-                <CoreReady onReady={onCoreReady}/>
+                <CoreReady onReady={onCoreReady} />
                 <DriveableCar
                   state={car}
                   active={coreReady && walking && driving && !planOpen}
@@ -578,6 +597,16 @@ export function DistrictClient() {
           }}
         >
           日料街景
+        </Button>
+        <Button
+          onClick={() => {
+            setFocus('auto');
+            setWide(false);
+            setWalking(false);
+            (document.activeElement as HTMLElement)?.blur();
+          }}
+        >
+          汽车中心览景
         </Button>
         {walking && (
           <Button

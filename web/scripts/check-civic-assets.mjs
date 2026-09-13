@@ -53,6 +53,28 @@ assert.ok(stadium.roof.openOculusMeters[0] > 68);
 assert.ok(stadium.roof.openOculusMeters[1] > 105);
 route([0, 900], [0, 600]);
 route([180, -20], [180, -36.5]);
+assert.ok(blocked(186, -31.1), 'Sushi front glazing must block the player');
+assert.ok(blocked(180, -38.1), 'Sushi stool must block the player');
+assert.ok(blocked(180, -40.1), 'Sushi counter must block the player');
+const auto = CIVIC_PLACES.find((p) => p.id === 'GC-AUTO-001');
+assert.ok(auto);
+assert.ok(
+  Math.abs(Math.hypot(auto.x, auto.z + 188) - 1000) < 25,
+  'Dealership approximately 1km from mall',
+);
+route([-440, 745], [-565, 745]);
+route([-565, 745], [-565, 655]);
+assert.ok(blocked(-535, 679), 'Dealership glass blocks movement outside door');
+assert.equal(
+  districtGroundHeight(-565, 655),
+  0.18,
+  'Showroom uses interior floor, not campus floor',
+);
+assert.equal(
+  districtGroundHeight(-565, 610),
+  0.18,
+  'Ground floor never snaps upstairs',
+);
 for (const side of [-1, 1]) {
   route([side * 440, 0], [side * 440, 1050]);
   route([side * 440, 1050], [side * 500, 1050]);

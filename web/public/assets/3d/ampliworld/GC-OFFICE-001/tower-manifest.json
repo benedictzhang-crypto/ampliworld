@@ -30,7 +30,7 @@
     {
       "level": 0,
       "file": "tower-lod0.glb",
-      "triangles": 36808,
+      "triangles": 40360,
       "drawCalls": 8
     }
   ],
@@ -825,7 +825,7 @@
     "note": "Original composed masses and parametric geometry. Broad structural ideas only; no landmark mesh, logo, image facade or exact architectural reproduction."
   },
   "stats": {
-    "triangles": 36808,
+    "triangles": 40360,
     "meshes": 8,
     "materialDrawCalls": 8
   },

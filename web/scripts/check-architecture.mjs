@@ -179,6 +179,7 @@ try {
     for (const [label, name] of [
       ['体育场俯瞰', 'stadium'],
       ['日料街景', 'sushi'],
+      ['汽车中心览景', 'dealership'],
     ]) {
       await evaluate(
         `Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('${label}')).click()`,
