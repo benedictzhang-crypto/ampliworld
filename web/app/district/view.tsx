@@ -16,6 +16,12 @@ import { MetropolitanPlaces } from '../world-client/metropolitan-places';
 import { METROPOLITAN_COLLIDERS } from '../world-client/metropolitan-registry';
 import { riverCenterX } from '../world-client/river-profile.mjs';
 import { COMMUNITY_COLLIDERS } from '../world-client/community-registry';
+import { HousingWorld } from '../world-client/housing-world';
+import {
+  HOUSING_PLAN,
+  HOUSING_LABELS,
+  housingColliders,
+} from '../world-client/housing-registry';
 import { StreetTrees } from '../world-client/street-trees';
 import { findVehicleExit } from '../world-client/vehicle-safety';
 import { GARAGE_COLLIDERS, parkedGarageBay } from '../world-client/mall-garage';
@@ -187,7 +193,8 @@ function SetupCamera({
     | 'river'
     | 'east'
     | 'south'
-    | 'estuary';
+    | 'estuary'
+    | `housing-${string}`;
 }) {
   const { camera, invalidate } = useThree();
   const savedWalkCamera = useRef<{ position: Vector3; target: Vector3 } | null>(
@@ -210,6 +217,18 @@ function SetupCamera({
     if (walking && savedWalkCamera.current) {
       camera.position.copy(savedWalkCamera.current.position);
       controls.current?.target.copy(savedWalkCamera.current.target);
+      controls.current?.update();
+      invalidate();
+      return;
+    }
+    if (!walking && !wide && focus.startsWith('housing-')) {
+      const p = HOUSING_PLAN.placements.find((p) => p.type === focus.slice(8))!;
+      camera.position.set(
+        p.x + p.width * 0.8,
+        p.type === 'ultra' ? 390 : 230,
+        p.z + p.depth * 0.8,
+      );
+      controls.current?.target.set(p.x, p.type === 'ultra' ? 70 : 12, p.z);
       controls.current?.update();
       invalidate();
       return;
@@ -319,6 +338,7 @@ export function DistrictClient() {
     | 'east'
     | 'south'
     | 'estuary'
+    | `housing-${string}`
   >('cbd');
   const [loadedTiles, setLoadedTiles] = useState<Set<string>>(() => new Set());
   const onTileReady = useCallback(
@@ -328,6 +348,31 @@ export function DistrictClient() {
   );
   const [minutes, setMinutes] = useState(480);
   const [position, setPosition] = useState<number[]>([0, -68]);
+  const [openGates, setOpenGates] = useState<Set<string>>(() => new Set());
+  const previewParcel =
+    !walking && focus.startsWith('housing-')
+      ? HOUSING_PLAN.placements.find((p) => p.type === focus.slice(8))
+      : undefined;
+  const housingX =
+    previewParcel?.x ??
+    (!walking && focus === 'east'
+      ? 5000
+      : !walking && focus === 'south'
+        ? -1000
+        : Math.round(position[0] / 1000) * 1000);
+  const housingZ =
+    previewParcel?.z ??
+    (!walking && focus === 'east'
+      ? 3000
+      : !walking && focus === 'south'
+        ? 8000
+        : Math.round(position[1] / 1000) * 1000);
+  const nearGate = HOUSING_PLAN.placements.find(
+    (p) =>
+      ['high', 'ultra', 'mixedVilla', 'largeDetached'].includes(p.type) &&
+      Math.hypot(p.gateWorld[0] - position[0], p.gateWorld[1] - position[1]) <
+        18,
+  );
   const controls = useRef<OrbitControlsImpl>(null);
   const cellX = Math.round(position[0] / 1000),
     cellZ = Math.round(position[1] / 1000);
@@ -370,6 +415,7 @@ export function DistrictClient() {
         ...CIVIC_COLLIDERS,
         ...GARAGE_COLLIDERS,
         ...COMMUNITY_COLLIDERS,
+        ...housingColliders(cellX * 1000, cellZ * 1000, openGates),
         ...METROPOLITAN_COLLIDERS,
       ].map(
         (c) =>
@@ -445,7 +491,7 @@ export function DistrictClient() {
           ),
       ),
     ],
-    [nearTiles, cellX, cellZ],
+    [nearTiles, cellX, cellZ, openGates],
   );
   const walkerSolids = useMemo(
     () => [
@@ -554,6 +600,7 @@ export function DistrictClient() {
                 <CivicPlaces />
                 <Communities />
                 <MetropolitanPlaces />
+                <HousingWorld x={housingX} z={housingZ} open={openGates} />
                 <StreetTrees />
                 <CoreReady onReady={onCoreReady} />
                 <DriveableCar
@@ -741,6 +788,41 @@ export function DistrictClient() {
         >
           {walking ? '俯瞰街区' : '控制小人'}
         </Button>
+        {[
+          'low',
+          'lowerMiddle',
+          'high',
+          'ultra',
+          'mixedVilla',
+          'largeDetached',
+        ].map((type) => (
+          <Button
+            key={type}
+            onClick={() => {
+              setFocus(`housing-${type}`);
+              setWide(false);
+              setWalking(false);
+              (document.activeElement as HTMLElement)?.blur();
+            }}
+          >
+            {HOUSING_LABELS[type]}览景
+          </Button>
+        ))}
+        {walking && nearGate && (
+          <Button
+            onClick={() =>
+              setOpenGates((s) => {
+                const n = new Set(s);
+                n.has(nearGate.id) ? n.delete(nearGate.id) : n.add(nearGate.id);
+                return n;
+              })
+            }
+          >
+            {openGates.has(nearGate.id)
+              ? '关闭小区门禁'
+              : '打开小区门禁（试玩）'}
+          </Button>
+        )}
         <a href="/architecture">住宅细节</a>
         {(
           [

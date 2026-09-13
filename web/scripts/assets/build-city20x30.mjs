@@ -179,6 +179,9 @@ for (let k = -9; k <= 9; k++)
                   : inner && wealth > 0.53
                     ? 'office-campus'
                     : 'middle-residential';
+      // Residential land is now owned by the explicit 47-compound housing plan.
+      // Keep civic and office campuses intact, including their physical assets.
+      if(['working-residential','middle-residential','high-end'].includes(kind)) continue;
       const compound = {
         id: compoundId,
         x: px,

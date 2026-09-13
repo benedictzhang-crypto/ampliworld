@@ -50,8 +50,6 @@ for (const k of [
   'school',
   'cyber-church',
   'office-campus',
-  'working-residential',
-  'high-end',
 ])
   assert.ok(types[k] > 0);
 console.log(

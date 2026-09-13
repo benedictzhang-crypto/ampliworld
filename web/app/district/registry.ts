@@ -5,6 +5,7 @@ import { civicGroundHeight } from '../world-client/civic-registry';
 import { communityGroundHeight } from '../world-client/community-registry';
 import { metropolitanGroundHeight } from '../world-client/metropolitan-registry';
 import { garageGroundHeight } from '../world-client/mall-garage';
+import { housingGroundHeight } from '../world-client/housing-registry';
 // New metre-space block. City origin and asset transforms are data, not mesh JSX.
 export const DISTRICT = {
   id: 'GC-GARDENS-B01',
@@ -78,6 +79,8 @@ export const DISTRICT = {
 
 // Surface heights from the exported street kit, not a flat offset above every surface.
 export function districtGroundHeight(x: number, z: number, currentY = 0) {
+  const housingY = housingGroundHeight(x, z, currentY);
+  if (housingY !== undefined) return housingY;
   const metropolitanY = metropolitanGroundHeight(x, z, currentY);
   if (metropolitanY !== undefined) return metropolitanY;
   const garageY = garageGroundHeight(x, z, currentY);

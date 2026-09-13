@@ -187,6 +187,10 @@ try {
   }
   if (process.env.QA_CIVIC === '1') {
     for (const [label, name] of [
+      ['老城里览景', 'housing-low'],
+      ['锦庭府览景', 'housing-high'],
+      ['云境天邸览景', 'housing-ultra'],
+      ['城市御墅览景', 'housing-mixed'],
       ['体育场俯瞰', 'stadium'],
       ['日料街景', 'sushi'],
       ['汽车中心览景', 'dealership'],

@@ -22,7 +22,7 @@ export const HOMES: HomePlacement[] = [
   ...Array.from({ length: 15 }, (_, i) => ({
     id: `GC-MID-H${String(i + 1).padStart(2, '0')}`,
     kind: 'middle' as const,
-    prototype: i % 3,
+    prototype: 1 + (i % 2),
     x: -950 + (i % 3) * 100,
     z: 570 + Math.floor(i / 3) * 80,
     yaw: 0,
@@ -46,7 +46,7 @@ export const HOMES: HomePlacement[] = [
 export const COMMUNITIES = [
   {
     id: 'GC-COMMUNITY-MID',
-    name: '青庭花园 · 15 栋中端住宅',
+    name: '青庭花园 · 15 栋中低端住宅',
     kind: 'middle',
     x: -850,
     z: 750,

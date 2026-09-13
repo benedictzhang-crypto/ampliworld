@@ -1,0 +1,2990 @@
+{
+  "version": 1,
+  "units": "metres",
+  "coordinateConvention": "Three.js Y-up, angle radians around +Y; local +Z is front; xWorld=x+localX*cos(angle)+localZ*sin(angle)",
+  "counts": {
+    "ultra": 2,
+    "high": 5,
+    "mixedVilla": 2,
+    "largeDetached": 2,
+    "lowerMiddle": 15,
+    "low": 25
+  },
+  "apartmentCompoundCount": 47,
+  "villaCompoundCount": 4,
+  "totalCompoundCount": 51,
+  "preservedNonResidentialCount": 251,
+  "availableConservativeCandidates": 194,
+  "validation": {
+    "issues": [],
+    "checks": [
+      "Rotated AABBs clear preserved compound bounds with 2m margin",
+      "All housing pairs clear",
+      "Named/core, dealership, Qingting, two subcenters and retained river homes clear",
+      "New parcels contained inside road ROW edges ±455m from grid-cell center",
+      "Gate access swept 14m-wide corridor clear of preserved compounds and reserves",
+      "Candidate envelope and full south access samples clear widened river with >=30m bank margin"
+    ],
+    "caveats": [
+      "Qingting keeps its existing east gate as a deliberate exception to new local +Z gates.",
+      "Entire old generated residential compounds must be removed, including walls, paving, trees, colliders, surfaces and overview geometry.",
+      "This is land-allocation QA, not model footprint or runtime navigation QA. Building layout must fit these parcel bounds."
+    ],
+    "mixedVillaEastMove": {
+      "id": "GC-HOUSING-MIXEDVILLA-01",
+      "subcenterDistance": 790,
+      "gridCell": [
+        6000,
+        3000
+      ],
+      "issues": [],
+      "westRoadRowClearance": 13.705405641481775,
+      "eastPreservedCompoundClearance": 16.705405641481775,
+      "parcelAreaChangePercent": -13.636363636363635
+    }
+  },
+  "placements": [
+    {
+      "id": "GC-HOUSING-ULTRA-01",
+      "type": "ultra",
+      "region": "main",
+      "x": -1000,
+      "z": -2000,
+      "width": 500,
+      "depth": 500,
+      "angle": 0.13962634015954636,
+      "angleDeg": 8,
+      "buildingCount": 5,
+      "storeyTypes": [
+        50,
+        60
+      ],
+      "floorHeight": 4,
+      "gateLocal": [
+        0,
+        250
+      ],
+      "gateWorld": [
+        -965.2067247599837,
+        -1752.4329828146074
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -965.2067247599837,
+            -1752.4329828146074
+          ],
+          [
+            -962.4232627407823,
+            -1732.627621439776
+          ],
+          [
+            -962.4232627407823,
+            -1500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": -1500
+        }
+      },
+      "rotatedBounds": [
+        -1282.360292425409,
+        -2282.360292425409,
+        -717.6397075745911,
+        -1717.639707574591
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-09-13-C0",
+        "GC-TILE-09-13-C1",
+        "GC-TILE-09-13-C2",
+        "GC-TILE-09-13-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-ULTRA-02",
+      "type": "ultra",
+      "region": "east",
+      "x": 5000,
+      "z": 2000,
+      "width": 500,
+      "depth": 500,
+      "angle": -0.19198621771937624,
+      "angleDeg": -11,
+      "buildingCount": 6,
+      "storeyTypes": [
+        50,
+        60
+      ],
+      "floorHeight": 4,
+      "gateLocal": [
+        0,
+        250
+      ],
+      "gateWorld": [
+        4952.297751155864,
+        2245.406795861916
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            4952.297751155864,
+            2245.406795861916
+          ],
+          [
+            4948.481571248333,
+            2265.0393395308693
+          ],
+          [
+            4948.481571248333,
+            2500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 2500
+        }
+      },
+      "rotatedBounds": [
+        4706.890955293948,
+        1706.8909552939479,
+        5293.109044706052,
+        2293.1090447060524
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-15-17-C0",
+        "GC-TILE-15-17-C1",
+        "GC-TILE-15-17-C2",
+        "GC-TILE-15-17-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-HIGH-01",
+      "type": "high",
+      "region": "main",
+      "x": -2000,
+      "z": -1000,
+      "width": 440,
+      "depth": 380,
+      "angle": 0.22689280275926285,
+      "angleDeg": 13,
+      "buildingCount": 8,
+      "storeyTypes": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "floorHeight": 3.7,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        -1957.2592996746657,
+        -814.8696876908053
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -1957.2592996746657,
+            -814.8696876908053
+          ],
+          [
+            -1952.7602785877884,
+            -795.3822863951007
+          ],
+          [
+            -1952.7602785877884,
+            -500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": -500
+        }
+      },
+      "rotatedBounds": [
+        -2257.102114578086,
+        -1234.619544264845,
+        -1742.897885421914,
+        -765.380455735155
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-08-14-C0",
+        "GC-TILE-08-14-C1",
+        "GC-TILE-08-14-C2",
+        "GC-TILE-08-14-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-HIGH-02",
+      "type": "high",
+      "region": "main",
+      "x": 3000,
+      "z": -1000,
+      "width": 440,
+      "depth": 380,
+      "angle": -0.15707963267948966,
+      "angleDeg": -9,
+      "buildingCount": 10,
+      "storeyTypes": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "floorHeight": 3.7,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        2970.277451642356,
+        -812.3392152869238
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            2970.277451642356,
+            -812.3392152869238
+          ],
+          [
+            2967.1487623415514,
+            -792.585448475021
+          ],
+          [
+            2967.1487623415514,
+            -500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": -500
+        }
+      },
+      "rotatedBounds": [
+        2752.9860167114257,
+        -1222.076367021927,
+        3247.0139832885743,
+        -777.9236329780731
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-13-14-C0",
+        "GC-TILE-13-14-C1",
+        "GC-TILE-13-14-C2",
+        "GC-TILE-13-14-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-HIGH-03",
+      "type": "high",
+      "region": "east",
+      "x": 7000,
+      "z": 3000,
+      "width": 440,
+      "depth": 380,
+      "angle": 0.2617993877991494,
+      "angleDeg": 15,
+      "buildingCount": 7,
+      "storeyTypes": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "floorHeight": 3.7,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        7049.1756185694785,
+        3183.525906994923
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            7049.1756185694785,
+            3183.525906994923
+          ],
+          [
+            7054.351999471529,
+            3202.8444235207044
+          ],
+          [
+            7054.351999471529,
+            3500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 3500
+        }
+      },
+      "rotatedBounds": [
+        6738.320699646926,
+        2759.5339030825226,
+        7261.679300353074,
+        3240.4660969174774
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-17-18-C0",
+        "GC-TILE-17-18-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-HIGH-04",
+      "type": "high",
+      "region": "east",
+      "x": 4000,
+      "z": 0,
+      "width": 440,
+      "depth": 380,
+      "angle": -0.20943951023931953,
+      "angleDeg": -12,
+      "buildingCount": 9,
+      "storeyTypes": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "floorHeight": 3.7,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        3960.4967787446258,
+        185.84804413942308
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            3960.4967787446258,
+            185.84804413942308
+          ],
+          [
+            3956.3385449282705,
+            205.4109961540992
+          ],
+          [
+            3956.3385449282705,
+            500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 500
+        }
+      },
+      "rotatedBounds": [
+        3745.3043065831885,
+        -231.58861611933014,
+        4254.695693416812,
+        231.58861611933014
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-14-15-C0",
+        "GC-TILE-14-15-C1",
+        "GC-TILE-14-15-C2",
+        "GC-TILE-14-15-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-HIGH-05",
+      "type": "high",
+      "region": "south",
+      "x": 0,
+      "z": 9000,
+      "width": 440,
+      "depth": 380,
+      "angle": 0.13962634015954636,
+      "angleDeg": 8,
+      "buildingCount": 6,
+      "storeyTypes": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "floorHeight": 3.7,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        26.442889182412433,
+        9188.150933060899
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            26.442889182412433,
+            9188.150933060899
+          ],
+          [
+            29.226351201613742,
+            9207.95629443573
+          ],
+          [
+            29.226351201613742,
+            9500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 9500
+        }
+      },
+      "rotatedBounds": [
+        -244.30186430555793,
+        8781.230984727887,
+        244.30186430555793,
+        9218.769015272113
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-10-24-C0",
+        "GC-TILE-10-24-C1",
+        "GC-TILE-10-24-C2",
+        "GC-TILE-10-24-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-MIXEDVILLA-01",
+      "type": "mixedVilla",
+      "region": "east",
+      "x": 5790,
+      "z": 3000,
+      "width": 380,
+      "depth": 620,
+      "angle": 0.13962634015954636,
+      "angleDeg": 8,
+      "buildingCount": 36,
+      "storeyTypes": [
+        2,
+        3
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        310
+      ],
+      "gateWorld": [
+        5833.14366129762,
+        3306.983101309887
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            5833.14366129762,
+            3306.983101309887
+          ],
+          [
+            5835.927123316822,
+            3326.7884626847185
+          ],
+          [
+            5835.927123316822,
+            3500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 3500
+        }
+      },
+      "rotatedBounds": [
+        5558.705405641482,
+        2666.574009507701,
+        6021.294594358518,
+        3333.425990492299
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-16-18-C0",
+        "GC-TILE-16-18-C2"
+      ],
+      "buildingMix": {
+        "townhouse": 12,
+        "duplex": 12,
+        "detached": 12
+      },
+      "note": "East-subcenter mixed villa community, 790m from (5000,3000), fitted to vacant west half of grid cell (6000,3000). Same36 buildings; adapt layout to380X×620Z local footprint. Preserves both eastern office campuses."
+    },
+    {
+      "id": "GC-HOUSING-MIXEDVILLA-02",
+      "type": "mixedVilla",
+      "region": "south",
+      "x": -1000,
+      "z": 9000,
+      "width": 620,
+      "depth": 440,
+      "angle": 0.22689280275926285,
+      "angleDeg": 13,
+      "buildingCount": 36,
+      "storeyTypes": [
+        2,
+        3
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -950.5107680443497,
+        9214.361414252751
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -950.5107680443497,
+            9214.361414252751
+          ],
+          [
+            -946.0117469574724,
+            9233.848815548456
+          ],
+          [
+            -946.0117469574724,
+            9500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 9500
+        }
+      },
+      "rotatedBounds": [
+        -1351.5439520390732,
+        8715.90375890065,
+        -648.4560479609268,
+        9284.09624109935
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-09-24-C0",
+        "GC-TILE-09-24-C1",
+        "GC-TILE-09-24-C2",
+        "GC-TILE-09-24-C3"
+      ],
+      "buildingMix": {
+        "townhouse": 12,
+        "duplex": 12,
+        "detached": 12
+      }
+    },
+    {
+      "id": "GC-HOUSING-LARGEDETACHED-01",
+      "type": "largeDetached",
+      "region": "westEdge",
+      "x": -8000,
+      "z": 8000,
+      "width": 680,
+      "depth": 440,
+      "angle": -0.15707963267948966,
+      "angleDeg": -9,
+      "buildingCount": 20,
+      "storeyTypes": [
+        2,
+        3
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -8034.41558230885,
+        8217.29143493093
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -8034.41558230885,
+            8217.29143493093
+          ],
+          [
+            -8037.544271609655,
+            8237.045201742832
+          ],
+          [
+            -8037.544271609655,
+            8500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 8500
+        }
+      },
+      "rotatedBounds": [
+        -8370.229618111198,
+        7729.520846955391,
+        -7629.770381888802,
+        8270.47915304461
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-02-23-C0",
+        "GC-TILE-02-23-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LARGEDETACHED-02",
+      "type": "largeDetached",
+      "region": "eastEdge",
+      "x": 8000,
+      "z": 10000,
+      "width": 680,
+      "depth": 440,
+      "angle": 0.2617993877991494,
+      "angleDeg": 15,
+      "buildingCount": 20,
+      "storeyTypes": [
+        2,
+        3
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        8056.940189922555,
+        10212.503681783595
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            8056.940189922555,
+            10212.503681783595
+          ],
+          [
+            8062.116570824605,
+            10231.822198309377
+          ],
+          [
+            8062.116570824605,
+            10500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 10500
+        }
+      },
+      "rotatedBounds": [
+        7614.645029139162,
+        9699.497842881548,
+        8385.354970860837,
+        10300.502157118452
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-18-25-C0",
+        "GC-TILE-18-25-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-01",
+      "type": "lowerMiddle",
+      "region": "main",
+      "x": -3000,
+      "z": -1000,
+      "width": 420,
+      "depth": 380,
+      "angle": -0.20943951023931953,
+      "angleDeg": -12,
+      "buildingCount": 18,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        -3039.5032212553742,
+        -814.1519558605769
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -3039.5032212553742,
+            -814.1519558605769
+          ],
+          [
+            -3043.6614550717295,
+            -794.5890038459008
+          ],
+          [
+            -3043.6614550717295,
+            -500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": -500
+        }
+      },
+      "rotatedBounds": [
+        -3244.9142174094736,
+        -1229.5094992111526,
+        -2755.0857825905264,
+        -770.4905007888475
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-07-14-C0",
+        "GC-TILE-07-14-C1",
+        "GC-TILE-07-14-C2",
+        "GC-TILE-07-14-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-02",
+      "type": "lowerMiddle",
+      "region": "main",
+      "x": -3000,
+      "z": -2000,
+      "width": 420,
+      "depth": 380,
+      "angle": 0.13962634015954636,
+      "angleDeg": 8,
+      "buildingCount": 15,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        -2973.5571108175877,
+        -1811.8490669391017
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -2973.5571108175877,
+            -1811.8490669391017
+          ],
+          [
+            -2970.7736487983866,
+            -1792.0437055642703
+          ],
+          [
+            -2970.7736487983866,
+            -1500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": -1500
+        }
+      },
+      "rotatedBounds": [
+        -3234.399183618142,
+        -2217.377284262512,
+        -2765.600816381858,
+        -1782.6227157374879
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-07-13-C0",
+        "GC-TILE-07-13-C1",
+        "GC-TILE-07-13-C2",
+        "GC-TILE-07-13-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-03",
+      "type": "lowerMiddle",
+      "region": "main",
+      "x": -3000,
+      "z": 1000,
+      "width": 420,
+      "depth": 380,
+      "angle": -0.19198621771937624,
+      "angleDeg": -11,
+      "buildingCount": 18,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        -3036.2537091215436,
+        1186.509164855056
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -3036.2537091215436,
+            1186.509164855056
+          ],
+          [
+            -3040.0698890290746,
+            1206.1417085240093
+          ],
+          [
+            -3040.0698890290746,
+            1500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 1500
+        }
+      },
+      "rotatedBounds": [
+        -3242.395417645553,
+        773.4209461158695,
+        -2757.604582354447,
+        1226.5790538841306
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-07-16-C0",
+        "GC-TILE-07-16-C1",
+        "GC-TILE-07-16-C2",
+        "GC-TILE-07-16-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-04",
+      "type": "lowerMiddle",
+      "region": "main",
+      "x": 3000,
+      "z": -2000,
+      "width": 420,
+      "depth": 380,
+      "angle": 0.22689280275926285,
+      "angleDeg": 13,
+      "buildingCount": 15,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        3042.7407003253343,
+        -1814.8696876908052
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            3042.7407003253343,
+            -1814.8696876908052
+          ],
+          [
+            3047.2397214122116,
+            -1795.3822863951004
+          ],
+          [
+            3047.2397214122116,
+            -1500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": -1500
+        }
+      },
+      "rotatedBounds": [
+        2752.641586069766,
+        -2232.3700337214063,
+        3247.358413930234,
+        -1767.6299662785937
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-13-13-C0",
+        "GC-TILE-13-13-C1",
+        "GC-TILE-13-13-C2",
+        "GC-TILE-13-13-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-05",
+      "type": "lowerMiddle",
+      "region": "east",
+      "x": 7000,
+      "z": 2000,
+      "width": 420,
+      "depth": 380,
+      "angle": -0.15707963267948966,
+      "angleDeg": -9,
+      "buildingCount": 18,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        6970.277451642356,
+        2187.6607847130763
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            6970.277451642356,
+            2187.6607847130763
+          ],
+          [
+            6967.148762341551,
+            2207.414551524979
+          ],
+          [
+            6967.148762341551,
+            2500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 2500
+        }
+      },
+      "rotatedBounds": [
+        6762.862900117378,
+        1779.4879776284754,
+        7237.137099882622,
+        2220.512022371525
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-17-17-C0",
+        "GC-TILE-17-17-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-06",
+      "type": "lowerMiddle",
+      "region": "east",
+      "x": 7000,
+      "z": 1000,
+      "width": 420,
+      "depth": 380,
+      "angle": 0.2617993877991494,
+      "angleDeg": 15,
+      "buildingCount": 15,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        7049.1756185694785,
+        1183.525906994923
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            7049.1756185694785,
+            1183.525906994923
+          ],
+          [
+            7054.351999471529,
+            1202.8444235207044
+          ],
+          [
+            7054.351999471529,
+            1500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 1500
+        }
+      },
+      "rotatedBounds": [
+        6747.979957909817,
+        762.1220935335476,
+        7252.020042090183,
+        1237.8779064664523
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-17-16-C0",
+        "GC-TILE-17-16-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-07",
+      "type": "lowerMiddle",
+      "region": "east",
+      "x": 7000,
+      "z": 5000,
+      "width": 420,
+      "depth": 380,
+      "angle": -0.20943951023931953,
+      "angleDeg": -12,
+      "buildingCount": 18,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        6960.496778744626,
+        5185.848044139423
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            6960.496778744626,
+            5185.848044139423
+          ],
+          [
+            6956.3385449282705,
+            5205.410996154099
+          ],
+          [
+            6956.3385449282705,
+            5500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 5500
+        }
+      },
+      "rotatedBounds": [
+        6755.085782590527,
+        4770.490500788847,
+        7244.914217409473,
+        5229.509499211153
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-17-20-C0",
+        "GC-TILE-17-20-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-08",
+      "type": "lowerMiddle",
+      "region": "east",
+      "x": 5000,
+      "z": 6000,
+      "width": 420,
+      "depth": 380,
+      "angle": 0.13962634015954636,
+      "angleDeg": 8,
+      "buildingCount": 15,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        5026.442889182413,
+        6188.150933060899
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            5026.442889182413,
+            6188.150933060899
+          ],
+          [
+            5029.226351201614,
+            6207.95629443573
+          ],
+          [
+            5029.226351201614,
+            6500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 6500
+        }
+      },
+      "rotatedBounds": [
+        4765.600816381858,
+        5782.622715737488,
+        5234.399183618142,
+        6217.377284262512
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-15-21-C0",
+        "GC-TILE-15-21-C1",
+        "GC-TILE-15-21-C2",
+        "GC-TILE-15-21-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-09",
+      "type": "lowerMiddle",
+      "region": "east",
+      "x": 6000,
+      "z": 6000,
+      "width": 420,
+      "depth": 380,
+      "angle": -0.19198621771937624,
+      "angleDeg": -11,
+      "buildingCount": 18,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        5963.746290878456,
+        6186.509164855056
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            5963.746290878456,
+            6186.509164855056
+          ],
+          [
+            5959.930110970926,
+            6206.141708524009
+          ],
+          [
+            5959.930110970926,
+            6500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 6500
+        }
+      },
+      "rotatedBounds": [
+        5757.604582354447,
+        5773.42094611587,
+        6242.395417645553,
+        6226.57905388413
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-16-21-C0",
+        "GC-TILE-16-21-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-10",
+      "type": "lowerMiddle",
+      "region": "south",
+      "x": -1000,
+      "z": 10000,
+      "width": 420,
+      "depth": 380,
+      "angle": 0.22689280275926285,
+      "angleDeg": 13,
+      "buildingCount": 15,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        -957.2592996746656,
+        10185.130312309195
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -957.2592996746656,
+            10185.130312309195
+          ],
+          [
+            -952.7602785877883,
+            10204.6177136049
+          ],
+          [
+            -952.7602785877883,
+            10500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 10500
+        }
+      },
+      "rotatedBounds": [
+        -1247.3584139302338,
+        9767.629966278593,
+        -752.6415860697663,
+        10232.370033721407
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-09-25-C0",
+        "GC-TILE-09-25-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-11",
+      "type": "lowerMiddle",
+      "region": "south",
+      "x": -2000,
+      "z": 10000,
+      "width": 420,
+      "depth": 380,
+      "angle": -0.15707963267948966,
+      "angleDeg": -9,
+      "buildingCount": 18,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        -2029.722548357644,
+        10187.660784713076
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -2029.722548357644,
+            10187.660784713076
+          ],
+          [
+            -2032.8512376584486,
+            10207.414551524978
+          ],
+          [
+            -2032.8512376584486,
+            10500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 10500
+        }
+      },
+      "rotatedBounds": [
+        -2237.137099882623,
+        9779.487977628476,
+        -1762.8629001173772,
+        10220.512022371524
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-08-25-C0",
+        "GC-TILE-08-25-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-12",
+      "type": "lowerMiddle",
+      "region": "south",
+      "x": -3000,
+      "z": 10000,
+      "width": 420,
+      "depth": 380,
+      "angle": 0.2617993877991494,
+      "angleDeg": 15,
+      "buildingCount": 15,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        -2950.824381430521,
+        10183.525906994922
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -2950.824381430521,
+            10183.525906994922
+          ],
+          [
+            -2945.6480005284707,
+            10202.844423520704
+          ],
+          [
+            -2945.6480005284707,
+            10500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 10500
+        }
+      },
+      "rotatedBounds": [
+        -3252.0200420901833,
+        9762.122093533548,
+        -2747.9799579098167,
+        10237.877906466452
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-07-25-C0",
+        "GC-TILE-07-25-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-13",
+      "type": "lowerMiddle",
+      "region": "south",
+      "x": 1000,
+      "z": 10000,
+      "width": 420,
+      "depth": 380,
+      "angle": -0.20943951023931953,
+      "angleDeg": -12,
+      "buildingCount": 18,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        960.4967787446258,
+        10185.848044139422
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            960.4967787446258,
+            10185.848044139422
+          ],
+          [
+            956.3385449282706,
+            10205.410996154098
+          ],
+          [
+            956.3385449282706,
+            10500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 10500
+        }
+      },
+      "rotatedBounds": [
+        755.0857825905266,
+        9770.490500788848,
+        1244.9142174094734,
+        10229.509499211152
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-11-25-C0",
+        "GC-TILE-11-25-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOWERMIDDLE-14",
+      "type": "lowerMiddle",
+      "region": "south",
+      "x": -1000,
+      "z": 11000,
+      "width": 420,
+      "depth": 380,
+      "angle": 0.13962634015954636,
+      "angleDeg": 8,
+      "buildingCount": 15,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "gateLocal": [
+        0,
+        190
+      ],
+      "gateWorld": [
+        -973.5571108175876,
+        11188.150933060899
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -973.5571108175876,
+            11188.150933060899
+          ],
+          [
+            -970.7736487983863,
+            11207.95629443573
+          ],
+          [
+            -970.7736487983863,
+            11500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 11500
+        }
+      },
+      "rotatedBounds": [
+        -1234.3991836181422,
+        10782.622715737489,
+        -765.6008163818578,
+        11217.377284262511
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-09-26-C0",
+        "GC-TILE-09-26-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-01",
+      "type": "low",
+      "region": "main",
+      "x": 0,
+      "z": -4000,
+      "width": 620,
+      "depth": 440,
+      "angle": -0.19198621771937624,
+      "angleDeg": -11,
+      "buildingCount": 27,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -41.97797898283986,
+        -3784.042019641514
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -41.97797898283986,
+            -3784.042019641514
+          ],
+          [
+            -45.79415889037075,
+            -3764.409475972561
+          ],
+          [
+            -45.79415889037075,
+            -3500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": -3500
+        }
+      },
+      "rotatedBounds": [
+        -346.28240585161564,
+        -4275.108768925215,
+        346.28240585161564,
+        -3724.891231074785
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-10-11-C0",
+        "GC-TILE-10-11-C1",
+        "GC-TILE-10-11-C2",
+        "GC-TILE-10-11-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-02",
+      "type": "low",
+      "region": "main",
+      "x": 0,
+      "z": -5000,
+      "width": 620,
+      "depth": 440,
+      "angle": 0.22689280275926285,
+      "angleDeg": 13,
+      "buildingCount": 34,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        49.489231955650304,
+        -4785.638585747248
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            49.489231955650304,
+            -4785.638585747248
+          ],
+          [
+            53.9882530425276,
+            -4766.1511844515435
+          ],
+          [
+            53.9882530425276,
+            -4500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": -4500
+        }
+      },
+      "rotatedBounds": [
+        -351.54395203907325,
+        -5284.09624109935,
+        351.54395203907325,
+        -4715.90375890065
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-10-10-C0",
+        "GC-TILE-10-10-C1",
+        "GC-TILE-10-10-C2",
+        "GC-TILE-10-10-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-03",
+      "type": "low",
+      "region": "main",
+      "x": 0,
+      "z": 4000,
+      "width": 620,
+      "depth": 440,
+      "angle": -0.15707963267948966,
+      "angleDeg": -9,
+      "buildingCount": 25,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -34.415582308850794,
+        4217.29143493093
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -34.415582308850794,
+            4217.29143493093
+          ],
+          [
+            -37.54427160965541,
+            4237.045201742833
+          ],
+          [
+            -37.54427160965541,
+            4500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 4500
+        }
+      },
+      "rotatedBounds": [
+        -340.5989678933435,
+        3734.213880906598,
+        340.5989678933435,
+        4265.786119093402
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-10-19-C0",
+        "GC-TILE-10-19-C1",
+        "GC-TILE-10-19-C2",
+        "GC-TILE-10-19-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-04",
+      "type": "low",
+      "region": "main",
+      "x": -3000,
+      "z": -4000,
+      "width": 620,
+      "depth": 440,
+      "angle": 0.2617993877991494,
+      "angleDeg": 15,
+      "buildingCount": 32,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -2943.0598100774455,
+        -3787.496318216405
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -2943.0598100774455,
+            -3787.496318216405
+          ],
+          [
+            -2937.883429175395,
+            -3768.1778016906237
+          ],
+          [
+            -2937.883429175395,
+            -3500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": -3500
+        }
+      },
+      "rotatedBounds": [
+        -3356.3771960721656,
+        -4292.737585765377,
+        -2643.6228039278344,
+        -3707.2624142346235
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-07-11-C0",
+        "GC-TILE-07-11-C1",
+        "GC-TILE-07-11-C2",
+        "GC-TILE-07-11-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-05",
+      "type": "low",
+      "region": "main",
+      "x": -3000,
+      "z": 3000,
+      "width": 620,
+      "depth": 440,
+      "angle": -0.20943951023931953,
+      "angleDeg": -12,
+      "buildingCount": 23,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -3045.740571979907,
+        3215.1924721614373
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -3045.740571979907,
+            3215.1924721614373
+          ],
+          [
+            -3049.8988057962624,
+            3234.7554241761136
+          ],
+          [
+            -3049.8988057962624,
+            3500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 3500
+        }
+      },
+      "rotatedBounds": [
+        -3348.966328207387,
+        2720.3549036850573,
+        -2651.033671792613,
+        3279.6450963149427
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-07-18-C0",
+        "GC-TILE-07-18-C1",
+        "GC-TILE-07-18-C2",
+        "GC-TILE-07-18-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-06",
+      "type": "low",
+      "region": "main",
+      "x": -2000,
+      "z": -5000,
+      "width": 620,
+      "depth": 440,
+      "angle": 0.13962634015954636,
+      "angleDeg": 8,
+      "buildingCount": 30,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -1969.3819177887856,
+        -4782.141024876854
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -1969.3819177887856,
+            -4782.141024876854
+          ],
+          [
+            -1966.5984557695842,
+            -4762.335663502023
+          ],
+          [
+            -1966.5984557695842,
+            -4500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": -4500
+        }
+      },
+      "rotatedBounds": [
+        -2337.601183521101,
+        -5261.002636420766,
+        -1662.3988164788989,
+        -4738.997363579234
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-08-10-C0",
+        "GC-TILE-08-10-C1",
+        "GC-TILE-08-10-C2",
+        "GC-TILE-08-10-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-07",
+      "type": "low",
+      "region": "main",
+      "x": -5000,
+      "z": -1000,
+      "width": 620,
+      "depth": 440,
+      "angle": -0.19198621771937624,
+      "angleDeg": -11,
+      "buildingCount": 21,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -5041.97797898284,
+        -784.0420196415139
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -5041.97797898284,
+            -784.0420196415139
+          ],
+          [
+            -5045.79415889037,
+            -764.4094759725606
+          ],
+          [
+            -5045.79415889037,
+            -500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": -500
+        }
+      },
+      "rotatedBounds": [
+        -5346.282405851615,
+        -1275.108768925215,
+        -4653.717594148385,
+        -724.8912310747851
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-05-14-C0",
+        "GC-TILE-05-14-C1",
+        "GC-TILE-05-14-C2",
+        "GC-TILE-05-14-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-08",
+      "type": "low",
+      "region": "main",
+      "x": 5000,
+      "z": -1000,
+      "width": 620,
+      "depth": 440,
+      "angle": 0.22689280275926285,
+      "angleDeg": 13,
+      "buildingCount": 28,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        5049.48923195565,
+        -785.6385857472483
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            5049.48923195565,
+            -785.6385857472483
+          ],
+          [
+            5053.9882530425275,
+            -766.1511844515436
+          ],
+          [
+            5053.9882530425275,
+            -500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": -500
+        }
+      },
+      "rotatedBounds": [
+        4648.456047960926,
+        -1284.09624109935,
+        5351.543952039074,
+        -715.90375890065
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-15-14-C0",
+        "GC-TILE-15-14-C1",
+        "GC-TILE-15-14-C2",
+        "GC-TILE-15-14-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-09",
+      "type": "low",
+      "region": "main",
+      "x": -5000,
+      "z": -2000,
+      "width": 620,
+      "depth": 440,
+      "angle": -0.15707963267948966,
+      "angleDeg": -9,
+      "buildingCount": 35,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -5034.41558230885,
+        -1782.7085650690697
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -5034.41558230885,
+            -1782.7085650690697
+          ],
+          [
+            -5037.544271609655,
+            -1762.9547982571669
+          ],
+          [
+            -5037.544271609655,
+            -1500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": -1500
+        }
+      },
+      "rotatedBounds": [
+        -5340.598967893344,
+        -2265.786119093402,
+        -4659.401032106656,
+        -1734.2138809065982
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-05-13-C0",
+        "GC-TILE-05-13-C1",
+        "GC-TILE-05-13-C2",
+        "GC-TILE-05-13-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-10",
+      "type": "low",
+      "region": "east",
+      "x": 8000,
+      "z": 2000,
+      "width": 620,
+      "depth": 440,
+      "angle": 0.2617993877991494,
+      "angleDeg": 15,
+      "buildingCount": 26,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        8056.940189922555,
+        2212.503681783595
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            8056.940189922555,
+            2212.503681783595
+          ],
+          [
+            8062.116570824605,
+            2231.8221983093763
+          ],
+          [
+            8062.116570824605,
+            2500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 2500
+        }
+      },
+      "rotatedBounds": [
+        7643.622803927834,
+        1707.2624142346235,
+        8356.377196072166,
+        2292.7375857653765
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-18-17-C0",
+        "GC-TILE-18-17-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-11",
+      "type": "low",
+      "region": "east",
+      "x": 8000,
+      "z": 4000,
+      "width": 620,
+      "depth": 440,
+      "angle": -0.20943951023931953,
+      "angleDeg": -12,
+      "buildingCount": 33,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        7954.259428020093,
+        4215.192472161437
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            7954.259428020093,
+            4215.192472161437
+          ],
+          [
+            7950.101194203738,
+            4234.755424176113
+          ],
+          [
+            7950.101194203738,
+            4500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 4500
+        }
+      },
+      "rotatedBounds": [
+        7651.033671792613,
+        3720.3549036850573,
+        8348.966328207387,
+        4279.645096314943
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-18-19-C0",
+        "GC-TILE-18-19-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-12",
+      "type": "low",
+      "region": "east",
+      "x": 7000,
+      "z": 0,
+      "width": 620,
+      "depth": 440,
+      "angle": 0.13962634015954636,
+      "angleDeg": 8,
+      "buildingCount": 24,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        7030.618082211215,
+        217.85897512314548
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            7030.618082211215,
+            217.85897512314548
+          ],
+          [
+            7033.401544230416,
+            237.66433649797688
+          ],
+          [
+            7033.401544230416,
+            500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 500
+        }
+      },
+      "rotatedBounds": [
+        6662.398816478899,
+        -261.0026364207658,
+        7337.601183521101,
+        261.0026364207658
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-17-15-C0",
+        "GC-TILE-17-15-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-13",
+      "type": "low",
+      "region": "east",
+      "x": 7000,
+      "z": 6000,
+      "width": 620,
+      "depth": 440,
+      "angle": -0.19198621771937624,
+      "angleDeg": -11,
+      "buildingCount": 31,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        6958.02202101716,
+        6215.957980358486
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            6958.02202101716,
+            6215.957980358486
+          ],
+          [
+            6954.20584110963,
+            6235.590524027439
+          ],
+          [
+            6954.20584110963,
+            6500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 6500
+        }
+      },
+      "rotatedBounds": [
+        6653.717594148385,
+        5724.891231074785,
+        7346.282405851615,
+        6275.108768925215
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-17-21-C0",
+        "GC-TILE-17-21-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-14",
+      "type": "low",
+      "region": "east",
+      "x": 8000,
+      "z": 5000,
+      "width": 620,
+      "depth": 440,
+      "angle": 0.22689280275926285,
+      "angleDeg": 13,
+      "buildingCount": 22,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        8049.48923195565,
+        5214.361414252752
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            8049.48923195565,
+            5214.361414252752
+          ],
+          [
+            8053.9882530425275,
+            5233.8488155484565
+          ],
+          [
+            8053.9882530425275,
+            5500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 5500
+        }
+      },
+      "rotatedBounds": [
+        7648.456047960926,
+        4715.90375890065,
+        8351.543952039074,
+        5284.09624109935
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-18-20-C0",
+        "GC-TILE-18-20-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-15",
+      "type": "low",
+      "region": "east",
+      "x": 5000,
+      "z": 7000,
+      "width": 620,
+      "depth": 440,
+      "angle": -0.15707963267948966,
+      "angleDeg": -9,
+      "buildingCount": 29,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        4965.58441769115,
+        7217.29143493093
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            4965.58441769115,
+            7217.29143493093
+          ],
+          [
+            4962.455728390345,
+            7237.045201742833
+          ],
+          [
+            4962.455728390345,
+            7500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 7500
+        }
+      },
+      "rotatedBounds": [
+        4659.401032106656,
+        6734.213880906598,
+        5340.598967893344,
+        7265.786119093402
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-15-22-C0",
+        "GC-TILE-15-22-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-16",
+      "type": "low",
+      "region": "east",
+      "x": 6000,
+      "z": 7000,
+      "width": 620,
+      "depth": 440,
+      "angle": 0.2617993877991494,
+      "angleDeg": 15,
+      "buildingCount": 20,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        6056.940189922555,
+        7212.503681783595
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            6056.940189922555,
+            7212.503681783595
+          ],
+          [
+            6062.116570824605,
+            7231.822198309376
+          ],
+          [
+            6062.116570824605,
+            7500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 7500
+        }
+      },
+      "rotatedBounds": [
+        5643.622803927834,
+        6707.262414234623,
+        6356.377196072166,
+        7292.737585765377
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-16-22-C0",
+        "GC-TILE-16-22-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-17",
+      "type": "low",
+      "region": "east",
+      "x": 2000,
+      "z": 6000,
+      "width": 620,
+      "depth": 440,
+      "angle": -0.20943951023931953,
+      "angleDeg": -12,
+      "buildingCount": 27,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        1954.2594280200929,
+        6215.192472161437
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            1954.2594280200929,
+            6215.192472161437
+          ],
+          [
+            1950.1011942037376,
+            6234.755424176113
+          ],
+          [
+            1950.1011942037376,
+            6500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 6500
+        }
+      },
+      "rotatedBounds": [
+        1651.0336717926132,
+        5720.354903685057,
+        2348.966328207387,
+        6279.645096314943
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-12-21-C0",
+        "GC-TILE-12-21-C2"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-18",
+      "type": "low",
+      "region": "south",
+      "x": -4000,
+      "z": 7000,
+      "width": 620,
+      "depth": 440,
+      "angle": 0.13962634015954636,
+      "angleDeg": 8,
+      "buildingCount": 34,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -3969.381917788786,
+        7217.858975123146
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -3969.381917788786,
+            7217.858975123146
+          ],
+          [
+            -3966.5984557695847,
+            7237.664336497977
+          ],
+          [
+            -3966.5984557695847,
+            7500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 7500
+        }
+      },
+      "rotatedBounds": [
+        -4337.601183521101,
+        6738.997363579234,
+        -3662.398816478899,
+        7261.002636420766
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-06-22-C0",
+        "GC-TILE-06-22-C1",
+        "GC-TILE-06-22-C2",
+        "GC-TILE-06-22-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-19",
+      "type": "low",
+      "region": "south",
+      "x": -4000,
+      "z": 9000,
+      "width": 620,
+      "depth": 440,
+      "angle": -0.19198621771937624,
+      "angleDeg": -11,
+      "buildingCount": 25,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -4041.97797898284,
+        9215.957980358486
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -4041.97797898284,
+            9215.957980358486
+          ],
+          [
+            -4045.794158890371,
+            9235.590524027439
+          ],
+          [
+            -4045.794158890371,
+            9500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 9500
+        }
+      },
+      "rotatedBounds": [
+        -4346.282405851615,
+        8724.891231074786,
+        -3653.7175941483843,
+        9275.108768925214
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-06-24-C0",
+        "GC-TILE-06-24-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-20",
+      "type": "low",
+      "region": "south",
+      "x": -2000,
+      "z": 5000,
+      "width": 620,
+      "depth": 440,
+      "angle": 0.22689280275926285,
+      "angleDeg": 13,
+      "buildingCount": 32,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -1950.5107680443498,
+        5214.361414252752
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -1950.5107680443498,
+            5214.361414252752
+          ],
+          [
+            -1946.0117469574725,
+            5233.8488155484565
+          ],
+          [
+            -1946.0117469574725,
+            5500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 5500
+        }
+      },
+      "rotatedBounds": [
+        -2351.5439520390732,
+        4715.90375890065,
+        -1648.4560479609268,
+        5284.09624109935
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-08-20-C0",
+        "GC-TILE-08-20-C1",
+        "GC-TILE-08-20-C2",
+        "GC-TILE-08-20-C3"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-21",
+      "type": "low",
+      "region": "south",
+      "x": -2000,
+      "z": 11000,
+      "width": 620,
+      "depth": 440,
+      "angle": -0.15707963267948966,
+      "angleDeg": -9,
+      "buildingCount": 23,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -2034.4155823088508,
+        11217.29143493093
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -2034.4155823088508,
+            11217.29143493093
+          ],
+          [
+            -2037.5442716096554,
+            11237.045201742832
+          ],
+          [
+            -2037.5442716096554,
+            11500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 11500
+        }
+      },
+      "rotatedBounds": [
+        -2340.5989678933433,
+        10734.213880906598,
+        -1659.4010321066564,
+        11265.786119093402
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-08-26-C0",
+        "GC-TILE-08-26-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-22",
+      "type": "low",
+      "region": "south",
+      "x": 0,
+      "z": 11000,
+      "width": 620,
+      "depth": 440,
+      "angle": 0.2617993877991494,
+      "angleDeg": 15,
+      "buildingCount": 30,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        56.940189922554566,
+        11212.503681783595
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            56.940189922554566,
+            11212.503681783595
+          ],
+          [
+            62.11657082460498,
+            11231.822198309377
+          ],
+          [
+            62.11657082460498,
+            11500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 11500
+        }
+      },
+      "rotatedBounds": [
+        -356.37719607216576,
+        10707.262414234623,
+        356.37719607216576,
+        11292.737585765377
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-10-26-C0",
+        "GC-TILE-10-26-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-23",
+      "type": "low",
+      "region": "south",
+      "x": -4000,
+      "z": 10000,
+      "width": 620,
+      "depth": 440,
+      "angle": -0.20943951023931953,
+      "angleDeg": -12,
+      "buildingCount": 21,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -4045.740571979907,
+        10215.192472161438
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -4045.740571979907,
+            10215.192472161438
+          ],
+          [
+            -4049.8988057962624,
+            10234.755424176114
+          ],
+          [
+            -4049.8988057962624,
+            10500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 10500
+        }
+      },
+      "rotatedBounds": [
+        -4348.966328207387,
+        9720.354903685058,
+        -3651.033671792613,
+        10279.645096314942
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-06-25-C0",
+        "GC-TILE-06-25-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-24",
+      "type": "low",
+      "region": "south",
+      "x": -3000,
+      "z": 11000,
+      "width": 620,
+      "depth": 440,
+      "angle": 0.13962634015954636,
+      "angleDeg": 8,
+      "buildingCount": 28,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        -2969.381917788786,
+        11217.858975123145
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -2969.381917788786,
+            11217.858975123145
+          ],
+          [
+            -2966.5984557695847,
+            11237.664336497975
+          ],
+          [
+            -2966.5984557695847,
+            11500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 11500
+        }
+      },
+      "rotatedBounds": [
+        -3337.601183521101,
+        10738.997363579234,
+        -2662.398816478899,
+        11261.002636420766
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-07-26-C0",
+        "GC-TILE-07-26-C1"
+      ]
+    },
+    {
+      "id": "GC-HOUSING-LOW-25",
+      "type": "low",
+      "region": "south",
+      "x": 1000,
+      "z": 11000,
+      "width": 620,
+      "depth": 440,
+      "angle": -0.19198621771937624,
+      "angleDeg": -11,
+      "buildingCount": 35,
+      "storeyTypes": [
+        6
+      ],
+      "floorHeight": 2.85,
+      "gateLocal": [
+        0,
+        220
+      ],
+      "gateWorld": [
+        958.0220210171601,
+        11215.957980358486
+      ],
+      "gateWidth": 20,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            958.0220210171601,
+            11215.957980358486
+          ],
+          [
+            954.2058411096292,
+            11235.590524027439
+          ],
+          [
+            954.2058411096292,
+            11500
+          ]
+        ],
+        "joinsRoad": {
+          "axis": "x",
+          "z": 11500
+        }
+      },
+      "rotatedBounds": [
+        653.7175941483844,
+        10724.891231074786,
+        1346.2824058516157,
+        11275.108768925214
+      ],
+      "removedResidentialCompoundIds": [
+        "GC-TILE-11-26-C0",
+        "GC-TILE-11-26-C1"
+      ]
+    },
+    {
+      "id": "GC-COMMUNITY-MID",
+      "type": "lowerMiddle",
+      "region": "main",
+      "x": -850,
+      "z": 750,
+      "width": 288,
+      "depth": 412,
+      "angle": 0,
+      "angleDeg": 0,
+      "buildingCount": 15,
+      "storeyTypes": [
+        8,
+        10
+      ],
+      "floorHeight": 3,
+      "retainExistingFootprints": true,
+      "gateLocal": [
+        144,
+        156
+      ],
+      "gateWorld": [
+        -706,
+        906
+      ],
+      "gateSide": "east",
+      "gateWidth": 18,
+      "connector": {
+        "width": 14,
+        "points": [
+          [
+            -706,
+            906
+          ],
+          [
+            -440,
+            906
+          ]
+        ],
+        "existing": true
+      },
+      "rotatedBounds": [
+        -994,
+        544,
+        -706,
+        956
+      ],
+      "removedResidentialCompoundIds": [],
+      "note": "Qingting is one of the 15 lower-middle compounds; retain all 15 current homes and existing east gate. Convert every building to 8 or 10 storeys; do not instantiate a second community or generic +Z gate."
+    }
+  ]
+}

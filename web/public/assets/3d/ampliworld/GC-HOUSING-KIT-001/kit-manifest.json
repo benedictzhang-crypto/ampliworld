@@ -1,0 +1,6699 @@
+{
+  "id": "GC-HOUSING-KIT-001",
+  "version": 1,
+  "units": "meters",
+  "prototypes": [
+    {
+      "kind": "low",
+      "id": "HK-LOW-01",
+      "name": "Weathered Court",
+      "nameZh": "旧庭六层住宅",
+      "file": "hk-low-01.glb",
+      "height": 17.1,
+      "storeys": 6,
+      "floorHeight": 2.85,
+      "footprintMeters": {
+        "width": 36,
+        "depth": 14
+      },
+      "bounds": {
+        "min": [
+          -18,
+          4.4703482582342247e-10,
+          -7
+        ],
+        "max": [
+          18,
+          17.100000381469727,
+          7
+        ]
+      },
+      "colliders": [
+        {
+          "id": "ground-wing--1",
+          "min": [
+            -17.8,
+            0.06,
+            -5.3
+          ],
+          "max": [
+            -3,
+            2.85,
+            5.3
+          ]
+        },
+        {
+          "id": "ground-wing-1",
+          "min": [
+            3,
+            0.06,
+            -5.3
+          ],
+          "max": [
+            17.8,
+            2.85,
+            5.3
+          ]
+        },
+        {
+          "id": "lobby-rear-wall",
+          "min": [
+            -3,
+            0.06,
+            -5.3
+          ],
+          "max": [
+            3,
+            2.85,
+            -5.06
+          ]
+        },
+        {
+          "id": "lobby-ceiling",
+          "min": [
+            -3,
+            2.6100000000000003,
+            -5.3
+          ],
+          "max": [
+            3,
+            2.85,
+            5.3
+          ]
+        },
+        {
+          "id": "lobby-mailboxes",
+          "min": [
+            -2.91,
+            0.06,
+            -4.8
+          ],
+          "max": [
+            -2.45,
+            1.36,
+            -3.4
+          ]
+        },
+        {
+          "id": "upper-residential-envelope",
+          "min": [
+            -17.8,
+            2.85,
+            -5.3
+          ],
+          "max": [
+            17.8,
+            17.1,
+            5.3
+          ]
+        },
+        {
+          "id": "balcony-1--1-0-slab",
+          "min": [
+            -14.916666666666666,
+            2.65,
+            -6.8500000000000005
+          ],
+          "max": [
+            -11.416666666666666,
+            2.85,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-1--1-3-slab",
+          "min": [
+            0.8833333333333333,
+            2.65,
+            -6.8500000000000005
+          ],
+          "max": [
+            4.383333333333333,
+            2.85,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-1-1-0-slab",
+          "min": [
+            -14.916666666666666,
+            2.65,
+            5.3
+          ],
+          "max": [
+            -11.416666666666666,
+            2.85,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-1-1-3-slab",
+          "min": [
+            0.8833333333333333,
+            2.65,
+            5.3
+          ],
+          "max": [
+            4.383333333333333,
+            2.85,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-2--1-0-slab",
+          "min": [
+            -14.916666666666666,
+            5.5,
+            -6.8500000000000005
+          ],
+          "max": [
+            -11.416666666666666,
+            5.7,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-2--1-3-slab",
+          "min": [
+            0.8833333333333333,
+            5.5,
+            -6.8500000000000005
+          ],
+          "max": [
+            4.383333333333333,
+            5.7,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-2-1-0-slab",
+          "min": [
+            -14.916666666666666,
+            5.5,
+            5.3
+          ],
+          "max": [
+            -11.416666666666666,
+            5.7,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-2-1-3-slab",
+          "min": [
+            0.8833333333333333,
+            5.5,
+            5.3
+          ],
+          "max": [
+            4.383333333333333,
+            5.7,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-3--1-0-slab",
+          "min": [
+            -14.916666666666666,
+            8.350000000000001,
+            -6.8500000000000005
+          ],
+          "max": [
+            -11.416666666666666,
+            8.55,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-3--1-3-slab",
+          "min": [
+            0.8833333333333333,
+            8.350000000000001,
+            -6.8500000000000005
+          ],
+          "max": [
+            4.383333333333333,
+            8.55,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-3-1-0-slab",
+          "min": [
+            -14.916666666666666,
+            8.350000000000001,
+            5.3
+          ],
+          "max": [
+            -11.416666666666666,
+            8.55,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-3-1-3-slab",
+          "min": [
+            0.8833333333333333,
+            8.350000000000001,
+            5.3
+          ],
+          "max": [
+            4.383333333333333,
+            8.55,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-4--1-0-slab",
+          "min": [
+            -14.916666666666666,
+            11.200000000000001,
+            -6.8500000000000005
+          ],
+          "max": [
+            -11.416666666666666,
+            11.4,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-4--1-3-slab",
+          "min": [
+            0.8833333333333333,
+            11.200000000000001,
+            -6.8500000000000005
+          ],
+          "max": [
+            4.383333333333333,
+            11.4,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-4-1-0-slab",
+          "min": [
+            -14.916666666666666,
+            11.200000000000001,
+            5.3
+          ],
+          "max": [
+            -11.416666666666666,
+            11.4,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-4-1-3-slab",
+          "min": [
+            0.8833333333333333,
+            11.200000000000001,
+            5.3
+          ],
+          "max": [
+            4.383333333333333,
+            11.4,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-5--1-0-slab",
+          "min": [
+            -14.916666666666666,
+            14.05,
+            -6.8500000000000005
+          ],
+          "max": [
+            -11.416666666666666,
+            14.25,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-5--1-3-slab",
+          "min": [
+            0.8833333333333333,
+            14.05,
+            -6.8500000000000005
+          ],
+          "max": [
+            4.383333333333333,
+            14.25,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-5-1-0-slab",
+          "min": [
+            -14.916666666666666,
+            14.05,
+            5.3
+          ],
+          "max": [
+            -11.416666666666666,
+            14.25,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-5-1-3-slab",
+          "min": [
+            0.8833333333333333,
+            14.05,
+            5.3
+          ],
+          "max": [
+            4.383333333333333,
+            14.25,
+            6.8500000000000005
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "open-lobby",
+          "min": [
+            -3,
+            -5.3
+          ],
+          "max": [
+            3,
+            5.3
+          ],
+          "y": 0.06
+        },
+        {
+          "id": "parcel",
+          "min": [
+            -18,
+            -7
+          ],
+          "max": [
+            18,
+            7
+          ],
+          "y": 0.04
+        }
+      ],
+      "frontAxis": "+Z",
+      "localGroundY": 0,
+      "lobbyFloorY": 0.06,
+      "entrance": [
+        0,
+        5.5
+      ],
+      "balconies": [
+        {
+          "id": "balcony-1--1-0",
+          "position": [
+            -13.166666666666666,
+            2.85,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-1--1-3",
+          "position": [
+            2.6333333333333333,
+            2.85,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-1-1-0",
+          "position": [
+            -13.166666666666666,
+            2.85,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-1-1-3",
+          "position": [
+            2.6333333333333333,
+            2.85,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-2--1-0",
+          "position": [
+            -13.166666666666666,
+            5.7,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-2--1-3",
+          "position": [
+            2.6333333333333333,
+            5.7,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-2-1-0",
+          "position": [
+            -13.166666666666666,
+            5.7,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-2-1-3",
+          "position": [
+            2.6333333333333333,
+            5.7,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-3--1-0",
+          "position": [
+            -13.166666666666666,
+            8.55,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-3--1-3",
+          "position": [
+            2.6333333333333333,
+            8.55,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-3-1-0",
+          "position": [
+            -13.166666666666666,
+            8.55,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-3-1-3",
+          "position": [
+            2.6333333333333333,
+            8.55,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-4--1-0",
+          "position": [
+            -13.166666666666666,
+            11.4,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-4--1-3",
+          "position": [
+            2.6333333333333333,
+            11.4,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-4-1-0",
+          "position": [
+            -13.166666666666666,
+            11.4,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-4-1-3",
+          "position": [
+            2.6333333333333333,
+            11.4,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-5--1-0",
+          "position": [
+            -13.166666666666666,
+            14.25,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-5--1-3",
+          "position": [
+            2.6333333333333333,
+            14.25,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-5-1-0",
+          "position": [
+            -13.166666666666666,
+            14.25,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-5-1-3",
+          "position": [
+            2.6333333333333333,
+            14.25,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        }
+      ],
+      "lobby": {
+        "built": true,
+        "open": true,
+        "interiorApartmentAccess": false,
+        "clearHeight": 2.5500000000000003
+      },
+      "residentialPlan": {
+        "apartmentInteriorsBuilt": false
+      },
+      "stats": {
+        "triangles": 2976,
+        "vertices": 5544,
+        "drawCalls": 12,
+        "indexed": true,
+        "bytes": 162096
+      },
+      "provenance": {
+        "type": "original-procedural",
+        "author": "AmpliWorld",
+        "externalImages": [],
+        "externalMeshes": [],
+        "handAuthoredUniqueInstanceClaim": false
+      },
+      "limitations": [
+        "Upper apartments and balcony access are future work; only declared ground lobbies are open.",
+        "Exterior tier geometry is built; occupancy, elevators and residential interiors are not simulated here."
+      ]
+    },
+    {
+      "kind": "low",
+      "id": "HK-LOW-02",
+      "name": "Faded Gallery",
+      "nameZh": "灰廊六层住宅",
+      "file": "hk-low-02.glb",
+      "height": 17.1,
+      "storeys": 6,
+      "floorHeight": 2.85,
+      "footprintMeters": {
+        "width": 36,
+        "depth": 14
+      },
+      "bounds": {
+        "min": [
+          -18,
+          4.4703482582342247e-10,
+          -7
+        ],
+        "max": [
+          18,
+          17.100000381469727,
+          7
+        ]
+      },
+      "colliders": [
+        {
+          "id": "ground-wing--1",
+          "min": [
+            -17.8,
+            0.06,
+            -5.3
+          ],
+          "max": [
+            -3,
+            2.85,
+            5.3
+          ]
+        },
+        {
+          "id": "ground-wing-1",
+          "min": [
+            3,
+            0.06,
+            -5.3
+          ],
+          "max": [
+            17.8,
+            2.85,
+            5.3
+          ]
+        },
+        {
+          "id": "lobby-rear-wall",
+          "min": [
+            -3,
+            0.06,
+            -5.3
+          ],
+          "max": [
+            3,
+            2.85,
+            -5.06
+          ]
+        },
+        {
+          "id": "lobby-ceiling",
+          "min": [
+            -3,
+            2.6100000000000003,
+            -5.3
+          ],
+          "max": [
+            3,
+            2.85,
+            5.3
+          ]
+        },
+        {
+          "id": "lobby-mailboxes",
+          "min": [
+            -2.91,
+            0.06,
+            -4.8
+          ],
+          "max": [
+            -2.45,
+            1.36,
+            -3.4
+          ]
+        },
+        {
+          "id": "upper-residential-envelope",
+          "min": [
+            -17.8,
+            2.85,
+            -5.3
+          ],
+          "max": [
+            17.8,
+            17.1,
+            5.3
+          ]
+        },
+        {
+          "id": "balcony-1--1-1-slab",
+          "min": [
+            -9.65,
+            2.65,
+            -6.8500000000000005
+          ],
+          "max": [
+            -6.15,
+            2.85,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-1--1-4-slab",
+          "min": [
+            6.15,
+            2.65,
+            -6.8500000000000005
+          ],
+          "max": [
+            9.65,
+            2.85,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-1-1-1-slab",
+          "min": [
+            -9.65,
+            2.65,
+            5.3
+          ],
+          "max": [
+            -6.15,
+            2.85,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-1-1-4-slab",
+          "min": [
+            6.15,
+            2.65,
+            5.3
+          ],
+          "max": [
+            9.65,
+            2.85,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-2--1-1-slab",
+          "min": [
+            -9.65,
+            5.5,
+            -6.8500000000000005
+          ],
+          "max": [
+            -6.15,
+            5.7,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-2--1-4-slab",
+          "min": [
+            6.15,
+            5.5,
+            -6.8500000000000005
+          ],
+          "max": [
+            9.65,
+            5.7,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-2-1-1-slab",
+          "min": [
+            -9.65,
+            5.5,
+            5.3
+          ],
+          "max": [
+            -6.15,
+            5.7,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-2-1-4-slab",
+          "min": [
+            6.15,
+            5.5,
+            5.3
+          ],
+          "max": [
+            9.65,
+            5.7,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-3--1-1-slab",
+          "min": [
+            -9.65,
+            8.350000000000001,
+            -6.8500000000000005
+          ],
+          "max": [
+            -6.15,
+            8.55,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-3--1-4-slab",
+          "min": [
+            6.15,
+            8.350000000000001,
+            -6.8500000000000005
+          ],
+          "max": [
+            9.65,
+            8.55,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-3-1-1-slab",
+          "min": [
+            -9.65,
+            8.350000000000001,
+            5.3
+          ],
+          "max": [
+            -6.15,
+            8.55,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-3-1-4-slab",
+          "min": [
+            6.15,
+            8.350000000000001,
+            5.3
+          ],
+          "max": [
+            9.65,
+            8.55,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-4--1-1-slab",
+          "min": [
+            -9.65,
+            11.200000000000001,
+            -6.8500000000000005
+          ],
+          "max": [
+            -6.15,
+            11.4,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-4--1-4-slab",
+          "min": [
+            6.15,
+            11.200000000000001,
+            -6.8500000000000005
+          ],
+          "max": [
+            9.65,
+            11.4,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-4-1-1-slab",
+          "min": [
+            -9.65,
+            11.200000000000001,
+            5.3
+          ],
+          "max": [
+            -6.15,
+            11.4,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-4-1-4-slab",
+          "min": [
+            6.15,
+            11.200000000000001,
+            5.3
+          ],
+          "max": [
+            9.65,
+            11.4,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-5--1-1-slab",
+          "min": [
+            -9.65,
+            14.05,
+            -6.8500000000000005
+          ],
+          "max": [
+            -6.15,
+            14.25,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-5--1-4-slab",
+          "min": [
+            6.15,
+            14.05,
+            -6.8500000000000005
+          ],
+          "max": [
+            9.65,
+            14.25,
+            -5.3
+          ]
+        },
+        {
+          "id": "balcony-5-1-1-slab",
+          "min": [
+            -9.65,
+            14.05,
+            5.3
+          ],
+          "max": [
+            -6.15,
+            14.25,
+            6.8500000000000005
+          ]
+        },
+        {
+          "id": "balcony-5-1-4-slab",
+          "min": [
+            6.15,
+            14.05,
+            5.3
+          ],
+          "max": [
+            9.65,
+            14.25,
+            6.8500000000000005
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "open-lobby",
+          "min": [
+            -3,
+            -5.3
+          ],
+          "max": [
+            3,
+            5.3
+          ],
+          "y": 0.06
+        },
+        {
+          "id": "parcel",
+          "min": [
+            -18,
+            -7
+          ],
+          "max": [
+            18,
+            7
+          ],
+          "y": 0.04
+        }
+      ],
+      "frontAxis": "+Z",
+      "localGroundY": 0,
+      "lobbyFloorY": 0.06,
+      "entrance": [
+        0,
+        5.5
+      ],
+      "balconies": [
+        {
+          "id": "balcony-1--1-1",
+          "position": [
+            -7.9,
+            2.85,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-1--1-4",
+          "position": [
+            7.9,
+            2.85,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-1-1-1",
+          "position": [
+            -7.9,
+            2.85,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-1-1-4",
+          "position": [
+            7.9,
+            2.85,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-2--1-1",
+          "position": [
+            -7.9,
+            5.7,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-2--1-4",
+          "position": [
+            7.9,
+            5.7,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-2-1-1",
+          "position": [
+            -7.9,
+            5.7,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-2-1-4",
+          "position": [
+            7.9,
+            5.7,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-3--1-1",
+          "position": [
+            -7.9,
+            8.55,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-3--1-4",
+          "position": [
+            7.9,
+            8.55,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-3-1-1",
+          "position": [
+            -7.9,
+            8.55,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-3-1-4",
+          "position": [
+            7.9,
+            8.55,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-4--1-1",
+          "position": [
+            -7.9,
+            11.4,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-4--1-4",
+          "position": [
+            7.9,
+            11.4,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-4-1-1",
+          "position": [
+            -7.9,
+            11.4,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-4-1-4",
+          "position": [
+            7.9,
+            11.4,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-5--1-1",
+          "position": [
+            -7.9,
+            14.25,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-5--1-4",
+          "position": [
+            7.9,
+            14.25,
+            -6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-5-1-1",
+          "position": [
+            -7.9,
+            14.25,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-5-1-4",
+          "position": [
+            7.9,
+            14.25,
+            6.075
+          ],
+          "width": 3.5,
+          "depth": 1.55,
+          "frontDirection": "+Z"
+        }
+      ],
+      "lobby": {
+        "built": true,
+        "open": true,
+        "interiorApartmentAccess": false,
+        "clearHeight": 2.5500000000000003
+      },
+      "residentialPlan": {
+        "apartmentInteriorsBuilt": false
+      },
+      "stats": {
+        "triangles": 2976,
+        "vertices": 5704,
+        "drawCalls": 12,
+        "indexed": true,
+        "bytes": 165936
+      },
+      "provenance": {
+        "type": "original-procedural",
+        "author": "AmpliWorld",
+        "externalImages": [],
+        "externalMeshes": [],
+        "handAuthoredUniqueInstanceClaim": false
+      },
+      "limitations": [
+        "Upper apartments and balcony access are future work; only declared ground lobbies are open.",
+        "Exterior tier geometry is built; occupancy, elevators and residential interiors are not simulated here."
+      ]
+    },
+    {
+      "kind": "lower-middle",
+      "id": "HK-MID-01",
+      "name": "Garden Row",
+      "nameZh": "庭荫八层住宅",
+      "file": "hk-mid-01.glb",
+      "height": 24,
+      "storeys": 8,
+      "floorHeight": 3,
+      "footprintMeters": {
+        "width": 30,
+        "depth": 18
+      },
+      "bounds": {
+        "min": [
+          -15,
+          0,
+          -9
+        ],
+        "max": [
+          15,
+          24,
+          9
+        ]
+      },
+      "colliders": [
+        {
+          "id": "ground-wing--1",
+          "min": [
+            -14.8,
+            0.06,
+            -7
+          ],
+          "max": [
+            -3,
+            3,
+            7
+          ]
+        },
+        {
+          "id": "ground-wing-1",
+          "min": [
+            3,
+            0.06,
+            -7
+          ],
+          "max": [
+            14.8,
+            3,
+            7
+          ]
+        },
+        {
+          "id": "lobby-rear-wall",
+          "min": [
+            -3,
+            0.06,
+            -7
+          ],
+          "max": [
+            3,
+            3,
+            -6.76
+          ]
+        },
+        {
+          "id": "lobby-ceiling",
+          "min": [
+            -3,
+            2.76,
+            -7
+          ],
+          "max": [
+            3,
+            3,
+            7
+          ]
+        },
+        {
+          "id": "lobby-mailboxes",
+          "min": [
+            -2.91,
+            0.06,
+            -6.5
+          ],
+          "max": [
+            -2.45,
+            1.36,
+            -5.1
+          ]
+        },
+        {
+          "id": "upper-residential-envelope",
+          "min": [
+            -14.8,
+            3,
+            -7
+          ],
+          "max": [
+            14.8,
+            24,
+            7
+          ]
+        },
+        {
+          "id": "balcony-1--1-1-slab",
+          "min": [
+            -7.37,
+            2.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            3,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-1--1-3-slab",
+          "min": [
+            2.87,
+            2.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            3,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-1-1-1-slab",
+          "min": [
+            -7.37,
+            2.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            3,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-1-1-3-slab",
+          "min": [
+            2.87,
+            2.8,
+            7
+          ],
+          "max": [
+            7.37,
+            3,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-2--1-1-slab",
+          "min": [
+            -7.37,
+            5.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            6,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-2--1-3-slab",
+          "min": [
+            2.87,
+            5.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            6,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-2-1-1-slab",
+          "min": [
+            -7.37,
+            5.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            6,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-2-1-3-slab",
+          "min": [
+            2.87,
+            5.8,
+            7
+          ],
+          "max": [
+            7.37,
+            6,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-3--1-1-slab",
+          "min": [
+            -7.37,
+            8.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            9,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-3--1-3-slab",
+          "min": [
+            2.87,
+            8.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            9,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-3-1-1-slab",
+          "min": [
+            -7.37,
+            8.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            9,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-3-1-3-slab",
+          "min": [
+            2.87,
+            8.8,
+            7
+          ],
+          "max": [
+            7.37,
+            9,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-4--1-1-slab",
+          "min": [
+            -7.37,
+            11.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            12,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-4--1-3-slab",
+          "min": [
+            2.87,
+            11.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            12,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-4-1-1-slab",
+          "min": [
+            -7.37,
+            11.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            12,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-4-1-3-slab",
+          "min": [
+            2.87,
+            11.8,
+            7
+          ],
+          "max": [
+            7.37,
+            12,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-5--1-1-slab",
+          "min": [
+            -7.37,
+            14.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            15,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-5--1-3-slab",
+          "min": [
+            2.87,
+            14.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            15,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-5-1-1-slab",
+          "min": [
+            -7.37,
+            14.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            15,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-5-1-3-slab",
+          "min": [
+            2.87,
+            14.8,
+            7
+          ],
+          "max": [
+            7.37,
+            15,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-6--1-1-slab",
+          "min": [
+            -7.37,
+            17.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            18,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-6--1-3-slab",
+          "min": [
+            2.87,
+            17.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            18,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-6-1-1-slab",
+          "min": [
+            -7.37,
+            17.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            18,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-6-1-3-slab",
+          "min": [
+            2.87,
+            17.8,
+            7
+          ],
+          "max": [
+            7.37,
+            18,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-7--1-1-slab",
+          "min": [
+            -7.37,
+            20.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            21,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-7--1-3-slab",
+          "min": [
+            2.87,
+            20.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            21,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-7-1-1-slab",
+          "min": [
+            -7.37,
+            20.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            21,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-7-1-3-slab",
+          "min": [
+            2.87,
+            20.8,
+            7
+          ],
+          "max": [
+            7.37,
+            21,
+            8.75
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "open-lobby",
+          "min": [
+            -3,
+            -7
+          ],
+          "max": [
+            3,
+            7
+          ],
+          "y": 0.06
+        },
+        {
+          "id": "parcel",
+          "min": [
+            -15,
+            -9
+          ],
+          "max": [
+            15,
+            9
+          ],
+          "y": 0.04
+        }
+      ],
+      "frontAxis": "+Z",
+      "localGroundY": 0,
+      "lobbyFloorY": 0.06,
+      "entrance": [
+        0,
+        7.2
+      ],
+      "balconies": [
+        {
+          "id": "balcony-1--1-1",
+          "position": [
+            -5.12,
+            3,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-1--1-3",
+          "position": [
+            5.12,
+            3,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-1-1-1",
+          "position": [
+            -5.12,
+            3,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-1-1-3",
+          "position": [
+            5.12,
+            3,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-2--1-1",
+          "position": [
+            -5.12,
+            6,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-2--1-3",
+          "position": [
+            5.12,
+            6,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-2-1-1",
+          "position": [
+            -5.12,
+            6,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-2-1-3",
+          "position": [
+            5.12,
+            6,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-3--1-1",
+          "position": [
+            -5.12,
+            9,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-3--1-3",
+          "position": [
+            5.12,
+            9,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-3-1-1",
+          "position": [
+            -5.12,
+            9,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-3-1-3",
+          "position": [
+            5.12,
+            9,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-4--1-1",
+          "position": [
+            -5.12,
+            12,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-4--1-3",
+          "position": [
+            5.12,
+            12,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-4-1-1",
+          "position": [
+            -5.12,
+            12,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-4-1-3",
+          "position": [
+            5.12,
+            12,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-5--1-1",
+          "position": [
+            -5.12,
+            15,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-5--1-3",
+          "position": [
+            5.12,
+            15,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-5-1-1",
+          "position": [
+            -5.12,
+            15,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-5-1-3",
+          "position": [
+            5.12,
+            15,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-6--1-1",
+          "position": [
+            -5.12,
+            18,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-6--1-3",
+          "position": [
+            5.12,
+            18,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-6-1-1",
+          "position": [
+            -5.12,
+            18,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-6-1-3",
+          "position": [
+            5.12,
+            18,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-7--1-1",
+          "position": [
+            -5.12,
+            21,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-7--1-3",
+          "position": [
+            5.12,
+            21,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-7-1-1",
+          "position": [
+            -5.12,
+            21,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-7-1-3",
+          "position": [
+            5.12,
+            21,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        }
+      ],
+      "lobby": {
+        "built": true,
+        "open": true,
+        "interiorApartmentAccess": false,
+        "clearHeight": 2.7
+      },
+      "residentialPlan": {
+        "apartmentInteriorsBuilt": false
+      },
+      "stats": {
+        "triangles": 2928,
+        "vertices": 5504,
+        "drawCalls": 11,
+        "indexed": true,
+        "bytes": 159800
+      },
+      "provenance": {
+        "type": "original-procedural",
+        "author": "AmpliWorld",
+        "externalImages": [],
+        "externalMeshes": [],
+        "handAuthoredUniqueInstanceClaim": false
+      },
+      "limitations": [
+        "Upper apartments and balcony access are future work; only declared ground lobbies are open.",
+        "Exterior tier geometry is built; occupancy, elevators and residential interiors are not simulated here."
+      ]
+    },
+    {
+      "kind": "lower-middle",
+      "id": "HK-MID-02",
+      "name": "Courtyard Rise",
+      "nameZh": "晴庭十层住宅",
+      "file": "hk-mid-02.glb",
+      "height": 30,
+      "storeys": 10,
+      "floorHeight": 3,
+      "footprintMeters": {
+        "width": 30,
+        "depth": 18
+      },
+      "bounds": {
+        "min": [
+          -15,
+          0,
+          -9
+        ],
+        "max": [
+          15,
+          30,
+          9
+        ]
+      },
+      "colliders": [
+        {
+          "id": "ground-wing--1",
+          "min": [
+            -14.8,
+            0.06,
+            -7
+          ],
+          "max": [
+            -3,
+            3,
+            7
+          ]
+        },
+        {
+          "id": "ground-wing-1",
+          "min": [
+            3,
+            0.06,
+            -7
+          ],
+          "max": [
+            14.8,
+            3,
+            7
+          ]
+        },
+        {
+          "id": "lobby-rear-wall",
+          "min": [
+            -3,
+            0.06,
+            -7
+          ],
+          "max": [
+            3,
+            3,
+            -6.76
+          ]
+        },
+        {
+          "id": "lobby-ceiling",
+          "min": [
+            -3,
+            2.76,
+            -7
+          ],
+          "max": [
+            3,
+            3,
+            7
+          ]
+        },
+        {
+          "id": "lobby-mailboxes",
+          "min": [
+            -2.91,
+            0.06,
+            -6.5
+          ],
+          "max": [
+            -2.45,
+            1.36,
+            -5.1
+          ]
+        },
+        {
+          "id": "upper-residential-envelope",
+          "min": [
+            -14.8,
+            3,
+            -7
+          ],
+          "max": [
+            14.8,
+            30,
+            7
+          ]
+        },
+        {
+          "id": "balcony-1--1-1-slab",
+          "min": [
+            -7.37,
+            2.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            3,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-1--1-3-slab",
+          "min": [
+            2.87,
+            2.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            3,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-1-1-1-slab",
+          "min": [
+            -7.37,
+            2.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            3,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-1-1-3-slab",
+          "min": [
+            2.87,
+            2.8,
+            7
+          ],
+          "max": [
+            7.37,
+            3,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-2--1-1-slab",
+          "min": [
+            -7.37,
+            5.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            6,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-2--1-3-slab",
+          "min": [
+            2.87,
+            5.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            6,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-2-1-1-slab",
+          "min": [
+            -7.37,
+            5.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            6,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-2-1-3-slab",
+          "min": [
+            2.87,
+            5.8,
+            7
+          ],
+          "max": [
+            7.37,
+            6,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-3--1-1-slab",
+          "min": [
+            -7.37,
+            8.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            9,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-3--1-3-slab",
+          "min": [
+            2.87,
+            8.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            9,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-3-1-1-slab",
+          "min": [
+            -7.37,
+            8.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            9,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-3-1-3-slab",
+          "min": [
+            2.87,
+            8.8,
+            7
+          ],
+          "max": [
+            7.37,
+            9,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-4--1-1-slab",
+          "min": [
+            -7.37,
+            11.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            12,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-4--1-3-slab",
+          "min": [
+            2.87,
+            11.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            12,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-4-1-1-slab",
+          "min": [
+            -7.37,
+            11.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            12,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-4-1-3-slab",
+          "min": [
+            2.87,
+            11.8,
+            7
+          ],
+          "max": [
+            7.37,
+            12,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-5--1-1-slab",
+          "min": [
+            -7.37,
+            14.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            15,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-5--1-3-slab",
+          "min": [
+            2.87,
+            14.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            15,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-5-1-1-slab",
+          "min": [
+            -7.37,
+            14.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            15,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-5-1-3-slab",
+          "min": [
+            2.87,
+            14.8,
+            7
+          ],
+          "max": [
+            7.37,
+            15,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-6--1-1-slab",
+          "min": [
+            -7.37,
+            17.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            18,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-6--1-3-slab",
+          "min": [
+            2.87,
+            17.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            18,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-6-1-1-slab",
+          "min": [
+            -7.37,
+            17.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            18,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-6-1-3-slab",
+          "min": [
+            2.87,
+            17.8,
+            7
+          ],
+          "max": [
+            7.37,
+            18,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-7--1-1-slab",
+          "min": [
+            -7.37,
+            20.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            21,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-7--1-3-slab",
+          "min": [
+            2.87,
+            20.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            21,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-7-1-1-slab",
+          "min": [
+            -7.37,
+            20.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            21,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-7-1-3-slab",
+          "min": [
+            2.87,
+            20.8,
+            7
+          ],
+          "max": [
+            7.37,
+            21,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-8--1-1-slab",
+          "min": [
+            -7.37,
+            23.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            24,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-8--1-3-slab",
+          "min": [
+            2.87,
+            23.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            24,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-8-1-1-slab",
+          "min": [
+            -7.37,
+            23.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            24,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-8-1-3-slab",
+          "min": [
+            2.87,
+            23.8,
+            7
+          ],
+          "max": [
+            7.37,
+            24,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-9--1-1-slab",
+          "min": [
+            -7.37,
+            26.8,
+            -8.75
+          ],
+          "max": [
+            -2.87,
+            27,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-9--1-3-slab",
+          "min": [
+            2.87,
+            26.8,
+            -8.75
+          ],
+          "max": [
+            7.37,
+            27,
+            -7
+          ]
+        },
+        {
+          "id": "balcony-9-1-1-slab",
+          "min": [
+            -7.37,
+            26.8,
+            7
+          ],
+          "max": [
+            -2.87,
+            27,
+            8.75
+          ]
+        },
+        {
+          "id": "balcony-9-1-3-slab",
+          "min": [
+            2.87,
+            26.8,
+            7
+          ],
+          "max": [
+            7.37,
+            27,
+            8.75
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "open-lobby",
+          "min": [
+            -3,
+            -7
+          ],
+          "max": [
+            3,
+            7
+          ],
+          "y": 0.06
+        },
+        {
+          "id": "parcel",
+          "min": [
+            -15,
+            -9
+          ],
+          "max": [
+            15,
+            9
+          ],
+          "y": 0.04
+        }
+      ],
+      "frontAxis": "+Z",
+      "localGroundY": 0,
+      "lobbyFloorY": 0.06,
+      "entrance": [
+        0,
+        7.2
+      ],
+      "balconies": [
+        {
+          "id": "balcony-1--1-1",
+          "position": [
+            -5.12,
+            3,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-1--1-3",
+          "position": [
+            5.12,
+            3,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-1-1-1",
+          "position": [
+            -5.12,
+            3,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-1-1-3",
+          "position": [
+            5.12,
+            3,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-2--1-1",
+          "position": [
+            -5.12,
+            6,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-2--1-3",
+          "position": [
+            5.12,
+            6,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-2-1-1",
+          "position": [
+            -5.12,
+            6,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-2-1-3",
+          "position": [
+            5.12,
+            6,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-3--1-1",
+          "position": [
+            -5.12,
+            9,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-3--1-3",
+          "position": [
+            5.12,
+            9,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-3-1-1",
+          "position": [
+            -5.12,
+            9,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-3-1-3",
+          "position": [
+            5.12,
+            9,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-4--1-1",
+          "position": [
+            -5.12,
+            12,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-4--1-3",
+          "position": [
+            5.12,
+            12,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-4-1-1",
+          "position": [
+            -5.12,
+            12,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-4-1-3",
+          "position": [
+            5.12,
+            12,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-5--1-1",
+          "position": [
+            -5.12,
+            15,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-5--1-3",
+          "position": [
+            5.12,
+            15,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-5-1-1",
+          "position": [
+            -5.12,
+            15,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-5-1-3",
+          "position": [
+            5.12,
+            15,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-6--1-1",
+          "position": [
+            -5.12,
+            18,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-6--1-3",
+          "position": [
+            5.12,
+            18,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-6-1-1",
+          "position": [
+            -5.12,
+            18,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-6-1-3",
+          "position": [
+            5.12,
+            18,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-7--1-1",
+          "position": [
+            -5.12,
+            21,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-7--1-3",
+          "position": [
+            5.12,
+            21,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-7-1-1",
+          "position": [
+            -5.12,
+            21,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-7-1-3",
+          "position": [
+            5.12,
+            21,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-8--1-1",
+          "position": [
+            -5.12,
+            24,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-8--1-3",
+          "position": [
+            5.12,
+            24,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-8-1-1",
+          "position": [
+            -5.12,
+            24,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-8-1-3",
+          "position": [
+            5.12,
+            24,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-9--1-1",
+          "position": [
+            -5.12,
+            27,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-9--1-3",
+          "position": [
+            5.12,
+            27,
+            -7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "balcony-9-1-1",
+          "position": [
+            -5.12,
+            27,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "balcony-9-1-3",
+          "position": [
+            5.12,
+            27,
+            7.875
+          ],
+          "width": 4.5,
+          "depth": 1.75,
+          "frontDirection": "+Z"
+        }
+      ],
+      "lobby": {
+        "built": true,
+        "open": true,
+        "interiorApartmentAccess": false,
+        "clearHeight": 2.7
+      },
+      "residentialPlan": {
+        "apartmentInteriorsBuilt": false
+      },
+      "stats": {
+        "triangles": 3672,
+        "vertices": 6896,
+        "drawCalls": 11,
+        "indexed": true,
+        "bytes": 197680
+      },
+      "provenance": {
+        "type": "original-procedural",
+        "author": "AmpliWorld",
+        "externalImages": [],
+        "externalMeshes": [],
+        "handAuthoredUniqueInstanceClaim": false
+      },
+      "limitations": [
+        "Upper apartments and balcony access are future work; only declared ground lobbies are open.",
+        "Exterior tier geometry is built; occupancy, elevators and residential interiors are not simulated here."
+      ]
+    },
+    {
+      "kind": "high",
+      "id": "HK-HIGH-01",
+      "name": "Terrace Atelier",
+      "nameZh": "台地五层华邸",
+      "file": "hk-high-01.glb",
+      "height": 18.5,
+      "storeys": 5,
+      "floorHeight": 3.7,
+      "footprintMeters": {
+        "width": 38,
+        "depth": 24
+      },
+      "bounds": {
+        "min": [
+          -19,
+          -2.3841858265427618e-8,
+          -12
+        ],
+        "max": [
+          19,
+          18.5,
+          12
+        ]
+      },
+      "colliders": [
+        {
+          "id": "ground-wing--1",
+          "min": [
+            -16.9,
+            0.06,
+            -8.25
+          ],
+          "max": [
+            -3.5,
+            3.7,
+            8.25
+          ]
+        },
+        {
+          "id": "ground-wing-1",
+          "min": [
+            3.5,
+            0.06,
+            -8.25
+          ],
+          "max": [
+            16.9,
+            3.7,
+            8.25
+          ]
+        },
+        {
+          "id": "lobby-rear-wall",
+          "min": [
+            -3.5,
+            0.06,
+            -8.25
+          ],
+          "max": [
+            3.5,
+            3.7,
+            -8.010000000000002
+          ]
+        },
+        {
+          "id": "lobby-ceiling",
+          "min": [
+            -3.5,
+            3.46,
+            -8.25
+          ],
+          "max": [
+            3.5,
+            3.7,
+            8.25
+          ]
+        },
+        {
+          "id": "lobby-mailboxes",
+          "min": [
+            -3.41,
+            0.06,
+            -7.75
+          ],
+          "max": [
+            -2.95,
+            1.36,
+            -6.35
+          ]
+        },
+        {
+          "id": "upper-lower-envelope",
+          "min": [
+            -16.9,
+            3.7,
+            -8.25
+          ],
+          "max": [
+            16.9,
+            11.100000000000001,
+            8.25
+          ]
+        },
+        {
+          "id": "setback-upper-envelope",
+          "min": [
+            -11.649999999999999,
+            11.100000000000001,
+            -6.75
+          ],
+          "max": [
+            15.649999999999999,
+            18.5,
+            6.75
+          ]
+        },
+        {
+          "id": "terrace-1--1--8.4-slab",
+          "min": [
+            -13.75,
+            3.5,
+            -11.05
+          ],
+          "max": [
+            -3.0500000000000007,
+            3.7,
+            -8.25
+          ]
+        },
+        {
+          "id": "terrace-1--1-8.4-slab",
+          "min": [
+            3.0500000000000007,
+            3.5,
+            -11.05
+          ],
+          "max": [
+            13.75,
+            3.7,
+            -8.25
+          ]
+        },
+        {
+          "id": "terrace-1-1--8.4-slab",
+          "min": [
+            -13.75,
+            3.5,
+            8.25
+          ],
+          "max": [
+            -3.0500000000000007,
+            3.7,
+            11.05
+          ]
+        },
+        {
+          "id": "terrace-1-1-8.4-slab",
+          "min": [
+            3.0500000000000007,
+            3.5,
+            8.25
+          ],
+          "max": [
+            13.75,
+            3.7,
+            11.05
+          ]
+        },
+        {
+          "id": "terrace-2--1--8.4-slab",
+          "min": [
+            -13.75,
+            7.2,
+            -11.05
+          ],
+          "max": [
+            -3.0500000000000007,
+            7.4,
+            -8.25
+          ]
+        },
+        {
+          "id": "terrace-2--1-8.4-slab",
+          "min": [
+            3.0500000000000007,
+            7.2,
+            -11.05
+          ],
+          "max": [
+            13.75,
+            7.4,
+            -8.25
+          ]
+        },
+        {
+          "id": "terrace-2-1--8.4-slab",
+          "min": [
+            -13.75,
+            7.2,
+            8.25
+          ],
+          "max": [
+            -3.0500000000000007,
+            7.4,
+            11.05
+          ]
+        },
+        {
+          "id": "terrace-2-1-8.4-slab",
+          "min": [
+            3.0500000000000007,
+            7.2,
+            8.25
+          ],
+          "max": [
+            13.75,
+            7.4,
+            11.05
+          ]
+        },
+        {
+          "id": "terrace-3--1--8.4-slab",
+          "min": [
+            -11.75,
+            10.900000000000002,
+            -9.55
+          ],
+          "max": [
+            -1.0500000000000007,
+            11.100000000000001,
+            -6.75
+          ]
+        },
+        {
+          "id": "terrace-3--1-8.4-slab",
+          "min": [
+            5.050000000000001,
+            10.900000000000002,
+            -9.55
+          ],
+          "max": [
+            15.75,
+            11.100000000000001,
+            -6.75
+          ]
+        },
+        {
+          "id": "terrace-3-1--8.4-slab",
+          "min": [
+            -11.75,
+            10.900000000000002,
+            6.75
+          ],
+          "max": [
+            -1.0500000000000007,
+            11.100000000000001,
+            9.55
+          ]
+        },
+        {
+          "id": "terrace-3-1-8.4-slab",
+          "min": [
+            5.050000000000001,
+            10.900000000000002,
+            6.75
+          ],
+          "max": [
+            15.75,
+            11.100000000000001,
+            9.55
+          ]
+        },
+        {
+          "id": "terrace-4--1--8.4-slab",
+          "min": [
+            -11.75,
+            14.600000000000001,
+            -9.55
+          ],
+          "max": [
+            -1.0500000000000007,
+            14.8,
+            -6.75
+          ]
+        },
+        {
+          "id": "terrace-4--1-8.4-slab",
+          "min": [
+            5.050000000000001,
+            14.600000000000001,
+            -9.55
+          ],
+          "max": [
+            15.75,
+            14.8,
+            -6.75
+          ]
+        },
+        {
+          "id": "terrace-4-1--8.4-slab",
+          "min": [
+            -11.75,
+            14.600000000000001,
+            6.75
+          ],
+          "max": [
+            -1.0500000000000007,
+            14.8,
+            9.55
+          ]
+        },
+        {
+          "id": "terrace-4-1-8.4-slab",
+          "min": [
+            5.050000000000001,
+            14.600000000000001,
+            6.75
+          ],
+          "max": [
+            15.75,
+            14.8,
+            9.55
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "open-lobby",
+          "min": [
+            -3.5,
+            -8.25
+          ],
+          "max": [
+            3.5,
+            8.25
+          ],
+          "y": 0.06
+        },
+        {
+          "id": "parcel",
+          "min": [
+            -19,
+            -12
+          ],
+          "max": [
+            19,
+            12
+          ],
+          "y": 0.04
+        }
+      ],
+      "frontAxis": "+Z",
+      "localGroundY": 0,
+      "lobbyFloorY": 0.06,
+      "entrance": [
+        0,
+        8.45
+      ],
+      "balconies": [
+        {
+          "id": "terrace-1--1--8.4",
+          "position": [
+            -8.4,
+            3.7,
+            -9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-1--1-8.4",
+          "position": [
+            8.4,
+            3.7,
+            -9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-1-1--8.4",
+          "position": [
+            -8.4,
+            3.7,
+            9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-1-1-8.4",
+          "position": [
+            8.4,
+            3.7,
+            9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-2--1--8.4",
+          "position": [
+            -8.4,
+            7.4,
+            -9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-2--1-8.4",
+          "position": [
+            8.4,
+            7.4,
+            -9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-2-1--8.4",
+          "position": [
+            -8.4,
+            7.4,
+            9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-2-1-8.4",
+          "position": [
+            8.4,
+            7.4,
+            9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-3--1--8.4",
+          "position": [
+            -6.4,
+            11.100000000000001,
+            -8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-3--1-8.4",
+          "position": [
+            10.4,
+            11.100000000000001,
+            -8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-3-1--8.4",
+          "position": [
+            -6.4,
+            11.100000000000001,
+            8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-3-1-8.4",
+          "position": [
+            10.4,
+            11.100000000000001,
+            8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-4--1--8.4",
+          "position": [
+            -6.4,
+            14.8,
+            -8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-4--1-8.4",
+          "position": [
+            10.4,
+            14.8,
+            -8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-4-1--8.4",
+          "position": [
+            -6.4,
+            14.8,
+            8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-4-1-8.4",
+          "position": [
+            10.4,
+            14.8,
+            8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        }
+      ],
+      "lobby": {
+        "built": true,
+        "open": true,
+        "interiorApartmentAccess": false,
+        "clearHeight": 3.4000000000000004
+      },
+      "residentialPlan": {
+        "apartmentInteriorsBuilt": false
+      },
+      "stats": {
+        "triangles": 1292,
+        "vertices": 2468,
+        "drawCalls": 10,
+        "indexed": true,
+        "bytes": 76368
+      },
+      "provenance": {
+        "type": "original-procedural",
+        "author": "AmpliWorld",
+        "externalImages": [],
+        "externalMeshes": [],
+        "handAuthoredUniqueInstanceClaim": false
+      },
+      "limitations": [
+        "Upper apartments and balcony access are future work; only declared ground lobbies are open.",
+        "Exterior tier geometry is built; occupancy, elevators and residential interiors are not simulated here."
+      ]
+    },
+    {
+      "kind": "high",
+      "id": "HK-HIGH-02",
+      "name": "Stone Garden",
+      "nameZh": "叠园八层华邸",
+      "file": "hk-high-02.glb",
+      "height": 29.6,
+      "storeys": 8,
+      "floorHeight": 3.7,
+      "footprintMeters": {
+        "width": 38,
+        "depth": 24
+      },
+      "bounds": {
+        "min": [
+          -19,
+          -2.3841858265427618e-8,
+          -12
+        ],
+        "max": [
+          19,
+          29.600000381469727,
+          12
+        ]
+      },
+      "colliders": [
+        {
+          "id": "ground-wing--1",
+          "min": [
+            -16.9,
+            0.06,
+            -8.25
+          ],
+          "max": [
+            -3.5,
+            3.7,
+            8.25
+          ]
+        },
+        {
+          "id": "ground-wing-1",
+          "min": [
+            3.5,
+            0.06,
+            -8.25
+          ],
+          "max": [
+            16.9,
+            3.7,
+            8.25
+          ]
+        },
+        {
+          "id": "lobby-rear-wall",
+          "min": [
+            -3.5,
+            0.06,
+            -8.25
+          ],
+          "max": [
+            3.5,
+            3.7,
+            -8.010000000000002
+          ]
+        },
+        {
+          "id": "lobby-ceiling",
+          "min": [
+            -3.5,
+            3.46,
+            -8.25
+          ],
+          "max": [
+            3.5,
+            3.7,
+            8.25
+          ]
+        },
+        {
+          "id": "lobby-mailboxes",
+          "min": [
+            -3.41,
+            0.06,
+            -7.75
+          ],
+          "max": [
+            -2.95,
+            1.36,
+            -6.35
+          ]
+        },
+        {
+          "id": "upper-lower-envelope",
+          "min": [
+            -16.9,
+            3.7,
+            -8.25
+          ],
+          "max": [
+            16.9,
+            18.5,
+            8.25
+          ]
+        },
+        {
+          "id": "setback-upper-envelope",
+          "min": [
+            -11.649999999999999,
+            18.5,
+            -6.75
+          ],
+          "max": [
+            15.649999999999999,
+            29.6,
+            6.75
+          ]
+        },
+        {
+          "id": "terrace-1--1--8.4-slab",
+          "min": [
+            -13.75,
+            3.5,
+            -11.05
+          ],
+          "max": [
+            -3.0500000000000007,
+            3.7,
+            -8.25
+          ]
+        },
+        {
+          "id": "terrace-1--1-8.4-slab",
+          "min": [
+            3.0500000000000007,
+            3.5,
+            -11.05
+          ],
+          "max": [
+            13.75,
+            3.7,
+            -8.25
+          ]
+        },
+        {
+          "id": "terrace-1-1--8.4-slab",
+          "min": [
+            -13.75,
+            3.5,
+            8.25
+          ],
+          "max": [
+            -3.0500000000000007,
+            3.7,
+            11.05
+          ]
+        },
+        {
+          "id": "terrace-1-1-8.4-slab",
+          "min": [
+            3.0500000000000007,
+            3.5,
+            8.25
+          ],
+          "max": [
+            13.75,
+            3.7,
+            11.05
+          ]
+        },
+        {
+          "id": "terrace-2--1--8.4-slab",
+          "min": [
+            -13.75,
+            7.2,
+            -11.05
+          ],
+          "max": [
+            -3.0500000000000007,
+            7.4,
+            -8.25
+          ]
+        },
+        {
+          "id": "terrace-2--1-8.4-slab",
+          "min": [
+            3.0500000000000007,
+            7.2,
+            -11.05
+          ],
+          "max": [
+            13.75,
+            7.4,
+            -8.25
+          ]
+        },
+        {
+          "id": "terrace-2-1--8.4-slab",
+          "min": [
+            -13.75,
+            7.2,
+            8.25
+          ],
+          "max": [
+            -3.0500000000000007,
+            7.4,
+            11.05
+          ]
+        },
+        {
+          "id": "terrace-2-1-8.4-slab",
+          "min": [
+            3.0500000000000007,
+            7.2,
+            8.25
+          ],
+          "max": [
+            13.75,
+            7.4,
+            11.05
+          ]
+        },
+        {
+          "id": "terrace-3--1--8.4-slab",
+          "min": [
+            -13.75,
+            10.900000000000002,
+            -11.05
+          ],
+          "max": [
+            -3.0500000000000007,
+            11.100000000000001,
+            -8.25
+          ]
+        },
+        {
+          "id": "terrace-3--1-8.4-slab",
+          "min": [
+            3.0500000000000007,
+            10.900000000000002,
+            -11.05
+          ],
+          "max": [
+            13.75,
+            11.100000000000001,
+            -8.25
+          ]
+        },
+        {
+          "id": "terrace-3-1--8.4-slab",
+          "min": [
+            -13.75,
+            10.900000000000002,
+            8.25
+          ],
+          "max": [
+            -3.0500000000000007,
+            11.100000000000001,
+            11.05
+          ]
+        },
+        {
+          "id": "terrace-3-1-8.4-slab",
+          "min": [
+            3.0500000000000007,
+            10.900000000000002,
+            8.25
+          ],
+          "max": [
+            13.75,
+            11.100000000000001,
+            11.05
+          ]
+        },
+        {
+          "id": "terrace-4--1--8.4-slab",
+          "min": [
+            -13.75,
+            14.600000000000001,
+            -11.05
+          ],
+          "max": [
+            -3.0500000000000007,
+            14.8,
+            -8.25
+          ]
+        },
+        {
+          "id": "terrace-4--1-8.4-slab",
+          "min": [
+            3.0500000000000007,
+            14.600000000000001,
+            -11.05
+          ],
+          "max": [
+            13.75,
+            14.8,
+            -8.25
+          ]
+        },
+        {
+          "id": "terrace-4-1--8.4-slab",
+          "min": [
+            -13.75,
+            14.600000000000001,
+            8.25
+          ],
+          "max": [
+            -3.0500000000000007,
+            14.8,
+            11.05
+          ]
+        },
+        {
+          "id": "terrace-4-1-8.4-slab",
+          "min": [
+            3.0500000000000007,
+            14.600000000000001,
+            8.25
+          ],
+          "max": [
+            13.75,
+            14.8,
+            11.05
+          ]
+        },
+        {
+          "id": "terrace-5--1--8.4-slab",
+          "min": [
+            -11.75,
+            18.3,
+            -9.55
+          ],
+          "max": [
+            -1.0500000000000007,
+            18.5,
+            -6.75
+          ]
+        },
+        {
+          "id": "terrace-5--1-8.4-slab",
+          "min": [
+            5.050000000000001,
+            18.3,
+            -9.55
+          ],
+          "max": [
+            15.75,
+            18.5,
+            -6.75
+          ]
+        },
+        {
+          "id": "terrace-5-1--8.4-slab",
+          "min": [
+            -11.75,
+            18.3,
+            6.75
+          ],
+          "max": [
+            -1.0500000000000007,
+            18.5,
+            9.55
+          ]
+        },
+        {
+          "id": "terrace-5-1-8.4-slab",
+          "min": [
+            5.050000000000001,
+            18.3,
+            6.75
+          ],
+          "max": [
+            15.75,
+            18.5,
+            9.55
+          ]
+        },
+        {
+          "id": "terrace-6--1--8.4-slab",
+          "min": [
+            -11.75,
+            22.000000000000004,
+            -9.55
+          ],
+          "max": [
+            -1.0500000000000007,
+            22.200000000000003,
+            -6.75
+          ]
+        },
+        {
+          "id": "terrace-6--1-8.4-slab",
+          "min": [
+            5.050000000000001,
+            22.000000000000004,
+            -9.55
+          ],
+          "max": [
+            15.75,
+            22.200000000000003,
+            -6.75
+          ]
+        },
+        {
+          "id": "terrace-6-1--8.4-slab",
+          "min": [
+            -11.75,
+            22.000000000000004,
+            6.75
+          ],
+          "max": [
+            -1.0500000000000007,
+            22.200000000000003,
+            9.55
+          ]
+        },
+        {
+          "id": "terrace-6-1-8.4-slab",
+          "min": [
+            5.050000000000001,
+            22.000000000000004,
+            6.75
+          ],
+          "max": [
+            15.75,
+            22.200000000000003,
+            9.55
+          ]
+        },
+        {
+          "id": "terrace-7--1--8.4-slab",
+          "min": [
+            -11.75,
+            25.700000000000003,
+            -9.55
+          ],
+          "max": [
+            -1.0500000000000007,
+            25.900000000000002,
+            -6.75
+          ]
+        },
+        {
+          "id": "terrace-7--1-8.4-slab",
+          "min": [
+            5.050000000000001,
+            25.700000000000003,
+            -9.55
+          ],
+          "max": [
+            15.75,
+            25.900000000000002,
+            -6.75
+          ]
+        },
+        {
+          "id": "terrace-7-1--8.4-slab",
+          "min": [
+            -11.75,
+            25.700000000000003,
+            6.75
+          ],
+          "max": [
+            -1.0500000000000007,
+            25.900000000000002,
+            9.55
+          ]
+        },
+        {
+          "id": "terrace-7-1-8.4-slab",
+          "min": [
+            5.050000000000001,
+            25.700000000000003,
+            6.75
+          ],
+          "max": [
+            15.75,
+            25.900000000000002,
+            9.55
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "open-lobby",
+          "min": [
+            -3.5,
+            -8.25
+          ],
+          "max": [
+            3.5,
+            8.25
+          ],
+          "y": 0.06
+        },
+        {
+          "id": "parcel",
+          "min": [
+            -19,
+            -12
+          ],
+          "max": [
+            19,
+            12
+          ],
+          "y": 0.04
+        }
+      ],
+      "frontAxis": "+Z",
+      "localGroundY": 0,
+      "lobbyFloorY": 0.06,
+      "entrance": [
+        0,
+        8.45
+      ],
+      "balconies": [
+        {
+          "id": "terrace-1--1--8.4",
+          "position": [
+            -8.4,
+            3.7,
+            -9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-1--1-8.4",
+          "position": [
+            8.4,
+            3.7,
+            -9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-1-1--8.4",
+          "position": [
+            -8.4,
+            3.7,
+            9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-1-1-8.4",
+          "position": [
+            8.4,
+            3.7,
+            9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-2--1--8.4",
+          "position": [
+            -8.4,
+            7.4,
+            -9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-2--1-8.4",
+          "position": [
+            8.4,
+            7.4,
+            -9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-2-1--8.4",
+          "position": [
+            -8.4,
+            7.4,
+            9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-2-1-8.4",
+          "position": [
+            8.4,
+            7.4,
+            9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-3--1--8.4",
+          "position": [
+            -8.4,
+            11.100000000000001,
+            -9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-3--1-8.4",
+          "position": [
+            8.4,
+            11.100000000000001,
+            -9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-3-1--8.4",
+          "position": [
+            -8.4,
+            11.100000000000001,
+            9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-3-1-8.4",
+          "position": [
+            8.4,
+            11.100000000000001,
+            9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-4--1--8.4",
+          "position": [
+            -8.4,
+            14.8,
+            -9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-4--1-8.4",
+          "position": [
+            8.4,
+            14.8,
+            -9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-4-1--8.4",
+          "position": [
+            -8.4,
+            14.8,
+            9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-4-1-8.4",
+          "position": [
+            8.4,
+            14.8,
+            9.65
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-5--1--8.4",
+          "position": [
+            -6.4,
+            18.5,
+            -8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-5--1-8.4",
+          "position": [
+            10.4,
+            18.5,
+            -8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-5-1--8.4",
+          "position": [
+            -6.4,
+            18.5,
+            8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-5-1-8.4",
+          "position": [
+            10.4,
+            18.5,
+            8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-6--1--8.4",
+          "position": [
+            -6.4,
+            22.200000000000003,
+            -8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-6--1-8.4",
+          "position": [
+            10.4,
+            22.200000000000003,
+            -8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-6-1--8.4",
+          "position": [
+            -6.4,
+            22.200000000000003,
+            8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-6-1-8.4",
+          "position": [
+            10.4,
+            22.200000000000003,
+            8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-7--1--8.4",
+          "position": [
+            -6.4,
+            25.900000000000002,
+            -8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-7--1-8.4",
+          "position": [
+            10.4,
+            25.900000000000002,
+            -8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "terrace-7-1--8.4",
+          "position": [
+            -6.4,
+            25.900000000000002,
+            8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "terrace-7-1-8.4",
+          "position": [
+            10.4,
+            25.900000000000002,
+            8.15
+          ],
+          "width": 10.7,
+          "depth": 2.8,
+          "frontDirection": "+Z"
+        }
+      ],
+      "lobby": {
+        "built": true,
+        "open": true,
+        "interiorApartmentAccess": false,
+        "clearHeight": 3.4000000000000004
+      },
+      "residentialPlan": {
+        "apartmentInteriorsBuilt": false
+      },
+      "stats": {
+        "triangles": 1904,
+        "vertices": 3548,
+        "drawCalls": 10,
+        "indexed": true,
+        "bytes": 105992
+      },
+      "provenance": {
+        "type": "original-procedural",
+        "author": "AmpliWorld",
+        "externalImages": [],
+        "externalMeshes": [],
+        "handAuthoredUniqueInstanceClaim": false
+      },
+      "limitations": [
+        "Upper apartments and balcony access are future work; only declared ground lobbies are open.",
+        "Exterior tier geometry is built; occupancy, elevators and residential interiors are not simulated here."
+      ]
+    },
+    {
+      "kind": "ultra",
+      "id": "HK-ULTRA-01",
+      "name": "Aureate Crown",
+      "nameZh": "鎏冠五十层私邸",
+      "file": "hk-ultra-01.glb",
+      "height": 200,
+      "storeys": 50,
+      "floorHeight": 4,
+      "footprintMeters": {
+        "width": 50,
+        "depth": 40
+      },
+      "bounds": {
+        "min": [
+          -25,
+          -0.0019292831420898438,
+          -20
+        ],
+        "max": [
+          25,
+          200,
+          20
+        ]
+      },
+      "colliders": [
+        {
+          "id": "sealed-ultra-envelope-0",
+          "min": [
+            -21.3,
+            0,
+            -14.5
+          ],
+          "max": [
+            21.3,
+            24,
+            14.5
+          ]
+        },
+        {
+          "id": "sealed-ultra-envelope-1",
+          "min": [
+            -20.839920000000003,
+            24,
+            -14.2912
+          ],
+          "max": [
+            20.839920000000003,
+            84,
+            14.2912
+          ]
+        },
+        {
+          "id": "sealed-ultra-envelope-2",
+          "min": [
+            -19.68972,
+            84,
+            -13.7692
+          ],
+          "max": [
+            19.68972,
+            144,
+            13.7692
+          ]
+        },
+        {
+          "id": "sealed-ultra-envelope-3",
+          "min": [
+            -18.539520000000003,
+            144,
+            -13.2472
+          ],
+          "max": [
+            18.539520000000003,
+            200,
+            13.2472
+          ]
+        },
+        {
+          "id": "ultra-view-4--1-slab",
+          "min": [
+            -6,
+            15.8,
+            -16.910800000000002
+          ],
+          "max": [
+            6,
+            16,
+            -13.9108
+          ]
+        },
+        {
+          "id": "ultra-view-4-1-slab",
+          "min": [
+            -6,
+            15.8,
+            13.9108
+          ],
+          "max": [
+            6,
+            16,
+            16.910800000000002
+          ]
+        },
+        {
+          "id": "ultra-side-4-slab",
+          "min": [
+            20.12328,
+            15.8,
+            -4.2
+          ],
+          "max": [
+            23.12328,
+            16,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-8--1-slab",
+          "min": [
+            -6,
+            31.8,
+            -16.7716
+          ],
+          "max": [
+            6,
+            32,
+            -13.771600000000001
+          ]
+        },
+        {
+          "id": "ultra-view-8-1-slab",
+          "min": [
+            -6,
+            31.8,
+            13.771600000000001
+          ],
+          "max": [
+            6,
+            32,
+            16.7716
+          ]
+        },
+        {
+          "id": "ultra-side-8-slab",
+          "min": [
+            -22.81656,
+            31.8,
+            -4.2
+          ],
+          "max": [
+            -19.81656,
+            32,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-11--1-slab",
+          "min": [
+            -6,
+            43.8,
+            -16.6672
+          ],
+          "max": [
+            6,
+            44,
+            -13.667200000000001
+          ]
+        },
+        {
+          "id": "ultra-view-11-1-slab",
+          "min": [
+            -6,
+            43.8,
+            13.667200000000001
+          ],
+          "max": [
+            6,
+            44,
+            16.6672
+          ]
+        },
+        {
+          "id": "ultra-side-11-slab",
+          "min": [
+            19.58652,
+            43.8,
+            -4.2
+          ],
+          "max": [
+            22.58652,
+            44,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-15--1-slab",
+          "min": [
+            -6,
+            59.8,
+            -16.528
+          ],
+          "max": [
+            6,
+            60,
+            -13.528
+          ]
+        },
+        {
+          "id": "ultra-view-15-1-slab",
+          "min": [
+            -6,
+            59.8,
+            13.528
+          ],
+          "max": [
+            6,
+            60,
+            16.528
+          ]
+        },
+        {
+          "id": "ultra-side-15-slab",
+          "min": [
+            -22.279799999999998,
+            59.8,
+            -4.2
+          ],
+          "max": [
+            -19.279799999999998,
+            60,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-19--1-slab",
+          "min": [
+            -6,
+            75.8,
+            -16.388800000000003
+          ],
+          "max": [
+            6,
+            76,
+            -13.388800000000002
+          ]
+        },
+        {
+          "id": "ultra-view-19-1-slab",
+          "min": [
+            -6,
+            75.8,
+            13.388800000000002
+          ],
+          "max": [
+            6,
+            76,
+            16.388800000000003
+          ]
+        },
+        {
+          "id": "ultra-side-19-slab",
+          "min": [
+            18.97308,
+            75.8,
+            -4.2
+          ],
+          "max": [
+            21.97308,
+            76,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-23--1-slab",
+          "min": [
+            -6,
+            91.8,
+            -16.2496
+          ],
+          "max": [
+            6,
+            92,
+            -13.249600000000001
+          ]
+        },
+        {
+          "id": "ultra-view-23-1-slab",
+          "min": [
+            -6,
+            91.8,
+            13.249600000000001
+          ],
+          "max": [
+            6,
+            92,
+            16.2496
+          ]
+        },
+        {
+          "id": "ultra-side-23-slab",
+          "min": [
+            -21.66636,
+            91.8,
+            -4.2
+          ],
+          "max": [
+            -18.66636,
+            92,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-26--1-slab",
+          "min": [
+            -6,
+            103.8,
+            -16.145200000000003
+          ],
+          "max": [
+            6,
+            104,
+            -13.1452
+          ]
+        },
+        {
+          "id": "ultra-view-26-1-slab",
+          "min": [
+            -6,
+            103.8,
+            13.1452
+          ],
+          "max": [
+            6,
+            104,
+            16.145200000000003
+          ]
+        },
+        {
+          "id": "ultra-side-26-slab",
+          "min": [
+            18.43632,
+            103.8,
+            -4.2
+          ],
+          "max": [
+            21.43632,
+            104,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-30--1-slab",
+          "min": [
+            -6,
+            119.8,
+            -16.006
+          ],
+          "max": [
+            6,
+            120,
+            -13.006000000000002
+          ]
+        },
+        {
+          "id": "ultra-view-30-1-slab",
+          "min": [
+            -6,
+            119.8,
+            13.006000000000002
+          ],
+          "max": [
+            6,
+            120,
+            16.006
+          ]
+        },
+        {
+          "id": "ultra-side-30-slab",
+          "min": [
+            -21.1296,
+            119.8,
+            -4.2
+          ],
+          "max": [
+            -18.1296,
+            120,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-34--1-slab",
+          "min": [
+            -6,
+            135.8,
+            -15.866800000000001
+          ],
+          "max": [
+            6,
+            136,
+            -12.866800000000001
+          ]
+        },
+        {
+          "id": "ultra-view-34-1-slab",
+          "min": [
+            -6,
+            135.8,
+            12.866800000000001
+          ],
+          "max": [
+            6,
+            136,
+            15.866800000000001
+          ]
+        },
+        {
+          "id": "ultra-side-34-slab",
+          "min": [
+            17.822879999999998,
+            135.8,
+            -4.2
+          ],
+          "max": [
+            20.822879999999998,
+            136,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-38--1-slab",
+          "min": [
+            -6,
+            151.8,
+            -15.7276
+          ],
+          "max": [
+            6,
+            152,
+            -12.7276
+          ]
+        },
+        {
+          "id": "ultra-view-38-1-slab",
+          "min": [
+            -6,
+            151.8,
+            12.7276
+          ],
+          "max": [
+            6,
+            152,
+            15.7276
+          ]
+        },
+        {
+          "id": "ultra-side-38-slab",
+          "min": [
+            -20.51616,
+            151.8,
+            -4.2
+          ],
+          "max": [
+            -17.51616,
+            152,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-41--1-slab",
+          "min": [
+            -6,
+            163.8,
+            -15.6232
+          ],
+          "max": [
+            6,
+            164,
+            -12.6232
+          ]
+        },
+        {
+          "id": "ultra-view-41-1-slab",
+          "min": [
+            -6,
+            163.8,
+            12.6232
+          ],
+          "max": [
+            6,
+            164,
+            15.6232
+          ]
+        },
+        {
+          "id": "ultra-side-41-slab",
+          "min": [
+            17.28612,
+            163.8,
+            -4.2
+          ],
+          "max": [
+            20.28612,
+            164,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-45--1-slab",
+          "min": [
+            -6,
+            179.8,
+            -15.484000000000002
+          ],
+          "max": [
+            6,
+            180,
+            -12.484000000000002
+          ]
+        },
+        {
+          "id": "ultra-view-45-1-slab",
+          "min": [
+            -6,
+            179.8,
+            12.484000000000002
+          ],
+          "max": [
+            6,
+            180,
+            15.484000000000002
+          ]
+        },
+        {
+          "id": "ultra-side-45-slab",
+          "min": [
+            -19.9794,
+            179.8,
+            -4.2
+          ],
+          "max": [
+            -16.9794,
+            180,
+            4.2
+          ]
+        },
+        {
+          "id": "portico-column--1",
+          "min": [
+            -7.57,
+            0,
+            17.9
+          ],
+          "max": [
+            -7.23,
+            3.1,
+            18.3
+          ]
+        },
+        {
+          "id": "portico-column-1",
+          "min": [
+            7.23,
+            0,
+            17.9
+          ],
+          "max": [
+            7.57,
+            3.1,
+            18.3
+          ]
+        },
+        {
+          "id": "closed-ultra-street-door",
+          "min": [
+            -2.45,
+            0,
+            14.5
+          ],
+          "max": [
+            2.45,
+            3.05,
+            14.9
+          ]
+        },
+        {
+          "id": "ultra-portico-roof",
+          "min": [
+            -8.8,
+            3,
+            14.95
+          ],
+          "max": [
+            8.8,
+            3.39,
+            19.25
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "parcel",
+          "min": [
+            -25,
+            -20
+          ],
+          "max": [
+            25,
+            20
+          ],
+          "y": 0.04
+        }
+      ],
+      "frontAxis": "+Z",
+      "localGroundY": 0,
+      "lobbyFloorY": 0.06,
+      "entrance": [
+        0,
+        14.7
+      ],
+      "balconies": [
+        {
+          "id": "ultra-view-4--1",
+          "position": [
+            0,
+            16,
+            -15.4108
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-4-1",
+          "position": [
+            0,
+            16,
+            15.4108
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-4",
+          "position": [
+            21.62328,
+            16,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "+X"
+        },
+        {
+          "id": "ultra-view-8--1",
+          "position": [
+            0,
+            32,
+            -15.271600000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-8-1",
+          "position": [
+            0,
+            32,
+            15.271600000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-8",
+          "position": [
+            -21.31656,
+            32,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "-X"
+        },
+        {
+          "id": "ultra-view-11--1",
+          "position": [
+            0,
+            44,
+            -15.167200000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-11-1",
+          "position": [
+            0,
+            44,
+            15.167200000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-11",
+          "position": [
+            21.08652,
+            44,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "+X"
+        },
+        {
+          "id": "ultra-view-15--1",
+          "position": [
+            0,
+            60,
+            -15.028
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-15-1",
+          "position": [
+            0,
+            60,
+            15.028
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-15",
+          "position": [
+            -20.779799999999998,
+            60,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "-X"
+        },
+        {
+          "id": "ultra-view-19--1",
+          "position": [
+            0,
+            76,
+            -14.888800000000002
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-19-1",
+          "position": [
+            0,
+            76,
+            14.888800000000002
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-19",
+          "position": [
+            20.47308,
+            76,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "+X"
+        },
+        {
+          "id": "ultra-view-23--1",
+          "position": [
+            0,
+            92,
+            -14.749600000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-23-1",
+          "position": [
+            0,
+            92,
+            14.749600000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-23",
+          "position": [
+            -20.16636,
+            92,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "-X"
+        },
+        {
+          "id": "ultra-view-26--1",
+          "position": [
+            0,
+            104,
+            -14.6452
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-26-1",
+          "position": [
+            0,
+            104,
+            14.6452
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-26",
+          "position": [
+            19.93632,
+            104,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "+X"
+        },
+        {
+          "id": "ultra-view-30--1",
+          "position": [
+            0,
+            120,
+            -14.506000000000002
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-30-1",
+          "position": [
+            0,
+            120,
+            14.506000000000002
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-30",
+          "position": [
+            -19.6296,
+            120,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "-X"
+        },
+        {
+          "id": "ultra-view-34--1",
+          "position": [
+            0,
+            136,
+            -14.366800000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-34-1",
+          "position": [
+            0,
+            136,
+            14.366800000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-34",
+          "position": [
+            19.322879999999998,
+            136,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "+X"
+        },
+        {
+          "id": "ultra-view-38--1",
+          "position": [
+            0,
+            152,
+            -14.2276
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-38-1",
+          "position": [
+            0,
+            152,
+            14.2276
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-38",
+          "position": [
+            -19.01616,
+            152,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "-X"
+        },
+        {
+          "id": "ultra-view-41--1",
+          "position": [
+            0,
+            164,
+            -14.1232
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-41-1",
+          "position": [
+            0,
+            164,
+            14.1232
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-41",
+          "position": [
+            18.78612,
+            164,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "+X"
+        },
+        {
+          "id": "ultra-view-45--1",
+          "position": [
+            0,
+            180,
+            -13.984000000000002
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-45-1",
+          "position": [
+            0,
+            180,
+            13.984000000000002
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-45",
+          "position": [
+            -18.4794,
+            180,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "-X"
+        }
+      ],
+      "lobby": {
+        "built": false,
+        "open": false,
+        "interiorApartmentAccess": false,
+        "clearHeight": null
+      },
+      "residentialPlan": {
+        "residencesPerFloor": 1,
+        "elevators": 2,
+        "status": "planned-not-built",
+        "apartmentInteriorsBuilt": false,
+        "elevatorsOperational": false
+      },
+      "stats": {
+        "triangles": 3420,
+        "vertices": 5832,
+        "drawCalls": 6,
+        "indexed": true,
+        "bytes": 166144
+      },
+      "provenance": {
+        "type": "original-procedural",
+        "author": "AmpliWorld",
+        "externalImages": [],
+        "externalMeshes": [],
+        "handAuthoredUniqueInstanceClaim": false
+      },
+      "limitations": [
+        "Upper apartments and balcony access are future work; only declared ground lobbies are open.",
+        "Exterior tier geometry is built; occupancy, elevators and residential interiors are not simulated here."
+      ]
+    },
+    {
+      "kind": "ultra",
+      "id": "HK-ULTRA-02",
+      "name": "River Lantern",
+      "nameZh": "云澜六十层私邸",
+      "file": "hk-ultra-02.glb",
+      "height": 240,
+      "storeys": 60,
+      "floorHeight": 4,
+      "footprintMeters": {
+        "width": 50,
+        "depth": 40
+      },
+      "bounds": {
+        "min": [
+          -25,
+          -0.0054374695755541325,
+          -20
+        ],
+        "max": [
+          25,
+          240,
+          20
+        ]
+      },
+      "colliders": [
+        {
+          "id": "sealed-ultra-envelope-0",
+          "min": [
+            -20.5,
+            0,
+            -14.5
+          ],
+          "max": [
+            21.41926084493331,
+            28.799999999999997,
+            14.5
+          ]
+        },
+        {
+          "id": "sealed-ultra-envelope-1",
+          "min": [
+            -18.695139155066695,
+            28.799999999999997,
+            -14.2912
+          ],
+          "max": [
+            22.533957696175932,
+            100.8,
+            14.2912
+          ]
+        },
+        {
+          "id": "sealed-ultra-envelope-2",
+          "min": [
+            -15.366442303824064,
+            100.8,
+            -13.7692
+          ],
+          "max": [
+            22.533957696175932,
+            172.79999999999998,
+            13.7692
+          ]
+        },
+        {
+          "id": "sealed-ultra-envelope-3",
+          "min": [
+            -16.810000000000002,
+            172.79999999999998,
+            -13.2472
+          ],
+          "max": [
+            20.694098998270423,
+            240,
+            13.2472
+          ]
+        },
+        {
+          "id": "ultra-view-5--1-slab",
+          "min": [
+            -5.042369533120674,
+            19.8,
+            -16.905
+          ],
+          "max": [
+            6.957630466879326,
+            20,
+            -13.905000000000001
+          ]
+        },
+        {
+          "id": "ultra-view-5-1-slab",
+          "min": [
+            -5.042369533120674,
+            19.8,
+            13.905000000000001
+          ],
+          "max": [
+            6.957630466879326,
+            20,
+            16.905
+          ]
+        },
+        {
+          "id": "ultra-side-5-slab",
+          "min": [
+            20.280130466879324,
+            19.8,
+            -4.2
+          ],
+          "max": [
+            23.280130466879324,
+            20,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-9--1-slab",
+          "min": [
+            -4.320235150963676,
+            35.8,
+            -16.789
+          ],
+          "max": [
+            7.679764849036324,
+            36,
+            -13.789
+          ]
+        },
+        {
+          "id": "ultra-view-9-1-slab",
+          "min": [
+            -4.320235150963676,
+            35.8,
+            13.789
+          ],
+          "max": [
+            7.679764849036324,
+            36,
+            16.789
+          ]
+        },
+        {
+          "id": "ultra-side-9-slab",
+          "min": [
+            -20.396735150963675,
+            35.8,
+            -4.2
+          ],
+          "max": [
+            -17.396735150963675,
+            36,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-14--1-slab",
+          "min": [
+            -3.5242167564722244,
+            55.8,
+            -16.644
+          ],
+          "max": [
+            8.475783243527776,
+            56,
+            -13.644
+          ]
+        },
+        {
+          "id": "ultra-view-14-1-slab",
+          "min": [
+            -3.5242167564722244,
+            55.8,
+            13.644
+          ],
+          "max": [
+            8.475783243527776,
+            56,
+            16.644
+          ]
+        },
+        {
+          "id": "ultra-side-14-slab",
+          "min": [
+            21.244783243527774,
+            55.8,
+            -4.2
+          ],
+          "max": [
+            24.244783243527774,
+            56,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-18--1-slab",
+          "min": [
+            -3.0066371208126945,
+            71.8,
+            -16.528
+          ],
+          "max": [
+            8.993362879187305,
+            72,
+            -13.528
+          ]
+        },
+        {
+          "id": "ultra-view-18-1-slab",
+          "min": [
+            -3.0066371208126945,
+            71.8,
+            13.528
+          ],
+          "max": [
+            8.993362879187305,
+            72,
+            16.528
+          ]
+        },
+        {
+          "id": "ultra-side-18-slab",
+          "min": [
+            -18.529637120812694,
+            71.8,
+            -4.2
+          ],
+          "max": [
+            -15.529637120812694,
+            72,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-23--1-slab",
+          "min": [
+            -2.545752421960354,
+            91.8,
+            -16.383000000000003
+          ],
+          "max": [
+            9.454247578039645,
+            92,
+            -13.383000000000001
+          ]
+        },
+        {
+          "id": "ultra-view-23-1-slab",
+          "min": [
+            -2.545752421960354,
+            91.8,
+            13.383000000000001
+          ],
+          "max": [
+            9.454247578039645,
+            92,
+            16.383000000000003
+          ]
+        },
+        {
+          "id": "ultra-side-23-slab",
+          "min": [
+            21.669747578039644,
+            91.8,
+            -4.2
+          ],
+          "max": [
+            24.669747578039644,
+            92,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-27--1-slab",
+          "min": [
+            -2.34555313979799,
+            107.8,
+            -16.267
+          ],
+          "max": [
+            9.654446860202011,
+            108,
+            -13.267
+          ]
+        },
+        {
+          "id": "ultra-view-27-1-slab",
+          "min": [
+            -2.34555313979799,
+            107.8,
+            13.267
+          ],
+          "max": [
+            9.654446860202011,
+            108,
+            16.267
+          ]
+        },
+        {
+          "id": "ultra-side-27-slab",
+          "min": [
+            -17.31505313979799,
+            107.8,
+            -4.2
+          ],
+          "max": [
+            -14.315053139797989,
+            108,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-32--1-slab",
+          "min": [
+            -2.320268987137389,
+            127.8,
+            -16.122
+          ],
+          "max": [
+            9.67973101286261,
+            128,
+            -13.122
+          ]
+        },
+        {
+          "id": "ultra-view-32-1-slab",
+          "min": [
+            -2.320268987137389,
+            127.8,
+            13.122
+          ],
+          "max": [
+            9.67973101286261,
+            128,
+            16.122
+          ]
+        },
+        {
+          "id": "ultra-side-32-slab",
+          "min": [
+            21.34173101286261,
+            127.8,
+            -4.2
+          ],
+          "max": [
+            24.34173101286261,
+            128,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-36--1-slab",
+          "min": [
+            -2.4810908897079322,
+            143.8,
+            -16.006
+          ],
+          "max": [
+            9.518909110292068,
+            144,
+            -13.006000000000002
+          ]
+        },
+        {
+          "id": "ultra-view-36-1-slab",
+          "min": [
+            -2.4810908897079322,
+            143.8,
+            13.006000000000002
+          ],
+          "max": [
+            9.518909110292068,
+            144,
+            16.006
+          ]
+        },
+        {
+          "id": "ultra-side-36-slab",
+          "min": [
+            -16.897090889707933,
+            143.8,
+            -4.2
+          ],
+          "max": [
+            -13.897090889707933,
+            144,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-41--1-slab",
+          "min": [
+            -2.896918898601932,
+            163.8,
+            -15.861
+          ],
+          "max": [
+            9.103081101398068,
+            164,
+            -12.861
+          ]
+        },
+        {
+          "id": "ultra-view-41-1-slab",
+          "min": [
+            -2.896918898601932,
+            163.8,
+            12.861
+          ],
+          "max": [
+            9.103081101398068,
+            164,
+            15.861
+          ]
+        },
+        {
+          "id": "ultra-side-41-slab",
+          "min": [
+            20.211581101398068,
+            163.8,
+            -4.2
+          ],
+          "max": [
+            23.211581101398068,
+            164,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-45--1-slab",
+          "min": [
+            -3.383704909609773,
+            179.8,
+            -15.745000000000001
+          ],
+          "max": [
+            8.616295090390228,
+            180,
+            -12.745000000000001
+          ]
+        },
+        {
+          "id": "ultra-view-45-1-slab",
+          "min": [
+            -3.383704909609773,
+            179.8,
+            12.745000000000001
+          ],
+          "max": [
+            8.616295090390228,
+            180,
+            15.745000000000001
+          ]
+        },
+        {
+          "id": "ultra-side-45-slab",
+          "min": [
+            -17.24620490960977,
+            179.8,
+            -4.2
+          ],
+          "max": [
+            -14.24620490960977,
+            180,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-50--1-slab",
+          "min": [
+            -4.1499999999999995,
+            199.8,
+            -15.600000000000001
+          ],
+          "max": [
+            7.8500000000000005,
+            200,
+            -12.600000000000001
+          ]
+        },
+        {
+          "id": "ultra-view-50-1-slab",
+          "min": [
+            -4.1499999999999995,
+            199.8,
+            12.600000000000001
+          ],
+          "max": [
+            7.8500000000000005,
+            200,
+            15.600000000000001
+          ]
+        },
+        {
+          "id": "ultra-side-50-slab",
+          "min": [
+            18.405,
+            199.8,
+            -4.2
+          ],
+          "max": [
+            21.405,
+            200,
+            4.2
+          ]
+        },
+        {
+          "id": "ultra-view-54--1-slab",
+          "min": [
+            -4.856637120812696,
+            215.8,
+            -15.484000000000002
+          ],
+          "max": [
+            7.143362879187304,
+            216,
+            -12.484000000000002
+          ]
+        },
+        {
+          "id": "ultra-view-54-1-slab",
+          "min": [
+            -4.856637120812696,
+            215.8,
+            12.484000000000002
+          ],
+          "max": [
+            7.143362879187304,
+            216,
+            15.484000000000002
+          ]
+        },
+        {
+          "id": "ultra-side-54-slab",
+          "min": [
+            -18.165637120812693,
+            215.8,
+            -4.2
+          ],
+          "max": [
+            -15.165637120812693,
+            216,
+            4.2
+          ]
+        },
+        {
+          "id": "portico-column--1",
+          "min": [
+            -7.57,
+            0,
+            17.9
+          ],
+          "max": [
+            -7.23,
+            3.1,
+            18.3
+          ]
+        },
+        {
+          "id": "portico-column-1",
+          "min": [
+            7.23,
+            0,
+            17.9
+          ],
+          "max": [
+            7.57,
+            3.1,
+            18.3
+          ]
+        },
+        {
+          "id": "closed-ultra-street-door",
+          "min": [
+            -2.45,
+            0,
+            14.5
+          ],
+          "max": [
+            2.45,
+            3.05,
+            14.9
+          ]
+        },
+        {
+          "id": "ultra-portico-roof",
+          "min": [
+            -8.8,
+            3,
+            14.95
+          ],
+          "max": [
+            8.8,
+            3.39,
+            19.25
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "parcel",
+          "min": [
+            -25,
+            -20
+          ],
+          "max": [
+            25,
+            20
+          ],
+          "y": 0.04
+        }
+      ],
+      "frontAxis": "+Z",
+      "localGroundY": 0,
+      "lobbyFloorY": 0.06,
+      "entrance": [
+        0,
+        14.7
+      ],
+      "balconies": [
+        {
+          "id": "ultra-view-5--1",
+          "position": [
+            0.9576304668793263,
+            20,
+            -15.405000000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-5-1",
+          "position": [
+            0.9576304668793263,
+            20,
+            15.405000000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-5",
+          "position": [
+            21.780130466879324,
+            20,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "+X"
+        },
+        {
+          "id": "ultra-view-9--1",
+          "position": [
+            1.6797648490363244,
+            36,
+            -15.289
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-9-1",
+          "position": [
+            1.6797648490363244,
+            36,
+            15.289
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-9",
+          "position": [
+            -18.896735150963675,
+            36,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "-X"
+        },
+        {
+          "id": "ultra-view-14--1",
+          "position": [
+            2.4757832435277756,
+            56,
+            -15.144
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-14-1",
+          "position": [
+            2.4757832435277756,
+            56,
+            15.144
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-14",
+          "position": [
+            22.744783243527774,
+            56,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "+X"
+        },
+        {
+          "id": "ultra-view-18--1",
+          "position": [
+            2.9933628791873055,
+            72,
+            -15.028
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-18-1",
+          "position": [
+            2.9933628791873055,
+            72,
+            15.028
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-18",
+          "position": [
+            -17.029637120812694,
+            72,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "-X"
+        },
+        {
+          "id": "ultra-view-23--1",
+          "position": [
+            3.454247578039646,
+            92,
+            -14.883000000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-23-1",
+          "position": [
+            3.454247578039646,
+            92,
+            14.883000000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-23",
+          "position": [
+            23.169747578039644,
+            92,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "+X"
+        },
+        {
+          "id": "ultra-view-27--1",
+          "position": [
+            3.65444686020201,
+            108,
+            -14.767
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-27-1",
+          "position": [
+            3.65444686020201,
+            108,
+            14.767
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-27",
+          "position": [
+            -15.815053139797989,
+            108,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "-X"
+        },
+        {
+          "id": "ultra-view-32--1",
+          "position": [
+            3.679731012862611,
+            128,
+            -14.622
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-32-1",
+          "position": [
+            3.679731012862611,
+            128,
+            14.622
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-32",
+          "position": [
+            22.84173101286261,
+            128,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "+X"
+        },
+        {
+          "id": "ultra-view-36--1",
+          "position": [
+            3.5189091102920678,
+            144,
+            -14.506000000000002
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-36-1",
+          "position": [
+            3.5189091102920678,
+            144,
+            14.506000000000002
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-36",
+          "position": [
+            -15.397090889707933,
+            144,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "-X"
+        },
+        {
+          "id": "ultra-view-41--1",
+          "position": [
+            3.103081101398068,
+            164,
+            -14.361
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-41-1",
+          "position": [
+            3.103081101398068,
+            164,
+            14.361
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-41",
+          "position": [
+            21.711581101398068,
+            164,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "+X"
+        },
+        {
+          "id": "ultra-view-45--1",
+          "position": [
+            2.616295090390227,
+            180,
+            -14.245000000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-45-1",
+          "position": [
+            2.616295090390227,
+            180,
+            14.245000000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-45",
+          "position": [
+            -15.74620490960977,
+            180,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "-X"
+        },
+        {
+          "id": "ultra-view-50--1",
+          "position": [
+            1.8500000000000005,
+            200,
+            -14.100000000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-50-1",
+          "position": [
+            1.8500000000000005,
+            200,
+            14.100000000000001
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-50",
+          "position": [
+            19.905,
+            200,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "+X"
+        },
+        {
+          "id": "ultra-view-54--1",
+          "position": [
+            1.143362879187304,
+            216,
+            -13.984000000000002
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "-Z"
+        },
+        {
+          "id": "ultra-view-54-1",
+          "position": [
+            1.143362879187304,
+            216,
+            13.984000000000002
+          ],
+          "width": 12,
+          "depth": 3,
+          "frontDirection": "+Z"
+        },
+        {
+          "id": "ultra-side-54",
+          "position": [
+            -16.665637120812693,
+            216,
+            0
+          ],
+          "width": 3,
+          "depth": 8.4,
+          "frontDirection": "-X"
+        }
+      ],
+      "lobby": {
+        "built": false,
+        "open": false,
+        "interiorApartmentAccess": false,
+        "clearHeight": null
+      },
+      "residentialPlan": {
+        "residencesPerFloor": 1,
+        "elevators": 2,
+        "status": "planned-not-built",
+        "apartmentInteriorsBuilt": false,
+        "elevatorsOperational": false
+      },
+      "stats": {
+        "triangles": 3140,
+        "vertices": 5434,
+        "drawCalls": 5,
+        "indexed": true,
+        "bytes": 153952
+      },
+      "provenance": {
+        "type": "original-procedural",
+        "author": "AmpliWorld",
+        "externalImages": [],
+        "externalMeshes": [],
+        "handAuthoredUniqueInstanceClaim": false
+      },
+      "limitations": [
+        "Upper apartments and balcony access are future work; only declared ground lobbies are open.",
+        "Exterior tier geometry is built; occupancy, elevators and residential interiors are not simulated here."
+      ]
+    }
+  ],
+  "stats": {
+    "prototypeCount": 8,
+    "totalBytes": 1187968,
+    "totalTriangles": 22308
+  },
+  "implementation": "Eight original reusable indexed prototypes, not hand-authored unique models for every placement. Parent owns district replacement, rendering and occupancy."
+}

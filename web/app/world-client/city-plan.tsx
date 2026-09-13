@@ -18,12 +18,17 @@ import {
 import { CIVIC_PLACES, SPORTS_STREETS } from './civic-registry';
 import { DISTRICT } from '../district/registry';
 import { COMMUNITIES, COMMUNITY_SURFACES, HOMES } from './community-registry';
+import {
+  HOUSING_PLAN,
+  HOUSING_LABELS,
+  HOUSING_COLORS,
+  HOUSING_INSTANCES,
+  HOUSING_MODELS,
+  housingPoint,
+} from './housing-registry';
 import cbd from '../../public/assets/3d/ampliworld/GC-CBD-STREET-001/street-manifest.json';
 const compounds = CITY.tiles.flatMap((t) => t.compounds);
 const categories: Record<string, [string, string]> = {
-  'working-residential': ['基础住宅小区', '#dbb786'],
-  'middle-residential': ['中端住宅小区', '#acc593'],
-  'high-end': ['高端住宅小区', '#69b9a2'],
   'office-campus': ['办公园区', '#8daed1'],
   hospital: ['医院园区', '#dc96a5'],
   school: ['学校园区', '#d8c66c'],
@@ -234,6 +239,74 @@ export function CityPlan({
                 ))}
               </g>
             )}
+            {showHomes &&
+              HOUSING_PLAN.placements
+                .filter((p) => !p.retainExistingFootprints)
+                .map((p) => (
+                  <g
+                    key={p.id}
+                    onClick={() => {
+                      setSelected(null);
+                      setSelectedInfo(
+                        `${HOUSING_LABELS[p.type]} · ${p.id} · ${p.buildingCount} 栋；${p.type === 'ultra' ? '50/60 层、层高 4 米；两梯一户平面规划，电梯与户内尚未开放' : p.type === 'low' ? '6 层旧式外墙' : p.type === 'lowerMiddle' ? '8–10 层，社区超市' : p.type === 'high' ? '5–8 层，3.7 米层高；物业、保安亭、试玩门禁' : p.type === 'mixedVilla' ? '联排、双拼、独栋混合小区' : '大型独栋庄园小区'}`,
+                      );
+                    }}
+                  >
+                    <polyline
+                      points={p.connector.points
+                        .map((q) => q.join(','))
+                        .join(' ')}
+                      fill="none"
+                      stroke="#6d797d"
+                      strokeWidth={14}
+                    />
+                    <polygon
+                      points={[
+                        [-p.width / 2, -p.depth / 2],
+                        [p.width / 2, -p.depth / 2],
+                        [p.width / 2, p.depth / 2],
+                        [-p.width / 2, p.depth / 2],
+                      ]
+                        .map((q) => housingPoint(p, q[0], q[1]).join(','))
+                        .join(' ')}
+                      fill={HOUSING_COLORS[p.type]}
+                      stroke="#5a665a"
+                      strokeWidth={2}
+                    />
+                    {view.span < 2500 &&
+                      HOUSING_INSTANCES.filter((i) => i.parcel === p.id).map(
+                        (i) => {
+                          const b = HOUSING_MODELS[i.model].bounds;
+                          return (
+                            <rect
+                              key={i.id}
+                              x={i.x + b.min[0]}
+                              y={i.z + b.min[2]}
+                              width={b.max[0] - b.min[0]}
+                              height={b.max[2] - b.min[2]}
+                              transform={`rotate(${-p.angleDeg} ${i.x} ${i.z})`}
+                              fill="#f5ecdc"
+                            />
+                          );
+                        },
+                      )}
+                    <circle
+                      cx={p.gateWorld[0]}
+                      cy={p.gateWorld[1]}
+                      r={Math.max(7, fs / 4)}
+                      fill="#a17b43"
+                    />
+                    <text
+                      x={p.x}
+                      y={p.z}
+                      fontSize={Math.max(16, fs * 0.6)}
+                      textAnchor="middle"
+                      fill="#233b32"
+                    >
+                      {HOUSING_LABELS[p.type]}
+                    </text>
+                  </g>
+                ))}
             {showHomes &&
               visible.map((c) => (
                 <g
@@ -503,6 +576,11 @@ export function CityPlan({
           </svg>
           <aside className="plan-legend">
             <h3>用地与社区</h3>
+            <p>
+              25 老城里 · 15 宜居家园
+              <br />5 锦庭府 · 2 云境天邸
+              <br />2 混合御墅 · 2 独栋庄园
+            </p>
             {Object.entries(categories).map(([k, [label, color]]) => (
               <div key={k}>
                 <i style={{ background: color }} />
@@ -523,7 +601,11 @@ export function CityPlan({
             </div>
             <hr />
             <p>
-              {CITY.stats.compounds.toLocaleString()} 个普通小区 / 园区
+              47 个分级住宅小区 + 4 个新别墅小区
+              <br />
+              沿河 60 栋别墅社区保留
+              <br />
+              {CITY.stats.compounds.toLocaleString()} 个办公 / 公共服务园区
               <br />
               {CITY.stats.buildings.toLocaleString()} 栋普通生成建筑
               <br />

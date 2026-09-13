@@ -1,0 +1,1748 @@
+{
+  "id": "GC-NEIGHBORHOOD-KIT-001",
+  "name": "Original Chinese compound amenity kit",
+  "nameZh": "社区配套与花园住宅原创建筑包",
+  "units": "METERS",
+  "upAxis": "Y",
+  "frontAxis": "+Z",
+  "prototypes": [
+    {
+      "id": "GC-NK-SUPERMARKET",
+      "kind": "supermarket",
+      "file": "supermarket.glb",
+      "name": "Neighbourhood Market",
+      "nameZh": "社区生活超市",
+      "width": 24,
+      "depth": 16,
+      "height": 5,
+      "doorWidth": 4,
+      "open": true,
+      "storeys": 1,
+      "floorY": 0.18,
+      "entrance": [
+        0,
+        8.22
+      ],
+      "colliders": [
+        {
+          "id": "rear-wall-0",
+          "min": [
+            -12,
+            0.18000000000000016,
+            -8
+          ],
+          "max": [
+            12,
+            4.620000000000001,
+            -7.800000000000001
+          ]
+        },
+        {
+          "id": "side-wall-1",
+          "min": [
+            -12,
+            0.18000000000000016,
+            -8
+          ],
+          "max": [
+            -11.8,
+            4.620000000000001,
+            8
+          ]
+        },
+        {
+          "id": "side-wall-2",
+          "min": [
+            11.8,
+            0.18000000000000016,
+            -8
+          ],
+          "max": [
+            12,
+            4.620000000000001,
+            8
+          ]
+        },
+        {
+          "id": "window-plinth-3",
+          "min": [
+            -12,
+            0.18,
+            7.84
+          ],
+          "max": [
+            -2,
+            0.7,
+            8
+          ]
+        },
+        {
+          "id": "window-header-4",
+          "min": [
+            -12,
+            4.03,
+            7.84
+          ],
+          "max": [
+            -2,
+            4.6499999999999995,
+            8
+          ]
+        },
+        {
+          "id": "fixed-front-glazing-5",
+          "min": [
+            -11.93,
+            0.7199999999999998,
+            7.944999999999999
+          ],
+          "max": [
+            -2.0700000000000003,
+            4,
+            8.004999999999999
+          ]
+        },
+        {
+          "id": "window-plinth-6",
+          "min": [
+            2,
+            0.18,
+            7.84
+          ],
+          "max": [
+            12,
+            0.7,
+            8
+          ]
+        },
+        {
+          "id": "window-header-7",
+          "min": [
+            2,
+            4.03,
+            7.84
+          ],
+          "max": [
+            12,
+            4.6499999999999995,
+            8
+          ]
+        },
+        {
+          "id": "fixed-front-glazing-8",
+          "min": [
+            2.0700000000000003,
+            0.7199999999999998,
+            7.944999999999999
+          ],
+          "max": [
+            11.93,
+            4,
+            8.004999999999999
+          ]
+        },
+        {
+          "id": "door-header-9",
+          "min": [
+            -2.11,
+            4.17,
+            7.98
+          ],
+          "max": [
+            2.11,
+            4.390000000000001,
+            8.14
+          ]
+        },
+        {
+          "id": "roof-slab-10",
+          "min": [
+            -12.2,
+            4.62,
+            -8.2
+          ],
+          "max": [
+            12.2,
+            4.8999999999999995,
+            8.2
+          ]
+        },
+        {
+          "id": "parked-open-door-11",
+          "min": [
+            -2.1625,
+            0.2450000000000001,
+            6.6000000000000005
+          ],
+          "max": [
+            -2.1175,
+            2.395,
+            7.88
+          ]
+        },
+        {
+          "id": "gondola-shelf-12",
+          "min": [
+            -6.625,
+            0.17999999999999994,
+            -4.9
+          ],
+          "max": [
+            -5.375,
+            2.08,
+            0.8999999999999999
+          ]
+        },
+        {
+          "id": "gondola-shelf-13",
+          "min": [
+            -0.625,
+            0.17999999999999994,
+            -4.9
+          ],
+          "max": [
+            0.625,
+            2.08,
+            0.8999999999999999
+          ]
+        },
+        {
+          "id": "gondola-shelf-14",
+          "min": [
+            5.375,
+            0.17999999999999994,
+            -4.9
+          ],
+          "max": [
+            6.625,
+            2.08,
+            0.8999999999999999
+          ]
+        },
+        {
+          "id": "produce-counter-15",
+          "min": [
+            -10,
+            0.18000000000000005,
+            3.275
+          ],
+          "max": [
+            -4,
+            1.3199999999999998,
+            4.725
+          ]
+        },
+        {
+          "id": "checkout-counter-16",
+          "min": [
+            5.2,
+            0.17999999999999994,
+            4.025
+          ],
+          "max": [
+            8.8,
+            1.5,
+            5.375
+          ]
+        },
+        {
+          "id": "planter-17",
+          "min": [
+            -11.05,
+            0.17999999999999994,
+            6.45
+          ],
+          "max": [
+            -9.95,
+            0.98,
+            7.55
+          ]
+        },
+        {
+          "id": "planter-18",
+          "min": [
+            9.95,
+            0.17999999999999994,
+            6.45
+          ],
+          "max": [
+            11.05,
+            0.98,
+            7.55
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "interior-floor",
+          "min": [
+            -12,
+            -8
+          ],
+          "max": [
+            12,
+            8
+          ],
+          "y": 0.18
+        }
+      ],
+      "bounds": {
+        "min": [
+          -12.199999809265137,
+          -3.5762786065873797e-9,
+          -8.199999809265137
+        ],
+        "max": [
+          12.199999809265137,
+          5,
+          8.27750015258789
+        ]
+      },
+      "triangles": 2688,
+      "bytes": 168456,
+      "materialDrawCalls": 10,
+      "entryStatus": "OPEN_PHYSICAL_INTERIOR",
+      "optionalPoolPrototype": null
+    },
+    {
+      "id": "GC-NK-MANAGEMENT",
+      "kind": "management",
+      "file": "management.glb",
+      "name": "Community Services",
+      "nameZh": "物业服务中心",
+      "width": 12,
+      "depth": 10,
+      "height": 4,
+      "doorWidth": 2.6,
+      "open": true,
+      "storeys": 1,
+      "floorY": 0.18,
+      "entrance": [
+        0,
+        5.22
+      ],
+      "colliders": [
+        {
+          "id": "rear-wall-0",
+          "min": [
+            -6,
+            0.17999999999999994,
+            -5
+          ],
+          "max": [
+            6,
+            3.62,
+            -4.800000000000001
+          ]
+        },
+        {
+          "id": "side-wall-1",
+          "min": [
+            -6,
+            0.17999999999999994,
+            -5
+          ],
+          "max": [
+            -5.800000000000001,
+            3.62,
+            5
+          ]
+        },
+        {
+          "id": "side-wall-2",
+          "min": [
+            5.800000000000001,
+            0.17999999999999994,
+            -5
+          ],
+          "max": [
+            6,
+            3.62,
+            5
+          ]
+        },
+        {
+          "id": "window-plinth-3",
+          "min": [
+            -6,
+            0.18,
+            4.84
+          ],
+          "max": [
+            -1.3000000000000003,
+            0.7,
+            5
+          ]
+        },
+        {
+          "id": "window-header-4",
+          "min": [
+            -6,
+            3.03,
+            4.84
+          ],
+          "max": [
+            -1.3000000000000003,
+            3.65,
+            5
+          ]
+        },
+        {
+          "id": "fixed-front-glazing-5",
+          "min": [
+            -5.930000000000001,
+            0.7199999999999998,
+            4.944999999999999
+          ],
+          "max": [
+            -1.37,
+            3,
+            5.005
+          ]
+        },
+        {
+          "id": "window-plinth-6",
+          "min": [
+            1.3000000000000003,
+            0.18,
+            4.84
+          ],
+          "max": [
+            6,
+            0.7,
+            5
+          ]
+        },
+        {
+          "id": "window-header-7",
+          "min": [
+            1.3000000000000003,
+            3.03,
+            4.84
+          ],
+          "max": [
+            6,
+            3.65,
+            5
+          ]
+        },
+        {
+          "id": "fixed-front-glazing-8",
+          "min": [
+            1.37,
+            0.7199999999999998,
+            4.944999999999999
+          ],
+          "max": [
+            5.930000000000001,
+            3,
+            5.005
+          ]
+        },
+        {
+          "id": "door-header-9",
+          "min": [
+            -1.4100000000000001,
+            3.1700000000000004,
+            4.9799999999999995
+          ],
+          "max": [
+            1.4100000000000001,
+            3.39,
+            5.14
+          ]
+        },
+        {
+          "id": "roof-slab-10",
+          "min": [
+            -6.2,
+            3.6199999999999997,
+            -5.2
+          ],
+          "max": [
+            6.2,
+            3.9,
+            5.2
+          ]
+        },
+        {
+          "id": "parked-open-door-11",
+          "min": [
+            -1.4625,
+            0.2450000000000001,
+            3.6
+          ],
+          "max": [
+            -1.4175,
+            2.395,
+            4.88
+          ]
+        },
+        {
+          "id": "desk-12",
+          "min": [
+            -4.1,
+            0.8700000000000001,
+            -1.6
+          ],
+          "max": [
+            -1.4999999999999998,
+            0.99,
+            -0.4
+          ]
+        },
+        {
+          "id": "desk-13",
+          "min": [
+            1.4999999999999998,
+            0.8700000000000001,
+            -1.6
+          ],
+          "max": [
+            4.1,
+            0.99,
+            -0.4
+          ]
+        },
+        {
+          "id": "chair-seat-14",
+          "min": [
+            -3.09,
+            0.57,
+            -2.49
+          ],
+          "max": [
+            -2.51,
+            0.67,
+            -1.9100000000000001
+          ]
+        },
+        {
+          "id": "chair-seat-15",
+          "min": [
+            2.51,
+            0.57,
+            -2.49
+          ],
+          "max": [
+            3.09,
+            0.67,
+            -1.9100000000000001
+          ]
+        },
+        {
+          "id": "archive-cabinet-16",
+          "min": [
+            -2.3,
+            0.18000000000000016,
+            -4.89
+          ],
+          "max": [
+            2.3,
+            2.06,
+            -4.2700000000000005
+          ]
+        },
+        {
+          "id": "chair-seat-17",
+          "min": [
+            -4.99,
+            0.57,
+            2.51
+          ],
+          "max": [
+            -4.41,
+            0.67,
+            3.09
+          ]
+        },
+        {
+          "id": "planter-18",
+          "min": [
+            -5.1000000000000005,
+            0.17999999999999994,
+            3.6999999999999997
+          ],
+          "max": [
+            -4.3,
+            0.98,
+            4.5
+          ]
+        },
+        {
+          "id": "chair-seat-19",
+          "min": [
+            4.41,
+            0.57,
+            2.51
+          ],
+          "max": [
+            4.99,
+            0.67,
+            3.09
+          ]
+        },
+        {
+          "id": "planter-20",
+          "min": [
+            4.3,
+            0.17999999999999994,
+            3.6999999999999997
+          ],
+          "max": [
+            5.1000000000000005,
+            0.98,
+            4.5
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "interior-floor",
+          "min": [
+            -6,
+            -5
+          ],
+          "max": [
+            6,
+            5
+          ],
+          "y": 0.18
+        }
+      ],
+      "bounds": {
+        "min": [
+          -6.199999809265137,
+          -3.5762786065873797e-9,
+          -5.199999809265137
+        ],
+        "max": [
+          6.199999809265137,
+          4,
+          5.210000038146973
+        ]
+      },
+      "triangles": 612,
+      "bytes": 40140,
+      "materialDrawCalls": 8,
+      "entryStatus": "OPEN_PHYSICAL_INTERIOR",
+      "optionalPoolPrototype": null
+    },
+    {
+      "id": "GC-NK-GUARDHOUSE",
+      "kind": "guardhouse",
+      "file": "guardhouse.glb",
+      "name": "Gatehouse",
+      "nameZh": "门卫室",
+      "width": 5,
+      "depth": 4,
+      "height": 3,
+      "doorWidth": 1.5,
+      "open": true,
+      "storeys": 1,
+      "floorY": 0.18,
+      "entrance": [
+        0,
+        2.22
+      ],
+      "colliders": [
+        {
+          "id": "rear-wall-0",
+          "min": [
+            -2.5,
+            0.17999999999999994,
+            -2
+          ],
+          "max": [
+            2.5,
+            2.62,
+            -1.7999999999999998
+          ]
+        },
+        {
+          "id": "side-wall-1",
+          "min": [
+            -2.5,
+            0.17999999999999994,
+            -2
+          ],
+          "max": [
+            -2.3,
+            2.62,
+            2
+          ]
+        },
+        {
+          "id": "side-wall-2",
+          "min": [
+            2.3,
+            0.17999999999999994,
+            -2
+          ],
+          "max": [
+            2.5,
+            2.62,
+            2
+          ]
+        },
+        {
+          "id": "window-plinth-3",
+          "min": [
+            -2.5,
+            0.18,
+            1.8399999999999999
+          ],
+          "max": [
+            -0.75,
+            0.7,
+            2
+          ]
+        },
+        {
+          "id": "window-header-4",
+          "min": [
+            -2.5,
+            2.03,
+            1.8399999999999999
+          ],
+          "max": [
+            -0.75,
+            2.65,
+            2
+          ]
+        },
+        {
+          "id": "fixed-front-glazing-5",
+          "min": [
+            -2.4299999999999997,
+            0.7199999999999999,
+            1.945
+          ],
+          "max": [
+            -0.8200000000000001,
+            2,
+            2.005
+          ]
+        },
+        {
+          "id": "window-plinth-6",
+          "min": [
+            0.75,
+            0.18,
+            1.8399999999999999
+          ],
+          "max": [
+            2.5,
+            0.7,
+            2
+          ]
+        },
+        {
+          "id": "window-header-7",
+          "min": [
+            0.75,
+            2.03,
+            1.8399999999999999
+          ],
+          "max": [
+            2.5,
+            2.65,
+            2
+          ]
+        },
+        {
+          "id": "fixed-front-glazing-8",
+          "min": [
+            0.8200000000000001,
+            0.7199999999999999,
+            1.945
+          ],
+          "max": [
+            2.4299999999999997,
+            2,
+            2.005
+          ]
+        },
+        {
+          "id": "door-header-9",
+          "min": [
+            -0.86,
+            2.1700000000000004,
+            1.98
+          ],
+          "max": [
+            0.86,
+            2.39,
+            2.14
+          ]
+        },
+        {
+          "id": "roof-slab-10",
+          "min": [
+            -2.7,
+            2.6199999999999997,
+            -2.2
+          ],
+          "max": [
+            2.7,
+            2.9,
+            2.2
+          ]
+        },
+        {
+          "id": "parked-open-door-11",
+          "min": [
+            -0.9125,
+            0.2450000000000001,
+            0.6
+          ],
+          "max": [
+            -0.8675,
+            2.395,
+            1.88
+          ]
+        },
+        {
+          "id": "desk-12",
+          "min": [
+            -0.4,
+            0.8700000000000001,
+            -0.9500000000000001
+          ],
+          "max": [
+            1.7000000000000002,
+            0.99,
+            -0.15000000000000002
+          ]
+        },
+        {
+          "id": "chair-seat-13",
+          "min": [
+            0.36000000000000004,
+            0.57,
+            -1.49
+          ],
+          "max": [
+            0.94,
+            0.67,
+            -0.9099999999999999
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "interior-floor",
+          "min": [
+            -2.5,
+            -2
+          ],
+          "max": [
+            2.5,
+            2
+          ],
+          "y": 0.18
+        }
+      ],
+      "bounds": {
+        "min": [
+          -2.700000047683716,
+          -3.5762786065873797e-9,
+          -2.200000047683716
+        ],
+        "max": [
+          2.700000047683716,
+          3,
+          2.2100000381469727
+        ]
+      },
+      "triangles": 408,
+      "bytes": 27348,
+      "materialDrawCalls": 6,
+      "entryStatus": "OPEN_PHYSICAL_INTERIOR",
+      "optionalPoolPrototype": null
+    },
+    {
+      "id": "GC-NK-CLUBHOUSE",
+      "kind": "clubhouse",
+      "file": "clubhouse.glb",
+      "name": "Garden Residents Club",
+      "nameZh": "园林会所",
+      "width": 40,
+      "depth": 30,
+      "height": 10,
+      "doorWidth": 6,
+      "open": true,
+      "storeys": 2,
+      "floorY": 0.18,
+      "entrance": [
+        0,
+        15.22
+      ],
+      "colliders": [
+        {
+          "id": "club-wing-0",
+          "min": [
+            -20,
+            0.18000000000000016,
+            -15
+          ],
+          "max": [
+            -7,
+            4.279999999999999,
+            15
+          ]
+        },
+        {
+          "id": "club-wing-1",
+          "min": [
+            7,
+            0.18000000000000016,
+            -15
+          ],
+          "max": [
+            20,
+            4.279999999999999,
+            15
+          ]
+        },
+        {
+          "id": "club-rear-core-2",
+          "min": [
+            -7,
+            0.18000000000000016,
+            -15
+          ],
+          "max": [
+            7,
+            4.279999999999999,
+            5
+          ]
+        },
+        {
+          "id": "upper-storey-envelope-3",
+          "min": [
+            -20,
+            4.275,
+            -15
+          ],
+          "max": [
+            20,
+            8.825,
+            15
+          ]
+        },
+        {
+          "id": "lobby-front-return-4",
+          "min": [
+            -7,
+            0.18000000000000016,
+            14.8
+          ],
+          "max": [
+            -3,
+            4.279999999999999,
+            15
+          ]
+        },
+        {
+          "id": "lobby-side-return-5",
+          "min": [
+            -7,
+            0.18000000000000016,
+            5
+          ],
+          "max": [
+            -6.800000000000001,
+            4.279999999999999,
+            15
+          ]
+        },
+        {
+          "id": "lobby-front-return-6",
+          "min": [
+            3,
+            0.18000000000000016,
+            14.8
+          ],
+          "max": [
+            7,
+            4.279999999999999,
+            15
+          ]
+        },
+        {
+          "id": "lobby-side-return-7",
+          "min": [
+            6.800000000000001,
+            0.18000000000000016,
+            5
+          ],
+          "max": [
+            7,
+            4.279999999999999,
+            15
+          ]
+        },
+        {
+          "id": "club-lobby-ceiling-8",
+          "min": [
+            -7,
+            4.194999999999999,
+            5
+          ],
+          "max": [
+            7,
+            4.345,
+            15
+          ]
+        },
+        {
+          "id": "portico-column-9",
+          "min": [
+            -8.25,
+            0.18000000000000016,
+            16.35
+          ],
+          "max": [
+            -7.75,
+            4.4,
+            16.85
+          ]
+        },
+        {
+          "id": "portico-column-10",
+          "min": [
+            -4.25,
+            0.18000000000000016,
+            16.35
+          ],
+          "max": [
+            -3.75,
+            4.4,
+            16.85
+          ]
+        },
+        {
+          "id": "portico-column-11",
+          "min": [
+            3.75,
+            0.18000000000000016,
+            16.35
+          ],
+          "max": [
+            4.25,
+            4.4,
+            16.85
+          ]
+        },
+        {
+          "id": "portico-column-12",
+          "min": [
+            7.75,
+            0.18000000000000016,
+            16.35
+          ],
+          "max": [
+            8.25,
+            4.4,
+            16.85
+          ]
+        },
+        {
+          "id": "desk-13",
+          "min": [
+            -5.7,
+            0.8700000000000001,
+            6.55
+          ],
+          "max": [
+            -2.3,
+            0.99,
+            7.6499999999999995
+          ]
+        },
+        {
+          "id": "chair-seat-14",
+          "min": [
+            1.9100000000000001,
+            0.57,
+            7.11
+          ],
+          "max": [
+            2.49,
+            0.67,
+            7.69
+          ]
+        },
+        {
+          "id": "chair-seat-15",
+          "min": [
+            3.91,
+            0.57,
+            7.11
+          ],
+          "max": [
+            4.49,
+            0.67,
+            7.69
+          ]
+        },
+        {
+          "id": "planter-16",
+          "min": [
+            4.1,
+            0.17999999999999994,
+            11.1
+          ],
+          "max": [
+            5.9,
+            0.98,
+            12.9
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "clubhouse-floor",
+          "min": [
+            -20,
+            -15
+          ],
+          "max": [
+            20,
+            15
+          ],
+          "y": 0.18
+        },
+        {
+          "id": "clubhouse-front-portico",
+          "min": [
+            -10,
+            14.399999999999999
+          ],
+          "max": [
+            10,
+            18.4
+          ],
+          "y": 0.18
+        }
+      ],
+      "bounds": {
+        "min": [
+          -20.170000076293945,
+          -3.5762786065873797e-9,
+          -15.194999694824219
+        ],
+        "max": [
+          20.170000076293945,
+          10,
+          18.399999618530273
+        ]
+      },
+      "triangles": 924,
+      "bytes": 56760,
+      "materialDrawCalls": 8,
+      "entryStatus": "OPEN_PHYSICAL_INTERIOR",
+      "optionalPoolPrototype": "GC-NK-POOL"
+    },
+    {
+      "id": "GC-NK-VILLA",
+      "kind": "villa",
+      "file": "villa.glb",
+      "name": "Grand Garden Residence",
+      "nameZh": "独栋园邸",
+      "width": 40,
+      "depth": 32,
+      "height": 16,
+      "doorWidth": 4,
+      "open": false,
+      "storeys": 3,
+      "floorY": 0.18,
+      "entrance": [
+        0,
+        16.22
+      ],
+      "colliders": [
+        {
+          "id": "villa-foundation-0",
+          "min": [
+            -20,
+            0,
+            -16
+          ],
+          "max": [
+            20,
+            0.18,
+            16
+          ]
+        },
+        {
+          "id": "villa-central-mass-1",
+          "min": [
+            -10,
+            0.1800000000000006,
+            -14.5
+          ],
+          "max": [
+            10,
+            13.2,
+            14.5
+          ]
+        },
+        {
+          "id": "villa-wing-2",
+          "min": [
+            -20,
+            0.17999999999999972,
+            -16
+          ],
+          "max": [
+            -10,
+            10.5,
+            14
+          ]
+        },
+        {
+          "id": "villa-wing-3",
+          "min": [
+            10,
+            0.17999999999999972,
+            -16
+          ],
+          "max": [
+            20,
+            10.5,
+            14
+          ]
+        },
+        {
+          "id": "villa-portico-column-4",
+          "min": [
+            -8.29,
+            0.17999999999999972,
+            16.51
+          ],
+          "max": [
+            -7.71,
+            7.08,
+            17.09
+          ]
+        },
+        {
+          "id": "villa-portico-column-5",
+          "min": [
+            -4.29,
+            0.17999999999999972,
+            16.51
+          ],
+          "max": [
+            -3.71,
+            7.08,
+            17.09
+          ]
+        },
+        {
+          "id": "villa-portico-column-6",
+          "min": [
+            3.71,
+            0.17999999999999972,
+            16.51
+          ],
+          "max": [
+            4.29,
+            7.08,
+            17.09
+          ]
+        },
+        {
+          "id": "villa-portico-column-7",
+          "min": [
+            7.71,
+            0.17999999999999972,
+            16.51
+          ],
+          "max": [
+            8.29,
+            7.08,
+            17.09
+          ]
+        },
+        {
+          "id": "planter-8",
+          "min": [
+            -10.6,
+            0.17999999999999994,
+            17.4
+          ],
+          "max": [
+            -9.4,
+            0.98,
+            18.6
+          ]
+        },
+        {
+          "id": "planter-9",
+          "min": [
+            9.4,
+            0.17999999999999994,
+            17.4
+          ],
+          "max": [
+            10.6,
+            0.98,
+            18.6
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "villa-forecourt",
+          "min": [
+            -11,
+            14.000000000000002
+          ],
+          "max": [
+            11,
+            19.200000000000003
+          ],
+          "y": 0.18
+        }
+      ],
+      "bounds": {
+        "min": [
+          -20.299999237060547,
+          -3.5762786065873797e-9,
+          -16.459999084472656
+        ],
+        "max": [
+          20.299999237060547,
+          16,
+          19.299999237060547
+        ]
+      },
+      "triangles": 1488,
+      "bytes": 85596,
+      "materialDrawCalls": 7,
+      "entryStatus": "SEALED_DISPLAY_RESIDENCE",
+      "optionalPoolPrototype": "GC-NK-POOL"
+    },
+    {
+      "id": "GC-NK-TOWNHOUSE",
+      "kind": "townhouse",
+      "file": "townhouse.glb",
+      "name": "Three Garden Townhouses",
+      "nameZh": "三联排花园住宅",
+      "width": 45,
+      "depth": 20,
+      "height": 12,
+      "doorWidth": 2,
+      "open": false,
+      "storeys": 3,
+      "floorY": 0.18,
+      "entrance": [
+        0,
+        10.22
+      ],
+      "colliders": [
+        {
+          "id": "residential-foundation-0",
+          "min": [
+            -22.5,
+            0,
+            -10
+          ],
+          "max": [
+            22.5,
+            0.18,
+            10
+          ]
+        },
+        {
+          "id": "sealed-residence-module-1",
+          "min": [
+            -22.5,
+            0.17999999999999972,
+            -10
+          ],
+          "max": [
+            -7.5,
+            9.9,
+            10
+          ]
+        },
+        {
+          "id": "sealed-residence-module-2",
+          "min": [
+            -7.5,
+            0.17999999999999972,
+            -10
+          ],
+          "max": [
+            7.5,
+            9.9,
+            10
+          ]
+        },
+        {
+          "id": "sealed-residence-module-3",
+          "min": [
+            7.5,
+            0.17999999999999972,
+            -10
+          ],
+          "max": [
+            22.5,
+            9.9,
+            10
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "front-door-0",
+          "min": [
+            -16.65,
+            10
+          ],
+          "max": [
+            -13.35,
+            12.399999999999999
+          ],
+          "y": 0.18
+        },
+        {
+          "id": "front-door-1",
+          "min": [
+            -1.65,
+            10
+          ],
+          "max": [
+            1.65,
+            12.399999999999999
+          ],
+          "y": 0.18
+        },
+        {
+          "id": "front-door-2",
+          "min": [
+            13.35,
+            10
+          ],
+          "max": [
+            16.65,
+            12.399999999999999
+          ],
+          "y": 0.18
+        }
+      ],
+      "bounds": {
+        "min": [
+          -22.6200008392334,
+          -3.5762786065873797e-9,
+          -10.335000038146973
+        ],
+        "max": [
+          22.6200008392334,
+          12,
+          12.399999618530273
+        ]
+      },
+      "triangles": 2136,
+      "bytes": 120680,
+      "materialDrawCalls": 7,
+      "entryStatus": "SEALED_DISPLAY_RESIDENCE",
+      "optionalPoolPrototype": null
+    },
+    {
+      "id": "GC-NK-DUPLEX",
+      "kind": "duplex",
+      "file": "duplex.glb",
+      "name": "Paired Garden Residences",
+      "nameZh": "双拼花园住宅",
+      "width": 30,
+      "depth": 22,
+      "height": 12,
+      "doorWidth": 2.4,
+      "open": false,
+      "storeys": 3,
+      "floorY": 0.18,
+      "entrance": [
+        -7.5,
+        11.22
+      ],
+      "colliders": [
+        {
+          "id": "residential-foundation-0",
+          "min": [
+            -15,
+            0,
+            -11
+          ],
+          "max": [
+            15,
+            0.18,
+            11
+          ]
+        },
+        {
+          "id": "sealed-residence-module-1",
+          "min": [
+            -15,
+            0.17999999999999972,
+            -11
+          ],
+          "max": [
+            0,
+            9.9,
+            11
+          ]
+        },
+        {
+          "id": "sealed-residence-module-2",
+          "min": [
+            0,
+            0.17999999999999972,
+            -11
+          ],
+          "max": [
+            15,
+            9.9,
+            11
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "front-door-0",
+          "min": [
+            -9.15,
+            11
+          ],
+          "max": [
+            -5.85,
+            13.399999999999999
+          ],
+          "y": 0.18
+        },
+        {
+          "id": "front-door-1",
+          "min": [
+            5.85,
+            11
+          ],
+          "max": [
+            9.15,
+            13.399999999999999
+          ],
+          "y": 0.18
+        }
+      ],
+      "bounds": {
+        "min": [
+          -15.119999885559082,
+          -3.5762786065873797e-9,
+          -11.335000038146973
+        ],
+        "max": [
+          15.119999885559082,
+          12,
+          13.399999618530273
+        ]
+      },
+      "triangles": 1572,
+      "bytes": 90568,
+      "materialDrawCalls": 7,
+      "entryStatus": "SEALED_DISPLAY_RESIDENCE",
+      "optionalPoolPrototype": null
+    },
+    {
+      "id": "GC-NK-POOL",
+      "kind": "reflecting-pool",
+      "file": "pool.glb",
+      "name": "Protected Residents Pool",
+      "nameZh": "会所景观水池",
+      "width": 26,
+      "depth": 18,
+      "height": 1.8,
+      "doorWidth": 0,
+      "open": false,
+      "storeys": 1,
+      "floorY": 0.18,
+      "entrance": [
+        0,
+        12.2
+      ],
+      "colliders": [
+        {
+          "id": "pool-safety-glass-0",
+          "min": [
+            -10.65,
+            0.71,
+            -6.6674999999999995
+          ],
+          "max": [
+            10.65,
+            1.77,
+            -6.6125
+          ]
+        },
+        {
+          "id": "pool-safety-glass-1",
+          "min": [
+            -10.6675,
+            0.71,
+            -6.65
+          ],
+          "max": [
+            -10.6125,
+            1.77,
+            6.65
+          ]
+        },
+        {
+          "id": "pool-safety-glass-2",
+          "min": [
+            -10.65,
+            0.71,
+            6.6125
+          ],
+          "max": [
+            10.65,
+            1.77,
+            6.6674999999999995
+          ]
+        },
+        {
+          "id": "pool-safety-glass-3",
+          "min": [
+            10.6125,
+            0.71,
+            -6.65
+          ],
+          "max": [
+            10.6675,
+            1.77,
+            6.65
+          ]
+        }
+      ],
+      "surfaces": [
+        {
+          "id": "pool-north-rim",
+          "min": [
+            -13,
+            -9
+          ],
+          "max": [
+            13,
+            -6.6
+          ],
+          "y": 0.7
+        },
+        {
+          "id": "pool-south-rim",
+          "min": [
+            -13,
+            6.6
+          ],
+          "max": [
+            13,
+            9
+          ],
+          "y": 0.7
+        },
+        {
+          "id": "pool-west-rim",
+          "min": [
+            -13,
+            -6.6
+          ],
+          "max": [
+            -10.600000000000001,
+            6.6
+          ],
+          "y": 0.7
+        },
+        {
+          "id": "pool-east-rim",
+          "min": [
+            10.600000000000001,
+            -6.6
+          ],
+          "max": [
+            13,
+            6.6
+          ],
+          "y": 0.7
+        },
+        {
+          "id": "pool-step-top",
+          "min": [
+            -3,
+            8
+          ],
+          "max": [
+            3,
+            9.2
+          ],
+          "y": 0.7
+        },
+        {
+          "id": "pool-step-middle",
+          "min": [
+            -3,
+            9.200000000000001
+          ],
+          "max": [
+            3,
+            10.6
+          ],
+          "y": 0.46
+        },
+        {
+          "id": "pool-step-low",
+          "min": [
+            -3,
+            10.5
+          ],
+          "max": [
+            3,
+            12.100000000000001
+          ],
+          "y": 0.23
+        }
+      ],
+      "bounds": {
+        "min": [
+          -13,
+          -4.172325152040912e-9,
+          -9
+        ],
+        "max": [
+          13,
+          1.8200000524520874,
+          12.100000381469727
+        ]
+      },
+      "triangles": 204,
+      "bytes": 14216,
+      "materialDrawCalls": 4,
+      "entryStatus": "GUARDED_REFLECTING_POOL",
+      "optionalPoolPrototype": null
+    }
+  ],
+  "totalBytes": 603764,
+  "provenance": {
+    "creator": "AmpliWorld",
+    "type": "ORIGINAL_PROCEDURAL_GEOMETRY",
+    "externalAssets": [],
+    "textures": []
+  },
+  "limitations": [
+    "Supermarket, management office, guardhouse and clubhouse ground lobby have real open doorways and object-specific interior collision.",
+    "These are physical visual spaces, not shopping, staffing, checkout, property-management or security mechanics.",
+    "Clubhouse upper floor and all villa/townhouse/duplex interiors remain sealed; visible doors on those residences do not imply entry.",
+    "Pool is a separate raised, glass-guarded reflecting basin; swimming is not implemented and no terrain excavation is needed.",
+    "Footprints describe main bodies; bounds include projecting porches, balconies and eaves. Gate movement is owned by the consuming scene."
+  ]
+}
