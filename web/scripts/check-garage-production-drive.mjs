@@ -25,6 +25,9 @@ const raw=[...CIVIC_COLLIDERS,...GARAGE_COLLIDERS,...COMMUNITY_COLLIDERS,...hous
  ...tagged(read('GC-MALL-002/mall-manifest.json').colliders,'mall',0,DISTRICT.mall.z),
  ...DISTRICT.buildings.map(b=>({id:b.id,min:[b.x-16,-1,b.z-12],max:[b.x+16,29.1,b.z+12]})),
  ...tagged(read('GC-STREET-001/street-manifest.json').colliders,'street')];
+const {LIFT_STATIC_SOLIDS,createMallLifts,stepMallLift}=await load('app/world-client/mall-circulation.ts');
+const liftCars=createMallLifts();liftCars.forEach(c=>stepMallLift(c,0));
+raw.push(...[...LIFT_STATIC_SOLIDS,...liftCars.flatMap(c=>[c.platform,...c.doors])].filter(b=>!b.isEmpty()).map((b,i)=>({id:'runtime-lift/'+i,min:b.min.toArray(),max:b.max.toArray()})));
 const nearby=raw.filter(c=>c.max[0]>=-160&&c.min[0]<=160&&c.max[2]>=-350&&c.min[2]<=-30);
 const solids=nearby.map(c=>new Box3(new Vector3(...c.min),new Vector3(...c.max)));
 const failures=[],results=[];
