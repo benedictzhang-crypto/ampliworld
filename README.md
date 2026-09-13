@@ -1,5 +1,7 @@
 # AmpliWorld
 
+The upgraded `/district` now includes **Aurea Galleria / 金庭汇**, an original six-storey courtyard mall with curved floor ribbons, twenty geometric merchandise windows and four ground-level garden passages, alongside the four existing residences. Its reusable GLB, metric placement and compound colliders are stored as `GC-MALL-001`. The current 220 × 360 m ground envelope is a growing prototype block; upper retail floors and purchasing are not yet playable. See `docs/CHECKPOINT_2026_09_12_MALL.md`.
+
 AmpliWorld is an open financial world model for event-driven market simulation.
 It injects a real-world event into a heterogeneous synthetic population,
 simulates consumer and investor responses, maps those responses to listed

@@ -161,7 +161,7 @@ try {
   const after = await caption();
   const z = Number(after.match(/Z\s+(-?[\d.]+)/)?.[1]);
   assert.ok(
-    isDistrict ? z < 24 && z >= -77 : z >= 12.3 && z < 27,
+    isDistrict ? z < -69 && z >= -177 : z >= 12.3 && z < 27,
     `Player moves toward but does not enter residence: ${after}`,
   );
   assert.notEqual(before, after);
@@ -229,9 +229,16 @@ try {
   });
   await wait(1600);
   let held = await player();
-  for(let attempt=0;attempt<20&&!held.grounded;attempt++){await wait(100);held=await player();}
+  for (let attempt = 0; attempt < 20 && !held.grounded; attempt++) {
+    await wait(100);
+    held = await player();
+  }
   assert.ok(held.grounded, 'Holding Space must not bunny-hop');
-  await wait(400);assert.ok((await player()).grounded,'Held Space must remain grounded after landing');
+  await wait(400);
+  assert.ok(
+    (await player()).grounded,
+    'Held Space must remain grounded after landing',
+  );
   await send('Input.dispatchKeyEvent', {
     type: 'keyUp',
     key: ' ',
@@ -239,6 +246,31 @@ try {
     windowsVirtualKeyCode: 32,
   });
   await wait(200);
+  if (isDistrict) {
+    await send('Input.dispatchKeyEvent', {
+      type: 'keyDown',
+      key: 'w',
+      code: 'KeyW',
+      windowsVirtualKeyCode: 87,
+    });
+    for (let attempt = 0; attempt < 200; attempt++) {
+      await wait(100);
+      if ((await player()).z < -112) break;
+    }
+    await send('Input.dispatchKeyEvent', {
+      type: 'keyUp',
+      key: 'w',
+      code: 'KeyW',
+      windowsVirtualKeyCode: 87,
+    });
+    await wait(200);
+    const garden = await player();
+    assert.ok(
+      garden.z < -112 && garden.z > -122,
+      'Walk through the actual portal into the courtyard',
+    );
+    await shot('mall-garden');
+  }
   const beforeOrbit = await player();
   await send('Input.dispatchMouseEvent', {
     type: 'mousePressed',

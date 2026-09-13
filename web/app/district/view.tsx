@@ -19,6 +19,34 @@ import {
 } from '../dynamic-atmosphere';
 import { DISTRICT, districtGroundHeight } from './registry';
 import streetData from '../../public/assets/3d/ampliworld/GC-STREET-001/street-manifest.json';
+import mallData from '../../public/assets/3d/ampliworld/GC-MALL-001/mall-manifest.json';
+
+function Mall() {
+  const { scene } = useGLTF('/assets/3d/ampliworld/GC-MALL-001/mall-lod0.glb');
+  return (
+    <group position={[DISTRICT.mall.x, 0, DISTRICT.mall.z]}>
+      <Clone object={scene} castShadow receiveShadow />
+    </group>
+  );
+}
+function MallApproach() {
+  return (
+    <group>
+      <mesh position={[0, -0.045, 0]} receiveShadow>
+        <boxGeometry args={[220, 0.06, 360]} />
+        <meshStandardMaterial color="#c9ceca" roughness={0.9} />
+      </mesh>
+      <mesh position={[0, 0, -81]} receiveShadow>
+        <boxGeometry args={[14, 0.06, 14]} />
+        <meshStandardMaterial color="#8b9294" roughness={0.85} />
+      </mesh>
+      <mesh position={[0, 0.08, -82]} receiveShadow>
+        <boxGeometry args={[104, 0.16, 6]} />
+        <meshStandardMaterial color="#d7d7cf" roughness={0.8} />
+      </mesh>
+    </group>
+  );
+}
 
 function Street() {
   const { scene } = useGLTF(
@@ -36,9 +64,9 @@ function SetupCamera({
   const { camera, invalidate } = useThree();
   useEffect(() => {
     camera.position.set(
-      ...((walking ? [0, 4, 34] : [135, 115, 135]) as [number, number, number]),
+      ...((walking ? [0, 4, -59] : [140, 150, 65]) as [number, number, number]),
     );
-    controls.current?.target.set(0, walking ? 1.5 : 0, walking ? 25 : 0);
+    controls.current?.target.set(0, walking ? 1.5 : 0, walking ? -68 : -60);
     controls.current?.update();
     invalidate();
   }, [walking, controls, camera, invalidate]);
@@ -49,7 +77,7 @@ export function DistrictClient() {
   const [mounted, setMounted] = useState(false);
   const [walking, setWalking] = useState(true);
   const [minutes, setMinutes] = useState(480);
-  const [position, setPosition] = useState<number[]>([0, 25]);
+  const [position, setPosition] = useState<number[]>([0, -68]);
   const controls = useRef<OrbitControlsImpl>(null);
   useEffect(() => {
     setMounted(true);
@@ -64,6 +92,13 @@ export function DistrictClient() {
   }, []);
   const solids = useMemo(
     () => [
+      ...mallData.colliders.map(
+        (c) =>
+          new Box3(
+            new Vector3(c.min[0], c.min[1], c.min[2] + DISTRICT.mall.z),
+            new Vector3(c.max[0], c.max[1], c.max[2] + DISTRICT.mall.z),
+          ),
+      ),
       ...DISTRICT.buildings.map(
         (b) =>
           new Box3(
@@ -101,11 +136,13 @@ export function DistrictClient() {
               >
                 <DynamicAtmosphere
                   hour={minutes / 60}
-                  fogNear={180}
-                  fogFar={650}
+                  fogNear={300}
+                  fogFar={1000}
                 />
                 <StudioLight />
+                <MallApproach />
                 <Street />
+                <Mall />
                 {DISTRICT.buildings.map((b) => (
                   <group
                     key={b.id}
@@ -132,7 +169,7 @@ export function DistrictClient() {
                   onPosition={(x, z) => setPosition([x, z])}
                   spawn={DISTRICT.spawnLocalMeters}
                   obstacles={solids}
-                  limits={[107, 77]}
+                  limits={[107, 177]}
                   groundHeight={districtGroundHeight}
                 />
               )}
@@ -143,8 +180,8 @@ export function DistrictClient() {
       <header className="district-hud">
         <div>
           <span>AMPLIWORLD · GOLDEN CITY</span>
-          <h1>花园街区</h1>
-          <p>220 × 160 m · 新架构街区原型</p>
+          <h1>花园街区 · 金庭汇</h1>
+          <p>六层回廊商场 · 中央花园 · 住宅街道</p>
         </div>
         <div className="district-time">
           {formatWorldTime(minutes)}
@@ -168,8 +205,7 @@ export function DistrictClient() {
           ? `WASD 行走 · 空格跳跃 · 鼠标拖动看四周 · X ${position[0].toFixed(1)} m / Z ${position[1].toFixed(1)} m`
           : '拖动俯瞰 · 滚轮缩放 · 点击「控制小人」回到街道'}
         <small>
-          四栋同型住宅 · 连续道路与步道 · 地铁入口外壳（乘车待接入） ·
-          室内及新街区交易界面待接入
+          沿街直行进入花园 · 两侧立体商品橱窗 · 商场楼上及购买功能待接入
         </small>
       </div>
     </main>

@@ -1,0 +1,780 @@
+{
+  "id": "GC-MALL-001",
+  "name": "Aurea Galleria",
+  "units": "metres",
+  "stories": 6,
+  "height": 31.1,
+  "footprint": [
+    100,
+    82
+  ],
+  "courtyard": [
+    36,
+    28
+  ],
+  "asset": "mall-lod0.glb",
+  "bytes": 9116124,
+  "triangles": 126488,
+  "drawCalls": 12,
+  "shops": [
+    {
+      "id": "GC-MALL-S01",
+      "category": "handbag",
+      "position": [
+        -35,
+        0,
+        -36
+      ],
+      "rotationY": 3.141592653589793
+    },
+    {
+      "id": "GC-MALL-S02",
+      "category": "shoe-pair",
+      "position": [
+        -23,
+        0,
+        -36
+      ],
+      "rotationY": 3.141592653589793
+    },
+    {
+      "id": "GC-MALL-S03",
+      "category": "coat",
+      "position": [
+        -11,
+        0,
+        -36
+      ],
+      "rotationY": 3.141592653589793
+    },
+    {
+      "id": "GC-MALL-S04",
+      "category": "necklace",
+      "position": [
+        11,
+        0,
+        -36
+      ],
+      "rotationY": 3.141592653589793
+    },
+    {
+      "id": "GC-MALL-S05",
+      "category": "watch",
+      "position": [
+        23,
+        0,
+        -36
+      ],
+      "rotationY": 3.141592653589793
+    },
+    {
+      "id": "GC-MALL-S06",
+      "category": "ring",
+      "position": [
+        35,
+        0,
+        -36
+      ],
+      "rotationY": 3.141592653589793
+    },
+    {
+      "id": "GC-MALL-S07",
+      "category": "handbag",
+      "position": [
+        -35,
+        0,
+        36
+      ],
+      "rotationY": 0
+    },
+    {
+      "id": "GC-MALL-S08",
+      "category": "shoe-pair",
+      "position": [
+        -23,
+        0,
+        36
+      ],
+      "rotationY": 0
+    },
+    {
+      "id": "GC-MALL-S09",
+      "category": "coat",
+      "position": [
+        -11,
+        0,
+        36
+      ],
+      "rotationY": 0
+    },
+    {
+      "id": "GC-MALL-S10",
+      "category": "necklace",
+      "position": [
+        11,
+        0,
+        36
+      ],
+      "rotationY": 0
+    },
+    {
+      "id": "GC-MALL-S11",
+      "category": "watch",
+      "position": [
+        23,
+        0,
+        36
+      ],
+      "rotationY": 0
+    },
+    {
+      "id": "GC-MALL-S12",
+      "category": "ring",
+      "position": [
+        35,
+        0,
+        36
+      ],
+      "rotationY": 0
+    },
+    {
+      "id": "GC-MALL-S13",
+      "category": "handbag",
+      "position": [
+        -45,
+        0,
+        -25
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "id": "GC-MALL-S14",
+      "category": "shoe-pair",
+      "position": [
+        -45,
+        0,
+        -13
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "id": "GC-MALL-S15",
+      "category": "coat",
+      "position": [
+        -45,
+        0,
+        13
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "id": "GC-MALL-S16",
+      "category": "necklace",
+      "position": [
+        -45,
+        0,
+        25
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "id": "GC-MALL-S17",
+      "category": "watch",
+      "position": [
+        45,
+        0,
+        -25
+      ],
+      "rotationY": 1.5707963267948966
+    },
+    {
+      "id": "GC-MALL-S18",
+      "category": "ring",
+      "position": [
+        45,
+        0,
+        -13
+      ],
+      "rotationY": 1.5707963267948966
+    },
+    {
+      "id": "GC-MALL-S19",
+      "category": "handbag",
+      "position": [
+        45,
+        0,
+        13
+      ],
+      "rotationY": 1.5707963267948966
+    },
+    {
+      "id": "GC-MALL-S20",
+      "category": "shoe-pair",
+      "position": [
+        45,
+        0,
+        25
+      ],
+      "rotationY": 1.5707963267948966
+    }
+  ],
+  "entrances": [
+    [
+      0,
+      0,
+      36
+    ],
+    [
+      0,
+      0,
+      -36
+    ],
+    [
+      45,
+      0,
+      0
+    ],
+    [
+      -45,
+      0,
+      0
+    ]
+  ],
+  "colliders": [
+    {
+      "id": "ground-ns--1--25.5",
+      "min": [
+        -45,
+        0,
+        -36
+      ],
+      "max": [
+        -6,
+        6,
+        -14
+      ]
+    },
+    {
+      "id": "ground-ns--1-25.5",
+      "min": [
+        6,
+        0,
+        -36
+      ],
+      "max": [
+        45,
+        6,
+        -14
+      ]
+    },
+    {
+      "id": "ground-ns-1--25.5",
+      "min": [
+        -45,
+        0,
+        14
+      ],
+      "max": [
+        -6,
+        6,
+        36
+      ]
+    },
+    {
+      "id": "ground-ns-1-25.5",
+      "min": [
+        6,
+        0,
+        14
+      ],
+      "max": [
+        45,
+        6,
+        36
+      ]
+    },
+    {
+      "id": "ground-ew--1--10",
+      "min": [
+        -45,
+        0,
+        -14
+      ],
+      "max": [
+        -18,
+        6,
+        -6
+      ]
+    },
+    {
+      "id": "ground-ew--1-10",
+      "min": [
+        -45,
+        0,
+        6
+      ],
+      "max": [
+        -18,
+        6,
+        14
+      ]
+    },
+    {
+      "id": "ground-ew-1--10",
+      "min": [
+        18,
+        0,
+        -14
+      ],
+      "max": [
+        45,
+        6,
+        -6
+      ]
+    },
+    {
+      "id": "ground-ew-1-10",
+      "min": [
+        18,
+        0,
+        6
+      ],
+      "max": [
+        45,
+        6,
+        14
+      ]
+    },
+    {
+      "id": "upper-ns--1",
+      "min": [
+        -46,
+        6,
+        -36
+      ],
+      "max": [
+        46,
+        31.1,
+        -14
+      ]
+    },
+    {
+      "id": "upper-ew--1",
+      "min": [
+        -45,
+        6,
+        -14
+      ],
+      "max": [
+        -18,
+        31.1,
+        14
+      ]
+    },
+    {
+      "id": "upper-ns-1",
+      "min": [
+        -46,
+        6,
+        14
+      ],
+      "max": [
+        46,
+        31.1,
+        36
+      ]
+    },
+    {
+      "id": "upper-ew-1",
+      "min": [
+        18,
+        6,
+        -14
+      ],
+      "max": [
+        45,
+        31.1,
+        14
+      ]
+    },
+    {
+      "id": "display-0",
+      "min": [
+        -39.7,
+        0,
+        -38.1
+      ],
+      "max": [
+        -30.3,
+        5.8,
+        -36
+      ]
+    },
+    {
+      "id": "display-1",
+      "min": [
+        -27.7,
+        0,
+        -38.1
+      ],
+      "max": [
+        -18.3,
+        5.8,
+        -36
+      ]
+    },
+    {
+      "id": "display-2",
+      "min": [
+        -15.7,
+        0,
+        -38.1
+      ],
+      "max": [
+        -6.3,
+        5.8,
+        -36
+      ]
+    },
+    {
+      "id": "display-3",
+      "min": [
+        6.3,
+        0,
+        -38.1
+      ],
+      "max": [
+        15.7,
+        5.8,
+        -36
+      ]
+    },
+    {
+      "id": "display-4",
+      "min": [
+        18.3,
+        0,
+        -38.1
+      ],
+      "max": [
+        27.7,
+        5.8,
+        -36
+      ]
+    },
+    {
+      "id": "display-5",
+      "min": [
+        30.3,
+        0,
+        -38.1
+      ],
+      "max": [
+        39.7,
+        5.8,
+        -36
+      ]
+    },
+    {
+      "id": "display-6",
+      "min": [
+        -39.7,
+        0,
+        36
+      ],
+      "max": [
+        -30.3,
+        5.8,
+        38.1
+      ]
+    },
+    {
+      "id": "display-7",
+      "min": [
+        -27.7,
+        0,
+        36
+      ],
+      "max": [
+        -18.3,
+        5.8,
+        38.1
+      ]
+    },
+    {
+      "id": "display-8",
+      "min": [
+        -15.7,
+        0,
+        36
+      ],
+      "max": [
+        -6.3,
+        5.8,
+        38.1
+      ]
+    },
+    {
+      "id": "display-9",
+      "min": [
+        6.3,
+        0,
+        36
+      ],
+      "max": [
+        15.7,
+        5.8,
+        38.1
+      ]
+    },
+    {
+      "id": "display-10",
+      "min": [
+        18.3,
+        0,
+        36
+      ],
+      "max": [
+        27.7,
+        5.8,
+        38.1
+      ]
+    },
+    {
+      "id": "display-11",
+      "min": [
+        30.3,
+        0,
+        36
+      ],
+      "max": [
+        39.7,
+        5.8,
+        38.1
+      ]
+    },
+    {
+      "id": "display-12",
+      "min": [
+        -47.1,
+        0,
+        -29.7
+      ],
+      "max": [
+        -45,
+        5.8,
+        -20.3
+      ]
+    },
+    {
+      "id": "display-13",
+      "min": [
+        -47.1,
+        0,
+        -17.7
+      ],
+      "max": [
+        -45,
+        5.8,
+        -8.3
+      ]
+    },
+    {
+      "id": "display-14",
+      "min": [
+        -47.1,
+        0,
+        8.3
+      ],
+      "max": [
+        -45,
+        5.8,
+        17.7
+      ]
+    },
+    {
+      "id": "display-15",
+      "min": [
+        -47.1,
+        0,
+        20.3
+      ],
+      "max": [
+        -45,
+        5.8,
+        29.7
+      ]
+    },
+    {
+      "id": "display-16",
+      "min": [
+        45,
+        0,
+        -29.7
+      ],
+      "max": [
+        47.1,
+        5.8,
+        -20.3
+      ]
+    },
+    {
+      "id": "display-17",
+      "min": [
+        45,
+        0,
+        -17.7
+      ],
+      "max": [
+        47.1,
+        5.8,
+        -8.3
+      ]
+    },
+    {
+      "id": "display-18",
+      "min": [
+        45,
+        0,
+        8.3
+      ],
+      "max": [
+        47.1,
+        5.8,
+        17.7
+      ]
+    },
+    {
+      "id": "display-19",
+      "min": [
+        45,
+        0,
+        20.3
+      ],
+      "max": [
+        47.1,
+        5.8,
+        29.7
+      ]
+    },
+    {
+      "id": "planter--10--7",
+      "min": [
+        -15,
+        0,
+        -10
+      ],
+      "max": [
+        -5,
+        0.76,
+        -4
+      ]
+    },
+    {
+      "id": "seat--10--7",
+      "min": [
+        -12,
+        0,
+        -11.35
+      ],
+      "max": [
+        -8,
+        0.72,
+        -10.65
+      ]
+    },
+    {
+      "id": "planter--10-7",
+      "min": [
+        -15,
+        0,
+        4
+      ],
+      "max": [
+        -5,
+        0.76,
+        10
+      ]
+    },
+    {
+      "id": "seat--10-7",
+      "min": [
+        -12,
+        0,
+        10.65
+      ],
+      "max": [
+        -8,
+        0.72,
+        11.35
+      ]
+    },
+    {
+      "id": "planter-10--7",
+      "min": [
+        5,
+        0,
+        -10
+      ],
+      "max": [
+        15,
+        0.76,
+        -4
+      ]
+    },
+    {
+      "id": "seat-10--7",
+      "min": [
+        8,
+        0,
+        -11.35
+      ],
+      "max": [
+        12,
+        0.72,
+        -10.65
+      ]
+    },
+    {
+      "id": "planter-10-7",
+      "min": [
+        5,
+        0,
+        4
+      ],
+      "max": [
+        15,
+        0.76,
+        10
+      ]
+    },
+    {
+      "id": "seat-10-7",
+      "min": [
+        8,
+        0,
+        10.65
+      ],
+      "max": [
+        12,
+        0.72,
+        11.35
+      ]
+    },
+    {
+      "id": "garden-basin",
+      "min": [
+        -2,
+        0,
+        -2
+      ],
+      "max": [
+        2,
+        0.25,
+        2
+      ]
+    }
+  ],
+  "license": "Original AmpliAlpha geometry; no third-party logos or textures",
+  "status": "Exterior, display windows and walkable garden; upper floor interiors deferred"
+}
