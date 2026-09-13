@@ -19,6 +19,8 @@
     "check:overview": "node --import tsx scripts/check-world-overview.mjs",
     "check:world-plan": "node --import tsx scripts/check-world-plan.mjs",
     "check:headless": "node scripts/check-headless-gameplay.mjs",
+    "check:architecture": "node scripts/check-architecture.mjs",
+    "assets:residence": "RESIDENCE_OUTPUT_DIR=public/assets/3d/ampliworld/GC-RES-001 node scripts/assets/build-residence.mjs",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {

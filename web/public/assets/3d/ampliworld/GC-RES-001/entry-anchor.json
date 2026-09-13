@@ -1,0 +1,19 @@
+{
+  "units": "metres",
+  "upAxis": "Y",
+  "position": [
+    0,
+    0.36,
+    12.2
+  ],
+  "rotationRadians": [
+    0,
+    0,
+    0
+  ],
+  "forward": [
+    0,
+    0,
+    1
+  ]
+}

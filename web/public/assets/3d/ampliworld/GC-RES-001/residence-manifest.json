@@ -1,0 +1,1585 @@
+{
+  "id": "GC-RES-001",
+  "name": "Aurea Terraces — original residential building",
+  "version": 1,
+  "units": "metres",
+  "upAxis": "Y",
+  "frontAxis": "+Z",
+  "footprintMetres": {
+    "width": 32,
+    "depth": 24
+  },
+  "roofHeightMetres": 29.1,
+  "stories": 8,
+  "storyHeights": [
+    4.2,
+    3.5,
+    3.5,
+    3.5,
+    3.5,
+    3.5,
+    3.5,
+    3.9
+  ],
+  "interiors": {
+    "strategy": "deferred-instanced",
+    "note": "Opaque structural volumes are intentional. Apartment interiors can be instantiated separately after selection."
+  },
+  "entryAnchor": {
+    "position": [
+      0,
+      0.36,
+      12.2
+    ],
+    "rotationRadians": [
+      0,
+      0,
+      0
+    ],
+    "forward": [
+      0,
+      0,
+      1
+    ]
+  },
+  "balconies": [
+    {
+      "id": "north-level-1-bay-0",
+      "facade": "north",
+      "level": 1,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -13.299999999999999,
+          4.09,
+          9.2
+        ],
+        "max": [
+          -7.1,
+          5.5600000000000005,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-1-bay-1",
+      "facade": "north",
+      "level": 1,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -6.5,
+          4.09,
+          9.2
+        ],
+        "max": [
+          -0.2999999999999998,
+          5.5600000000000005,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-1-bay-2",
+      "facade": "north",
+      "level": 1,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          0.2999999999999998,
+          4.09,
+          9.2
+        ],
+        "max": [
+          6.5,
+          5.5600000000000005,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-1-bay-3",
+      "facade": "north",
+      "level": 1,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          7.1,
+          4.09,
+          9.2
+        ],
+        "max": [
+          13.299999999999999,
+          5.5600000000000005,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-2-bay-0",
+      "facade": "north",
+      "level": 2,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -13.299999999999999,
+          7.59,
+          9.2
+        ],
+        "max": [
+          -7.1,
+          9.06,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-2-bay-1",
+      "facade": "north",
+      "level": 2,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -6.5,
+          7.59,
+          9.2
+        ],
+        "max": [
+          -0.2999999999999998,
+          9.06,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-2-bay-2",
+      "facade": "north",
+      "level": 2,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          0.2999999999999998,
+          7.59,
+          9.2
+        ],
+        "max": [
+          6.5,
+          9.06,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-2-bay-3",
+      "facade": "north",
+      "level": 2,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          7.1,
+          7.59,
+          9.2
+        ],
+        "max": [
+          13.299999999999999,
+          9.06,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-3-bay-0",
+      "facade": "north",
+      "level": 3,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -13.299999999999999,
+          11.09,
+          9.2
+        ],
+        "max": [
+          -7.1,
+          12.559999999999999,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-3-bay-1",
+      "facade": "north",
+      "level": 3,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -6.5,
+          11.09,
+          9.2
+        ],
+        "max": [
+          -0.2999999999999998,
+          12.559999999999999,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-3-bay-2",
+      "facade": "north",
+      "level": 3,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          0.2999999999999998,
+          11.09,
+          9.2
+        ],
+        "max": [
+          6.5,
+          12.559999999999999,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-3-bay-3",
+      "facade": "north",
+      "level": 3,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          7.1,
+          11.09,
+          9.2
+        ],
+        "max": [
+          13.299999999999999,
+          12.559999999999999,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-4-bay-0",
+      "facade": "north",
+      "level": 4,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -13.299999999999999,
+          14.59,
+          9.2
+        ],
+        "max": [
+          -7.1,
+          16.06,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-4-bay-1",
+      "facade": "north",
+      "level": 4,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -6.5,
+          14.59,
+          9.2
+        ],
+        "max": [
+          -0.2999999999999998,
+          16.06,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-4-bay-2",
+      "facade": "north",
+      "level": 4,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          0.2999999999999998,
+          14.59,
+          9.2
+        ],
+        "max": [
+          6.5,
+          16.06,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-4-bay-3",
+      "facade": "north",
+      "level": 4,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          7.1,
+          14.59,
+          9.2
+        ],
+        "max": [
+          13.299999999999999,
+          16.06,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-5-bay-0",
+      "facade": "north",
+      "level": 5,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -13.299999999999999,
+          18.09,
+          9.2
+        ],
+        "max": [
+          -7.1,
+          19.56,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-5-bay-1",
+      "facade": "north",
+      "level": 5,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -6.5,
+          18.09,
+          9.2
+        ],
+        "max": [
+          -0.2999999999999998,
+          19.56,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-5-bay-2",
+      "facade": "north",
+      "level": 5,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          0.2999999999999998,
+          18.09,
+          9.2
+        ],
+        "max": [
+          6.5,
+          19.56,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-5-bay-3",
+      "facade": "north",
+      "level": 5,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          7.1,
+          18.09,
+          9.2
+        ],
+        "max": [
+          13.299999999999999,
+          19.56,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-6-bay-0",
+      "facade": "north",
+      "level": 6,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -13.299999999999999,
+          21.59,
+          9.2
+        ],
+        "max": [
+          -7.1,
+          23.06,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-6-bay-1",
+      "facade": "north",
+      "level": 6,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -6.5,
+          21.59,
+          9.2
+        ],
+        "max": [
+          -0.2999999999999998,
+          23.06,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-6-bay-2",
+      "facade": "north",
+      "level": 6,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          0.2999999999999998,
+          21.59,
+          9.2
+        ],
+        "max": [
+          6.5,
+          23.06,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "north-level-6-bay-3",
+      "facade": "north",
+      "level": 6,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          7.1,
+          21.59,
+          9.2
+        ],
+        "max": [
+          13.299999999999999,
+          23.06,
+          11.7
+        ]
+      }
+    },
+    {
+      "id": "south-level-1-bay-0",
+      "facade": "south",
+      "level": 1,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -13.299999999999999,
+          4.09,
+          -11.7
+        ],
+        "max": [
+          -7.1,
+          5.5600000000000005,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-1-bay-1",
+      "facade": "south",
+      "level": 1,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -6.5,
+          4.09,
+          -11.7
+        ],
+        "max": [
+          -0.2999999999999998,
+          5.5600000000000005,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-1-bay-2",
+      "facade": "south",
+      "level": 1,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          0.2999999999999998,
+          4.09,
+          -11.7
+        ],
+        "max": [
+          6.5,
+          5.5600000000000005,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-1-bay-3",
+      "facade": "south",
+      "level": 1,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          7.1,
+          4.09,
+          -11.7
+        ],
+        "max": [
+          13.299999999999999,
+          5.5600000000000005,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-2-bay-0",
+      "facade": "south",
+      "level": 2,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -13.299999999999999,
+          7.59,
+          -11.7
+        ],
+        "max": [
+          -7.1,
+          9.06,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-2-bay-1",
+      "facade": "south",
+      "level": 2,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -6.5,
+          7.59,
+          -11.7
+        ],
+        "max": [
+          -0.2999999999999998,
+          9.06,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-2-bay-2",
+      "facade": "south",
+      "level": 2,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          0.2999999999999998,
+          7.59,
+          -11.7
+        ],
+        "max": [
+          6.5,
+          9.06,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-2-bay-3",
+      "facade": "south",
+      "level": 2,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          7.1,
+          7.59,
+          -11.7
+        ],
+        "max": [
+          13.299999999999999,
+          9.06,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-3-bay-0",
+      "facade": "south",
+      "level": 3,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -13.299999999999999,
+          11.09,
+          -11.7
+        ],
+        "max": [
+          -7.1,
+          12.559999999999999,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-3-bay-1",
+      "facade": "south",
+      "level": 3,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -6.5,
+          11.09,
+          -11.7
+        ],
+        "max": [
+          -0.2999999999999998,
+          12.559999999999999,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-3-bay-2",
+      "facade": "south",
+      "level": 3,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          0.2999999999999998,
+          11.09,
+          -11.7
+        ],
+        "max": [
+          6.5,
+          12.559999999999999,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-3-bay-3",
+      "facade": "south",
+      "level": 3,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          7.1,
+          11.09,
+          -11.7
+        ],
+        "max": [
+          13.299999999999999,
+          12.559999999999999,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-4-bay-0",
+      "facade": "south",
+      "level": 4,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -13.299999999999999,
+          14.59,
+          -11.7
+        ],
+        "max": [
+          -7.1,
+          16.06,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-4-bay-1",
+      "facade": "south",
+      "level": 4,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -6.5,
+          14.59,
+          -11.7
+        ],
+        "max": [
+          -0.2999999999999998,
+          16.06,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-4-bay-2",
+      "facade": "south",
+      "level": 4,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          0.2999999999999998,
+          14.59,
+          -11.7
+        ],
+        "max": [
+          6.5,
+          16.06,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-4-bay-3",
+      "facade": "south",
+      "level": 4,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          7.1,
+          14.59,
+          -11.7
+        ],
+        "max": [
+          13.299999999999999,
+          16.06,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-5-bay-0",
+      "facade": "south",
+      "level": 5,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -13.299999999999999,
+          18.09,
+          -11.7
+        ],
+        "max": [
+          -7.1,
+          19.56,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-5-bay-1",
+      "facade": "south",
+      "level": 5,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -6.5,
+          18.09,
+          -11.7
+        ],
+        "max": [
+          -0.2999999999999998,
+          19.56,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-5-bay-2",
+      "facade": "south",
+      "level": 5,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          0.2999999999999998,
+          18.09,
+          -11.7
+        ],
+        "max": [
+          6.5,
+          19.56,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-5-bay-3",
+      "facade": "south",
+      "level": 5,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          7.1,
+          18.09,
+          -11.7
+        ],
+        "max": [
+          13.299999999999999,
+          19.56,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-6-bay-0",
+      "facade": "south",
+      "level": 6,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -13.299999999999999,
+          21.59,
+          -11.7
+        ],
+        "max": [
+          -7.1,
+          23.06,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-6-bay-1",
+      "facade": "south",
+      "level": 6,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          -6.5,
+          21.59,
+          -11.7
+        ],
+        "max": [
+          -0.2999999999999998,
+          23.06,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-6-bay-2",
+      "facade": "south",
+      "level": 6,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          0.2999999999999998,
+          21.59,
+          -11.7
+        ],
+        "max": [
+          6.5,
+          23.06,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "south-level-6-bay-3",
+      "facade": "south",
+      "level": 6,
+      "projectionMetres": 2.5,
+      "bounds": {
+        "min": [
+          7.1,
+          21.59,
+          -11.7
+        ],
+        "max": [
+          13.299999999999999,
+          23.06,
+          -9.2
+        ]
+      }
+    },
+    {
+      "id": "east-level-1-bay-0",
+      "facade": "east",
+      "level": 1,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          4.09,
+          -8.75
+        ],
+        "max": [
+          15.925,
+          5.5600000000000005,
+          -3.25
+        ]
+      }
+    },
+    {
+      "id": "east-level-1-bay-1",
+      "facade": "east",
+      "level": 1,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          4.09,
+          -2.75
+        ],
+        "max": [
+          15.925,
+          5.5600000000000005,
+          2.75
+        ]
+      }
+    },
+    {
+      "id": "east-level-1-bay-2",
+      "facade": "east",
+      "level": 1,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          4.09,
+          3.25
+        ],
+        "max": [
+          15.925,
+          5.5600000000000005,
+          8.75
+        ]
+      }
+    },
+    {
+      "id": "east-level-2-bay-0",
+      "facade": "east",
+      "level": 2,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          7.59,
+          -8.75
+        ],
+        "max": [
+          15.925,
+          9.06,
+          -3.25
+        ]
+      }
+    },
+    {
+      "id": "east-level-2-bay-1",
+      "facade": "east",
+      "level": 2,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          7.59,
+          -2.75
+        ],
+        "max": [
+          15.925,
+          9.06,
+          2.75
+        ]
+      }
+    },
+    {
+      "id": "east-level-2-bay-2",
+      "facade": "east",
+      "level": 2,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          7.59,
+          3.25
+        ],
+        "max": [
+          15.925,
+          9.06,
+          8.75
+        ]
+      }
+    },
+    {
+      "id": "east-level-3-bay-0",
+      "facade": "east",
+      "level": 3,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          11.09,
+          -8.75
+        ],
+        "max": [
+          15.925,
+          12.559999999999999,
+          -3.25
+        ]
+      }
+    },
+    {
+      "id": "east-level-3-bay-1",
+      "facade": "east",
+      "level": 3,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          11.09,
+          -2.75
+        ],
+        "max": [
+          15.925,
+          12.559999999999999,
+          2.75
+        ]
+      }
+    },
+    {
+      "id": "east-level-3-bay-2",
+      "facade": "east",
+      "level": 3,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          11.09,
+          3.25
+        ],
+        "max": [
+          15.925,
+          12.559999999999999,
+          8.75
+        ]
+      }
+    },
+    {
+      "id": "east-level-4-bay-0",
+      "facade": "east",
+      "level": 4,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          14.59,
+          -8.75
+        ],
+        "max": [
+          15.925,
+          16.06,
+          -3.25
+        ]
+      }
+    },
+    {
+      "id": "east-level-4-bay-1",
+      "facade": "east",
+      "level": 4,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          14.59,
+          -2.75
+        ],
+        "max": [
+          15.925,
+          16.06,
+          2.75
+        ]
+      }
+    },
+    {
+      "id": "east-level-4-bay-2",
+      "facade": "east",
+      "level": 4,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          14.59,
+          3.25
+        ],
+        "max": [
+          15.925,
+          16.06,
+          8.75
+        ]
+      }
+    },
+    {
+      "id": "east-level-5-bay-0",
+      "facade": "east",
+      "level": 5,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          18.09,
+          -8.75
+        ],
+        "max": [
+          15.925,
+          19.56,
+          -3.25
+        ]
+      }
+    },
+    {
+      "id": "east-level-5-bay-1",
+      "facade": "east",
+      "level": 5,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          18.09,
+          -2.75
+        ],
+        "max": [
+          15.925,
+          19.56,
+          2.75
+        ]
+      }
+    },
+    {
+      "id": "east-level-5-bay-2",
+      "facade": "east",
+      "level": 5,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          18.09,
+          3.25
+        ],
+        "max": [
+          15.925,
+          19.56,
+          8.75
+        ]
+      }
+    },
+    {
+      "id": "east-level-6-bay-0",
+      "facade": "east",
+      "level": 6,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          21.59,
+          -8.75
+        ],
+        "max": [
+          15.925,
+          23.06,
+          -3.25
+        ]
+      }
+    },
+    {
+      "id": "east-level-6-bay-1",
+      "facade": "east",
+      "level": 6,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          21.59,
+          -2.75
+        ],
+        "max": [
+          15.925,
+          23.06,
+          2.75
+        ]
+      }
+    },
+    {
+      "id": "east-level-6-bay-2",
+      "facade": "east",
+      "level": 6,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          13.8,
+          21.59,
+          3.25
+        ],
+        "max": [
+          15.925,
+          23.06,
+          8.75
+        ]
+      }
+    },
+    {
+      "id": "west-level-1-bay-0",
+      "facade": "west",
+      "level": 1,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          4.09,
+          -8.75
+        ],
+        "max": [
+          -13.8,
+          5.5600000000000005,
+          -3.25
+        ]
+      }
+    },
+    {
+      "id": "west-level-1-bay-1",
+      "facade": "west",
+      "level": 1,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          4.09,
+          -2.75
+        ],
+        "max": [
+          -13.8,
+          5.5600000000000005,
+          2.75
+        ]
+      }
+    },
+    {
+      "id": "west-level-1-bay-2",
+      "facade": "west",
+      "level": 1,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          4.09,
+          3.25
+        ],
+        "max": [
+          -13.8,
+          5.5600000000000005,
+          8.75
+        ]
+      }
+    },
+    {
+      "id": "west-level-2-bay-0",
+      "facade": "west",
+      "level": 2,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          7.59,
+          -8.75
+        ],
+        "max": [
+          -13.8,
+          9.06,
+          -3.25
+        ]
+      }
+    },
+    {
+      "id": "west-level-2-bay-1",
+      "facade": "west",
+      "level": 2,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          7.59,
+          -2.75
+        ],
+        "max": [
+          -13.8,
+          9.06,
+          2.75
+        ]
+      }
+    },
+    {
+      "id": "west-level-2-bay-2",
+      "facade": "west",
+      "level": 2,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          7.59,
+          3.25
+        ],
+        "max": [
+          -13.8,
+          9.06,
+          8.75
+        ]
+      }
+    },
+    {
+      "id": "west-level-3-bay-0",
+      "facade": "west",
+      "level": 3,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          11.09,
+          -8.75
+        ],
+        "max": [
+          -13.8,
+          12.559999999999999,
+          -3.25
+        ]
+      }
+    },
+    {
+      "id": "west-level-3-bay-1",
+      "facade": "west",
+      "level": 3,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          11.09,
+          -2.75
+        ],
+        "max": [
+          -13.8,
+          12.559999999999999,
+          2.75
+        ]
+      }
+    },
+    {
+      "id": "west-level-3-bay-2",
+      "facade": "west",
+      "level": 3,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          11.09,
+          3.25
+        ],
+        "max": [
+          -13.8,
+          12.559999999999999,
+          8.75
+        ]
+      }
+    },
+    {
+      "id": "west-level-4-bay-0",
+      "facade": "west",
+      "level": 4,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          14.59,
+          -8.75
+        ],
+        "max": [
+          -13.8,
+          16.06,
+          -3.25
+        ]
+      }
+    },
+    {
+      "id": "west-level-4-bay-1",
+      "facade": "west",
+      "level": 4,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          14.59,
+          -2.75
+        ],
+        "max": [
+          -13.8,
+          16.06,
+          2.75
+        ]
+      }
+    },
+    {
+      "id": "west-level-4-bay-2",
+      "facade": "west",
+      "level": 4,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          14.59,
+          3.25
+        ],
+        "max": [
+          -13.8,
+          16.06,
+          8.75
+        ]
+      }
+    },
+    {
+      "id": "west-level-5-bay-0",
+      "facade": "west",
+      "level": 5,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          18.09,
+          -8.75
+        ],
+        "max": [
+          -13.8,
+          19.56,
+          -3.25
+        ]
+      }
+    },
+    {
+      "id": "west-level-5-bay-1",
+      "facade": "west",
+      "level": 5,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          18.09,
+          -2.75
+        ],
+        "max": [
+          -13.8,
+          19.56,
+          2.75
+        ]
+      }
+    },
+    {
+      "id": "west-level-5-bay-2",
+      "facade": "west",
+      "level": 5,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          18.09,
+          3.25
+        ],
+        "max": [
+          -13.8,
+          19.56,
+          8.75
+        ]
+      }
+    },
+    {
+      "id": "west-level-6-bay-0",
+      "facade": "west",
+      "level": 6,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          21.59,
+          -8.75
+        ],
+        "max": [
+          -13.8,
+          23.06,
+          -3.25
+        ]
+      }
+    },
+    {
+      "id": "west-level-6-bay-1",
+      "facade": "west",
+      "level": 6,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          21.59,
+          -2.75
+        ],
+        "max": [
+          -13.8,
+          23.06,
+          2.75
+        ]
+      }
+    },
+    {
+      "id": "west-level-6-bay-2",
+      "facade": "west",
+      "level": 6,
+      "projectionMetres": 2.125,
+      "bounds": {
+        "min": [
+          -15.925,
+          21.59,
+          3.25
+        ],
+        "max": [
+          -13.8,
+          23.06,
+          8.75
+        ]
+      }
+    }
+  ],
+  "lods": [
+    {
+      "level": 0,
+      "file": "residence-lod0.glb",
+      "triangles": 27672,
+      "vertices": 83016,
+      "drawCalls": 12,
+      "bytes": 2668976
+    },
+    {
+      "level": 1,
+      "file": "residence-lod1.glb",
+      "triangles": 12804,
+      "vertices": 38412,
+      "drawCalls": 11,
+      "bytes": 1240756
+    },
+    {
+      "level": 2,
+      "file": "residence-lod2.glb",
+      "triangles": 624,
+      "vertices": 1872,
+      "drawCalls": 6,
+      "bytes": 66072
+    }
+  ]
+}

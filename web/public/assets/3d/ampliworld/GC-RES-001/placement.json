@@ -1,0 +1,15 @@
+{
+  "assetId": "GC-RES-001",
+  "status": "PLANNED_NOT_YET_IN_WORLD",
+  "parcelId": "GC-X1-Z3",
+  "coordinateSpace": "WORLD_METERS",
+  "position": [-625, 8, -125],
+  "rotationYRadians": 0,
+  "plotSizeMeters": [45, 40],
+  "assetOrigin": "GROUND_CENTER",
+  "terrainCheck": {"samples": 323, "spacingMeters": 2.5, "minElevationMeters": 8, "maxElevationMeters": 8, "minRiverBankClearanceMeters": 171.895},
+  "viewer": "/architecture",
+  "viewerCoordinates": "ASSET_LOCAL_METERS",
+  "rights": {"origin": "Original procedural geometry authored for AmpliWorld", "externalImages": false},
+  "pending": ["district road connection", "interior instance", "terrain integration", "complete gameplay integration"]
+}
