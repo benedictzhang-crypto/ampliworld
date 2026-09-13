@@ -12,9 +12,9 @@ import { CITY_INFRA } from '../world-client/city-surface';
 import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
 import { CivicPlaces } from '../world-client/civic-places';
 import { StreetTrees } from '../world-client/street-trees';
+import { findVehicleExit } from '../world-client/vehicle-safety';
 import {
   GARAGE_COLLIDERS,
-  isGarageDriveArea,
   parkedGarageBay,
 } from '../world-client/mall-garage';
 import { CityPlan } from '../world-client/city-plan';
@@ -396,18 +396,26 @@ export function DistrictClient() {
       ...solids,
       new Box3(
         new Vector3(
-          carReport.x - 2.6,
+          carReport.x -
+            (Math.abs(Math.cos(carReport.yaw)) * 1.05 +
+              Math.abs(Math.sin(carReport.yaw)) * 2.5),
           districtGroundHeight(carReport.x, carReport.z, carReport.y) - 0.1,
-          carReport.z - 2.6,
+          carReport.z -
+            (Math.abs(Math.sin(carReport.yaw)) * 1.05 +
+              Math.abs(Math.cos(carReport.yaw)) * 2.5),
         ),
         new Vector3(
-          carReport.x + 2.6,
+          carReport.x +
+            (Math.abs(Math.cos(carReport.yaw)) * 1.05 +
+              Math.abs(Math.sin(carReport.yaw)) * 2.5),
           districtGroundHeight(carReport.x, carReport.z, carReport.y) + 1.7,
-          carReport.z + 2.6,
+          carReport.z +
+            (Math.abs(Math.sin(carReport.yaw)) * 1.05 +
+              Math.abs(Math.cos(carReport.yaw)) * 2.5),
         ),
       ),
     ],
-    [solids, carReport.x, carReport.z, carReport.y],
+    [solids, carReport.x, carReport.z, carReport.y, carReport.yaw],
   );
   const nearCar =
     Math.hypot(position[0] - car.current.x, position[1] - car.current.z) < 8 &&
@@ -421,27 +429,11 @@ export function DistrictClient() {
       setVehicleMessage('W/S 加速与倒车 · A/D 转向 · 空格刹车');
     } else {
       car.current.speed = 0;
-      for (const side of [1, -1]) {
-        const x = car.current.x + Math.cos(car.current.yaw) * 3.8 * side,
-          z = car.current.z - Math.sin(car.current.yaw) * 3.8 * side,
-          y = districtGroundHeight(x, z, car.current.y);
-        if (
-          Math.abs(x) > 9995 ||
-          Math.abs(z) > 14995 ||
-          (y < -0.1 && !isGarageDriveArea(x, z)) ||
-          solids.some(
-            (b) =>
-              b.max.y > y + 0.29 &&
-              b.min.y < y + 2.08 &&
-              x > b.min.x - 0.4 &&
-              x < b.max.x + 0.4 &&
-              z > b.min.z - 0.4 &&
-              z < b.max.z + 0.4,
-          )
-        )
-          continue;
-        setRelocation({ x, z, y, nonce: Date.now() });
-        setPosition([x, z]);
+      const exit = findVehicleExit(car.current, solids, districtGroundHeight);
+      if (exit) {
+        setRelocation({ ...exit, nonce: Date.now() });
+        setPosition([exit.x, exit.z]);
+        playerFloor.current = exit.y;
         setDriving(false);
         setVehicleMessage('已下车 · 靠近车辆可再次驾驶');
         return;
@@ -551,7 +543,11 @@ export function DistrictClient() {
                         : 35
                 }
                 maxDistance={walking ? 18 : wide ? 65000 : 1800}
-                maxPolarAngle={!walking && focus === 'garage' ? Math.PI - 0.04 : Math.PI / 2 - 0.04}
+                maxPolarAngle={
+                  !walking && focus === 'garage'
+                    ? Math.PI - 0.04
+                    : Math.PI / 2 - 0.04
+                }
                 enablePan={!walking}
                 enableRotate={!walking}
                 enableZoom={!walking}

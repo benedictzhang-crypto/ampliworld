@@ -75,6 +75,37 @@ assert.equal(
   0.18,
   'Ground floor never snaps upstairs',
 );
+let stairFeet = 0.18;
+for (let z = 649; z >= 629; z -= 0.05) {
+  const x = -627;
+  assert.equal(
+    CIVIC_COLLIDERS.some(
+      (c) =>
+        c.min[1] < stairFeet + 2.08 &&
+        c.max[1] > stairFeet + 0.29 &&
+        x > c.min[0] - 0.38 &&
+        x < c.max[0] + 0.38 &&
+        z > c.min[2] - 0.38 &&
+        z < c.max[2] + 0.38,
+    ),
+    false,
+    `Stair blocked at ${z},${stairFeet}`,
+  );
+  const next = districtGroundHeight(x, z, stairFeet);
+  assert.ok(next - stairFeet <= 0.29, 'Reachable stair riser');
+  stairFeet = next;
+}
+assert.ok(Math.abs(stairFeet - 5.4) < 0.001, 'Stairs reach upper gallery');
+assert.equal(
+  districtGroundHeight(-600, 615, 0.18),
+  0.18,
+  'Under-gallery floor remains ground level',
+);
+assert.equal(
+  districtGroundHeight(-600, 615, 5.4),
+  5.4,
+  'Upper gallery retains elevation',
+);
 for (const side of [-1, 1]) {
   route([side * 440, 0], [side * 440, 1050]);
   route([side * 440, 1050], [side * 500, 1050]);

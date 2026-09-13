@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { Box3, Vector3 } from 'three';
+import { Box3, Vector3, Ray } from 'three';
+import {
+  findVehicleExit,
+  clipVehicleCamera,
+} from '../app/world-client/vehicle-safety.ts';
 import { carBlocked } from '../app/world-client/driveable-car.tsx';
 import { districtGroundHeight } from '../app/district/registry.ts';
 import {
@@ -41,9 +45,41 @@ for (let i = 0; i <= 90; i++) {
   const a = (i * Math.PI) / 180;
   check(120.5 - 5.2 * (1 - Math.cos(a)), -118 - 5.2 * Math.sin(a), a);
 }
-for (let x = 115.3; x >= 20; x -= 0.1) check(x, -123.2, Math.PI / 2);
-for (let z = -123.2; z >= -168; z -= 0.1) check(20, z, 0);
+for (let x = 115.3; x >= 100; x -= 0.1) check(x, -123.2, Math.PI / 2);
+for (let z = -123.2; z >= -180; z -= 0.1) check(100, z, 0);
+for (let x = 100; x >= 20; x -= 0.1) check(x, -180, Math.PI / 2);
+for (let z = -180; z <= -168; z += 0.1) check(20, z, Math.PI);
 assert.equal(y, -4.2);
+assert.ok(
+  carBlocked(20, -167.5, obstacles, districtGroundHeight, -4.2, Math.PI),
+  'Tyres stop before crossing wheel stop',
+);
+const wallExit = findVehicleExit(
+  { x: -101, z: -188, y: -4.2, yaw: Math.PI },
+  obstacles,
+  districtGroundHeight,
+);
+assert.ok(
+  wallExit && wallExit.x > -104 && wallExit.y === -4.2,
+  'Wall-side exit never teleports upstairs',
+);
+const bayExit = findVehicleExit(
+  { x: 20, z: -168, y: -4.2, yaw: 0 },
+  obstacles,
+  districtGroundHeight,
+);
+assert.ok(bayExit && bayExit.y === -4.2, 'Normal bay exit stays downstairs');
+const target = new Vector3(30, -2.9, -154),
+  eye = new Vector3(30, 4, -145);
+clipVehicleCamera(
+  eye,
+  target,
+  obstacles,
+  new Ray(),
+  new Vector3(),
+  new Vector3(),
+);
+assert.ok(eye.y < -0.45, 'Actual interpolated camera is clipped beneath roof');
 assert.ok(
   parkedGarageBay({ x: 20, z: -168, y: -4.2, yaw: 0, speed: 0 }),
   'Stopped vehicle fits empty bay',

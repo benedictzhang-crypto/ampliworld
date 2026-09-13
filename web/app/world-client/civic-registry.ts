@@ -40,7 +40,12 @@ export const CIVIC_COLLIDERS = [
     })),
   ),
 ];
-export function civicGroundHeight(x: number, z: number): number | undefined {
+export function civicGroundHeight(
+  x: number,
+  z: number,
+  currentY = 0,
+): number | undefined {
+  let support: number | undefined, lowest: number | undefined;
   for (const p of CIVIC_PLACES)
     for (const s of p.manifest.surfaces)
       if (
@@ -48,8 +53,12 @@ export function civicGroundHeight(x: number, z: number): number | undefined {
         x <= s.max[0] + p.x &&
         z >= s.min[1] + p.z &&
         z <= s.max[1] + p.z
-      )
-        return s.y;
+      ) {
+        lowest = Math.min(lowest ?? Infinity, s.y);
+        if (s.y <= currentY + 0.29)
+          support = Math.max(support ?? -Infinity, s.y);
+      }
+  if (support !== undefined || lowest !== undefined) return support ?? lowest;
   for (const s of streets.surfaces)
     if (x >= s.min[0] && x <= s.max[0] && z >= s.min[1] && z <= s.max[1])
       return s.y;

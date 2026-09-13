@@ -285,16 +285,39 @@ for (let i = 0; i < 24; i++) {
     z0 = z1 - 0.56;
   box('white', -62, (0.18 + y) / 2, (z0 + z1) / 2, 4, y - 0.18, 0.56);
   surface(`stair-${i}`, -64, z0, -60, z1, y);
+  solid(`stair-tread-${i}`, [-64, 0.18, z0], [-60, y, z1]);
+  // Each tread is a real solid; its thin gold nosing stays below step tolerance.
+  box('gold', -62, y + 0.006, z1 - 0.045, 3.9, 0.012, 0.08);
+  for (const x of [-64.18, -59.82]) {
+    box('glass', x, y + 0.52, (z0 + z1) / 2, 0.04, 1.04, 0.56);
+    solid(
+      `stair-side-guard-${i}-${x}`,
+      [x - 0.06, y, z0],
+      [x + 0.06, y + 1.1, z1],
+    );
+    if (i % 4 === 0 || i === 23)
+      rod('steel', [x, y, z0], [x, y + 1.1, z0], 0.026, 6);
+  }
 }
 for (const x of [-64.18, -59.82])
   rod('gold', [x, 1.18, -7], [x, 6.4, -20.44], 0.045, 6);
 for (const [xa, xb] of [
-  [-68, -65],
-  [-59, 68],
+  [-68, -64.25],
+  [-59.75, 68],
 ]) {
   rod('gold', [xa, 6.5, -19.85], [xb, 6.5, -19.85], 0.045, 6);
   box('glass', (xa + xb) / 2, 5.95, -19.85, xb - xa, 1.1, 0.08);
   solid(`mezzanine-rail-${xa}`, [xa, 5.4, -19.92], [xb, 6.52, -19.78]);
+}
+// Side guards close the two-metre gap between gallery slab and outer facade.
+for (const x of [-68, 68]) {
+  box('glass', x, 5.95, -40.9, 0.08, 1.1, 41.8);
+  rod('gold', [x, 6.51, -61.8], [x, 6.51, -20], 0.045, 6);
+  solid(
+    `mezzanine-side-guard-${x}`,
+    [x - 0.07, 5.4, -61.8],
+    [x + 0.07, 6.56, -20],
+  );
 }
 // Ground and mezzanine furniture: individually collidable at their real heights.
 function lounge(x, y, z, prefix) {
@@ -457,6 +480,16 @@ box('concrete', -86, 5.8, 54, 2.2, 11.56, 3);
 text('A', -86, 8.1, 55.55, 2.2);
 solid('arrival-monolith', [-87.1, 0.02, 52.5], [-84.9, 11.58, 55.5]);
 
+// Roof purlins; omit subpixel paving lines that shimmer in overview.
+for (const x of [-56, -28, 0, 28, 56])
+  rod(
+    'steel',
+    [x, roofY(x, -51) - 0.81, -51],
+    [x, roofY(x, 21) - 0.81, 21],
+    0.055,
+    6,
+  );
+
 const scene = new T.Group();
 scene.name = 'Aureline Motor Experience';
 let triangles = 0;
@@ -477,30 +510,33 @@ if (triangles > 150000)
   throw new Error(`Dealership triangle budget exceeded: ${triangles}`);
 scene.updateMatrixWorld(true);
 const bounds = new T.Box3().setFromObject(scene);
-// Current registry takes FIRST match and cannot distinguish stacked floors.
-// Keep ground showroom playable; retain upper/stair metadata separately until
-// a height-aware controller is integrated, rather than teleporting downstairs.
+// All elevations are active. The runtime must select a height-reachable support,
+// not simply the first overlapping rectangle; each stacked floor is retained.
 const elevatedSurfaces = surfaces.filter(
   (s) => s.id === 'mezzanine' || s.id.startsWith('stair-'),
 );
-const activeSurfaces = surfaces.filter((s) => !elevatedSurfaces.includes(s));
-const rank = (s) =>
-  s.id === 'east-road-connector'
-    ? 0
-    : s.id.startsWith('display-pad-')
-      ? 1
-      : s.id.startsWith('entry-threshold-')
-        ? 2
-        : s.id === 'showroom'
-          ? 3
-          : 9;
-activeSurfaces.sort((a, b) => rank(a) - rank(b));
-solid('stairs-pending-layered-navigation', [-64, 0.18, -20.44], [-60, 5.4, -7]);
+const area = (s) => (s.max[0] - s.min[0]) * (s.max[1] - s.min[1]);
+const activeSurfaces = [...surfaces].sort(
+  (a, b) => b.y - a.y || area(a) - area(b),
+);
+const navigation = {
+  requiresHeightAwareGroundSelection: true,
+  maximumStairRiser: 0.2175,
+  recommendedStepTolerance: 0.24,
+  stairWidth: 4,
+  stairRun: { min: [-64, -20.44], max: [-60, -7], bottomY: 0.18, topY: 5.4 },
+  clearUpperLanding: { min: [-64, -25], max: [-58, -20.44], y: 5.4 },
+  levels: [
+    { id: 'showroom', y: 0.18 },
+    { id: 'upper-gallery', y: 5.4 },
+  ],
+  retiredColliderIds: ['stairs-pending-layered-navigation'],
+};
 const manifest = {
   id: 'GC-AUTO-001',
   name: 'Aureline Motor Experience',
   nameZh: '曜线汽车体验中心',
-  version: 1,
+  version: 2,
   units: 'meters',
   file: 'dealership.glb',
   bounds: { min: bounds.min.toArray(), max: bounds.max.toArray() },
@@ -509,6 +545,7 @@ const manifest = {
   colliders,
   surfaces: activeSurfaces,
   elevatedSurfaces,
+  navigation,
   triangles,
   materialDrawCalls: scene.children.length,
   entry: [0, 30],
@@ -530,7 +567,7 @@ const manifest = {
   },
   limitations: [
     'Display cars use original lightweight showroom geometry, not driveable actors.',
-    'Mezzanine has real steps; elevatedSurfaces require a height-aware controller before opening stair collision. Ground showroom remains walkable.',
+    'Two walkable levels and solid stairs require height-aware ground and step collision handling; a first-match surface resolver is not sufficient.',
     'Service equipment, interactive sales and real vehicle servicing are not implemented.',
   ],
 };

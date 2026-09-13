@@ -4,6 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { Clone, useGLTF } from '@react-three/drei';
 import { Box3, Group, Ray, Vector3 } from 'three';
 import { isGarageDriveArea } from './mall-garage';
+import { clipVehicleCamera } from './vehicle-safety';
 import type { OrbitControls } from 'three-stdlib';
 export type CarState = {
   x: number;
@@ -38,6 +39,19 @@ export function carBlocked(
   ])
     if (Math.abs(floor(x + dx, z + dz, y) - y) > 0.65) return true;
   return obstacles.some((b) => {
+    // Low wheel stops contact tyres, not the whole bumper overhang.
+    if (b.max.y <= y + 0.4) {
+      if (b.max.y <= y + 0.18 || b.min.y >= y + 0.35) return false;
+      for (const side of [-1, 1])
+        for (const axle of [-1, 1]) {
+          const wx = x + c * 0.86 * side + s * 1.5 * axle,
+            wz = z - s * 0.86 * side + c * 1.5 * axle;
+          const dx = Math.max(b.min.x - wx, 0, wx - b.max.x),
+            dz = Math.max(b.min.z - wz, 0, wz - b.max.z);
+          if (dx * dx + dz * dz < 0.32 * 0.32) return true;
+        }
+      return false;
+    }
     if (b.max.y <= y + 0.4 || b.min.y >= y + 1.9) return false;
     const dx = (b.min.x + b.max.x) / 2 - x,
       dz = (b.min.z + b.max.z) / 2 - z;
@@ -252,12 +266,20 @@ export function DriveableCar({
         if (scratch.ray.intersectBox(box, scratch.hit))
           boom = Math.min(
             boom,
-            Math.max(0.65, scratch.target.distanceTo(scratch.hit) - 0.25),
+            Math.max(0.05, scratch.target.distanceTo(scratch.hit) - 0.25),
           );
       scratch.eye.copy(scratch.target).addScaledVector(scratch.direction, boom);
       camera.position.lerp(scratch.eye, 1 - Math.exp(-6 * dt));
       controls.current.target.copy(scratch.target);
       controls.current.update();
+      clipVehicleCamera(
+        camera.position,
+        scratch.target,
+        obstacles,
+        scratch.ray,
+        scratch.direction,
+        scratch.hit,
+      );
       camera.lookAt(scratch.target);
       if (look) camera.rotateX(look.current.pitch);
       if (
@@ -275,6 +297,7 @@ export function DriveableCar({
       lookPitch: look?.current.pitch ?? 0,
       viewYaw: scratch.yawOffset,
       gazeY: camera.getWorldDirection(scratch.direction).y,
+      cameraY: camera.position.y,
     });
     if (clock.elapsedTime - scratch.report > 0.12) {
       scratch.report = clock.elapsedTime;

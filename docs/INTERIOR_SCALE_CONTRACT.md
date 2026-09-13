@@ -6,7 +6,7 @@ All authored geometry uses metres. Avatar height, street furniture, doors, vehic
 
 Restaurants and showroom ground floors are part of the exterior world. Open doorways are empty space between individually registered wall and glass colliders. Counters, vehicles, furniture, columns and roofs have separate collision volumes. Never use a solid building-sized collider for an enterable room, or a facade photograph as a substitute for geometry.
 
-The sushi shop is the current small-interior reference. The Aureline automotive centre extends this pattern to a large open ground-floor showroom. Its upper gallery and service areas are visual first; only explicitly tested routes may be described as playable.
+The sushi shop is the current small-interior reference. The Aureline automotive centre extends this pattern to a large open showroom and an upper gallery reached by guarded physical stairs. Height-aware support selection preserves both floors. Service areas remain visual first; only explicitly tested routes may be described as playable.
 
 ## Large buildings: future streaming boundary
 

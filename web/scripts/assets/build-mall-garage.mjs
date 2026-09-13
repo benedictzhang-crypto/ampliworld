@@ -136,7 +136,8 @@ wall('south-wall', -104, 69.55, 114, 70);
 wall('east-wall-concourse-separation', 113.5, -85, 113.95, 61.5);
 // Portal remains open along eastx114, z62..70; no gate or threshold step.
 box('gold', 113.99, -0.78, 66, 0.22, 0.32, 8);
-label('B1  PARKING', 108, -1.65, 67.8, 1.1, Math.PI / 2);
+label('B1  PARKING', 108, -1.65, 65.8, 0.8, Math.PI / 2);
+solid('portal-lintel', [113.88, -0.94, 62], [114.1, -0.62, 70]);
 label('WELCOME', 101, -4.175, 65, 1.25, Math.PI / 2, true, 'gold');
 
 // Premium two-bank layout:176 large marked bays, mostly intentionally empty.
@@ -168,6 +169,11 @@ for (let r = 0; r < rowZ.length; r++)
         0.55,
       );
       box('concrete', x, FLOOR + 0.1, z + 2.25, 1.7, 0.2, 0.16);
+      solid(
+        `wheel-stop-${id}`,
+        [x - 0.85, FLOOR, z + 2.17],
+        [x + 0.85, FLOOR + 0.2, z + 2.33],
+      );
       if (q % 4 === 0)
         label(id, x, FLOOR + 0.016, z + 2.85, 0.34, Math.PI, true);
     }
@@ -206,6 +212,11 @@ for (const [i, z] of [-72, -47, -15, 11, 42].entries()) {
   // Ceiling fittings are solid luminous strips, with steel housings.
   for (const x of [-77, -43, -9, 25, 59, 93]) {
     box('dark', x, -0.67, z, 19, 0.14, 0.75);
+    solid(
+      `light-housing-${x}-${z}`,
+      [x - 9.5, -0.77, z - 0.375],
+      [x + 9.5, -0.6, z + 0.375],
+    );
     box('light', x, -0.752, z, 18.6, 0.036, 0.43);
   }
   rod('steel', [-100, -0.97, z + 7], [110, -0.97, z + 7], 0.13, 8);
@@ -213,10 +224,13 @@ for (const [i, z] of [-72, -47, -15, 11, 42].entries()) {
     rod('steel', [x, -0.96, z + 7], [x, -0.56, z + 7], 0.027, 5);
   // Zone graphics on small hung signs; bottom above2.6m from floor.
   box('zoneBlue', -4, -1.13, z, 6, 0.7, 0.15);
+  solid(`suspended-sign-${z}`, [-7, -1.48, z - 0.075], [-1, -0.78, z + 0.1]);
+  solid(`transverse-pipe-${z}`, [-100, -1.1, z + 6.87], [110, -0.84, z + 7.13]);
   label(`B1  ${String.fromCharCode(65 + i)}`, -4, -1.34, z + 0.085, 0.48);
 }
 for (const x of [-73, 41]) {
   box('steel', x, -0.87, -6, 1.3, 0.34, 142);
+  solid(`ventilation-duct-${x}`, [x - 0.65, -1.071, -77], [x + 0.65, -0.7, 65]);
   for (let z = -72; z < 61; z += 18) {
     box('dark', x, -1.045, z, 0.9, 0.015, 2.4);
     for (let q = 0; q < 7; q++)
@@ -367,7 +381,7 @@ const manifest = {
   floorY: FLOOR,
   ceilingUndersideY: CEILING,
   structuralClearanceMeters: 3.75,
-  minimumServicesClearanceMeters: 3.1,
+  minimumServicesClearanceMeters: 2.72,
   colliders,
   surfaces,
   triangles,
@@ -387,7 +401,7 @@ const manifest = {
     zMin: 62,
     zMax: 70,
     floorY: FLOOR,
-    clearHeight: 3.35,
+    clearHeight: 3.26,
     directionIntoGarage: '-X',
     requiredLegacyOpening: {
       colliderId: 'b1-vestibule-wall-114.825',

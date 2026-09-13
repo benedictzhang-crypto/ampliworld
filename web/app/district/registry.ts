@@ -78,7 +78,7 @@ export const DISTRICT = {
 export function districtGroundHeight(x: number, z: number, currentY = 0) {
   const garageY = garageGroundHeight(x, z, currentY);
   if (garageY !== undefined) return garageY;
-  const civicY = civicGroundHeight(x, z);
+  const civicY = civicGroundHeight(x, z, currentY);
   if (civicY !== undefined) return civicY;
   if (Math.abs(x) > 600 || Math.abs(z) > 1100) return cityGroundHeight(x, z);
   for (const r of concourse.ramps)
