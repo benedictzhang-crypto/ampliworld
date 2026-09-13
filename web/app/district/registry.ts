@@ -6,6 +6,7 @@ import { communityGroundHeight } from '../world-client/community-registry';
 import { metropolitanGroundHeight } from '../world-client/metropolitan-registry';
 import { garageGroundHeight } from '../world-client/mall-garage';
 import { housingGroundHeight } from '../world-client/housing-registry';
+import mallInterior from '../../public/assets/3d/ampliworld/GC-MALL-002/mall-manifest.json';
 // New metre-space block. City origin and asset transforms are data, not mesh JSX.
 export const DISTRICT = {
   id: 'GC-GARDENS-B01',
@@ -79,6 +80,13 @@ export const DISTRICT = {
 
 // Surface heights from the exported street kit, not a flat offset above every surface.
 export function districtGroundHeight(x: number, z: number, currentY = 0) {
+  if (currentY >= -.5 && Math.abs(x) <= 112.5 && Math.abs(z+188) <= 90) {
+    let support: number | undefined;
+    for (const p of mallInterior.surfaces)
+      if (x>=p.min[0] && x<=p.max[0] && z+188>=p.min[1] && z+188<=p.max[1] && p.y<=currentY+.29)
+        support = support===undefined ? p.y : Math.max(support,p.y);
+    if(support!==undefined) return support;
+  }
   const housingY = housingGroundHeight(x, z, currentY);
   if (housingY !== undefined) return housingY;
   const metropolitanY = metropolitanGroundHeight(x, z, currentY);
@@ -162,7 +170,8 @@ export function districtLocation(x: number, z: number) {
   const mz = z - DISTRICT.mall.z;
   if (x >= 115 && x <= 126 && mz >= 60 && mz < 72)
     return 'B1 入口厅 · 直行进入 CBD 地下步行连廊';
-  if (x >= 115 && x <= 126 && mz >= 72 && mz <= 108) return '地下停车入口坡道';
+  if (x >= 115 && x <= 126 && mz >= 60 && mz <= 108)
+    return '停车坡道 · 坡底左转入库，直行仅供步行';
   if (x >= 127 && x <= 190 && mz >= -48 && mz <= 70)
     return '室外停车场 · 人行步道靠商场侧';
   if (Math.abs(x) > 6 && Math.abs(x) < 112 && mz > 35.5 && mz < 89.5)

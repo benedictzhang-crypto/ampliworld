@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Box3, Group, Ray, Vector3 } from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import { walkerCameraOffset } from './walk-camera-profile';
+import type { LiftCarrier } from './mall-circulation';
 import {
   BODY_HEIGHT,
   BODY_RADIUS,
@@ -46,6 +48,7 @@ export function Walker({
   active = true,
   relocation,
   look,
+  carrier,
 }: {
   controls: React.RefObject<OrbitControlsImpl | null>;
   onPosition: (x: number, z: number, y?: number) => void;
@@ -56,6 +59,7 @@ export function Walker({
   active?: boolean;
   relocation?: { x: number; z: number; y: number; nonce: number };
   look?: React.RefObject<{ pitch: number }>;
+  carrier?: React.RefObject<LiftCarrier>;
 }) {
   const body = useRef<Group>(null),
     leftLeg = useRef<Group>(null),
@@ -99,10 +103,13 @@ export function Walker({
     )
       return;
     lastRelocation.current = relocation.nonce;
-    state.offset
-      .subVectors(camera.position, controls.current.target)
-      .normalize()
-      .multiplyScalar(9);
+    walkerCameraOffset(
+      state.offset,
+      camera.position,
+      controls.current.target,
+      relocation.y,
+      state.desiredRadius,
+    );
     body.current.position.set(relocation.x, relocation.y, relocation.z);
     state.feet = relocation.y;
     state.velocity = 0;
@@ -232,6 +239,17 @@ export function Walker({
     const dt = Math.min(elapsed, 0.1),
       p = body.current.position,
       k = keys.current;
+    if (carrier?.current.active) {
+      const dy = carrier.current.y - state.feet;
+      state.feet = carrier.current.y;
+      p.y = state.feet;
+      camera.position.y += dy;
+      controls.current.target.y += dy;
+      state.velocity = 0;
+      state.grounded = true;
+      state.jumpQueued = false;
+      k.clear();
+    }
     const previousFeet = state.feet;
     const wasGrounded = state.grounded;
     state.forward.subVectors(controls.current.target, camera.position).setY(0);
@@ -323,21 +341,22 @@ export function Walker({
     state.delta.y = state.feet - previousFeet;
     camera.position.add(state.delta);
     controls.current.target.set(nx, state.feet + 1.4, nz);
-    state.offset
-      .subVectors(camera.position, controls.current.target)
-      .normalize();
-    camera.position
-      .copy(controls.current.target)
-      .addScaledVector(state.offset, state.desiredRadius);
-    controls.current.update();
-    camera.position.y = Math.max(
-      groundHeight(
-        camera.position.x,
-        camera.position.z,
-        camera.position.y - 1.4,
-      ) + 0.45,
-      camera.position.y,
+    walkerCameraOffset(
+      state.offset,
+      camera.position,
+      controls.current.target,
+      state.feet,
+      state.desiredRadius,
     );
+    camera.position.copy(controls.current.target).add(state.offset);
+    controls.current.update();
+    const cameraFloor = groundHeight(
+      camera.position.x,
+      camera.position.z,
+      state.feet,
+    );
+    if (state.feet >= -0.8 || cameraFloor <= state.feet + 0.65)
+      camera.position.y = Math.max(cameraFloor + 0.45, camera.position.y);
     state.offset.subVectors(camera.position, controls.current.target);
     state.ray.origin.copy(controls.current.target);
     state.ray.direction.copy(state.offset).normalize();

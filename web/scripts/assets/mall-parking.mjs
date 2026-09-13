@@ -300,7 +300,8 @@ export function buildParking(T, add, box, solid, text3d) {
   B('stone', 120.5, -0.6, 60, 11, 1, 0.3);
   solid('b1-entry-upper-wall', [115, -1.1, 59.85], [126, -0.1, 60.15]);
   for (const x of [119, 122]) B('gold', x, -2.63, 60, 0.1, 3.1, 0.35);
-  text3d('B1 ENTRY', 120.5, -0.66, 60.18, 0.3, 0);
+  text3d('MALL WALKWAY', 120.5, -0.66, 60.18, 0.25, 0);
+  text3d('PARKING < LEFT', 120.5, -1.5, 60.23, 0.3, 0);
   // The 3 m opening now leads into the CBD underground pedestrian concourse.
   for (const x of [114.8, 126.2])
     for (const z of [75, 84, 93, 102]) {

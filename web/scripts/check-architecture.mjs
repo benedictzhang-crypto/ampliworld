@@ -121,6 +121,24 @@ try {
     writeFileSync(join(temp, name + '.png'), Buffer.from(r.data, 'base64'));
   };
   await shot('corner');
+  if(process.env.QA_GARAGE_LEVELS==='1'){
+    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='地库览景').click()");
+    for(let level=1;level<=4;level++){
+      await evaluate(`Array.from(document.querySelectorAll('button')).find(b=>b.textContent.startsWith('B${level} · ')&&b.textContent.includes('车位')).click()`);
+      await wait(800);await shot('garage-B'+level);
+    }
+    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='商场楼层览景').click()");
+    for(const label of ['1F · 奢侈品 / 城市生活','6F · 餐饮 / 影院 / 电玩城','RF · 屋顶观景步道']){
+      await evaluate(`Array.from(document.querySelectorAll('button')).find(b=>b.textContent===${JSON.stringify(label)}).click()`);
+      await wait(700);await shot('mall-'+label.slice(0,2));
+    }
+    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='控制小人').click()");
+    await wait(300);const p=await evaluate("JSON.parse(document.querySelector('canvas').dataset.player||'{}')");
+    assert.ok(Math.abs(p.x)<.01&&Math.abs(p.z+68)<.01,'Garage previews do not teleport player');
+    assert.equal(exceptions.length,0,exceptions.join('\n'));
+    console.log(JSON.stringify({status:'passed',scenario:'four-garage-level-previews',screenshots:temp}));
+    socket.close();chrome.kill('SIGTERM');clearTimeout(timeout);process.exit(0);
+  }
   if(process.env.QA_HOUSING_STREAM==='1'){
     await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='老城里览景').click()");
     await wait(600);assert.ok(pausedHousing.length>0,'Real housing requests held for loading-fallback QA');

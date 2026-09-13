@@ -3,69 +3,15 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Clone, useGLTF } from '@react-three/drei';
 import { Box3, Group, Ray, Vector3 } from 'three';
-import { isGarageDriveArea } from './mall-garage';
 import { clipVehicleCamera } from './vehicle-safety';
 import type { OrbitControls } from 'three-stdlib';
-export type CarState = {
-  x: number;
-  z: number;
-  yaw: number;
-  speed: number;
-  y?: number;
-};
-export function carBlocked(
-  x: number,
-  z: number,
-  obstacles: readonly Box3[],
-  floor: (x: number, z: number, y?: number) => number,
-  currentY = 0,
-  yaw = 0,
-) {
-  const y = floor(x, z, currentY),
-    c = Math.cos(yaw),
-    s = Math.sin(yaw);
-  if (
-    Math.abs(x) > 9995 ||
-    Math.abs(z) > 14995 ||
-    !Number.isFinite(y) ||
-    (y < -0.1 && !isGarageDriveArea(x, z))
-  )
-    return true;
-  for (const [dx, dz] of [
-    [-2.6, 0],
-    [2.6, 0],
-    [0, -2.6],
-    [0, 2.6],
-  ])
-    if (Math.abs(floor(x + dx, z + dz, y) - y) > 0.65) return true;
-  return obstacles.some((b) => {
-    // Low wheel stops contact tyres, not the whole bumper overhang.
-    if (b.max.y <= y + 0.4) {
-      if (b.max.y <= y + 0.18 || b.min.y >= y + 0.35) return false;
-      for (const side of [-1, 1])
-        for (const axle of [-1, 1]) {
-          const wx = x + c * 0.86 * side + s * 1.5 * axle,
-            wz = z - s * 0.86 * side + c * 1.5 * axle;
-          const dx = Math.max(b.min.x - wx, 0, wx - b.max.x),
-            dz = Math.max(b.min.z - wz, 0, wz - b.max.z);
-          if (dx * dx + dz * dz < 0.32 * 0.32) return true;
-        }
-      return false;
-    }
-    if (b.max.y <= y + 0.4 || b.min.y >= y + 1.9) return false;
-    const dx = (b.min.x + b.max.x) / 2 - x,
-      dz = (b.min.z + b.max.z) / 2 - z;
-    const hx = (b.max.x - b.min.x) / 2,
-      hz = (b.max.z - b.min.z) / 2;
-    // Four separating axes: actual 2.1m-wide, 5m-long car, not a 5.2m square.
-    return (
-      Math.abs(dx) < hx + 1.05 * Math.abs(c) + 2.5 * Math.abs(s) &&
-      Math.abs(dz) < hz + 1.05 * Math.abs(s) + 2.5 * Math.abs(c) &&
-      Math.abs(dx * c - dz * s) < 1.05 + hx * Math.abs(c) + hz * Math.abs(s) &&
-      Math.abs(dx * s + dz * c) < 2.5 + hx * Math.abs(s) + hz * Math.abs(c)
-    );
-  });
-}
+export { carBlocked, stepVehicleMotion } from './vehicle-physics';
+export type { CarState } from './vehicle-physics';
+import {
+  carBlocked,
+  stepVehicleMotion,
+  type CarState,
+} from './vehicle-physics';
 export function DriveableCar({
   state,
   active,
@@ -230,33 +176,20 @@ export function DriveableCar({
       const steer =
         Number(k.has('KeyA') || k.has('ArrowLeft')) -
         Number(k.has('KeyD') || k.has('ArrowRight'));
-      s.speed = Math.max(-8, Math.min(22, s.speed + throttle * 10 * dt));
-      if (!throttle) s.speed *= Math.exp(-1.4 * dt);
-      if (k.has('Space')) s.speed *= Math.exp(-12 * dt);
-      const steps = Math.max(1, Math.ceil(Math.abs(s.speed * dt) / 0.4));
-      for (let i = 0; i < steps; i++) {
-        const yaw = s.yaw + (((steer * s.speed) / 5.2) * dt) / steps,
-          x = s.x - (Math.sin(yaw) * s.speed * dt) / steps,
-          z = s.z - (Math.cos(yaw) * s.speed * dt) / steps;
-        if (
-          carBlocked(x, z, obstacles, groundHeight, s.y ?? 0, yaw) ||
-          Math.abs(groundHeight(x, z, s.y) - groundHeight(s.x, s.z, s.y)) > 0.3
-        ) {
-          s.speed = 0;
-          break;
-        }
-        s.x = x;
-        s.z = z;
-        s.yaw = yaw;
-        s.y = groundHeight(x, z, s.y);
-      }
+      stepVehicleMotion(
+        s,
+        { throttle, steer, brake: k.has('Space') },
+        dt,
+        obstacles,
+        groundHeight,
+      );
       const y = groundHeight(s.x, s.z, s.y);
       s.y = y;
       scratch.target.set(s.x, y + 1.3, s.z);
       scratch.eye.set(
-        s.x + Math.sin(s.yaw + scratch.yawOffset) * 8,
-        y + (y < -0.2 ? 2.4 : 4.8),
-        s.z + Math.cos(s.yaw + scratch.yawOffset) * 8,
+        s.x + Math.sin(s.yaw + scratch.yawOffset) * (y < -0.8 ? 6.5 : 8),
+        y + (y < -0.8 ? 2.8 : 4.8),
+        s.z + Math.cos(s.yaw + scratch.yawOffset) * (y < -0.8 ? 6.5 : 8),
       );
       scratch.direction.subVectors(scratch.eye, scratch.target);
       let boom = scratch.direction.length();
@@ -290,7 +223,17 @@ export function DriveableCar({
         invalidate();
     }
     body.current.position.set(s.x, groundHeight(s.x, s.z, s.y), s.z);
-    body.current.rotation.y = s.yaw;
+    const floorY = groundHeight(s.x, s.z, s.y),
+      sn = Math.sin(s.yaw),
+      cs = Math.cos(s.yaw);
+    const front = groundHeight(s.x - sn * 1.5, s.z - cs * 1.5, floorY),
+      back = groundHeight(s.x + sn * 1.5, s.z + cs * 1.5, floorY);
+    body.current.rotation.set(
+      Math.abs(front - back) < 1.3 ? Math.atan2(front - back, 3) : 0,
+      s.yaw,
+      0,
+      'YXZ',
+    );
     gl.domElement.dataset.car = JSON.stringify({
       ...s,
       driving: active,

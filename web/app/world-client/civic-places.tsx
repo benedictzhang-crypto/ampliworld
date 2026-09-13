@@ -3,6 +3,7 @@ import { Clone, useGLTF } from '@react-three/drei';
 import { CIVIC_PLACES } from './civic-registry';
 import { useMemo } from 'react';
 import { Mesh, Material } from 'three';
+import { MALL_GARAGE, garageLevelAt } from './mall-garage';
 function CivicAsset({
   id,
   file,
@@ -34,7 +35,8 @@ function CivicAsset({
     </group>
   );
 }
-export function CivicPlaces() {
+export function CivicPlaces({ garageY = 0 }: { garageY?: number }) {
+  const floor = garageLevelAt(garageY).floorY;
   return (
     <>
       <CivicAsset
@@ -46,14 +48,14 @@ export function CivicPlaces() {
       {CIVIC_PLACES.map((p) => (
         <CivicAsset key={p.id} {...p} />
       ))}
-      <CivicAsset id="GC-MALL-GARAGE-001" file="garage.glb" x={0} z={-188} />
+      <CivicAsset id="GC-MALL-GARAGE-002" file="garage.glb" x={0} z={-188} />
       {[-70, 0, 75].flatMap((x) =>
         [-240, -150].map((z) => (
           <pointLight
             key={`${x}/${z}`}
-            position={[x, -1.1, z]}
+            position={[x, floor + 4.3, z]}
             color="#e3eaff"
-            intensity={140}
+            intensity={200}
             distance={100}
             decay={1}
           />

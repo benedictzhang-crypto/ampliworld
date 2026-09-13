@@ -11,6 +11,8 @@ import { CITY, CityLayer } from '../world-client/city-layer';
 import { CITY_INFRA } from '../world-client/city-surface';
 import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
 import { CivicPlaces } from '../world-client/civic-places';
+import { MallElevators } from '../world-client/mall-elevators';
+import { createMallLifts, LIFT_STATIC_SOLIDS, MALL_LEVELS, nearestMallLevel, liftContains, requestMallLift, type LiftCarrier } from '../world-client/mall-circulation';
 import { Communities } from '../world-client/communities';
 import { MetropolitanPlaces } from '../world-client/metropolitan-places';
 import { METROPOLITAN_COLLIDERS } from '../world-client/metropolitan-registry';
@@ -25,7 +27,12 @@ import {
 } from '../world-client/housing-registry';
 import { StreetTrees } from '../world-client/street-trees';
 import { findVehicleExit } from '../world-client/vehicle-safety';
-import { GARAGE_COLLIDERS, parkedGarageBay } from '../world-client/mall-garage';
+import {
+  GARAGE_COLLIDERS,
+  parkedGarageBay,
+  MALL_GARAGE,
+  garageLevelAt,
+} from '../world-client/mall-garage';
 import { CityPlan } from '../world-client/city-plan';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls } from '@react-three/drei';
@@ -180,8 +187,12 @@ function SetupCamera({
   controls,
   wide,
   focus,
+  garageLevel,
+  mallLevel,
 }: {
   walking: boolean;
+  garageLevel: number;
+  mallLevel: number;
   controls: React.RefObject<OrbitControlsImpl | null>;
   wide: boolean;
   focus:
@@ -190,6 +201,7 @@ function SetupCamera({
     | 'sushi'
     | 'auto'
     | 'garage'
+    | 'mall'
     | 'middle'
     | 'river'
     | 'east'
@@ -205,7 +217,7 @@ function SetupCamera({
   useEffect(() => {
     // Millimetre-scale street layers need more depth precision at kilometre
     // overview distances. Keep the close near plane only for the walker.
-    camera.near = walking || focus === 'garage' ? 0.1 : wide ? 3500 : 8;
+    camera.near = walking || focus === 'garage' || focus === 'mall' ? 0.1 : wide ? 3500 : 8;
     camera.far = wide ? 100000 : 18000;
     camera.updateProjectionMatrix();
     if (!walking && lastWalking.current && controls.current) {
@@ -221,6 +233,21 @@ function SetupCamera({
       controls.current?.update();
       invalidate();
       return;
+    }
+    if (!walking && !wide && focus === 'garage') {
+      const floor = MALL_GARAGE.levels[garageLevel].floorY;
+      camera.position.set(36, floor + 3, -130);
+      controls.current?.target.set(-25, floor + 1.6, -208);
+      controls.current?.update();
+      invalidate();
+      return;
+    }
+    if (!walking && !wide && focus === 'mall') {
+      const floor = MALL_LEVELS[mallLevel].y;
+      camera.position.set(-52, floor + 2.7, -160);
+      controls.current?.target.set(-52, floor + 1.5, -227);
+      controls.current?.update();
+      invalidate();return;
     }
     if (!walking && !wide && focus.startsWith('housing-')) {
       const p = HOUSING_PLAN.placements.find((p) => p.type === focus.slice(8))!;
@@ -316,7 +343,7 @@ function SetupCamera({
     );
     controls.current?.update();
     invalidate();
-  }, [walking, controls, camera, invalidate, wide, focus]);
+  }, [walking, controls, camera, invalidate, wide, focus, garageLevel, mallLevel]);
   return null;
 }
 
@@ -327,6 +354,8 @@ export function DistrictClient() {
   const [walking, setWalking] = useState(true);
   const [wide, setWide] = useState(false);
   const [planOpen, setPlanOpen] = useState(false);
+  const [garageLevel, setGarageLevel] = useState(0);
+  const [mallLevel, setMallLevel] = useState(4);
   const look = useRef({ pitch: 0 });
   const [focus, setFocus] = useState<
     | 'cbd'
@@ -334,6 +363,7 @@ export function DistrictClient() {
     | 'sushi'
     | 'auto'
     | 'garage'
+    | 'mall'
     | 'middle'
     | 'river'
     | 'east'
@@ -386,6 +416,29 @@ export function DistrictClient() {
   );
   const car = useRef<CarState>({ x: 6, z: -68, yaw: 0, speed: 0 });
   const playerFloor = useRef(0);
+  const liftCars = useMemo(createMallLifts, []);
+  const liftCarrier = useRef<LiftCarrier>({active:false,y:0,carId:null});
+  const [liftPanel, setLiftPanel] = useState(false);
+  const [,refreshLift] = useState(0);
+  const [liftNotice,setLiftNotice] = useState('走入电梯轿厢后选择楼层');
+  const nearbyLift = liftCars.find(c => Math.abs(position[0]-c.x)<1.5 && Math.abs(position[1]-c.z)<7 && Math.abs(playerFloor.current-nearestMallLevel(playerFloor.current).y)<.5);
+  const currentMallLevel = nearestMallLevel(playerFloor.current);
+  const rideLift = (target:number) => {
+    if(!nearbyLift) return;
+    if(!liftContains(nearbyLift,position[0],position[1],playerFloor.current)) {
+      requestMallLift(nearbyLift,currentMallLevel.y);
+      setLiftNotice('已呼梯，请等候开门，走入轿厢后再选目的层');
+    } else if(requestMallLift(nearbyLift,target)) {
+      liftCarrier.current={active:nearbyLift.phase!=='idle',y:nearbyLift.y,carId:nearbyLift.id};
+      setLiftNotice(`电梯 ${nearbyLift.id} · 前往 ${nearestMallLevel(target).label}`);
+    }
+    refreshLift(n=>n+1);
+    (document.activeElement as HTMLElement)?.blur();
+  };
+  const mallWalkGround = useCallback((x:number,z:number,y=0)=>{
+    const cab=liftCars.find(c=>Math.abs(x-c.x)<1.35&&Math.abs(z-c.z)<2.4);
+    return cab && Math.abs(cab.y-y)<1 ? cab.y : districtGroundHeight(x,z,y);
+  },[liftCars]);
   const [driving, setDriving] = useState(false),
     [carReport, setCarReport] = useState<CarState>({ ...car.current });
   const gateCanClose =
@@ -414,6 +467,8 @@ export function DistrictClient() {
   }, []);
   const solids = useMemo(
     () => [
+      ...LIFT_STATIC_SOLIDS,
+      ...liftCars.flatMap(c=>[c.platform,...c.doors]),
       ...[
         ...CIVIC_COLLIDERS,
         ...GARAGE_COLLIDERS,
@@ -494,7 +549,7 @@ export function DistrictClient() {
           ),
       ),
     ],
-    [nearTiles, cellX, cellZ, openGates],
+    [nearTiles, cellX, cellZ, openGates, liftCars],
   );
   const walkerSolids = useMemo(
     () => [
@@ -600,7 +655,15 @@ export function DistrictClient() {
                 <Mall />
                 <CBDBoulevards />
                 <Concourse />
-                <CivicPlaces />
+                <CivicPlaces
+                  garageY={
+                    !walking && focus === 'garage'
+                      ? MALL_GARAGE.levels[garageLevel].floorY
+                      : driving
+                        ? (carReport.y ?? 0)
+                        : playerFloor.current
+                  }
+                />
                 <Communities />
                 <MetropolitanPlaces />
                 <HousingWorld x={housingX} z={housingZ} open={openGates} />
@@ -651,7 +714,7 @@ export function DistrictClient() {
                 }}
                 enableDamping={false}
                 minDistance={
-                  walking || focus === 'garage'
+                  walking || focus === 'garage' || focus === 'mall'
                     ? 0.1
                     : wide
                       ? 18000
@@ -674,11 +737,14 @@ export function DistrictClient() {
                 controls={controls}
                 wide={wide}
                 focus={focus}
+                garageLevel={garageLevel}
+                mallLevel={mallLevel}
               />
               <Walker
                 active={coreReady && walking && !driving && !planOpen}
                 look={look}
                 relocation={relocation}
+                carrier={liftCarrier}
                 controls={controls}
                 onPosition={(x, z, y) => {
                   playerFloor.current = y ?? 0;
@@ -687,8 +753,9 @@ export function DistrictClient() {
                 spawn={DISTRICT.spawnLocalMeters}
                 obstacles={walkerSolids}
                 limits={[9998, 14998]}
-                groundHeight={districtGroundHeight}
+                groundHeight={mallWalkGround}
               />
+              <MallElevators cars={liftCars} carrier={liftCarrier} />
             </Canvas>
           )}
         </CanvasBoundary>
@@ -697,7 +764,7 @@ export function DistrictClient() {
         <div>
           <span>AMPLIWORLD · GOLDEN CITY</span>
           <h1>金庭 · 20 × 30 km 主城区</h1>
-          <p>开放式晖环体育场 · 森间寿司 · 体育公园与外围大道贯通</p>
+          <p>金庭商场 · 四色停车分区 · 四组垂直电梯 · 六层商业与屋顶步道</p>
         </div>
         <div className="district-time">
           {formatWorldTime(minutes)}
@@ -705,6 +772,17 @@ export function DistrictClient() {
         </div>
       </header>
       <nav className="district-tools">
+        <Button onClick={()=>{setFocus('mall');setWide(false);setWalking(false)}}>商场楼层览景</Button>
+        {!walking && focus==='mall' && MALL_LEVELS.map((l,i)=>l.y>=0&&<Button key={l.id} aria-pressed={i===mallLevel} onClick={()=>setMallLevel(i)}>{l.label}</Button>)}
+        {walking && !driving && nearbyLift && <Button onClick={()=>setLiftPanel(v=>!v)}>电梯 {nearbyLift.id} · {currentMallLevel.id}</Button>}
+        {walking && !driving && liftPanel && nearbyLift && <section aria-label="商场电梯楼层" style={{background:'#152b32',padding:16,border:'1px solid #ba9d67',maxWidth:420,color:'#f4eedf'}}>
+          <strong>电梯 {nearbyLift.id} · {currentMallLevel.label}</strong>
+          <p aria-live="polite">{liftNotice}</p>
+          <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+            <Button onClick={()=>rideLift(currentMallLevel.y)}>呼梯到本层</Button>
+            {MALL_LEVELS.map(l=><Button key={l.id} disabled={liftCarrier.current.active} onClick={()=>rideLift(l.y)}>{l.label}</Button>)}
+          </div>
+        </section>}
         <Button onClick={() => setPlanOpen(true)}>城市平面图</Button>
         <Button
           onClick={() => {
@@ -755,6 +833,17 @@ export function DistrictClient() {
         >
           地库览景
         </Button>
+        {!walking &&
+          focus === 'garage' &&
+          MALL_GARAGE.levels.map((level, i) => (
+            <Button
+              key={level.id}
+              aria-pressed={i === garageLevel}
+              onClick={() => setGarageLevel(i)}
+            >
+              {level.id} · {level.bayCount} 车位
+            </Button>
+          ))}
         {walking && (
           <Button
             disabled={!driving && !nearCar}
