@@ -12,8 +12,8 @@ export function carBlocked(
   floor: (x: number, z: number, y?: number) => number,
 ) {
   if (
-    Math.abs(x) > 595 ||
-    Math.abs(z) > 1090 ||
+    Math.abs(x) > 9995 ||
+    Math.abs(z) > 14995 ||
     !Number.isFinite(floor(x, z)) ||
     floor(x, z) < -0.1
   )
@@ -27,8 +27,8 @@ export function carBlocked(
     if (floor(x + dx, z + dz) < -0.1) return true;
   return obstacles.some(
     (b) =>
-      b.max.y > 0.4 &&
-      b.min.y < 1.9 &&
+      b.max.y > floor(x, z) + 0.4 &&
+      b.min.y < floor(x, z) + 1.9 &&
       x > b.min.x - 2.6 &&
       x < b.max.x + 2.6 &&
       z > b.min.z - 2.6 &&
@@ -130,7 +130,10 @@ export function DriveableCar({
         const yaw = s.yaw + (((steer * s.speed) / 5.2) * dt) / steps,
           x = s.x - (Math.sin(yaw) * s.speed * dt) / steps,
           z = s.z - (Math.cos(yaw) * s.speed * dt) / steps;
-        if (carBlocked(x, z, obstacles, groundHeight)) {
+        if (
+          carBlocked(x, z, obstacles, groundHeight) ||
+          Math.abs(groundHeight(x, z) - groundHeight(s.x, s.z)) > 0.3
+        ) {
           s.speed = 0;
           break;
         }
@@ -161,9 +164,9 @@ export function DriveableCar({
   return (
     <group ref={body} position={[state.current.x, 0, state.current.z]}>
       <group rotation={[0, Math.PI, 0]}>
-      <group position={[model.x, model.y, model.z]} scale={model.s}>
-        <Clone object={scene} castShadow receiveShadow />
-      </group>
+        <group position={[model.x, model.y, model.z]} scale={model.s}>
+          <Clone object={scene} castShadow receiveShadow />
+        </group>
       </group>
     </group>
   );

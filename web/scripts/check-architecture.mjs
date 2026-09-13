@@ -42,7 +42,9 @@ const chrome = spawn(
     '--remote-debugging-port=0',
     `--user-data-dir=${temp}`,
     '--disable-gpu-sandbox',
-    ...(process.env.QA_NATIVE_GPU === '1' ? [] : ['--use-angle=swiftshader', '--enable-unsafe-swiftshader']),
+    ...(process.env.QA_NATIVE_GPU === '1'
+      ? []
+      : ['--use-angle=swiftshader', '--enable-unsafe-swiftshader']),
     '--enable-webgl',
     '--ignore-gpu-blocklist',
     '--hide-scrollbars',
@@ -112,24 +114,96 @@ try {
     writeFileSync(join(temp, name + '.png'), Buffer.from(r.data, 'base64'));
   };
   await shot('corner');
-  if(process.env.QA_DRIVING==='1') {
-    const car=()=>evaluate("JSON.parse(document.querySelector('canvas').dataset.car||'{}')");
-    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('上车驾驶')).click()");
-    await wait(250);assert.equal((await car()).driving,true,'Enter car');
-    const beforeDrive=await car();
-    await send('Input.dispatchKeyEvent',{type:'keyDown',key:'w',code:'KeyW',windowsVirtualKeyCode:87});await wait(1400);
-    await send('Input.dispatchKeyEvent',{type:'keyUp',key:'w',code:'KeyW',windowsVirtualKeyCode:87});
-    const afterDrive=await car();assert.ok(afterDrive.z<beforeDrive.z-2,'Throttle actually moves vehicle');
+  if (process.env.QA_CITY === '1') {
+    await evaluate(
+      "Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('全城总览')).click()",
+    );
+    await wait(1600);
+    await shot('metropolis');
+    assert.equal(exceptions.length, 0, exceptions.join('\n'));
+    await evaluate(
+      "Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('控制小人')).click()",
+    );
+    await wait(400);
+    const resumed = await evaluate(
+      "JSON.parse(document.querySelector('canvas').dataset.player||'{}')",
+    );
+    assert.ok(
+      Math.abs(resumed.x) < 0.01 && Math.abs(resumed.z + 68) < 0.01,
+      'City overview retains original avatar',
+    );
+    console.log(
+      JSON.stringify({
+        status: 'passed',
+        scenario: 'city-overview-return',
+        screenshots: temp,
+      }),
+    );
+    socket.close();
+    chrome.kill('SIGTERM');
+    clearTimeout(timeout);
+    process.exit(0);
+  }
+  if (process.env.QA_DRIVING === '1') {
+    const car = () =>
+      evaluate(
+        "JSON.parse(document.querySelector('canvas').dataset.car||'{}')",
+      );
+    await evaluate(
+      "Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('上车驾驶')).click()",
+    );
+    await wait(250);
+    assert.equal((await car()).driving, true, 'Enter car');
+    const beforeDrive = await car();
+    await send('Input.dispatchKeyEvent', {
+      type: 'keyDown',
+      key: 'w',
+      code: 'KeyW',
+      windowsVirtualKeyCode: 87,
+    });
+    await wait(1400);
+    await send('Input.dispatchKeyEvent', {
+      type: 'keyUp',
+      key: 'w',
+      code: 'KeyW',
+      windowsVirtualKeyCode: 87,
+    });
+    const afterDrive = await car();
+    assert.ok(
+      afterDrive.z < beforeDrive.z - 2,
+      'Throttle actually moves vehicle',
+    );
     await shot('driving');
-    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('下车')).click()");await wait(350);
-    assert.equal((await car()).driving,false,'Exit car');
-    const exit=await evaluate("JSON.parse(document.querySelector('canvas').dataset.player||'{}')");
-    assert.ok(Math.hypot(exit.x-afterDrive.x,exit.z-afterDrive.z)<7,'Exit beside car, not spawn');
-    assert.ok(Math.abs(exit.x)>2,'Exit changes walker position');
+    await evaluate(
+      "Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('下车')).click()",
+    );
+    await wait(350);
+    assert.equal((await car()).driving, false, 'Exit car');
+    const exit = await evaluate(
+      "JSON.parse(document.querySelector('canvas').dataset.player||'{}')",
+    );
+    assert.ok(
+      Math.hypot(exit.x - afterDrive.x, exit.z - afterDrive.z) < 7,
+      'Exit beside car, not spawn',
+    );
+    assert.ok(Math.abs(exit.x) > 2, 'Exit changes walker position');
     await shot('after-driving-exit');
-    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('俯瞰街区')).click()");await wait(300);await shot('new-skyline');
-    console.log(JSON.stringify({status:'passed',scenario:'enter-drive-exit',screenshots:temp}));
-    socket.close();chrome.kill('SIGTERM');clearTimeout(timeout);process.exit(0);
+    await evaluate(
+      "Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('俯瞰街区')).click()",
+    );
+    await wait(300);
+    await shot('new-skyline');
+    console.log(
+      JSON.stringify({
+        status: 'passed',
+        scenario: 'enter-drive-exit',
+        screenshots: temp,
+      }),
+    );
+    socket.close();
+    chrome.kill('SIGTERM');
+    clearTimeout(timeout);
+    process.exit(0);
   }
   for (const label of isDistrict ? ['俯瞰街区'] : ['背面', '屋顶']) {
     await evaluate(
@@ -169,7 +243,7 @@ try {
   }
   assert.ok(
     Math.abs(gaitA.leftLeg - gaitB.leftLeg) > 0.01,
-    `Leg pose must animate while walking: ${JSON.stringify({gaitA,gaitB})}`,
+    `Leg pose must animate while walking: ${JSON.stringify({ gaitA, gaitB })}`,
   );
   assert.ok(
     Math.abs(gaitB.leftLeg + gaitB.rightLeg) < 0.001,
@@ -331,16 +405,38 @@ try {
     'Mouse orbit must not rotate an idle avatar',
   );
   assert.equal(exceptions.length, 0, exceptions.join('\n'));
-  if(isCampus){
-    const retained=await player();
-    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('俯瞰街区')).click()");
+  if (isCampus) {
+    const retained = await player();
+    await evaluate(
+      "Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('俯瞰街区')).click()",
+    );
     await wait(250);
-    await send('Input.dispatchKeyEvent',{type:'keyDown',key:'w',code:'KeyW',windowsVirtualKeyCode:87});await wait(250);
-    await send('Input.dispatchKeyEvent',{type:'keyUp',key:'w',code:'KeyW',windowsVirtualKeyCode:87});
-    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('控制小人')).click()");await wait(400);
-    const resumed=await player();
-    assert.ok(Math.hypot(resumed.x-retained.x,resumed.z-retained.z)<.01,'Overview must retain actual player position and ignore walking input');
-    assert.ok(Math.abs(resumed.y-retained.y)<.03,'Overview must retain elevation');
+    await send('Input.dispatchKeyEvent', {
+      type: 'keyDown',
+      key: 'w',
+      code: 'KeyW',
+      windowsVirtualKeyCode: 87,
+    });
+    await wait(250);
+    await send('Input.dispatchKeyEvent', {
+      type: 'keyUp',
+      key: 'w',
+      code: 'KeyW',
+      windowsVirtualKeyCode: 87,
+    });
+    await evaluate(
+      "Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('控制小人')).click()",
+    );
+    await wait(400);
+    const resumed = await player();
+    assert.ok(
+      Math.hypot(resumed.x - retained.x, resumed.z - retained.z) < 0.01,
+      'Overview must retain actual player position and ignore walking input',
+    );
+    assert.ok(
+      Math.abs(resumed.y - retained.y) < 0.03,
+      'Overview must retain elevation',
+    );
     await shot('resumed-street');
   }
   console.log(

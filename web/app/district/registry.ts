@@ -1,10 +1,11 @@
 import cbdStreet from '../../public/assets/3d/ampliworld/GC-CBD-STREET-001/street-manifest.json';
 import concourse from '../../public/assets/3d/ampliworld/GC-CBD-CONCOURSE-001/concourse-manifest.json';
+import { cityGroundHeight } from '../world-client/city-surface';
 // New metre-space block. City origin and asset transforms are data, not mesh JSX.
 export const DISTRICT = {
   id: 'GC-GARDENS-B01',
   originWorldMeters: [-625, 8, -125],
-  sizeMeters: [1200, 2200],
+  sizeMeters: [20000, 30000],
   status: 'WALKABLE_BLOCK_PROTOTYPE',
   buildings: [
     {
@@ -73,6 +74,7 @@ export const DISTRICT = {
 
 // Surface heights from the exported street kit, not a flat offset above every surface.
 export function districtGroundHeight(x: number, z: number, currentY = 0) {
+  if (Math.abs(x) > 600 || Math.abs(z) > 1100) return cityGroundHeight(x, z);
   for (const r of concourse.ramps)
     if (x >= r.min[0] && x <= r.max[0] && z >= r.min[1] && z <= r.max[1])
       return (
@@ -131,6 +133,8 @@ export function districtGroundHeight(x: number, z: number, currentY = 0) {
 }
 
 export function districtLocation(x: number, z: number) {
+  if (Math.abs(x) > 650 || Math.abs(z) > 1150)
+    return `金庭主城区 · ${Math.floor((x + 10000) / 1000) + 1} 列 / ${Math.floor((z + 15000) / 1000) + 1} 街区 · 外围为生成底稿`;
   if (z < -300)
     return '金庭 CBD · 天阙之环 / 双曜之门 / 星环中心 · 下沉广场连接地下商业步道';
   if (Math.abs(x) > 215) return 'CBD 环线大道 · 沿道路北行抵达摩天楼广场';

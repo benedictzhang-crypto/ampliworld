@@ -301,11 +301,13 @@ export function DynamicAtmosphere({
   fogNear = 68,
   fogFar = 245,
   metricWorld = false,
+  cityOverview = false,
 }: {
   hour: number;
   fogNear?: number;
   fogFar?: number;
   metricWorld?: boolean;
+  cityOverview?: boolean;
 }) {
   const { invalidate } = useThree();
   const celestialDistance = metricWorld ? 1400 : 180;
@@ -376,7 +378,7 @@ export function DynamicAtmosphere({
     <>
       <color attach="background" args={[palette.background]} />
       <fog attach="fog" args={[palette.fog, fogNear, fogFar]} />
-      {!isNight && (
+      {!isNight && !cityOverview && (
         <Sky
           distance={metricWorld ? 8000 : 450}
           sunPosition={celestial.sunDirection.clone().multiplyScalar(160)}
@@ -386,7 +388,7 @@ export function DynamicAtmosphere({
           mieDirectionalG={palette.mieDirectionalG}
         />
       )}
-      {isNight && (
+      {isNight && !cityOverview && (
         <Stars
           radius={metricWorld ? 1700 : 180}
           depth={metricWorld ? 300 : 70}
@@ -434,7 +436,12 @@ export function DynamicAtmosphere({
         color={palette.sky}
       />
 
-      <mesh ref={sun} renderOrder={-3} scale={celestialScale}>
+      <mesh
+        ref={sun}
+        visible={!cityOverview}
+        renderOrder={-3}
+        scale={celestialScale}
+      >
         <sphereGeometry args={[2.1, 20, 14]} />
         <meshBasicMaterial
           color={palette.sun}
@@ -445,7 +452,12 @@ export function DynamicAtmosphere({
           depthWrite={false}
         />
       </mesh>
-      <group ref={moon} renderOrder={-3} scale={celestialScale}>
+      <group
+        ref={moon}
+        visible={!cityOverview}
+        renderOrder={-3}
+        scale={celestialScale}
+      >
         <mesh>
           <sphereGeometry args={[2.35, 24, 16]} />
           <meshBasicMaterial
@@ -472,6 +484,7 @@ export function DynamicAtmosphere({
       </group>
 
       <Clouds
+        visible={!cityOverview}
         ref={cloudGroup}
         position={[0, metricWorld ? 700 : 0, 0]}
         scale={metricWorld ? [8, 3, 8] : [1, 1, 1]}

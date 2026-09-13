@@ -1,5 +1,14 @@
 'use client';
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { CITY, CityLayer } from '../world-client/city-layer';
+import { CITY_INFRA } from '../world-client/city-surface';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls } from '@react-three/drei';
 import { useGLTF } from '@react-three/drei';
@@ -34,6 +43,12 @@ function Office({ assetId, x, z }: { assetId: string; x: number; z: number }) {
       <Clone object={scene} castShadow receiveShadow />
     </group>
   );
+}
+function CityInfrastructure() {
+  const { scene } = useGLTF(
+    '/assets/3d/ampliworld/GC-CITY-INFRA-001/globalinfra.glb',
+  );
+  return <Clone object={scene} receiveShadow />;
 }
 function CBDBoulevards() {
   const { scene } = useGLTF(
@@ -133,25 +148,30 @@ function Street() {
 function SetupCamera({
   walking,
   controls,
+  wide,
 }: {
   walking: boolean;
   controls: React.RefObject<OrbitControlsImpl | null>;
+  wide: boolean;
 }) {
   const { camera, invalidate } = useThree();
   const savedWalkCamera = useRef<{ position: Vector3; target: Vector3 } | null>(
     null,
   );
+  const lastWalking = useRef(true);
   useEffect(() => {
     // Millimetre-scale street layers need more depth precision at kilometre
     // overview distances. Keep the close near plane only for the walker.
-    camera.near = walking ? 0.1 : 8;
+    camera.near = walking ? 0.1 : wide ? 3500 : 8;
+    camera.far = wide ? 100000 : 18000;
     camera.updateProjectionMatrix();
-    if (!walking && controls.current) {
+    if (!walking && lastWalking.current && controls.current) {
       savedWalkCamera.current = {
         position: camera.position.clone(),
         target: controls.current.target.clone(),
       };
     }
+    lastWalking.current = walking;
     if (walking && savedWalkCamera.current) {
       camera.position.copy(savedWalkCamera.current.position);
       controls.current?.target.copy(savedWalkCamera.current.target);
@@ -160,25 +180,47 @@ function SetupCamera({
       return;
     }
     camera.position.set(
-      ...((walking ? [0, 4, -59] : [430, 660, 740]) as [
-        number,
-        number,
-        number,
-      ]),
+      ...((walking
+        ? [0, 4, -59]
+        : wide
+          ? [17000, 23000, 26000]
+          : [430, 660, 740]) as [number, number, number]),
     );
-    controls.current?.target.set(0, walking ? 1.5 : 190, walking ? -68 : -500);
+    controls.current?.target.set(
+      0,
+      walking ? 1.5 : wide ? 0 : 190,
+      walking ? -68 : wide ? 0 : -500,
+    );
     controls.current?.update();
     invalidate();
-  }, [walking, controls, camera, invalidate]);
+  }, [walking, controls, camera, invalidate, wide]);
   return null;
 }
 
 export function DistrictClient() {
   const [mounted, setMounted] = useState(false);
   const [walking, setWalking] = useState(true);
+  const [wide, setWide] = useState(false);
+  const [loadedTiles, setLoadedTiles] = useState<Set<string>>(() => new Set());
+  const onTileReady = useCallback(
+    (id: string) =>
+      setLoadedTiles((s) => (s.has(id) ? s : new Set([...s, id]))),
+    [],
+  );
   const [minutes, setMinutes] = useState(480);
   const [position, setPosition] = useState<number[]>([0, -68]);
   const controls = useRef<OrbitControlsImpl>(null);
+  const cellX = Math.round(position[0] / 1000),
+    cellZ = Math.round(position[1] / 1000);
+  const nearTiles = useMemo(
+    () =>
+      CITY.tiles.filter(
+        (t) =>
+          Math.abs(t.cx - cellX * 1000) <= 2000 &&
+          Math.abs(t.cz - cellZ * 1000) <= 2000,
+      ),
+    [cellX, cellZ],
+  );
   const car = useRef<CarState>({ x: 6, z: -68, yaw: 0, speed: 0 });
   const [driving, setDriving] = useState(false),
     [carReport, setCarReport] = useState<CarState>({ ...car.current });
@@ -204,6 +246,28 @@ export function DistrictClient() {
   }, []);
   const solids = useMemo(
     () => [
+      ...nearTiles.flatMap((t) =>
+        t.colliders.map(
+          (c) =>
+            new Box3(
+              new Vector3(...(c.min as [number, number, number])),
+              new Vector3(...(c.max as [number, number, number])),
+            ),
+        ),
+      ),
+      ...CITY_INFRA.colliders
+        .filter(
+          (c) =>
+            Math.abs((c.min[0] + c.max[0]) / 2 - cellX * 1000) < 3000 &&
+            Math.abs((c.min[2] + c.max[2]) / 2 - cellZ * 1000) < 3000,
+        )
+        .map(
+          (c) =>
+            new Box3(
+              new Vector3(...(c.min as [number, number, number])),
+              new Vector3(...(c.max as [number, number, number])),
+            ),
+        ),
       ...concourse.colliders.map(
         (c) =>
           new Box3(
@@ -249,14 +313,22 @@ export function DistrictClient() {
           ),
       ),
     ],
-    [],
+    [nearTiles, cellX, cellZ],
   );
   const walkerSolids = useMemo(
     () => [
       ...solids,
       new Box3(
-        new Vector3(carReport.x - 1.3, -0.1, carReport.z - 2.5),
-        new Vector3(carReport.x + 1.3, 1.7, carReport.z + 2.5),
+        new Vector3(
+          carReport.x - 2.6,
+          districtGroundHeight(carReport.x, carReport.z) - 0.1,
+          carReport.z - 2.6,
+        ),
+        new Vector3(
+          carReport.x + 2.6,
+          districtGroundHeight(carReport.x, carReport.z) + 1.7,
+          carReport.z + 2.6,
+        ),
       ),
     ],
     [solids, carReport.x, carReport.z],
@@ -277,8 +349,8 @@ export function DistrictClient() {
           z = car.current.z - Math.sin(car.current.yaw) * 3.8 * side,
           y = districtGroundHeight(x, z);
         if (
-          Math.abs(x) > 595 ||
-          Math.abs(z) > 1090 ||
+          Math.abs(x) > 9995 ||
+          Math.abs(z) > 14995 ||
           y < -0.1 ||
           solids.some(
             (b) =>
@@ -338,11 +410,13 @@ export function DistrictClient() {
                 <DynamicAtmosphere
                   hour={minutes / 60}
                   metricWorld
-                  fogNear={1000}
-                  fogFar={3400}
+                  cityOverview={wide}
+                  fogNear={wide ? 55000 : 5000}
+                  fogFar={wide ? 95000 : 16000}
                 />
                 <StudioLight />
                 <MallApproach />
+                <CityInfrastructure />
                 <Street />
                 <Mall />
                 <CBDBoulevards />
@@ -371,16 +445,22 @@ export function DistrictClient() {
                   </group>
                 ))}
               </Suspense>
+              <CityLayer
+                tiles={nearTiles}
+                loaded={loadedTiles}
+                onReady={onTileReady}
+                overview={wide}
+              />
               <OrbitControls
                 ref={controls}
                 makeDefault
                 enableDamping={false}
-                minDistance={walking ? 0.1 : 35}
-                maxDistance={walking ? 18 : 1800}
+                minDistance={walking ? 0.1 : wide ? 18000 : 35}
+                maxDistance={walking ? 18 : wide ? 65000 : 1800}
                 maxPolarAngle={Math.PI / 2 - 0.04}
                 enablePan={!walking}
               />
-              <SetupCamera walking={walking} controls={controls} />
+              <SetupCamera walking={walking} controls={controls} wide={wide} />
               <Walker
                 active={walking && !driving}
                 relocation={relocation}
@@ -388,7 +468,7 @@ export function DistrictClient() {
                 onPosition={(x, z) => setPosition([x, z])}
                 spawn={DISTRICT.spawnLocalMeters}
                 obstacles={walkerSolids}
-                limits={[598, 1098]}
+                limits={[9998, 14998]}
                 groundHeight={districtGroundHeight}
               />
             </Canvas>
@@ -398,7 +478,7 @@ export function DistrictClient() {
       <header className="district-hud">
         <div>
           <span>AMPLIWORLD · GOLDEN CITY</span>
-          <h1>金庭汇 · 未来 CBD</h1>
+          <h1>金庭 · 20 × 30 km 主城区</h1>
           <p>悬挑环 · 连桥双塔 · 光环塔冠 · 下沉广场与地下连廊</p>
         </div>
         <div className="district-time">
@@ -407,6 +487,15 @@ export function DistrictClient() {
         </div>
       </header>
       <nav className="district-tools">
+        <Button
+          onClick={() => {
+            setWide(true);
+            setWalking(false);
+            (document.activeElement as HTMLElement)?.blur();
+          }}
+        >
+          全城总览
+        </Button>
         {walking && (
           <Button
             disabled={!driving && !nearCar}
@@ -425,6 +514,7 @@ export function DistrictClient() {
         <Button
           onClick={() => {
             setWalking((v) => !v);
+            setWide(false);
             (document.activeElement as HTMLElement)?.blur();
           }}
         >

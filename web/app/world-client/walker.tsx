@@ -88,15 +88,31 @@ export function Walker({
   );
   const lastRelocation = useRef(-1);
   useEffect(() => {
-    if (!relocation || lastRelocation.current === relocation.nonce || !body.current || !controls.current) return;
+    if (
+      !relocation ||
+      lastRelocation.current === relocation.nonce ||
+      !body.current ||
+      !controls.current
+    )
+      return;
     lastRelocation.current = relocation.nonce;
-    state.offset.subVectors(camera.position, controls.current.target).normalize().multiplyScalar(9);
+    state.offset
+      .subVectors(camera.position, controls.current.target)
+      .normalize()
+      .multiplyScalar(9);
     body.current.position.set(relocation.x, relocation.y, relocation.z);
-    state.feet=relocation.y; state.velocity=0; state.grounded=true; state.jumpQueued=false;
-    state.gait=0; state.phase=0; keys.current.clear();
-    controls.current.target.set(relocation.x,relocation.y+1.4,relocation.z);
-    camera.position.copy(controls.current.target).add(state.offset); controls.current.update();
-    onPosition(relocation.x,relocation.z); invalidate();
+    state.feet = relocation.y;
+    state.velocity = 0;
+    state.grounded = true;
+    state.jumpQueued = false;
+    state.gait = 0;
+    state.phase = 0;
+    keys.current.clear();
+    controls.current.target.set(relocation.x, relocation.y + 1.4, relocation.z);
+    camera.position.copy(controls.current.target).add(state.offset);
+    controls.current.update();
+    onPosition(relocation.x, relocation.z);
+    invalidate();
   }, [relocation, camera, controls, invalidate, onPosition, state]);
   useEffect(() => {
     if (!active) {
@@ -180,8 +196,16 @@ export function Walker({
       .multiplyScalar(dt * WALK_SPEED);
     const x = Math.max(-limits[0], Math.min(limits[0], p.x + state.delta.x));
     const z = Math.max(-limits[1], Math.min(limits[1], p.z + state.delta.z));
-    const nx = blocked(obstacles, x, p.z, state.feet) ? p.x : x;
-    const nz = blocked(obstacles, nx, z, state.feet) ? p.z : z;
+    const nx =
+      blocked(obstacles, x, p.z, state.feet) ||
+      groundHeight(x, p.z, state.feet) > state.feet + 0.29
+        ? p.x
+        : x;
+    const nz =
+      blocked(obstacles, nx, z, state.feet) ||
+      groundHeight(nx, z, state.feet) > state.feet + 0.29
+        ? p.z
+        : z;
     state.delta.set(nx - p.x, 0, nz - p.z);
     const travelled = state.delta.length();
     if (travelled > 0.00001)
@@ -251,7 +275,11 @@ export function Walker({
       .addScaledVector(state.offset, state.desiredRadius);
     controls.current.update();
     camera.position.y = Math.max(
-      groundHeight(camera.position.x, camera.position.z, camera.position.y - 1.4) + 0.45,
+      groundHeight(
+        camera.position.x,
+        camera.position.z,
+        camera.position.y - 1.4,
+      ) + 0.45,
       camera.position.y,
     );
     state.offset.subVectors(camera.position, controls.current.target);
