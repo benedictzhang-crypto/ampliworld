@@ -1,0 +1,88 @@
+{
+  "id": "GC-CAR-001",
+  "name": "Aureline",
+  "nameZh": "曜线",
+  "version": 1,
+  "file": "car.glb",
+  "units": "meters",
+  "frontAxis": "-Z",
+  "upAxis": "+Y",
+  "dimensions": {
+    "length": 5,
+    "width": 2.138000011444092,
+    "height": 1.4999999940395354
+  },
+  "bounds": {
+    "min": [
+      -1.069000005722046,
+      5.960464455334602e-9,
+      -2.5
+    ],
+    "max": [
+      1.069000005722046,
+      1.5,
+      2.5
+    ]
+  },
+  "triangles": 36498,
+  "wheels": [
+    {
+      "name": "wheel-fl",
+      "position": [
+        -0.87,
+        0.35,
+        -1.53
+      ],
+      "radius": 0.35,
+      "rotationAxis": "X",
+      "steeringAxis": "Y"
+    },
+    {
+      "name": "wheel-fr",
+      "position": [
+        0.87,
+        0.35,
+        -1.53
+      ],
+      "radius": 0.35,
+      "rotationAxis": "X",
+      "steeringAxis": "Y"
+    },
+    {
+      "name": "wheel-rl",
+      "position": [
+        -0.87,
+        0.35,
+        1.42
+      ],
+      "radius": 0.35,
+      "rotationAxis": "X",
+      "steeringAxis": "Y"
+    },
+    {
+      "name": "wheel-rr",
+      "position": [
+        0.87,
+        0.35,
+        1.42
+      ],
+      "radius": 0.35,
+      "rotationAxis": "X",
+      "steeringAxis": "Y"
+    }
+  ],
+  "design": "Original luxury fastback with sculpted closed body loft, real open wheel arches, restrained champagne trim and independent detailed wheels.",
+  "provenance": {
+    "type": "original-procedural",
+    "author": "AmpliWorld",
+    "externalMeshes": [],
+    "externalImages": [],
+    "brandedReference": false
+  },
+  "limitations": [
+    "Visual vehicle asset only; driving physics supplied by application.",
+    "Doors, mirrors and cabin are not interactive.",
+    "Simplified cabin seating and transparent glass; not a fully enterable interior.",
+    "No collision mesh or suspension rig included."
+  ]
+}

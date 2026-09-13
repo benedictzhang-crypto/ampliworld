@@ -11,6 +11,8 @@ import { CITY, CityLayer } from '../world-client/city-layer';
 import { CITY_INFRA } from '../world-client/city-surface';
 import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
 import { CivicPlaces } from '../world-client/civic-places';
+import { StreetTrees } from '../world-client/street-trees';
+import { CityPlan } from '../world-client/city-plan';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls } from '@react-three/drei';
 import { useGLTF } from '@react-three/drei';
@@ -38,6 +40,7 @@ import officeOne from '../../public/assets/3d/ampliworld/GC-OFFICE-001/tower-man
 import officeTwo from '../../public/assets/3d/ampliworld/GC-OFFICE-002/tower-manifest.json';
 import officeThree from '../../public/assets/3d/ampliworld/GC-OFFICE-003/tower-manifest.json';
 const officeManifests = [officeOne, officeTwo, officeThree];
+function CoreReady({onReady}:{onReady:()=>void}){useEffect(onReady,[onReady]);return null;}
 function Office({ assetId, x, z }: { assetId: string; x: number; z: number }) {
   const { scene } = useGLTF(`/assets/3d/ampliworld/${assetId}/tower-lod0.glb`);
   return (
@@ -145,7 +148,15 @@ function Street() {
   const { scene } = useGLTF(
     '/assets/3d/ampliworld/GC-STREET-001/street-block.glb',
   );
-  return <Clone object={scene} castShadow receiveShadow />;
+  const display = useMemo(() => {
+    const c = scene.clone(true);
+    c.traverse((o) => {
+      if (o.name === 'Street_bark' || o.name === 'Street_leaf')
+        o.visible = false;
+    });
+    return c;
+  }, [scene]);
+  return <Clone object={display} castShadow receiveShadow />;
 }
 function SetupCamera({
   walking,
@@ -223,8 +234,12 @@ function SetupCamera({
 
 export function DistrictClient() {
   const [mounted, setMounted] = useState(false);
+  const [coreReady,setCoreReady]=useState(false);
+  const onCoreReady=useCallback(()=>setCoreReady(true),[]);
   const [walking, setWalking] = useState(true);
   const [wide, setWide] = useState(false);
+  const [planOpen, setPlanOpen] = useState(false);
+  const look = useRef({ pitch: 0 });
   const [focus, setFocus] = useState<'cbd' | 'stadium' | 'sushi'>('cbd');
   const [loadedTiles, setLoadedTiles] = useState<Set<string>>(() => new Set());
   const onTileReady = useCallback(
@@ -424,6 +439,7 @@ export function DistrictClient() {
   return (
     <main className="district">
       <div className="district-canvas">
+        {!coreReady&&<div className="district-loading district-startup">正在载入街区、车辆与树木…</div>}
         <CanvasBoundary>
           {mounted && (
             <Canvas
@@ -446,7 +462,7 @@ export function DistrictClient() {
                   fogNear={wide ? 55000 : 5000}
                   fogFar={wide ? 95000 : 16000}
                 />
-                <StudioLight />
+                <StudioLight intensity={0.3} />
                 <MallApproach />
                 <CityInfrastructure />
                 <Street />
@@ -454,9 +470,12 @@ export function DistrictClient() {
                 <CBDBoulevards />
                 <Concourse />
                 <CivicPlaces />
+                <StreetTrees />
+                <CoreReady onReady={onCoreReady}/>
                 <DriveableCar
                   state={car}
-                  active={walking && driving}
+                  active={coreReady && walking && driving && !planOpen}
+                  look={look}
                   controls={controls}
                   obstacles={solids}
                   groundHeight={districtGroundHeight}
@@ -494,6 +513,8 @@ export function DistrictClient() {
                 maxDistance={walking ? 18 : wide ? 65000 : 1800}
                 maxPolarAngle={Math.PI / 2 - 0.04}
                 enablePan={!walking}
+                enableRotate={!walking}
+                enableZoom={!walking}
               />
               <SetupCamera
                 walking={walking}
@@ -502,7 +523,8 @@ export function DistrictClient() {
                 focus={focus}
               />
               <Walker
-                active={walking && !driving}
+                active={coreReady && walking && !driving && !planOpen}
+                look={look}
                 relocation={relocation}
                 controls={controls}
                 onPosition={(x, z) => setPosition([x, z])}
@@ -527,6 +549,7 @@ export function DistrictClient() {
         </div>
       </header>
       <nav className="district-tools">
+        <Button onClick={() => setPlanOpen(true)}>城市平面图</Button>
         <Button
           onClick={() => {
             setWide(true);
@@ -583,6 +606,39 @@ export function DistrictClient() {
         </Button>
         <a href="/architecture">住宅细节</a>
       </nav>
+      {walking && (
+        <div className="district-look">
+          <Button
+            onClick={() => {
+              look.current.pitch = Math.min(1.48, look.current.pitch + 0.24);
+              (document.activeElement as HTMLElement)?.blur();
+            }}
+          >
+            抬头 ↑（R）
+          </Button>
+          <Button
+            onClick={() => {
+              look.current.pitch = Math.max(-0.45, look.current.pitch - 0.24);
+              (document.activeElement as HTMLElement)?.blur();
+            }}
+          >
+            低头 ↓（F）
+          </Button>
+          <Button
+            onClick={() => {
+              look.current.pitch = 0;
+              (document.activeElement as HTMLElement)?.blur();
+            }}
+          >
+            视角归正
+          </Button>
+        </div>
+      )}
+      <CityPlan
+        open={planOpen}
+        onOpenChange={setPlanOpen}
+        position={position}
+      />
       <div className="district-status" aria-live="polite">
         {driving && walking
           ? `驾驶 · ${Math.abs(carReport.speed * 3.6).toFixed(0)} km/h · WASD / 空格刹车 · E 下车`

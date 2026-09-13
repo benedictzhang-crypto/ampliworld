@@ -18,22 +18,25 @@ import { Button } from '@/components/ui/button';
 
 const ASSET = '/assets/3d/ampliworld/GC-RES-001/';
 
-export function StudioLight() {
+export function StudioLight({ intensity = 1 }: { intensity?: number }) {
   const { gl, scene, invalidate } = useThree();
   useEffect(() => {
     const generator = new PMREMGenerator(gl);
     const room = new RoomEnvironment();
     const environment = generator.fromScene(room, 0.04);
     const previous = scene.environment;
+    const previousIntensity = scene.environmentIntensity;
     scene.environment = environment.texture;
+    scene.environmentIntensity = intensity;
     room.dispose();
     generator.dispose();
     invalidate();
     return () => {
       scene.environment = previous;
+      scene.environmentIntensity = previousIntensity;
       environment.dispose();
     };
-  }, [gl, scene, invalidate]);
+  }, [gl, scene, invalidate, intensity]);
   return null;
 }
 const VIEWS = [

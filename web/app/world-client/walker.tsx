@@ -45,6 +45,7 @@ export function Walker({
   groundHeight = defaultGround,
   active = true,
   relocation,
+  look,
 }: {
   controls: React.RefObject<OrbitControlsImpl | null>;
   onPosition: (x: number, z: number) => void;
@@ -54,6 +55,7 @@ export function Walker({
   groundHeight?: (x: number, z: number, currentY?: number) => number;
   active?: boolean;
   relocation?: { x: number; z: number; y: number; nonce: number };
+  look?: React.RefObject<{ pitch: number }>;
 }) {
   const body = useRef<Group>(null),
     leftLeg = useRef<Group>(null),
@@ -78,6 +80,7 @@ export function Walker({
       heading: 0,
       lastReport: 0,
       desiredRadius: 9,
+      gaze: new Vector3(),
     }),
     [],
   );
@@ -127,6 +130,18 @@ export function Walker({
         )
       )
         return;
+      if (look && (e.code === 'KeyR' || e.code === 'KeyF')) {
+        e.preventDefault();
+        look.current.pitch = Math.max(
+          -0.45,
+          Math.min(
+            1.48,
+            look.current.pitch + (e.code === 'KeyR' ? 0.16 : -0.16),
+          ),
+        );
+        invalidate();
+        return;
+      }
       if (/^(Key[WASD]|Arrow(Up|Down|Left|Right)|Space)$/.test(e.code)) {
         e.preventDefault();
         if (
@@ -149,7 +164,40 @@ export function Walker({
       state.jumpQueued = false;
       invalidate();
     };
-    const wheel = () => {
+    const turn = (dx: number, dy: number) => {
+      if (!look || !controls.current) return;
+      look.current.pitch = Math.max(
+        -0.45,
+        Math.min(1.48, look.current.pitch - dy * 0.004),
+      );
+      state.offset
+        .subVectors(camera.position, controls.current.target)
+        .applyAxisAngle(camera.up, -dx * 0.004);
+      camera.position.copy(controls.current.target).add(state.offset);
+      invalidate();
+    };
+    let drag: { id: number; x: number; y: number } | null = null;
+    const pointerDown = (e: PointerEvent) => {
+      if (!look || (e.button !== 0 && e.button !== 2)) return;
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY };
+      gl.domElement.setPointerCapture(e.pointerId);
+    };
+    const pointerMove = (e: PointerEvent) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      turn(e.clientX - drag.x, e.clientY - drag.y);
+      drag.x = e.clientX;
+      drag.y = e.clientY;
+    };
+    const pointerUp = () => {
+      drag = null;
+    };
+    const wheel = (e: WheelEvent) => {
+      if (look) {
+        if (e.ctrlKey) return;
+        e.preventDefault();
+        turn(e.deltaX, e.deltaY);
+        return;
+      }
       if (controls.current)
         state.desiredRadius = Math.max(
           1.5,
@@ -160,7 +208,11 @@ export function Walker({
     window.addEventListener('keydown', down);
     window.addEventListener('keyup', up);
     window.addEventListener('blur', clear);
-    gl.domElement.addEventListener('wheel', wheel, { passive: true });
+    gl.domElement.addEventListener('wheel', wheel, { passive: false });
+    gl.domElement.addEventListener('pointerdown', pointerDown);
+    gl.domElement.addEventListener('pointermove', pointerMove);
+    gl.domElement.addEventListener('pointerup', pointerUp);
+    gl.domElement.addEventListener('pointercancel', pointerUp);
     return () => {
       keys.current.clear();
       state.jumpQueued = false;
@@ -168,9 +220,13 @@ export function Walker({
       window.removeEventListener('keyup', up);
       window.removeEventListener('blur', clear);
       gl.domElement.removeEventListener('wheel', wheel);
+      gl.domElement.removeEventListener('pointerdown', pointerDown);
+      gl.domElement.removeEventListener('pointermove', pointerMove);
+      gl.domElement.removeEventListener('pointerup', pointerUp);
+      gl.domElement.removeEventListener('pointercancel', pointerUp);
       delete gl.domElement.dataset.player;
     };
-  }, [active, camera, controls, gl, invalidate, state]);
+  }, [active, camera, controls, gl, invalidate, state, look]);
   useFrame((frame, elapsed) => {
     if (!active || !body.current || !controls.current) return;
     const dt = Math.min(elapsed, 0.1),
@@ -295,6 +351,7 @@ export function Walker({
       .copy(controls.current.target)
       .addScaledVector(state.ray.direction, safeDistance);
     camera.lookAt(controls.current.target);
+    if (look) camera.rotateX(look.current.pitch);
     if (
       frame.clock.elapsedTime - state.lastReport > 0.06 ||
       wasGrounded !== state.grounded
@@ -309,6 +366,9 @@ export function Walker({
         grounded: state.grounded,
         leftLeg: leftLeg.current?.rotation.x,
         rightLeg: rightLeg.current?.rotation.x,
+        lookPitch: look?.current.pitch || 0,
+        gazeY: camera.getWorldDirection(state.gaze).y,
+        cameraY: camera.position.y,
       });
     }
     const turning =

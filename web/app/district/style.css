@@ -8,6 +8,7 @@
   position: absolute;
   inset: 0;
 }
+.district-startup {position:absolute;inset:0;z-index:2;display:grid;place-items:center;border-radius:0!important;background:#243e46!important;}
 .district-hud {
   position: absolute;
   top: 24px;
@@ -46,8 +47,139 @@
   top: 136px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   align-items: stretch;
+}
+.district-look {
+  position: absolute;
+  left: 26px;
+  bottom: 132px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  max-width: 65vw;
+}
+.district-look button {
+  background: #18353bef;
+  color: #f9edd7;
+  border: 1px solid #d6ba7c80;
+  padding: 12px;
+}
+.city-plan-dialog {
+  width: min(1220px, 96vw) !important;
+  max-width: 96vw !important;
+  background: #f0f2e8 !important;
+  color: #183b37 !important;
+  padding: 22px !important;
+  gap: 10px !important;
+  max-height: 96dvh;
+  overflow: auto;
+}
+.city-plan-dialog [data-slot='dialog-description'] {
+  color: #516a62;
+}
+.plan-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.plan-tools button,
+.plan-legend button {
+  background: #234a43;
+  color: #fff;
+  border: 0;
+}
+.plan-tools label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+}
+.plan-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 235px;
+  gap: 14px;
+  min-height: 0;
+}
+.city-plan-map {
+  width: 100%;
+  height: 65dvh;
+  background: #dfe8df;
+  border: 1px solid #9aada1;
+  border-radius: 10px;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.city-plan-map:active {
+  cursor: grabbing;
+}
+.plan-legend {
+  font-size: 13px;
+  line-height: 1.5;
+  max-height: 65dvh;
+  overflow: auto;
+  padding: 8px;
+}
+.plan-legend h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+.plan-legend > div {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.plan-legend i {
+  display: inline-block;
+  width: 17px;
+  height: 12px;
+  border: 1px solid #557569;
+  border-radius: 3px;
+}
+.plan-legend p {
+  margin: 10px 0;
+}
+.plan-legend section {
+  background: #dce5d7;
+  border-radius: 8px;
+  padding: 12px;
+}
+.plan-legend small {
+  color: #57695d;
+  font-size: 12px;
+}
+.plan-id {
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
+@media (max-width: 650px) {
+  .plan-layout {
+    grid-template-columns: 1fr;
+  }
+  .city-plan-map {
+    height: 48dvh;
+  }
+  .plan-legend {
+    max-height: 24dvh;
+  }
+  .district-look {
+    left: 12px;
+    bottom: 134px;
+    max-width: 55vw;
+  }
+  .district-look button {
+    font-size: 12px;
+    padding: 8px;
+  }
+  .district-tools button,
+  .district-tools a {
+    font-size: 12px;
+    padding: 8px;
+  }
 }
 .district-tools button,
 .district-tools a {

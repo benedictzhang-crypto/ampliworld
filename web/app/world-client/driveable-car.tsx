@@ -42,6 +42,7 @@ export function DriveableCar({
   obstacles,
   groundHeight,
   onReport,
+  look,
 }: {
   state: React.RefObject<CarState>;
   active: boolean;
@@ -49,20 +50,27 @@ export function DriveableCar({
   obstacles: readonly Box3[];
   groundHeight: (x: number, z: number, y?: number) => number;
   onReport: (s: CarState) => void;
+  look?: React.RefObject<{ pitch: number }>;
 }) {
-  const { scene } = useGLTF(
-    '/assets/3d/vendor/kenney/car-kit/models/sedan.glb',
-  );
+  const { scene } = useGLTF('/assets/3d/ampliworld/GC-CAR-001/car.glb');
   const body = useRef<Group>(null),
     keys = useRef(new Set<string>());
   const { camera, gl, invalidate } = useThree();
+  const display = useMemo(() => scene.clone(true), [scene]);
+  const wheels = useMemo(
+    () =>
+      ['wheel-fl', 'wheel-fr', 'wheel-rl', 'wheel-rr'].map((n) =>
+        display.getObjectByName(n),
+      ),
+    [display],
+  );
   const scratch = useMemo(
     () => ({ target: new Vector3(), eye: new Vector3(), report: 0 }),
     [],
   );
   const model = useMemo(() => {
     const b = new Box3().setFromObject(scene),
-      s = 4.6 / (b.max.z - b.min.z);
+      s = 5 / (b.max.z - b.min.z);
     return {
       s,
       x: (-(b.max.x + b.min.x) * s) / 2,
@@ -115,6 +123,16 @@ export function DriveableCar({
     const s = state.current,
       dt = Math.min(elapsed, 0.06),
       k = keys.current;
+    for (const [i, wheel] of wheels.entries())
+      if (wheel) {
+        wheel.rotation.order = 'YXZ';
+        wheel.rotation.x -= (s.speed * dt) / 0.35;
+        if (i < 2)
+          wheel.rotation.y =
+            (Number(k.has('KeyA') || k.has('ArrowLeft')) -
+              Number(k.has('KeyD') || k.has('ArrowRight'))) *
+            0.32;
+      }
     if (active && controls.current) {
       const throttle =
         Number(k.has('KeyW') || k.has('ArrowUp')) -
@@ -151,6 +169,7 @@ export function DriveableCar({
       camera.position.lerp(scratch.eye, 1 - Math.exp(-6 * dt));
       controls.current.target.copy(scratch.target);
       controls.current.update();
+      if (look) camera.rotateX(look.current.pitch);
       if (k.size || Math.abs(s.speed) > 0.01) invalidate();
     }
     body.current.position.set(s.x, groundHeight(s.x, s.z), s.z);
@@ -163,9 +182,9 @@ export function DriveableCar({
   });
   return (
     <group ref={body} position={[state.current.x, 0, state.current.z]}>
-      <group rotation={[0, Math.PI, 0]}>
+      <group>
         <group position={[model.x, model.y, model.z]} scale={model.s}>
-          <Clone object={scene} castShadow receiveShadow />
+          <primitive object={display} dispose={null} />
         </group>
       </group>
     </group>

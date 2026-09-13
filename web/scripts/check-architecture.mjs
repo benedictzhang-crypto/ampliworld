@@ -114,6 +114,67 @@ try {
     writeFileSync(join(temp, name + '.png'), Buffer.from(r.data, 'base64'));
   };
   await shot('corner');
+  if (process.env.QA_PLAN_LOOK === '1') {
+    const player = () =>
+      evaluate(
+        "JSON.parse(document.querySelector('canvas').dataset.player||'{}')",
+      );
+    const before = await player();
+    await evaluate(
+      "(()=>{const b=Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('抬头'));for(let i=0;i<6;i++)b.click();})()",
+    );
+    await wait(500);
+    const up = await player();
+    assert.ok(up.gazeY > 0.65, 'Camera can really look into sky');
+    assert.ok(up.cameraY > 0.4, 'Camera stays above ground');
+    assert.equal(up.x, before.x);
+    assert.equal(up.z, before.z);
+    await shot('look-up');
+    await evaluate(
+      "Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('视角归正')).click()",
+    );
+    await evaluate(
+      "Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('城市平面图')).click()",
+    );
+    await wait(500);
+    assert.ok(await evaluate("!!document.querySelector('.city-plan-map')"));
+    await shot('city-plan');
+    await evaluate(
+      "Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='核心城区').click()",
+    );
+    await wait(300);
+    await shot('core-plan');
+    await send('Input.dispatchKeyEvent', {
+      type: 'keyDown',
+      key: 'Escape',
+      code: 'Escape',
+      windowsVirtualKeyCode: 27,
+    });
+    await send('Input.dispatchKeyEvent', {
+      type: 'keyUp',
+      key: 'Escape',
+      code: 'Escape',
+      windowsVirtualKeyCode: 27,
+    });
+    await wait(400);
+    assert.ok(
+      !(await evaluate("!!document.querySelector('.city-plan-map')")),
+      'Escape closes plan',
+    );
+    assert.equal((await player()).z, before.z);
+    assert.equal(exceptions.length, 0, exceptions.join('\n'));
+    console.log(
+      JSON.stringify({
+        status: 'passed',
+        scenario: 'sky-gaze-and-city-plan',
+        screenshots: temp,
+      }),
+    );
+    socket.close();
+    chrome.kill('SIGTERM');
+    clearTimeout(timeout);
+    process.exit(0);
+  }
   if (process.env.QA_CIVIC === '1') {
     for (const [label, name] of [
       ['体育场俯瞰', 'stadium'],
