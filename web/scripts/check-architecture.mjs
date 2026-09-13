@@ -114,6 +114,41 @@ try {
     writeFileSync(join(temp, name + '.png'), Buffer.from(r.data, 'base64'));
   };
   await shot('corner');
+  if (process.env.QA_CIVIC === '1') {
+    for (const [label, name] of [
+      ['体育场俯瞰', 'stadium'],
+      ['日料街景', 'sushi'],
+    ]) {
+      await evaluate(
+        `Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('${label}')).click()`,
+      );
+      await wait(900);
+      await shot(name);
+    }
+    await evaluate(
+      "Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('控制小人')).click()",
+    );
+    await wait(400);
+    const p = await evaluate(
+      "JSON.parse(document.querySelector('canvas').dataset.player||'{}')",
+    );
+    assert.ok(
+      Math.abs(p.x) < 0.01 && Math.abs(p.z + 68) < 0.01,
+      'Landmark previews never teleport the avatar',
+    );
+    assert.equal(exceptions.length, 0, exceptions.join('\n'));
+    console.log(
+      JSON.stringify({
+        status: 'passed',
+        scenario: 'civic-views-return',
+        screenshots: temp,
+      }),
+    );
+    socket.close();
+    chrome.kill('SIGTERM');
+    clearTimeout(timeout);
+    process.exit(0);
+  }
   if (process.env.QA_CITY === '1') {
     await evaluate(
       "Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('全城总览')).click()",

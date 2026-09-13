@@ -1,6 +1,7 @@
 import cbdStreet from '../../public/assets/3d/ampliworld/GC-CBD-STREET-001/street-manifest.json';
 import concourse from '../../public/assets/3d/ampliworld/GC-CBD-CONCOURSE-001/concourse-manifest.json';
 import { cityGroundHeight } from '../world-client/city-surface';
+import { civicGroundHeight } from '../world-client/civic-registry';
 // New metre-space block. City origin and asset transforms are data, not mesh JSX.
 export const DISTRICT = {
   id: 'GC-GARDENS-B01',
@@ -74,6 +75,8 @@ export const DISTRICT = {
 
 // Surface heights from the exported street kit, not a flat offset above every surface.
 export function districtGroundHeight(x: number, z: number, currentY = 0) {
+  const civicY = civicGroundHeight(x, z);
+  if (civicY !== undefined) return civicY;
   if (Math.abs(x) > 600 || Math.abs(z) > 1100) return cityGroundHeight(x, z);
   for (const r of concourse.ramps)
     if (x >= r.min[0] && x <= r.max[0] && z >= r.min[1] && z <= r.max[1])
@@ -133,6 +136,12 @@ export function districtGroundHeight(x: number, z: number, currentY = 0) {
 }
 
 export function districtLocation(x: number, z: number) {
+  if (Math.abs(x) < 145 && z > 420 && z < 780)
+    return '晖环体育场 · 南侧开放入口通向足球场 · 看台暂未开放';
+  if (Math.abs(x - 180) < 13 && Math.abs(z + 38) < 14)
+    return '森间寿司 · 沿暖光门洞进入 · 餐饮交易尚未接入';
+  if (Math.abs(x) < 450 && z > 80 && z < 1050)
+    return '体育公园街区 · 沿中央步道向南，绕球场东侧到南入口';
   if (Math.abs(x) > 650 || Math.abs(z) > 1150)
     return `金庭主城区 · ${Math.floor((x + 10000) / 1000) + 1} 列 / ${Math.floor((z + 15000) / 1000) + 1} 街区 · 外围为生成底稿`;
   if (z < -300)

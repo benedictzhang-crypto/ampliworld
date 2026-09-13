@@ -9,6 +9,8 @@ import {
 } from 'react';
 import { CITY, CityLayer } from '../world-client/city-layer';
 import { CITY_INFRA } from '../world-client/city-surface';
+import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
+import { CivicPlaces } from '../world-client/civic-places';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls } from '@react-three/drei';
 import { useGLTF } from '@react-three/drei';
@@ -149,10 +151,12 @@ function SetupCamera({
   walking,
   controls,
   wide,
+  focus,
 }: {
   walking: boolean;
   controls: React.RefObject<OrbitControlsImpl | null>;
   wide: boolean;
+  focus: 'cbd' | 'stadium' | 'sushi';
 }) {
   const { camera, invalidate } = useThree();
   const savedWalkCamera = useRef<{ position: Vector3; target: Vector3 } | null>(
@@ -184,16 +188,36 @@ function SetupCamera({
         ? [0, 4, -59]
         : wide
           ? [17000, 23000, 26000]
-          : [430, 660, 740]) as [number, number, number]),
+          : focus === 'stadium'
+            ? [190, 430, 930]
+            : focus === 'sushi'
+              ? [210, 13, -5]
+              : [430, 660, 740]) as [number, number, number]),
     );
     controls.current?.target.set(
-      0,
-      walking ? 1.5 : wide ? 0 : 190,
-      walking ? -68 : wide ? 0 : -500,
+      !walking && !wide && focus === 'sushi' ? 180 : 0,
+      walking
+        ? 1.5
+        : wide
+          ? 0
+          : focus === 'stadium'
+            ? 10
+            : focus === 'sushi'
+              ? 2.5
+              : 190,
+      walking
+        ? -68
+        : wide
+          ? 0
+          : focus === 'stadium'
+            ? 600
+            : focus === 'sushi'
+              ? -38
+              : -500,
     );
     controls.current?.update();
     invalidate();
-  }, [walking, controls, camera, invalidate, wide]);
+  }, [walking, controls, camera, invalidate, wide, focus]);
   return null;
 }
 
@@ -201,6 +225,7 @@ export function DistrictClient() {
   const [mounted, setMounted] = useState(false);
   const [walking, setWalking] = useState(true);
   const [wide, setWide] = useState(false);
+  const [focus, setFocus] = useState<'cbd' | 'stadium' | 'sushi'>('cbd');
   const [loadedTiles, setLoadedTiles] = useState<Set<string>>(() => new Set());
   const onTileReady = useCallback(
     (id: string) =>
@@ -246,6 +271,13 @@ export function DistrictClient() {
   }, []);
   const solids = useMemo(
     () => [
+      ...CIVIC_COLLIDERS.map(
+        (c) =>
+          new Box3(
+            new Vector3(...(c.min as [number, number, number])),
+            new Vector3(...(c.max as [number, number, number])),
+          ),
+      ),
       ...nearTiles.flatMap((t) =>
         t.colliders.map(
           (c) =>
@@ -421,6 +453,7 @@ export function DistrictClient() {
                 <Mall />
                 <CBDBoulevards />
                 <Concourse />
+                <CivicPlaces />
                 <DriveableCar
                   state={car}
                   active={walking && driving}
@@ -455,12 +488,19 @@ export function DistrictClient() {
                 ref={controls}
                 makeDefault
                 enableDamping={false}
-                minDistance={walking ? 0.1 : wide ? 18000 : 35}
+                minDistance={
+                  walking ? 0.1 : wide ? 18000 : focus === 'sushi' ? 3 : 35
+                }
                 maxDistance={walking ? 18 : wide ? 65000 : 1800}
                 maxPolarAngle={Math.PI / 2 - 0.04}
                 enablePan={!walking}
               />
-              <SetupCamera walking={walking} controls={controls} wide={wide} />
+              <SetupCamera
+                walking={walking}
+                controls={controls}
+                wide={wide}
+                focus={focus}
+              />
               <Walker
                 active={walking && !driving}
                 relocation={relocation}
@@ -479,7 +519,7 @@ export function DistrictClient() {
         <div>
           <span>AMPLIWORLD · GOLDEN CITY</span>
           <h1>金庭 · 20 × 30 km 主城区</h1>
-          <p>悬挑环 · 连桥双塔 · 光环塔冠 · 下沉广场与地下连廊</p>
+          <p>开放式晖环体育场 · 森间寿司 · 体育公园与外围大道贯通</p>
         </div>
         <div className="district-time">
           {formatWorldTime(minutes)}
@@ -495,6 +535,26 @@ export function DistrictClient() {
           }}
         >
           全城总览
+        </Button>
+        <Button
+          onClick={() => {
+            setFocus('stadium');
+            setWide(false);
+            setWalking(false);
+            (document.activeElement as HTMLElement)?.blur();
+          }}
+        >
+          体育场俯瞰
+        </Button>
+        <Button
+          onClick={() => {
+            setFocus('sushi');
+            setWide(false);
+            setWalking(false);
+            (document.activeElement as HTMLElement)?.blur();
+          }}
+        >
+          日料街景
         </Button>
         {walking && (
           <Button
@@ -515,6 +575,7 @@ export function DistrictClient() {
           onClick={() => {
             setWalking((v) => !v);
             setWide(false);
+            setFocus('cbd');
             (document.activeElement as HTMLElement)?.blur();
           }}
         >

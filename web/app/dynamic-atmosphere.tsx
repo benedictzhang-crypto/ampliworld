@@ -321,6 +321,7 @@ export function DynamicAtmosphere({
     return () => clearInterval(timer);
   }, [metricWorld, invalidate]);
   const cloudGroup = useRef<THREE.Group>(null);
+  const skyGroup = useRef<THREE.Group>(null);
   const sun = useRef<THREE.Mesh>(null);
   const moon = useRef<THREE.Group>(null);
   const sunLight = useRef<THREE.DirectionalLight>(null);
@@ -349,6 +350,8 @@ export function DynamicAtmosphere({
   }, [hour]);
 
   useFrame(({ camera, clock }) => {
+    // A 30 km journey must not move the viewer outside an origin-centred sky.
+    if (metricWorld) skyGroup.current?.position.copy(camera.position);
     const sunPosition = frameScratch.current.sunPosition
       .copy(camera.position)
       .addScaledVector(celestial.sunDirection, celestialDistance);
@@ -367,9 +370,11 @@ export function DynamicAtmosphere({
 
     if (cloudGroup.current) {
       cloudGroup.current.position.x =
+        (metricWorld ? camera.position.x : 0) +
         Math.sin(clock.elapsedTime * 0.01) * (metricWorld ? 100 : 16);
       cloudGroup.current.position.y = metricWorld ? 700 : 0;
       cloudGroup.current.position.z =
+        (metricWorld ? camera.position.z : 0) +
         Math.cos(clock.elapsedTime * 0.008) * (metricWorld ? 65 : 9);
     }
   });
@@ -378,27 +383,29 @@ export function DynamicAtmosphere({
     <>
       <color attach="background" args={[palette.background]} />
       <fog attach="fog" args={[palette.fog, fogNear, fogFar]} />
-      {!isNight && !cityOverview && (
-        <Sky
-          distance={metricWorld ? 8000 : 450}
-          sunPosition={celestial.sunDirection.clone().multiplyScalar(160)}
-          turbidity={palette.turbidity}
-          rayleigh={palette.rayleigh}
-          mieCoefficient={palette.mieCoefficient}
-          mieDirectionalG={palette.mieDirectionalG}
-        />
-      )}
-      {isNight && !cityOverview && (
-        <Stars
-          radius={metricWorld ? 1700 : 180}
-          depth={metricWorld ? 300 : 70}
-          count={700}
-          factor={2.1}
-          saturation={0.08}
-          fade
-          speed={0.18}
-        />
-      )}
+      <group ref={skyGroup}>
+        {!isNight && !cityOverview && (
+          <Sky
+            distance={metricWorld ? 8000 : 450}
+            sunPosition={celestial.sunDirection.clone().multiplyScalar(160)}
+            turbidity={palette.turbidity}
+            rayleigh={palette.rayleigh}
+            mieCoefficient={palette.mieCoefficient}
+            mieDirectionalG={palette.mieDirectionalG}
+          />
+        )}
+        {isNight && !cityOverview && (
+          <Stars
+            radius={metricWorld ? 1700 : 180}
+            depth={metricWorld ? 300 : 70}
+            count={700}
+            factor={2.1}
+            saturation={0.08}
+            fade
+            speed={0.18}
+          />
+        )}
+      </group>
 
       <ambientLight
         intensity={palette.ambientIntensity * (metricWorld ? 0.55 : 1.45)}

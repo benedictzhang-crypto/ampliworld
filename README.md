@@ -1,5 +1,7 @@
 # AmpliWorld
 
+**Sports district and street dining:** the playable core now extends south into an original open-roof football stadium (105 × 68 m marked pitch, dimensional goals/nets, sectional seating) and connected sports streets with 44 surface parking bays. Mori Sushi is an enterable timber-front restaurant on the east high street, with lanterns, counter, seating and geometric food. Four core-to-global road seams are connected; landmark camera views never teleport the player. World bounds remain 20 × 30 km: this expands developed content rather than adding empty terrain. See `docs/CHECKPOINT_2026_09_13_SPORTS.md` for verified scope and remaining work.
+
 **Current city masterplan (20 × 30 km):** the detailed mall/CBD core is preserved inside a newly generated metric-space city base. 485 loadable tiles contain 1,300 residential compounds/civic campuses and 7,800 parameter-varied building exteriors. A continuous river, 28 raised bridges, estuary waterfall, sea edge and hierarchical road corridors are now modeled. “全城总览” shows the full plan without moving the player. This is a procedural exterior/masterplan milestone, not 600 km² of individually polished architecture: garages, most interiors, district-specific refinement and some core-to-outer road junctions remain unfinished. See `docs/CHECKPOINT_2026_09_13_CITY2030.md`.
 
 The following dated stages describe the retained detailed core; their smaller ground envelopes are historical, superseded by the city masterplan above.
