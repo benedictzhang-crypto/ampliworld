@@ -11,6 +11,9 @@ for(let z=110;z>=62;z-=.25)assert.equal(blocked(120.5,z),false,`Ramp route block
 assert.equal(blocked(120.5,60),true,'Incomplete garage ends at a closed door');
 assert.equal(districtGroundHeight(120.5,72+DISTRICT.mall.z),-4.2);
 assert.ok(Math.abs(districtGroundHeight(120.5,108+DISTRICT.mall.z)-.17)<1e-6);
+assert.equal(districtGroundHeight(120.5,108.5+DISTRICT.mall.z),.17,'Ramp approach now has matching physical bridge');
+assert.equal(districtGroundHeight(129,11+DISTRICT.mall.z),.32,'Parking pedestrian strip matches shoe height');
+assert.ok(m.colliders.some(c=>c.id==='parking-walkway'&&c.max[1]===.32));
 const b=readFileSync(new URL('../public/assets/3d/ampliworld/GC-MALL-002/mall-lod0.glb',import.meta.url));
 const j=JSON.parse(b.toString('utf8',20,20+b.readUInt32LE(12)));assert.equal(j.images?.length||0,0);
 console.log('PASS: 6.25x footprint; 48 bays; 16 cars; continuous courtyard, both indoor doors and ramp; B1 boundary blocked; geometric facade.');

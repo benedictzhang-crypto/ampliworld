@@ -1,5 +1,7 @@
 # AmpliWorld
 
+**Latest cleanup:** metric-height clouds now stay above the city, overview no longer resets the player, ramp approach geometry is continuous, and parking walkway support matches its surface. See `docs/CHECKPOINT_2026_09_12_WORLD_POLISH.md`. Upper-floor retail, full garage interiors and trading/life integration remain pending.
+
 **Mall campus update:** the main world now uses `GC-MALL-002`, a six-storey 225 × 180 m mall (6.25× the previous main footprint), walkable ground-floor galleries on both sides of the garden passage, 48 outdoor parking bays and a descending B1 entry ramp/vestibule. The 430 × 620 m ground envelope is not fully built out. Complete underground parking and upper-floor retail remain deferred. See `docs/CHECKPOINT_2026_09_12_MALL_CAMPUS.md`.
 
 **Current world entry:** `/` opens the new metric-space street world directly; `/district` remains a compatible link to that same world. The compressed legacy scene is retired and has no player-facing route. All future city construction extends the new street/asset architecture. Legacy source is retained only as implementation reference; economy services and saved data are preserved for later integration, not exposed through the old scene.

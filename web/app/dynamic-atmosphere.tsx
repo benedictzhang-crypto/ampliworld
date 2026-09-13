@@ -1,8 +1,8 @@
 'use client';
 
 import { Cloud, Clouds, Sky, Stars } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
 export type DayPhase = 'DAWN' | 'DAY' | 'DUSK' | 'NIGHT';
@@ -300,11 +300,24 @@ export function DynamicAtmosphere({
   hour,
   fogNear = 68,
   fogFar = 245,
+  metricWorld = false,
 }: {
   hour: number;
   fogNear?: number;
   fogFar?: number;
+  metricWorld?: boolean;
 }) {
+  const { invalidate } = useThree();
+  const celestialDistance = metricWorld ? 1400 : 180;
+  const celestialScale = celestialDistance / 180;
+  // Gentle idle sky animation; do not run a permanent 60fps loop or render hidden tabs.
+  useEffect(() => {
+    if (!metricWorld) return;
+    const timer = setInterval(() => {
+      if (!document.hidden) invalidate();
+    }, 1000 / 15);
+    return () => clearInterval(timer);
+  }, [metricWorld, invalidate]);
   const cloudGroup = useRef<THREE.Group>(null);
   const sun = useRef<THREE.Mesh>(null);
   const moon = useRef<THREE.Group>(null);
@@ -336,21 +349,26 @@ export function DynamicAtmosphere({
   useFrame(({ camera, clock }) => {
     const sunPosition = frameScratch.current.sunPosition
       .copy(camera.position)
-      .addScaledVector(celestial.sunDirection, 180);
+      .addScaledVector(celestial.sunDirection, celestialDistance);
     const moonPosition = frameScratch.current.moonPosition
       .copy(camera.position)
-      .addScaledVector(celestial.moonDirection, 180);
+      .addScaledVector(celestial.moonDirection, celestialDistance);
 
     sun.current?.position.copy(sunPosition);
     moon.current?.position.copy(moonPosition);
-    sunLight.current?.position.copy(celestial.sunDirection).multiplyScalar(90);
+    sunLight.current?.position
+      .copy(celestial.sunDirection)
+      .multiplyScalar(metricWorld ? 600 : 90);
     moonLight.current?.position
       .copy(celestial.moonDirection)
       .multiplyScalar(75);
 
     if (cloudGroup.current) {
-      cloudGroup.current.position.x = Math.sin(clock.elapsedTime * 0.01) * 16;
-      cloudGroup.current.position.z = Math.cos(clock.elapsedTime * 0.008) * 9;
+      cloudGroup.current.position.x =
+        Math.sin(clock.elapsedTime * 0.01) * (metricWorld ? 100 : 16);
+      cloudGroup.current.position.y = metricWorld ? 700 : 0;
+      cloudGroup.current.position.z =
+        Math.cos(clock.elapsedTime * 0.008) * (metricWorld ? 65 : 9);
     }
   });
 
@@ -360,7 +378,7 @@ export function DynamicAtmosphere({
       <fog attach="fog" args={[palette.fog, fogNear, fogFar]} />
       {!isNight && (
         <Sky
-          distance={450}
+          distance={metricWorld ? 8000 : 450}
           sunPosition={celestial.sunDirection.clone().multiplyScalar(160)}
           turbidity={palette.turbidity}
           rayleigh={palette.rayleigh}
@@ -370,8 +388,8 @@ export function DynamicAtmosphere({
       )}
       {isNight && (
         <Stars
-          radius={180}
-          depth={70}
+          radius={metricWorld ? 1700 : 180}
+          depth={metricWorld ? 300 : 70}
           count={700}
           factor={2.1}
           saturation={0.08}
@@ -381,11 +399,11 @@ export function DynamicAtmosphere({
       )}
 
       <ambientLight
-        intensity={palette.ambientIntensity * 1.45}
+        intensity={palette.ambientIntensity * (metricWorld ? 0.55 : 1.45)}
         color={palette.sky}
       />
       <hemisphereLight
-        intensity={palette.ambientIntensity * 1.28}
+        intensity={palette.ambientIntensity * (metricWorld ? 0.85 : 1.28)}
         color={palette.sky}
         groundColor={palette.ground}
       />
@@ -397,11 +415,11 @@ export function DynamicAtmosphere({
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
         shadow-camera-near={1}
-        shadow-camera-far={190}
-        shadow-camera-left={-70}
-        shadow-camera-right={70}
-        shadow-camera-top={70}
-        shadow-camera-bottom={-70}
+        shadow-camera-far={metricWorld ? 1200 : 190}
+        shadow-camera-left={metricWorld ? -360 : -70}
+        shadow-camera-right={metricWorld ? 360 : 70}
+        shadow-camera-top={metricWorld ? 360 : 70}
+        shadow-camera-bottom={metricWorld ? -360 : -70}
         shadow-normalBias={0.035}
         shadow-bias={-0.00012}
       />
@@ -412,25 +430,27 @@ export function DynamicAtmosphere({
       />
       <directionalLight
         position={[42, 48, 58]}
-        intensity={palette.ambientIntensity * 1.85}
+        intensity={palette.ambientIntensity * (metricWorld ? 0.7 : 1.85)}
         color={palette.sky}
       />
 
-      <mesh ref={sun} renderOrder={-3}>
+      <mesh ref={sun} renderOrder={-3} scale={celestialScale}>
         <sphereGeometry args={[2.1, 20, 14]} />
         <meshBasicMaterial
           color={palette.sun}
+          fog={false}
           transparent
           opacity={celestial.sunOpacity}
           toneMapped={false}
           depthWrite={false}
         />
       </mesh>
-      <group ref={moon} renderOrder={-3}>
+      <group ref={moon} renderOrder={-3} scale={celestialScale}>
         <mesh>
           <sphereGeometry args={[2.35, 24, 16]} />
           <meshBasicMaterial
             color="#e7edff"
+            fog={false}
             transparent
             opacity={celestial.moonOpacity}
             toneMapped={false}
@@ -441,6 +461,7 @@ export function DynamicAtmosphere({
           <sphereGeometry args={[4.7, 20, 14]} />
           <meshBasicMaterial
             color="#8eaeff"
+            fog={false}
             transparent
             opacity={celestial.moonOpacity * 0.085}
             blending={THREE.AdditiveBlending}
@@ -452,6 +473,8 @@ export function DynamicAtmosphere({
 
       <Clouds
         ref={cloudGroup}
+        position={[0, metricWorld ? 700 : 0, 0]}
+        scale={metricWorld ? [8, 3, 8] : [1, 1, 1]}
         texture="/assets/sky/cloud-soft.png"
         limit={24}
         range={24}

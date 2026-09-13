@@ -43,6 +43,7 @@ export function Walker({
   obstacles = DEFAULT_SOLIDS,
   limits = DEFAULT_LIMITS,
   groundHeight = defaultGround,
+  active = true,
 }: {
   controls: React.RefObject<OrbitControlsImpl | null>;
   onPosition: (x: number, z: number) => void;
@@ -50,6 +51,7 @@ export function Walker({
   obstacles?: readonly Box3[];
   limits?: readonly [number, number];
   groundHeight?: (x: number, z: number) => number;
+  active?: boolean;
 }) {
   const body = useRef<Group>(null),
     leftLeg = useRef<Group>(null),
@@ -83,6 +85,11 @@ export function Walker({
     [],
   );
   useEffect(() => {
+    if (!active) {
+      keys.current.clear();
+      state.jumpQueued = false;
+      return;
+    }
     const down = (e: KeyboardEvent) => {
       if (
         (e.target as HTMLElement)?.closest(
@@ -125,15 +132,17 @@ export function Walker({
     window.addEventListener('blur', clear);
     gl.domElement.addEventListener('wheel', wheel, { passive: true });
     return () => {
+      keys.current.clear();
+      state.jumpQueued = false;
       window.removeEventListener('keydown', down);
       window.removeEventListener('keyup', up);
       window.removeEventListener('blur', clear);
       gl.domElement.removeEventListener('wheel', wheel);
       delete gl.domElement.dataset.player;
     };
-  }, [camera, controls, gl, invalidate, state]);
+  }, [active, camera, controls, gl, invalidate, state]);
   useFrame((frame, elapsed) => {
-    if (!body.current || !controls.current) return;
+    if (!active || !body.current || !controls.current) return;
     const dt = Math.min(elapsed, 0.1),
       p = body.current.position,
       k = keys.current;
@@ -271,7 +280,7 @@ export function Walker({
       invalidate();
   });
   return (
-    <group ref={body} position={initialPosition}>
+    <group ref={body} position={initialPosition} visible={active}>
       <mesh position={[0, 1.22, 0]} castShadow>
         <capsuleGeometry args={[0.25, 0.38, 4, 10]} />
         <meshStandardMaterial color="#c3a36a" />

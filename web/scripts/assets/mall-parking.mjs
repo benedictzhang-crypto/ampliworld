@@ -116,6 +116,7 @@ export function buildParking(T, add, box, solid, text3d) {
   for (let i = 0; i < 11; i++)
     B('ivory', 126 + i * 5.3, 0.181, 57, 2.3, 0.015, 4.8);
   B('light', 129, 0.245, 11, 4, 0.15, 115);
+  solid('parking-walkway', [127, 0.17, -46.5], [131, 0.32, 68.5]);
   for (const z of [-31, -7, 17, 39]) {
     curb(`parking-planter-${z}`, 156, z, 12, 15);
     B('wood', 156, 0.36, z, 11.6, 0.1, 14.6);

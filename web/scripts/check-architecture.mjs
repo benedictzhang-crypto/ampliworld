@@ -307,6 +307,18 @@ try {
     'Mouse orbit must not rotate an idle avatar',
   );
   assert.equal(exceptions.length, 0, exceptions.join('\n'));
+  if(isCampus){
+    const retained=await player();
+    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('俯瞰街区')).click()");
+    await wait(250);
+    await send('Input.dispatchKeyEvent',{type:'keyDown',key:'w',code:'KeyW',windowsVirtualKeyCode:87});await wait(250);
+    await send('Input.dispatchKeyEvent',{type:'keyUp',key:'w',code:'KeyW',windowsVirtualKeyCode:87});
+    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('控制小人')).click()");await wait(400);
+    const resumed=await player();
+    assert.ok(Math.hypot(resumed.x-retained.x,resumed.z-retained.z)<.01,'Overview must retain actual player position and ignore walking input');
+    assert.ok(Math.abs(resumed.y-retained.y)<.03,'Overview must retain elevation');
+    await shot('resumed-street');
+  }
   console.log(
     JSON.stringify({ status: 'passed', before, after, screenshots: temp }),
   );

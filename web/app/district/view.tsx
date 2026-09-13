@@ -17,7 +17,7 @@ import {
   formatWorldTime,
   getWorldMinutesAtCycleTime,
 } from '../dynamic-atmosphere';
-import { DISTRICT, districtGroundHeight } from './registry';
+import { DISTRICT, districtGroundHeight, districtLocation } from './registry';
 import streetData from '../../public/assets/3d/ampliworld/GC-STREET-001/street-manifest.json';
 import mallData from '../../public/assets/3d/ampliworld/GC-MALL-002/mall-manifest.json';
 
@@ -66,7 +66,23 @@ function SetupCamera({
   controls: React.RefObject<OrbitControlsImpl | null>;
 }) {
   const { camera, invalidate } = useThree();
+  const savedWalkCamera = useRef<{ position: Vector3; target: Vector3 } | null>(
+    null,
+  );
   useEffect(() => {
+    if (!walking && controls.current) {
+      savedWalkCamera.current = {
+        position: camera.position.clone(),
+        target: controls.current.target.clone(),
+      };
+    }
+    if (walking && savedWalkCamera.current) {
+      camera.position.copy(savedWalkCamera.current.position);
+      controls.current?.target.copy(savedWalkCamera.current.target);
+      controls.current?.update();
+      invalidate();
+      return;
+    }
     camera.position.set(
       ...((walking ? [0, 4, -59] : [285, 240, 85]) as [number, number, number]),
     );
@@ -133,7 +149,7 @@ export function DistrictClient() {
               shadows
               frameloop="demand"
               dpr={[1, 1.3]}
-              camera={{ position: [0, 4, 34], fov: 55, near: 0.1, far: 1500 }}
+              camera={{ position: [0, 4, 34], fov: 55, near: 0.1, far: 2600 }}
             >
               <Suspense
                 fallback={
@@ -144,8 +160,9 @@ export function DistrictClient() {
               >
                 <DynamicAtmosphere
                   hour={minutes / 60}
-                  fogNear={300}
-                  fogFar={1000}
+                  metricWorld
+                  fogNear={600}
+                  fogFar={2200}
                 />
                 <StudioLight />
                 <MallApproach />
@@ -171,16 +188,15 @@ export function DistrictClient() {
                 enablePan={!walking}
               />
               <SetupCamera walking={walking} controls={controls} />
-              {walking && (
-                <Walker
-                  controls={controls}
-                  onPosition={(x, z) => setPosition([x, z])}
-                  spawn={DISTRICT.spawnLocalMeters}
-                  obstacles={solids}
-                  limits={[212, 307]}
-                  groundHeight={districtGroundHeight}
-                />
-              )}
+              <Walker
+                active={walking}
+                controls={controls}
+                onPosition={(x, z) => setPosition([x, z])}
+                spawn={DISTRICT.spawnLocalMeters}
+                obstacles={solids}
+                limits={[212, 307]}
+                groundHeight={districtGroundHeight}
+              />
             </Canvas>
           )}
         </CanvasBoundary>
@@ -212,7 +228,9 @@ export function DistrictClient() {
           ? `WASD 行走 · 空格跳跃 · 鼠标拖动看四周 · X ${position[0].toFixed(1)} m / Z ${position[1].toFixed(1)} m`
           : '拖动俯瞰 · 滚轮缩放 · 点击「控制小人」回到街道'}
         <small>
-          花园通道左右大门进入室内 · 右侧地面停车 / 地库坡道 · 楼上及购物待接入
+          {walking
+            ? districtLocation(position[0], position[1])
+            : '俯瞰不会改变角色位置 · 返回继续原地行走'}
         </small>
       </div>
     </main>
