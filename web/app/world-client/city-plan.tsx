@@ -8,7 +8,13 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { CITY } from './city-layer';
-import { CITY_INFRA, riverX } from './city-surface';
+import { CITY_INFRA } from './city-surface';
+import { riverCenterX, riverHalfWidth } from './river-profile.mjs';
+import {
+  METROPOLITAN_PLAN,
+  CENTER_ROADS,
+  landValueZone,
+} from './metropolitan-registry';
 import { CIVIC_PLACES, SPORTS_STREETS } from './civic-registry';
 import { DISTRICT } from '../district/registry';
 import { COMMUNITIES, COMMUNITY_SURFACES, HOMES } from './community-registry';
@@ -25,8 +31,8 @@ const categories: Record<string, [string, string]> = {
 };
 const river = Array.from({ length: 201 }, (_, i) => {
   const z = -15000 + (i * 28200) / 200;
-  const w = 180 + 820 * Math.max(0, (z - 13000) / 200);
-  return { x: riverX(z), z, w };
+  const w = riverHalfWidth(z);
+  return { x: riverCenterX(z), z, w };
 });
 const riverPolygon = [
   ...river.map((p) => `${p.x - p.w},${p.z}`),
@@ -35,6 +41,15 @@ const riverPolygon = [
     .reverse()
     .map((p) => `${p.x + p.w},${p.z}`),
 ].join(' ');
+const waterfrontStrips = [-1, 1].map((side) =>
+  [
+    ...river.map((p) => `${p.x + side * p.w},${p.z}`),
+    ...river
+      .slice()
+      .reverse()
+      .map((p) => `${p.x + side * (p.w + (p.z >= 12000 ? 700 : 350))},${p.z}`),
+  ].join(' '),
+);
 export function CityPlan({
   open,
   onOpenChange,
@@ -83,7 +98,7 @@ export function CityPlan({
   const select = (c: (typeof compounds)[number]) => {
     if (!moved.current) {
       setSelected(c);
-      setSelectedInfo('');
+      setSelectedInfo(landValueZone(c.x, c.z));
     }
   };
   return (
@@ -92,8 +107,12 @@ export function CityPlan({
         <DialogTitle>金庭城市平面图 · 20 × 30 km</DialogTitle>
         <DialogDescription>
           真实场景坐标：小区边界、大门、主路、河道与桥梁。拖动平移，滚轮缩放；地图不会传送人物。
+          金色虚线表示三中心布局关系，不是道路；浅金色标识高价值地段，尚未设置售价。
         </DialogDescription>
         <div className="plan-tools">
+          <Button onClick={() => setView({ x: 2000, z: 4000, span: 12500 })}>
+            三中心布局
+          </Button>
           <Button onClick={() => setView({ x: 0, z: 0, span: 32000 })}>
             全城
           </Button>
@@ -193,6 +212,15 @@ export function CityPlan({
               stroke="#458caa"
               strokeWidth={view.span / 1800}
             />
+            {waterfrontStrips.map((points, i) => (
+              <polygon
+                key={i}
+                points={points}
+                fill="#d4b66b"
+                fillOpacity={0.24}
+                pointerEvents="none"
+              />
+            ))}
             {showRoads && (
               <g fill="#7e898b">
                 {roads.map((r, i) => (
@@ -258,6 +286,68 @@ export function CityPlan({
                   />
                 ))}
             <path d="M-110 0H110 M0-80V80" stroke="#65787d" strokeWidth={14} />
+            {CENTER_ROADS.map((r) => (
+              <rect
+                key={r.id}
+                x={r.min[0]}
+                y={r.min[1]}
+                width={r.max[0] - r.min[0]}
+                height={r.max[1] - r.min[1]}
+                fill="#65787d"
+              />
+            ))}
+            <path
+              d={
+                METROPOLITAN_PLAN.centers
+                  .map((c, i) => `${i ? 'L' : 'M'}${c.x} ${c.z}`)
+                  .join(' ') + ' Z'
+              }
+              fill="none"
+              stroke="#ac8840"
+              strokeWidth={Math.max(4, view.span / 550)}
+              strokeDasharray={`${view.span / 180} ${view.span / 240}`}
+              pointerEvents="none"
+            />
+            {METROPOLITAN_PLAN.centers.map((c) => (
+              <g
+                key={c.id}
+                onClick={() => {
+                  setSelected(null);
+                  setSelectedInfo(
+                    `${c.name} · ${c.landTier} · ${c.role === 'main' ? '既有主中心' : '三栋地标塔楼与开放广场'} · 售价系统尚未接入`,
+                  );
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <circle
+                  cx={c.x}
+                  cy={c.z}
+                  r={c.radius}
+                  fill="#d6b76d"
+                  fillOpacity={0.14}
+                  stroke="#a28243"
+                  strokeWidth={4}
+                />
+                {c.role === 'secondary' && (
+                  <rect
+                    x={c.x - 250}
+                    y={c.z - 250}
+                    width={500}
+                    height={500}
+                    fill="#879cad"
+                  />
+                )}
+                <text
+                  x={c.x}
+                  y={c.z - c.radius - 45}
+                  textAnchor="middle"
+                  fontSize={Math.max(24, fs)}
+                  fill="#694d1d"
+                >
+                  {c.name}
+                </text>
+              </g>
+            ))}
             {showRoads &&
               COMMUNITY_SURFACES.filter((s) => s.kind === 'road').map((s) => (
                 <rect
@@ -433,9 +523,11 @@ export function CityPlan({
             </div>
             <hr />
             <p>
-              1,300 个小区 / 园区
+              {CITY.stats.compounds.toLocaleString()} 个普通小区 / 园区
               <br />
-              7,800 栋生成建筑
+              {CITY.stats.buildings.toLocaleString()} 栋普通生成建筑
+              <br />
+              另含精细核心与两个新副中心
               <br />
               橙点为当前人物位置
             </p>
@@ -443,6 +535,7 @@ export function CityPlan({
               <section>
                 <h3>{categories[selected.type]?.[0]}</h3>
                 <p className="plan-id">{selected.id}</p>
+                <p>{landValueZone(selected.x, selected.z)}</p>
                 <p>340 × 340 m · {selected.buildingIds.length} 栋建筑</p>
                 <p>
                   大门：X {selected.entrance[0].toFixed(0)} / Z{' '}

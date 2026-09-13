@@ -1,0 +1,602 @@
+{
+  "id": "GC-SUBCENTER-002",
+  "name": "Southern Bay Culture and Hospitality",
+  "nameZh": "南湾文化酒店副中心",
+  "flavor": "warm ivory, bronze, dark glass and planted terraces",
+  "version": 1,
+  "file": "center.glb",
+  "units": "meters",
+  "bounds": {
+    "min": [
+      -250,
+      -3.5762786065873797e-9,
+      -250
+    ],
+    "max": [
+      250,
+      245.17999267578125,
+      250
+    ]
+  },
+  "groundY": 0.18,
+  "colliders": [
+    {
+      "id": "plaza-bench--62--20",
+      "min": [
+        -71,
+        0.18,
+        -21.25
+      ],
+      "max": [
+        -53,
+        0.88,
+        -18.75
+      ]
+    },
+    {
+      "id": "plaza-bench--62-24",
+      "min": [
+        -71,
+        0.18,
+        22.75
+      ],
+      "max": [
+        -53,
+        0.88,
+        25.25
+      ]
+    },
+    {
+      "id": "plaza-bench-62--20",
+      "min": [
+        53,
+        0.18,
+        -21.25
+      ],
+      "max": [
+        71,
+        0.88,
+        -18.75
+      ]
+    },
+    {
+      "id": "plaza-bench-62-24",
+      "min": [
+        53,
+        0.18,
+        22.75
+      ],
+      "max": [
+        71,
+        0.88,
+        25.25
+      ]
+    },
+    {
+      "id": "SC2-T01-podium-0",
+      "min": [
+        -174,
+        0.18,
+        -127
+      ],
+      "max": [
+        -90,
+        6.18,
+        -53
+      ]
+    },
+    {
+      "id": "SC2-T01-entry-canopy",
+      "min": [
+        -142,
+        5.505,
+        -54
+      ],
+      "max": [
+        -122,
+        5.8549999999999995,
+        -46
+      ]
+    },
+    {
+      "id": "SC2-T01-entry-column--1",
+      "min": [
+        -140.96,
+        0.18,
+        -49.16
+      ],
+      "max": [
+        -140.64000000000001,
+        5.68,
+        -48.84
+      ]
+    },
+    {
+      "id": "SC2-T01-entry-column-1",
+      "min": [
+        -123.36,
+        0.18,
+        -49.16
+      ],
+      "max": [
+        -123.04,
+        5.68,
+        -48.84
+      ]
+    },
+    {
+      "id": "SC2-T01-0",
+      "min": [
+        -162,
+        6.18,
+        -115
+      ],
+      "max": [
+        -102,
+        85.18,
+        -65
+      ]
+    },
+    {
+      "id": "SC2-T01-1",
+      "min": [
+        -162,
+        85.18,
+        -114
+      ],
+      "max": [
+        -102,
+        165.18,
+        -66
+      ]
+    },
+    {
+      "id": "SC2-T01-2",
+      "min": [
+        -152,
+        165.18,
+        -113
+      ],
+      "max": [
+        -102,
+        231.18,
+        -67
+      ]
+    },
+    {
+      "id": "SC2-T01-3",
+      "min": [
+        -151,
+        231.18,
+        -108
+      ],
+      "max": [
+        -113,
+        245.18,
+        -68
+      ]
+    },
+    {
+      "id": "SC2-T02-podium-0",
+      "min": [
+        90,
+        0.18,
+        -127
+      ],
+      "max": [
+        174,
+        6.18,
+        -53
+      ]
+    },
+    {
+      "id": "SC2-T02-entry-canopy",
+      "min": [
+        122,
+        5.505,
+        -54
+      ],
+      "max": [
+        142,
+        5.8549999999999995,
+        -46
+      ]
+    },
+    {
+      "id": "SC2-T02-entry-column--1",
+      "min": [
+        123.04,
+        0.18,
+        -49.16
+      ],
+      "max": [
+        123.36,
+        5.68,
+        -48.84
+      ]
+    },
+    {
+      "id": "SC2-T02-entry-column-1",
+      "min": [
+        140.64000000000001,
+        0.18,
+        -49.16
+      ],
+      "max": [
+        140.96,
+        5.68,
+        -48.84
+      ]
+    },
+    {
+      "id": "SC2-T02-0",
+      "min": [
+        103,
+        6.18,
+        -107
+      ],
+      "max": [
+        161,
+        57.18,
+        -73
+      ]
+    },
+    {
+      "id": "SC2-T02-1",
+      "min": [
+        103,
+        57.18,
+        -107
+      ],
+      "max": [
+        161,
+        58.18,
+        -73
+      ]
+    },
+    {
+      "id": "SC2-T02-2",
+      "min": [
+        108,
+        58.18,
+        -107
+      ],
+      "max": [
+        160,
+        112.18,
+        -73
+      ]
+    },
+    {
+      "id": "SC2-T02-3",
+      "min": [
+        107,
+        112.18,
+        -107
+      ],
+      "max": [
+        160,
+        113.18,
+        -73
+      ]
+    },
+    {
+      "id": "SC2-T02-4",
+      "min": [
+        107,
+        113.18,
+        -105
+      ],
+      "max": [
+        151,
+        166.18,
+        -73
+      ]
+    },
+    {
+      "id": "SC2-T02-5",
+      "min": [
+        107,
+        166.18,
+        -105
+      ],
+      "max": [
+        151,
+        167.18,
+        -73
+      ]
+    },
+    {
+      "id": "SC2-T02-6",
+      "min": [
+        114,
+        167.18,
+        -104
+      ],
+      "max": [
+        150,
+        190.18,
+        -74
+      ]
+    },
+    {
+      "id": "SC2-T03-podium-0",
+      "min": [
+        -42,
+        0.18,
+        93
+      ],
+      "max": [
+        42,
+        6.18,
+        167
+      ]
+    },
+    {
+      "id": "SC2-T03-entry-canopy",
+      "min": [
+        -10,
+        5.505,
+        166
+      ],
+      "max": [
+        10,
+        5.8549999999999995,
+        174
+      ]
+    },
+    {
+      "id": "SC2-T03-entry-column--1",
+      "min": [
+        -8.96,
+        0.18,
+        170.84
+      ],
+      "max": [
+        -8.64,
+        5.68,
+        171.16
+      ]
+    },
+    {
+      "id": "SC2-T03-entry-column-1",
+      "min": [
+        8.64,
+        0.18,
+        170.84
+      ],
+      "max": [
+        8.96,
+        5.68,
+        171.16
+      ]
+    },
+    {
+      "id": "SC2-T03-0",
+      "min": [
+        -29,
+        6.18,
+        104
+      ],
+      "max": [
+        29,
+        61.18,
+        156
+      ]
+    },
+    {
+      "id": "SC2-T03-1",
+      "min": [
+        -29,
+        61.18,
+        104
+      ],
+      "max": [
+        29,
+        119.18,
+        156
+      ]
+    },
+    {
+      "id": "SC2-T03-2",
+      "min": [
+        -24,
+        119.18,
+        108
+      ],
+      "max": [
+        26,
+        146.18,
+        152
+      ]
+    },
+    {
+      "id": "SC2-T03-3",
+      "min": [
+        -24,
+        146.18,
+        108
+      ],
+      "max": [
+        24,
+        155.18,
+        148
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "campus",
+      "min": [
+        -250,
+        -250
+      ],
+      "max": [
+        250,
+        250
+      ],
+      "y": 0.18
+    }
+  ],
+  "towers": [
+    {
+      "id": "SC2-T01",
+      "name": "Tidal Lantern",
+      "height": 245,
+      "x": -132,
+      "z": -90,
+      "type": "tidal",
+      "position": [
+        -132,
+        0.18,
+        -90
+      ],
+      "bounds": {
+        "min": [
+          -175,
+          0.18000000715255737,
+          -128
+        ],
+        "max": [
+          -89,
+          245.17999267578125,
+          -46
+        ]
+      },
+      "entrance": [
+        -132,
+        0.18,
+        -52.5
+      ],
+      "interiorState": "closed-future",
+      "provenance": "Original parameterized solid geometry, not a landmark replica"
+    },
+    {
+      "id": "SC2-T02",
+      "name": "Harbor Ledger",
+      "height": 190,
+      "x": 132,
+      "z": -90,
+      "type": "ledger",
+      "position": [
+        132,
+        0.18,
+        -90
+      ],
+      "bounds": {
+        "min": [
+          89,
+          0.18000000715255737,
+          -128
+        ],
+        "max": [
+          175,
+          190.17999267578125,
+          -46
+        ]
+      },
+      "entrance": [
+        132,
+        0.18,
+        -52.5
+      ],
+      "interiorState": "closed-future",
+      "provenance": "Original parameterized solid geometry, not a landmark replica"
+    },
+    {
+      "id": "SC2-T03",
+      "name": "Culture Beacon",
+      "height": 155,
+      "x": 0,
+      "z": 130,
+      "type": "beacon",
+      "position": [
+        0,
+        0.18,
+        130
+      ],
+      "bounds": {
+        "min": [
+          -43,
+          0.18000000715255737,
+          92
+        ],
+        "max": [
+          43,
+          155.17999267578125,
+          174
+        ]
+      },
+      "entrance": [
+        0,
+        0.18,
+        167.5
+      ],
+      "interiorState": "closed-future",
+      "provenance": "Original parameterized solid geometry, not a landmark replica"
+    }
+  ],
+  "connections": {
+    "east": [
+      250,
+      0
+    ],
+    "west": [
+      -250,
+      0
+    ],
+    "north": [
+      0,
+      -250
+    ],
+    "south": [
+      0,
+      250
+    ]
+  },
+  "routes": {
+    "southArrival": [
+      [
+        0,
+        250
+      ],
+      [
+        80,
+        242
+      ],
+      [
+        80,
+        50
+      ],
+      [
+        0,
+        50
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "otherConnections": "Clear cardinal plaza spines"
+  },
+  "stats": {
+    "triangles": 5304,
+    "vertices": 9624,
+    "drawCalls": 8,
+    "indexed": true,
+    "conservativeMinimumTowerGap": 141.79254948996464,
+    "bytes": 270244
+  },
+  "provenance": {
+    "type": "original-procedural",
+    "author": "AmpliWorld",
+    "externalImages": [],
+    "externalMeshes": [],
+    "landmarkReplicas": false
+  },
+  "limitations": [
+    "Closed ground lobbies; interiors, elevators and named commercial functions are future integration.",
+    "Raised sky gardens are exterior geometry, not currently accessible gameplay spaces.",
+    "Main CBD and subcenter world positions belong to parent registry."
+  ]
+}

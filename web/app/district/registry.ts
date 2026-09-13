@@ -3,6 +3,7 @@ import concourse from '../../public/assets/3d/ampliworld/GC-CBD-CONCOURSE-001/co
 import { cityGroundHeight } from '../world-client/city-surface';
 import { civicGroundHeight } from '../world-client/civic-registry';
 import { communityGroundHeight } from '../world-client/community-registry';
+import { metropolitanGroundHeight } from '../world-client/metropolitan-registry';
 import { garageGroundHeight } from '../world-client/mall-garage';
 // New metre-space block. City origin and asset transforms are data, not mesh JSX.
 export const DISTRICT = {
@@ -77,6 +78,8 @@ export const DISTRICT = {
 
 // Surface heights from the exported street kit, not a flat offset above every surface.
 export function districtGroundHeight(x: number, z: number, currentY = 0) {
+  const metropolitanY = metropolitanGroundHeight(x, z, currentY);
+  if (metropolitanY !== undefined) return metropolitanY;
   const garageY = garageGroundHeight(x, z, currentY);
   if (garageY !== undefined) return garageY;
   const civicY = civicGroundHeight(x, z, currentY);

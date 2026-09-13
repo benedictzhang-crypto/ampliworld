@@ -6,6 +6,7 @@ import * as T from 'three';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { mkdir, writeFile } from 'node:fs/promises';
+import metropolitan from '../../app/world-client/metropolitan-plan.json' with { type: 'json' };
 if (!globalThis.FileReader)
   globalThis.FileReader = class {
     readAsArrayBuffer(b) {
@@ -64,6 +65,16 @@ function intersectsCore(x, z, hx, hz) {
   return x + hx > -650 && x - hx < 650 && z + hz > -1150 && z - hz < 1150;
 }
 function allowed(x, z, hx, hz) {
+  if (
+    metropolitan.reservedSubcenters.some(
+      (r) =>
+        x + hx > r.min[0] &&
+        x - hx < r.max[0] &&
+        z + hz > r.min[1] &&
+        z - hz < r.max[1],
+    )
+  )
+    return false;
   if (intersectsCore(x, z, hx, hz) || z + hz > 13000) return false;
   const r = [riverX(z - hz), riverX(z), riverX(z + hz)];
   if (x + hx > Math.min(...r) - 500 && x - hx < Math.max(...r) + 500)
@@ -591,9 +602,11 @@ const manifest = {
   status:
     'Full-extent generated district masterplan and streamed exterior massing; not a finished detailed city',
   reservedCore: { min: [-650, -1150], max: [650, 1150] },
+  reservedSubcenters: metropolitan.reservedSubcenters,
   river: {
-    centerline: 'x=2200+550*sin(z/3500)',
-    halfWidth: 180,
+    centerline: 'x=2320+550*sin(z/3500)',
+    halfWidth: 300,
+    planningBufferCenterline: 'x=2200+550*sin(z/3500)',
     noBuildBuffer: 500,
   },
   coast: { noBuildingsSouthOfZ: 13000 },

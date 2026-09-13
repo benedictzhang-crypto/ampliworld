@@ -1,0 +1,55 @@
+{
+  "units": "meters",
+  "centers": [
+    {
+      "id": "GC-CBD-MAIN",
+      "name": "金庭主中心",
+      "role": "main",
+      "x": 0,
+      "z": -500,
+      "radius": 950,
+      "landTier": "最高价值核心",
+      "built": true
+    },
+    {
+      "id": "GC-SUBCENTER-001",
+      "name": "东曜金融科创中心",
+      "role": "secondary",
+      "x": 5000,
+      "z": 3000,
+      "radius": 850,
+      "landTier": "高价值副中心",
+      "built": true
+    },
+    {
+      "id": "GC-SUBCENTER-002",
+      "name": "南辰文化商务中心",
+      "role": "secondary",
+      "x": -1000,
+      "z": 8000,
+      "radius": 850,
+      "landTier": "高价值副中心",
+      "built": true
+    }
+  ],
+  "reservedSubcenters": [
+    { "id": "GC-SUBCENTER-001", "min": [4600, 2600], "max": [5400, 3400] },
+    { "id": "GC-SUBCENTER-002", "min": [-1400, 7600], "max": [-600, 8400] }
+  ],
+  "valueZones": {
+    "riverfrontDryLandBuffer": 350,
+    "estuary": { "minZ": 12000, "maxZ": 13200, "dryBankBuffer": 700 },
+    "tier": "高价值滨水地段",
+    "pricingImplemented": false
+  },
+  "replacedUnnamedCompounds": [
+    "GC-TILE-15-18-C0",
+    "GC-TILE-15-18-C1",
+    "GC-TILE-15-18-C2",
+    "GC-TILE-15-18-C3",
+    "GC-TILE-09-23-C0",
+    "GC-TILE-09-23-C1",
+    "GC-TILE-09-23-C2",
+    "GC-TILE-09-23-C3"
+  ]
+}

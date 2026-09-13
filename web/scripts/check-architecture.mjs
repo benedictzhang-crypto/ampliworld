@@ -144,6 +144,16 @@ try {
     );
     await wait(300);
     await shot('core-plan');
+    await evaluate(
+      "Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='三中心布局').click()",
+    );
+    await wait(300);
+    assert.ok(
+      await evaluate(
+        "document.querySelector('.city-plan-map').textContent.includes('东曜金融科创中心')",
+      ),
+    );
+    await shot('metropolitan-triangle-plan');
     await send('Input.dispatchKeyEvent', {
       type: 'keyDown',
       key: 'Escape',
@@ -183,6 +193,9 @@ try {
       ['地库览景', 'garage'],
       ['青庭花园 · 15 栋', 'middle-community'],
       ['澜岸别墅 · 60 栋', 'river-villas'],
+      ['东曜副中心', 'east-subcenter'],
+      ['南辰副中心', 'south-subcenter'],
+      ['河口景观', 'estuary-gardens'],
     ]) {
       await evaluate(
         `Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('${label}')).click()`,

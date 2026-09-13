@@ -6,6 +6,10 @@ import {
   mergeVertices,
 } from 'three/addons/utils/BufferGeometryUtils.js';
 import { mkdir, writeFile } from 'node:fs/promises';
+import {
+  riverCenterX as riverX,
+  riverHalfWidth as halfWidth,
+} from '../../app/world-client/river-profile.mjs';
 if (!globalThis.FileReader)
   globalThis.FileReader = class {
     readAsArrayBuffer(b) {
@@ -27,7 +31,6 @@ const GROUND = 0.035,
   MAX_X = 10000,
   MIN_Z = -15000,
   MAX_Z = 15000;
-export const riverX = (z) => 2200 + 550 * Math.sin(z / 3500);
 const columns = Array.from({ length: 20 }, (_, i) => (i - 10) * 1000 + 500);
 const rows = Array.from({ length: 28 }, (_, i) => (i - 15) * 1000 + 500);
 const palette = {
@@ -92,15 +95,13 @@ function box(m, x, y, z, w, h, d, collision = false, id = m) {
     });
 }
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const halfWidth = (z) =>
-  z <= 13000 ? 180 : 180 + 820 * clamp((z - 13000) / 200, 0, 1);
 const bridges = rows.map((z) => ({
   id: `BRIDGE-Z${z}`,
   z,
-  xMin: riverX(z) - 450,
-  xMax: riverX(z) + 450,
-  deckMinX: riverX(z) - 230,
-  deckMaxX: riverX(z) + 230,
+  xMin: riverX(z) - halfWidth(z) - 270,
+  xMax: riverX(z) + halfWidth(z) + 270,
+  deckMinX: riverX(z) - halfWidth(z) - 50,
+  deckMaxX: riverX(z) + halfWidth(z) + 50,
   y: 6,
   width: 26,
   deckWidth: 90,
@@ -125,7 +126,7 @@ function coreBlocked(x, z) {
   return Math.abs(x) < 650 && Math.abs(z) < 1150;
 }
 function northAllowed(x, z) {
-  return !coreBlocked(x, z) && Math.abs(x - riverX(z)) >= 230;
+  return !coreBlocked(x, z) && Math.abs(x - riverX(z)) >= halfWidth(z) + 50;
 }
 export function infraGroundHeight(x, z) {
   if (z >= 13200) return -8;
@@ -467,8 +468,9 @@ const manifest = {
   coreRoadExclusion: { min: [-650, -1150], max: [650, 1150] },
   glb: 'globalinfra.glb',
   water: {
-    riverFormula: '2200 + 550 * Math.sin(z / 3500)',
-    halfWidth: 180,
+    riverFormula: '2320 + 550 * Math.sin(z / 3500)',
+    halfWidth: 300,
+    westBankPreserved: true,
     y: -4,
     zMin: MIN_Z,
     riverEnd: 13000,

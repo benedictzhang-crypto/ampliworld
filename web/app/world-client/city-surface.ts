@@ -1,5 +1,6 @@
 import infra from '../../public/assets/3d/ampliworld/GC-CITY-INFRA-001/infra-manifest.json';
 import city from '../../public/assets/3d/ampliworld/GC-CITY-2030/city-manifest.json';
+import { riverBaseX, riverCenterX, riverHalfWidth } from './river-profile.mjs';
 export const CITY_INFRA = infra;
 const roadCells = new Map<string, typeof infra.roadrects>();
 for (const r of infra.roadrects)
@@ -19,7 +20,8 @@ for (const r of infra.roadrects)
       roadCells.set(key, list);
     }
 const tiles = new Map(city.tiles.map((t) => [`${t.cx}:${t.cz}`, t]));
-export const riverX = (z: number) => 2200 + 550 * Math.sin(z / 3500);
+// Existing residential survey anchors must not move when the channel widens.
+export const riverX = riverBaseX;
 export function cityGroundHeight(x: number, z: number) {
   for (const r of roadCells.get(
     `${Math.floor(x / 1000)}:${Math.floor(z / 1000)}`,
@@ -33,11 +35,7 @@ export function cityGroundHeight(x: number, z: number) {
       );
     }
   if (z >= 13200) return -8;
-  if (
-    Math.abs(x - riverX(z)) <
-    180 + 820 * Math.max(0, Math.min(1, (z - 13000) / 200))
-  )
-    return -4;
+  if (Math.abs(x - riverCenterX(z)) < riverHalfWidth(z)) return -4;
   for (const c of tiles.get(
     `${Math.round(x / 1000) * 1000}:${Math.round(z / 1000) * 1000}`,
   )?.compounds || [])

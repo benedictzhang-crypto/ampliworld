@@ -12,6 +12,9 @@ import { CITY_INFRA } from '../world-client/city-surface';
 import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
 import { CivicPlaces } from '../world-client/civic-places';
 import { Communities } from '../world-client/communities';
+import { MetropolitanPlaces } from '../world-client/metropolitan-places';
+import { METROPOLITAN_COLLIDERS } from '../world-client/metropolitan-registry';
+import { riverCenterX } from '../world-client/river-profile.mjs';
 import { COMMUNITY_COLLIDERS } from '../world-client/community-registry';
 import { StreetTrees } from '../world-client/street-trees';
 import { findVehicleExit } from '../world-client/vehicle-safety';
@@ -174,7 +177,17 @@ function SetupCamera({
   walking: boolean;
   controls: React.RefObject<OrbitControlsImpl | null>;
   wide: boolean;
-  focus: 'cbd' | 'stadium' | 'sushi' | 'auto' | 'garage' | 'middle' | 'river';
+  focus:
+    | 'cbd'
+    | 'stadium'
+    | 'sushi'
+    | 'auto'
+    | 'garage'
+    | 'middle'
+    | 'river'
+    | 'east'
+    | 'south'
+    | 'estuary';
 }) {
   const { camera, invalidate } = useThree();
   const savedWalkCamera = useRef<{ position: Vector3; target: Vector3 } | null>(
@@ -209,6 +222,24 @@ function SetupCamera({
         camera.position.set(2550, 240, 1390);
         controls.current?.target.set(2010, 8, 980);
       }
+      controls.current?.update();
+      invalidate();
+      return;
+    }
+    if (!walking && !wide && ['east', 'south', 'estuary'].includes(focus)) {
+      const x =
+        focus === 'east'
+          ? 5000
+          : focus === 'south'
+            ? -1000
+            : riverCenterX(13200) - 1100;
+      const z = focus === 'east' ? 3000 : focus === 'south' ? 8000 : 13135;
+      camera.position.set(
+        x + (focus === 'estuary' ? 140 : 650),
+        focus === 'estuary' ? 95 : 440,
+        z + (focus === 'estuary' ? 150 : 750),
+      );
+      controls.current?.target.set(x, focus === 'estuary' ? 0 : 70, z);
       controls.current?.update();
       invalidate();
       return;
@@ -278,7 +309,16 @@ export function DistrictClient() {
   const [planOpen, setPlanOpen] = useState(false);
   const look = useRef({ pitch: 0 });
   const [focus, setFocus] = useState<
-    'cbd' | 'stadium' | 'sushi' | 'auto' | 'garage' | 'middle' | 'river'
+    | 'cbd'
+    | 'stadium'
+    | 'sushi'
+    | 'auto'
+    | 'garage'
+    | 'middle'
+    | 'river'
+    | 'east'
+    | 'south'
+    | 'estuary'
   >('cbd');
   const [loadedTiles, setLoadedTiles] = useState<Set<string>>(() => new Set());
   const onTileReady = useCallback(
@@ -326,7 +366,12 @@ export function DistrictClient() {
   }, []);
   const solids = useMemo(
     () => [
-      ...[...CIVIC_COLLIDERS, ...GARAGE_COLLIDERS, ...COMMUNITY_COLLIDERS].map(
+      ...[
+        ...CIVIC_COLLIDERS,
+        ...GARAGE_COLLIDERS,
+        ...COMMUNITY_COLLIDERS,
+        ...METROPOLITAN_COLLIDERS,
+      ].map(
         (c) =>
           new Box3(
             new Vector3(...(c.min as [number, number, number])),
@@ -508,6 +553,7 @@ export function DistrictClient() {
                 <Concourse />
                 <CivicPlaces />
                 <Communities />
+                <MetropolitanPlaces />
                 <StreetTrees />
                 <CoreReady onReady={onCoreReady} />
                 <DriveableCar
@@ -696,6 +742,25 @@ export function DistrictClient() {
           {walking ? '俯瞰街区' : '控制小人'}
         </Button>
         <a href="/architecture">住宅细节</a>
+        {(
+          [
+            ['east', '东曜副中心'],
+            ['south', '南辰副中心'],
+            ['estuary', '河口景观'],
+          ] as const
+        ).map(([id, label]) => (
+          <Button
+            key={id}
+            onClick={() => {
+              setFocus(id);
+              setWide(false);
+              setWalking(false);
+              (document.activeElement as HTMLElement)?.blur();
+            }}
+          >
+            {label}
+          </Button>
+        ))}
       </nav>
       {walking && (
         <div className="district-look">

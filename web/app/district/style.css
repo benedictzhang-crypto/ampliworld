@@ -8,7 +8,15 @@
   position: absolute;
   inset: 0;
 }
-.district-startup {position:absolute;inset:0;z-index:2;display:grid;place-items:center;border-radius:0!important;background:#243e46!important;}
+.district-startup {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  border-radius: 0 !important;
+  background: #243e46 !important;
+}
 .district-hud {
   position: absolute;
   top: 24px;
@@ -42,6 +50,9 @@
   margin-top: 8px;
 }
 .district-tools {
+  max-height: calc(100dvh - 245px);
+  overflow-y: auto;
+  scrollbar-width: thin;
   position: absolute;
   right: 26px;
   top: 136px;
