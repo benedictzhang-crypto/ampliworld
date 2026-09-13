@@ -180,6 +180,7 @@ try {
       ['体育场俯瞰', 'stadium'],
       ['日料街景', 'sushi'],
       ['汽车中心览景', 'dealership'],
+      ['地库览景', 'garage'],
     ]) {
       await evaluate(
         `Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('${label}')).click()`,
@@ -251,6 +252,47 @@ try {
     );
     await wait(250);
     assert.equal((await car()).driving, true, 'Enter car');
+    const lookBefore = await car();
+    await send('Input.dispatchMouseEvent', {
+      type: 'mouseWheel',
+      x: 650,
+      y: 420,
+      deltaX: 90,
+      deltaY: -160,
+    });
+    await wait(350);
+    const looked = await car();
+    assert.ok(
+      looked.lookPitch > lookBefore.lookPitch + 0.3,
+      'Trackpad changes pitch while driving',
+    );
+    assert.ok(
+      Math.abs(looked.viewYaw - lookBefore.viewYaw) > 0.2,
+      'Trackpad changes camera yaw',
+    );
+    assert.equal(looked.yaw, lookBefore.yaw, 'Looking does not steer car');
+    assert.ok(
+      looked.gazeY > lookBefore.gazeY + 0.2,
+      'Actual camera looks upward',
+    );
+    await send('Input.dispatchKeyEvent', {
+      type: 'keyDown',
+      key: 'f',
+      code: 'KeyF',
+      windowsVirtualKeyCode: 70,
+    });
+    await send('Input.dispatchKeyEvent', {
+      type: 'keyUp',
+      key: 'f',
+      code: 'KeyF',
+      windowsVirtualKeyCode: 70,
+    });
+    await wait(200);
+    assert.ok(
+      (await car()).lookPitch < looked.lookPitch,
+      'F looks downward in car',
+    );
+    await shot('driving-look');
     const beforeDrive = await car();
     await send('Input.dispatchKeyEvent', {
       type: 'keyDown',

@@ -279,7 +279,10 @@ export function buildParking(T, add, box, solid, text3d) {
   wall(114.65, 115, 'ramp-west-wall');
   wall(126, 126.35, 'ramp-east-wall');
   // B1 arrival vestibule only; roof covers the terminal, NEVER the ramp.
-  for (const x of [114.825, 126.175]) {
+  // West side opens into B1 parking; retain a short pier at the pedestrian portal.
+  B('stone', 114.825, -2.25, 60.5, 0.35, 4.3, 1);
+  solid('b1-west-portal-pier', [114.65, -4.5, 60], [115, -0.1, 61]);
+  for (const x of [126.175]) {
     B('stone', x, -2.25, 66, 0.35, 4.3, 12);
     solid(
       `b1-vestibule-wall-${x}`,

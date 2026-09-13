@@ -12,6 +12,11 @@ import { CITY_INFRA } from '../world-client/city-surface';
 import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
 import { CivicPlaces } from '../world-client/civic-places';
 import { StreetTrees } from '../world-client/street-trees';
+import {
+  GARAGE_COLLIDERS,
+  isGarageDriveArea,
+  parkedGarageBay,
+} from '../world-client/mall-garage';
 import { CityPlan } from '../world-client/city-plan';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls } from '@react-three/drei';
@@ -170,7 +175,7 @@ function SetupCamera({
   walking: boolean;
   controls: React.RefObject<OrbitControlsImpl | null>;
   wide: boolean;
-  focus: 'cbd' | 'stadium' | 'sushi' | 'auto';
+  focus: 'cbd' | 'stadium' | 'sushi' | 'auto' | 'garage';
 }) {
   const { camera, invalidate } = useThree();
   const savedWalkCamera = useRef<{ position: Vector3; target: Vector3 } | null>(
@@ -180,7 +185,7 @@ function SetupCamera({
   useEffect(() => {
     // Millimetre-scale street layers need more depth precision at kilometre
     // overview distances. Keep the close near plane only for the walker.
-    camera.near = walking ? 0.1 : wide ? 3500 : 8;
+    camera.near = walking || focus === 'garage' ? 0.1 : wide ? 3500 : 8;
     camera.far = wide ? 100000 : 18000;
     camera.updateProjectionMatrix();
     if (!walking && lastWalking.current && controls.current) {
@@ -202,42 +207,50 @@ function SetupCamera({
         ? [0, 4, -59]
         : wide
           ? [17000, 23000, 26000]
-          : focus === 'stadium'
-            ? [190, 430, 930]
-            : focus === 'auto'
-              ? [-425, 30, 815]
-              : focus === 'sushi'
-                ? [210, 13, -5]
-                : [430, 660, 740]) as [number, number, number]),
+          : focus === 'garage'
+            ? [100, -2.3, -123]
+            : focus === 'stadium'
+              ? [190, 430, 930]
+              : focus === 'auto'
+                ? [-425, 30, 815]
+                : focus === 'sushi'
+                  ? [210, 13, -5]
+                  : [430, 660, 740]) as [number, number, number]),
     );
     controls.current?.target.set(
-      !walking && !wide && focus === 'auto'
-        ? -565
-        : !walking && !wide && focus === 'sushi'
-          ? 180
-          : 0,
+      !walking && !wide && focus === 'garage'
+        ? 40
+        : !walking && !wide && focus === 'auto'
+          ? -565
+          : !walking && !wide && focus === 'sushi'
+            ? 180
+            : 0,
       walking
         ? 1.5
         : wide
           ? 0
-          : focus === 'auto'
-            ? 8
-            : focus === 'stadium'
-              ? 10
-              : focus === 'sushi'
-                ? 2.5
-                : 190,
+          : focus === 'garage'
+            ? -2.8
+            : focus === 'auto'
+              ? 8
+              : focus === 'stadium'
+                ? 10
+                : focus === 'sushi'
+                  ? 2.5
+                  : 190,
       walking
         ? -68
         : wide
           ? 0
-          : focus === 'auto'
-            ? 655
-            : focus === 'stadium'
-              ? 600
-              : focus === 'sushi'
-                ? -38
-                : -500,
+          : focus === 'garage'
+            ? -154
+            : focus === 'auto'
+              ? 655
+              : focus === 'stadium'
+                ? 600
+                : focus === 'sushi'
+                  ? -38
+                  : -500,
     );
     controls.current?.update();
     invalidate();
@@ -253,9 +266,9 @@ export function DistrictClient() {
   const [wide, setWide] = useState(false);
   const [planOpen, setPlanOpen] = useState(false);
   const look = useRef({ pitch: 0 });
-  const [focus, setFocus] = useState<'cbd' | 'stadium' | 'sushi' | 'auto'>(
-    'cbd',
-  );
+  const [focus, setFocus] = useState<
+    'cbd' | 'stadium' | 'sushi' | 'auto' | 'garage'
+  >('cbd');
   const [loadedTiles, setLoadedTiles] = useState<Set<string>>(() => new Set());
   const onTileReady = useCallback(
     (id: string) =>
@@ -277,6 +290,7 @@ export function DistrictClient() {
     [cellX, cellZ],
   );
   const car = useRef<CarState>({ x: 6, z: -68, yaw: 0, speed: 0 });
+  const playerFloor = useRef(0);
   const [driving, setDriving] = useState(false),
     [carReport, setCarReport] = useState<CarState>({ ...car.current });
   const [relocation, setRelocation] = useState<{
@@ -301,7 +315,7 @@ export function DistrictClient() {
   }, []);
   const solids = useMemo(
     () => [
-      ...CIVIC_COLLIDERS.map(
+      ...[...CIVIC_COLLIDERS, ...GARAGE_COLLIDERS].map(
         (c) =>
           new Box3(
             new Vector3(...(c.min as [number, number, number])),
@@ -383,20 +397,21 @@ export function DistrictClient() {
       new Box3(
         new Vector3(
           carReport.x - 2.6,
-          districtGroundHeight(carReport.x, carReport.z) - 0.1,
+          districtGroundHeight(carReport.x, carReport.z, carReport.y) - 0.1,
           carReport.z - 2.6,
         ),
         new Vector3(
           carReport.x + 2.6,
-          districtGroundHeight(carReport.x, carReport.z) + 1.7,
+          districtGroundHeight(carReport.x, carReport.z, carReport.y) + 1.7,
           carReport.z + 2.6,
         ),
       ),
     ],
-    [solids, carReport.x, carReport.z],
+    [solids, carReport.x, carReport.z, carReport.y],
   );
   const nearCar =
-    Math.hypot(position[0] - car.current.x, position[1] - car.current.z) < 8;
+    Math.hypot(position[0] - car.current.x, position[1] - car.current.z) < 8 &&
+    Math.abs(playerFloor.current - (car.current.y ?? 0)) < 2;
   const toggleCar = () => {
     if (!walking) return;
     if (!driving) {
@@ -409,11 +424,11 @@ export function DistrictClient() {
       for (const side of [1, -1]) {
         const x = car.current.x + Math.cos(car.current.yaw) * 3.8 * side,
           z = car.current.z - Math.sin(car.current.yaw) * 3.8 * side,
-          y = districtGroundHeight(x, z);
+          y = districtGroundHeight(x, z, car.current.y);
         if (
           Math.abs(x) > 9995 ||
           Math.abs(z) > 14995 ||
-          y < -0.1 ||
+          (y < -0.1 && !isGarageDriveArea(x, z)) ||
           solids.some(
             (b) =>
               b.max.y > y + 0.29 &&
@@ -527,10 +542,16 @@ export function DistrictClient() {
                 makeDefault
                 enableDamping={false}
                 minDistance={
-                  walking ? 0.1 : wide ? 18000 : focus === 'sushi' ? 3 : 35
+                  walking || focus === 'garage'
+                    ? 0.1
+                    : wide
+                      ? 18000
+                      : focus === 'sushi'
+                        ? 3
+                        : 35
                 }
                 maxDistance={walking ? 18 : wide ? 65000 : 1800}
-                maxPolarAngle={Math.PI / 2 - 0.04}
+                maxPolarAngle={!walking && focus === 'garage' ? Math.PI - 0.04 : Math.PI / 2 - 0.04}
                 enablePan={!walking}
                 enableRotate={!walking}
                 enableZoom={!walking}
@@ -546,7 +567,10 @@ export function DistrictClient() {
                 look={look}
                 relocation={relocation}
                 controls={controls}
-                onPosition={(x, z) => setPosition([x, z])}
+                onPosition={(x, z, y) => {
+                  playerFloor.current = y ?? 0;
+                  setPosition([x, z]);
+                }}
                 spawn={DISTRICT.spawnLocalMeters}
                 obstacles={walkerSolids}
                 limits={[9998, 14998]}
@@ -607,6 +631,16 @@ export function DistrictClient() {
           }}
         >
           汽车中心览景
+        </Button>
+        <Button
+          onClick={() => {
+            setFocus('garage');
+            setWide(false);
+            setWalking(false);
+            (document.activeElement as HTMLElement)?.blur();
+          }}
+        >
+          地库览景
         </Button>
         {walking && (
           <Button
@@ -676,7 +710,9 @@ export function DistrictClient() {
             : '拖动俯瞰 · 滚轮缩放 · 点击「控制小人」回到街道'}
         <small>
           {driving
-            ? vehicleMessage
+            ? parkedGarageBay(carReport)
+              ? `已停入 ${parkedGarageBay(carReport)!.id} · E 下车`
+              : vehicleMessage
             : walking
               ? districtLocation(position[0], position[1])
               : '俯瞰不会改变角色位置 · 返回继续原地行走'}

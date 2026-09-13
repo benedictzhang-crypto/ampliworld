@@ -48,7 +48,7 @@ export function Walker({
   look,
 }: {
   controls: React.RefObject<OrbitControlsImpl | null>;
-  onPosition: (x: number, z: number) => void;
+  onPosition: (x: number, z: number, y?: number) => void;
   spawn?: readonly [number, number];
   obstacles?: readonly Box3[];
   limits?: readonly [number, number];
@@ -114,7 +114,7 @@ export function Walker({
     controls.current.target.set(relocation.x, relocation.y + 1.4, relocation.z);
     camera.position.copy(controls.current.target).add(state.offset);
     controls.current.update();
-    onPosition(relocation.x, relocation.z);
+    onPosition(relocation.x, relocation.z, relocation.y);
     invalidate();
   }, [relocation, camera, controls, invalidate, onPosition, state]);
   useEffect(() => {
@@ -356,7 +356,7 @@ export function Walker({
       frame.clock.elapsedTime - state.lastReport > 0.06 ||
       wasGrounded !== state.grounded
     ) {
-      onPosition(nx, nz);
+      onPosition(nx, nz, body.current.position.y);
       state.lastReport = frame.clock.elapsedTime;
       gl.domElement.dataset.player = JSON.stringify({
         x: nx,

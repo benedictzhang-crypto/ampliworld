@@ -46,6 +46,19 @@ export function CivicPlaces() {
       {CIVIC_PLACES.map((p) => (
         <CivicAsset key={p.id} {...p} />
       ))}
+      <CivicAsset id="GC-MALL-GARAGE-001" file="garage.glb" x={0} z={-188} />
+      {[-70, 0, 75].flatMap((x) =>
+        [-240, -150].map((z) => (
+          <pointLight
+            key={`${x}/${z}`}
+            position={[x, -1.1, z]}
+            color="#e3eaff"
+            intensity={140}
+            distance={100}
+            decay={1}
+          />
+        )),
+      )}
     </>
   );
 }
