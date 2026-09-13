@@ -31,13 +31,13 @@ function segment(x,z,length,vertical) {
     colliders.push({id:`lamp-${lx}-${lz}`,min:[lx-.15,.17,lz-.15],max:[lx+.15,8.21,lz+.15]});
   }
 }
-for(const x of [-240,240]) {
-  for(const [a,b] of [[-680,-520],[-480,-330],[-290,-20]]) segment(x,(a+b)/2,b-a,true);
-  for(const z of [-700,-500,-310,0]) floor('road',x,z,40,40,.035);
+for(const x of [-440,440]) {
+  for(const [a,b] of [[-1010,-670],[-630,-20]]) segment(x,(a+b)/2,b-a,true);
+  for(const z of [-1030,-650,0]) floor('road',x,z,40,40,.035);
 }
-for(const z of [-700,-500,-310]) segment(0,z,440,false);
-for(const x of [-165,165]) segment(x,0,110,false);
-for(const [x,z,d] of [[-150,-347.5,35],[150,-347.5,35],[0,-537.5,35]]) floor('paving',x,z,12,d,.17);
+for(const z of [-1030,-650]) segment(0,z,840,false);
+for(const x of [-265,265]) segment(x,0,310,false);
+for(const [x,z,d] of [[-310,-402,20],[310,-402,20],[0,-812,20]]) floor('paving',x,z,14,d,.17);
 const scene = new T.Group(); scene.name='GC-CBD-STREET-001';
 let triangles=0;
 for(const [m,gs] of Object.entries(buckets)) { const g=mergeGeometries(gs,false); triangles+=g.attributes.position.count/3; scene.add(new T.Mesh(g,mats[m])); gs.forEach(x=>x.dispose()); }

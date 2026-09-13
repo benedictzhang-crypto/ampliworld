@@ -3,7 +3,9 @@ import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls } from '@react-three/drei';
 import { useGLTF } from '@react-three/drei';
-import { Box3, Vector3 } from 'three';
+import { Box3, Vector3, BufferGeometry, Float32BufferAttribute } from 'three';
+import { DriveableCar, type CarState } from '../world-client/driveable-car';
+import concourse from '../../public/assets/3d/ampliworld/GC-CBD-CONCOURSE-001/concourse-manifest.json';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,10 +29,16 @@ import officeThree from '../../public/assets/3d/ampliworld/GC-OFFICE-003/tower-m
 const officeManifests = [officeOne, officeTwo, officeThree];
 function Office({ assetId, x, z }: { assetId: string; x: number; z: number }) {
   const { scene } = useGLTF(`/assets/3d/ampliworld/${assetId}/tower-lod0.glb`);
-  return <group position={[x, 0, z]}><Clone object={scene} castShadow receiveShadow /></group>;
+  return (
+    <group position={[x, 0, z]}>
+      <Clone object={scene} castShadow receiveShadow />
+    </group>
+  );
 }
 function CBDBoulevards() {
-  const { scene } = useGLTF('/assets/3d/ampliworld/GC-CBD-STREET-001/cbd-streets.glb');
+  const { scene } = useGLTF(
+    '/assets/3d/ampliworld/GC-CBD-STREET-001/cbd-streets.glb',
+  );
   return <Clone object={scene} castShadow receiveShadow />;
 }
 
@@ -43,26 +51,77 @@ function Mall() {
   );
 }
 function MallApproach() {
+  const ground = useMemo(() => {
+    const holes = [...concourse.holes, { min: [114, -128], max: [127, -79] }];
+    const xs = [-600, 600, ...holes.flatMap((h) => [h.min[0], h.max[0]])].sort(
+      (a, b) => a - b,
+    );
+    const zs = [
+      -1100,
+      1100,
+      ...holes.flatMap((h) => [h.min[1], h.max[1]]),
+    ].sort((a, b) => a - b);
+    const vertices: number[] = [];
+    for (let i = 1; i < xs.length; i++)
+      for (let j = 1; j < zs.length; j++) {
+        const x0 = xs[i - 1],
+          x1 = xs[i],
+          z0 = zs[j - 1],
+          z1 = zs[j],
+          x = (x0 + x1) / 2,
+          z = (z0 + z1) / 2;
+        if (
+          x0 === x1 ||
+          z0 === z1 ||
+          holes.some(
+            (h) => x > h.min[0] && x < h.max[0] && z > h.min[1] && z < h.max[1],
+          )
+        )
+          continue;
+        vertices.push(
+          x0,
+          -0.015,
+          z0,
+          x0,
+          -0.015,
+          z1,
+          x1,
+          -0.015,
+          z0,
+          x1,
+          -0.015,
+          z0,
+          x0,
+          -0.015,
+          z1,
+          x1,
+          -0.015,
+          z1,
+        );
+      }
+    const g = new BufferGeometry();
+    g.setAttribute('position', new Float32BufferAttribute(vertices, 3));
+    g.computeVertexNormals();
+    return g;
+  }, []);
+  useEffect(() => () => ground.dispose(), [ground]);
   return (
     <group>
-      {/* Real opening in the ground for the below-grade ramp; no hidden plane. */}
-      {[
-        [-163, 0, 554, 1560],
-        [283.5, 0, 313, 1560],
-        [120.5, -454, 13, 652],
-        [120.5, 350.5, 13, 859],
-      ].map(([x, z, w, d], i) => (
-        <mesh key={i} position={[x, -0.045, z]} receiveShadow>
-          <boxGeometry args={[w, 0.06, d]} />
-          <meshStandardMaterial color="#c9ceca" roughness={0.9} />
-        </mesh>
-      ))}
+      <mesh geometry={ground} receiveShadow>
+        <meshStandardMaterial color="#c9ceca" roughness={0.9} />
+      </mesh>
       <mesh position={[0, 0, -81]} receiveShadow>
         <boxGeometry args={[14, 0.06, 14]} />
         <meshStandardMaterial color="#8b9294" roughness={0.85} />
       </mesh>
     </group>
   );
+}
+function Concourse() {
+  const { scene } = useGLTF(
+    '/assets/3d/ampliworld/GC-CBD-CONCOURSE-001/concourse.glb',
+  );
+  return <Clone object={scene} castShadow receiveShadow />;
 }
 
 function Street() {
@@ -101,13 +160,13 @@ function SetupCamera({
       return;
     }
     camera.position.set(
-      ...((walking ? [0, 4, -59] : [340, 560, 600]) as [number, number, number]),
+      ...((walking ? [0, 4, -59] : [430, 660, 740]) as [
+        number,
+        number,
+        number,
+      ]),
     );
-    controls.current?.target.set(
-      0,
-      walking ? 1.5 : 190,
-      walking ? -68 : -350,
-    );
+    controls.current?.target.set(0, walking ? 1.5 : 190, walking ? -68 : -500);
     controls.current?.update();
     invalidate();
   }, [walking, controls, camera, invalidate]);
@@ -120,6 +179,18 @@ export function DistrictClient() {
   const [minutes, setMinutes] = useState(480);
   const [position, setPosition] = useState<number[]>([0, -68]);
   const controls = useRef<OrbitControlsImpl>(null);
+  const car = useRef<CarState>({ x: 6, z: -68, yaw: 0, speed: 0 });
+  const [driving, setDriving] = useState(false),
+    [carReport, setCarReport] = useState<CarState>({ ...car.current });
+  const [relocation, setRelocation] = useState<{
+    x: number;
+    z: number;
+    y: number;
+    nonce: number;
+  }>();
+  const [vehicleMessage, setVehicleMessage] = useState(
+    '靠近前街轿车后按 E 或点击上车',
+  );
   useEffect(() => {
     setMounted(true);
     const start = performance.now();
@@ -133,11 +204,29 @@ export function DistrictClient() {
   }, []);
   const solids = useMemo(
     () => [
-      ...DISTRICT.offices.flatMap((b, i) => officeManifests[i].colliders.map(c => new Box3(
-        new Vector3(c.min[0] + b.x, c.min[1], c.min[2] + b.z),
-        new Vector3(c.max[0] + b.x, c.max[1], c.max[2] + b.z),
-      ))),
-      ...cbdStreet.colliders.map(c => new Box3(new Vector3(...c.min as [number,number,number]), new Vector3(...c.max as [number,number,number]))),
+      ...concourse.colliders.map(
+        (c) =>
+          new Box3(
+            new Vector3(...(c.min as [number, number, number])),
+            new Vector3(...(c.max as [number, number, number])),
+          ),
+      ),
+      ...DISTRICT.offices.flatMap((b, i) =>
+        officeManifests[i].colliders.map(
+          (c) =>
+            new Box3(
+              new Vector3(c.min[0] + b.x, c.min[1], c.min[2] + b.z),
+              new Vector3(c.max[0] + b.x, c.max[1], c.max[2] + b.z),
+            ),
+        ),
+      ),
+      ...cbdStreet.colliders.map(
+        (c) =>
+          new Box3(
+            new Vector3(...(c.min as [number, number, number])),
+            new Vector3(...(c.max as [number, number, number])),
+          ),
+      ),
       ...mallData.colliders.map(
         (c) =>
           new Box3(
@@ -162,6 +251,72 @@ export function DistrictClient() {
     ],
     [],
   );
+  const walkerSolids = useMemo(
+    () => [
+      ...solids,
+      new Box3(
+        new Vector3(carReport.x - 1.3, -0.1, carReport.z - 2.5),
+        new Vector3(carReport.x + 1.3, 1.7, carReport.z + 2.5),
+      ),
+    ],
+    [solids, carReport.x, carReport.z],
+  );
+  const nearCar =
+    Math.hypot(position[0] - car.current.x, position[1] - car.current.z) < 8;
+  const toggleCar = () => {
+    if (!walking) return;
+    if (!driving) {
+      if (!nearCar) return;
+      car.current.speed = 0;
+      setDriving(true);
+      setVehicleMessage('W/S 加速与倒车 · A/D 转向 · 空格刹车');
+    } else {
+      car.current.speed = 0;
+      for (const side of [1, -1]) {
+        const x = car.current.x + Math.cos(car.current.yaw) * 3.8 * side,
+          z = car.current.z - Math.sin(car.current.yaw) * 3.8 * side,
+          y = districtGroundHeight(x, z);
+        if (
+          Math.abs(x) > 595 ||
+          Math.abs(z) > 1090 ||
+          y < -0.1 ||
+          solids.some(
+            (b) =>
+              b.max.y > y + 0.29 &&
+              b.min.y < y + 2.08 &&
+              x > b.min.x - 0.4 &&
+              x < b.max.x + 0.4 &&
+              z > b.min.z - 0.4 &&
+              z < b.max.z + 0.4,
+          )
+        )
+          continue;
+        setRelocation({ x, z, y, nonce: Date.now() });
+        setPosition([x, z]);
+        setDriving(false);
+        setVehicleMessage('已下车 · 靠近车辆可再次驾驶');
+        return;
+      }
+      setVehicleMessage('两侧无法安全下车，请先移到开阔位置');
+    }
+    (document.activeElement as HTMLElement)?.blur();
+  };
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (
+        e.code === 'KeyE' &&
+        !e.repeat &&
+        !(e.target as HTMLElement)?.closest(
+          'input,textarea,[contenteditable=true]',
+        )
+      ) {
+        e.preventDefault();
+        toggleCar();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [walking, driving, nearCar, position, solids]);
   return (
     <main className="district">
       <div className="district-canvas">
@@ -191,7 +346,21 @@ export function DistrictClient() {
                 <Street />
                 <Mall />
                 <CBDBoulevards />
-                {DISTRICT.offices.map(b => <Office key={b.id} {...b} />)}
+                <Concourse />
+                <DriveableCar
+                  state={car}
+                  active={walking && driving}
+                  controls={controls}
+                  obstacles={solids}
+                  groundHeight={districtGroundHeight}
+                  onReport={(s) => {
+                    setCarReport(s);
+                    if (driving) setPosition([s.x, s.z]);
+                  }}
+                />
+                {DISTRICT.offices.map((b) => (
+                  <Office key={b.id} {...b} />
+                ))}
                 {DISTRICT.buildings.map((b) => (
                   <group
                     key={b.id}
@@ -213,12 +382,13 @@ export function DistrictClient() {
               />
               <SetupCamera walking={walking} controls={controls} />
               <Walker
-                active={walking}
+                active={walking && !driving}
+                relocation={relocation}
                 controls={controls}
                 onPosition={(x, z) => setPosition([x, z])}
                 spawn={DISTRICT.spawnLocalMeters}
-                obstacles={solids}
-                limits={[438, 778]}
+                obstacles={walkerSolids}
+                limits={[598, 1098]}
                 groundHeight={districtGroundHeight}
               />
             </Canvas>
@@ -229,7 +399,7 @@ export function DistrictClient() {
         <div>
           <span>AMPLIWORLD · GOLDEN CITY</span>
           <h1>金庭汇 · 未来 CBD</h1>
-          <p>三座原创摩天楼 · 500 / 420 / 350 m · 连通商业街区</p>
+          <p>悬挑环 · 连桥双塔 · 光环塔冠 · 下沉广场与地下连廊</p>
         </div>
         <div className="district-time">
           {formatWorldTime(minutes)}
@@ -237,6 +407,21 @@ export function DistrictClient() {
         </div>
       </header>
       <nav className="district-tools">
+        {walking && (
+          <Button
+            disabled={!driving && !nearCar}
+            onClick={() => {
+              toggleCar();
+              (document.activeElement as HTMLElement)?.blur();
+            }}
+          >
+            {driving
+              ? '下车（E）'
+              : nearCar
+                ? '上车驾驶（E）'
+                : '靠近前街汽车上车'}
+          </Button>
+        )}
         <Button
           onClick={() => {
             setWalking((v) => !v);
@@ -248,13 +433,17 @@ export function DistrictClient() {
         <a href="/architecture">住宅细节</a>
       </nav>
       <div className="district-status" aria-live="polite">
-        {walking
-          ? `WASD 行走 · 空格跳跃 · 鼠标拖动看四周 · X ${position[0].toFixed(1)} m / Z ${position[1].toFixed(1)} m`
-          : '拖动俯瞰 · 滚轮缩放 · 点击「控制小人」回到街道'}
+        {driving && walking
+          ? `驾驶 · ${Math.abs(carReport.speed * 3.6).toFixed(0)} km/h · WASD / 空格刹车 · E 下车`
+          : walking
+            ? `WASD 行走 · 空格跳跃 · 鼠标拖动看四周 · X ${position[0].toFixed(1)} m / Z ${position[1].toFixed(1)} m`
+            : '拖动俯瞰 · 滚轮缩放 · 点击「控制小人」回到街道'}
         <small>
-          {walking
-            ? districtLocation(position[0], position[1])
-            : '俯瞰不会改变角色位置 · 返回继续原地行走'}
+          {driving
+            ? vehicleMessage
+            : walking
+              ? districtLocation(position[0], position[1])
+              : '俯瞰不会改变角色位置 · 返回继续原地行走'}
         </small>
       </div>
     </main>

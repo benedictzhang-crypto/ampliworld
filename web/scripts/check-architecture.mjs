@@ -112,6 +112,25 @@ try {
     writeFileSync(join(temp, name + '.png'), Buffer.from(r.data, 'base64'));
   };
   await shot('corner');
+  if(process.env.QA_DRIVING==='1') {
+    const car=()=>evaluate("JSON.parse(document.querySelector('canvas').dataset.car||'{}')");
+    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('上车驾驶')).click()");
+    await wait(250);assert.equal((await car()).driving,true,'Enter car');
+    const beforeDrive=await car();
+    await send('Input.dispatchKeyEvent',{type:'keyDown',key:'w',code:'KeyW',windowsVirtualKeyCode:87});await wait(1400);
+    await send('Input.dispatchKeyEvent',{type:'keyUp',key:'w',code:'KeyW',windowsVirtualKeyCode:87});
+    const afterDrive=await car();assert.ok(afterDrive.z<beforeDrive.z-2,'Throttle actually moves vehicle');
+    await shot('driving');
+    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('下车')).click()");await wait(350);
+    assert.equal((await car()).driving,false,'Exit car');
+    const exit=await evaluate("JSON.parse(document.querySelector('canvas').dataset.player||'{}')");
+    assert.ok(Math.hypot(exit.x-afterDrive.x,exit.z-afterDrive.z)<7,'Exit beside car, not spawn');
+    assert.ok(Math.abs(exit.x)>2,'Exit changes walker position');
+    await shot('after-driving-exit');
+    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('俯瞰街区')).click()");await wait(300);await shot('new-skyline');
+    console.log(JSON.stringify({status:'passed',scenario:'enter-drive-exit',screenshots:temp}));
+    socket.close();chrome.kill('SIGTERM');clearTimeout(timeout);process.exit(0);
+  }
   for (const label of isDistrict ? ['俯瞰街区'] : ['背面', '屋顶']) {
     await evaluate(
       `Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('${label}')).click()`,

@@ -1,202 +1,542 @@
-/** Original AmpliWorld CBD assets. Install as web/scripts/assets/build-cbd.mjs.
- * Procedural metric geometry only: no imported meshes, textures or branding.
+/** AmpliWorld ORIGINAL structural skyline v2: voids, bridges and sculptural crowns.
+ * Install as web/scripts/assets/build-cbd.mjs. All geometry is authored here.
  */
 import * as T from 'three';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { mkdir, writeFile } from 'node:fs/promises';
-if (!globalThis.FileReader) globalThis.FileReader=class {
-  readAsArrayBuffer(blob){blob.arrayBuffer().then(result=>{this.result=result;this.onloadend?.();});}
+if (!globalThis.FileReader)
+  globalThis.FileReader = class {
+    readAsArrayBuffer(b) {
+      b.arrayBuffer().then((v) => {
+        this.result = v;
+        this.onloadend?.();
+      });
+    }
+  };
+const specs = [
+  {
+    id: 'GC-OFFICE-001',
+    name: 'Aperture Arc',
+    nameZh: '天隙之门',
+    height: 500,
+    design:
+      'Two unequal leaning glass blades, a descending high cantilever and a colossal open aperture. No twist or needle crown.',
+  },
+  {
+    id: 'GC-OFFICE-002',
+    name: 'Orbit Twins',
+    nameZh: '双轨云庭',
+    height: 350,
+    design:
+      'Dissimilar curved towers, offset short skybridges, projecting sky terraces and broad split fork crowns.',
+  },
+  {
+    id: 'GC-OFFICE-003',
+    name: 'Halo Nexus',
+    nameZh: '环穹枢纽',
+    height: 420,
+    design:
+      'An offset broad curved volume with lateral structural ribs and a monumental tilted oval crown; no stepped spire.',
+  },
+];
+const palette = {
+  glass: [0x557e8d, 0.8, 0.2],
+  blue: [0x274b61, 0.78, 0.22],
+  pearl: [0xb8d0d0, 0.68, 0.22],
+  gold: [0xc2a26a, 0.8, 0.27],
+  white: [0xe5e6df, 0.45, 0.3],
+  dark: [0x25333b, 0.42, 0.42],
+  stone: [0xc4c4bc, 0.06, 0.72],
+  light: [0xf4d8a2, 0.28, 0.35],
 };
 
-const PALETTE={
-  glass:[0x517f91,.78,.18],glassLight:[0x90b4bc,.7,.22],glassDark:[0x203e52,.78,.20],
-  gold:[0xc6aa6e,.8,.26],silver:[0xc2ced1,.75,.30],stone:[0xccc9bc,.08,.66],
-  dark:[0x23333c,.45,.38],light:[0xf6dc9a,.35,.30],leaf:[0x426953,0,.85],
-};
+function generate(spec) {
+  const buckets = {},
+    colliders = [],
+    mats = {};
+  for (const [key, [color, metalness, roughness]] of Object.entries(palette)) {
+    mats[key] = new T.MeshStandardMaterial({
+      name: key,
+      color,
+      metalness,
+      roughness,
+    });
+    if (key === 'light') {
+      mats[key].emissive = new T.Color(0xf4d8a2);
+      mats[key].emissiveIntensity = 0.7;
+    }
+  }
+  function add(g, m) {
+    if (g.index) g = g.toNonIndexed();
+    delete g.attributes.uv;
+    (buckets[m] ??= []).push(g);
+  }
+  function box(m, x, y, z, w, h, d) {
+    const g = new T.BoxGeometry(w, h, d);
+    g.translate(x, y, z);
+    add(g, m);
+  }
+  function solid(id, min, max) {
+    colliders.push({ id, min, max });
+  }
+  function geometry(points, faces) {
+    const g = new T.BufferGeometry();
+    g.setAttribute('position', new T.Float32BufferAttribute(points, 3));
+    g.setIndex(faces);
+    g.computeVertexNormals();
+    return g;
+  }
+  function tube(points, r, m, steps = 48, radial = 5, closed = false) {
+    const curve = new T.CatmullRomCurve3(
+      points.map((p) => (p.isVector3 ? p : new T.Vector3(...p))),
+      closed,
+    );
+    add(new T.TubeGeometry(curve, steps, r, radial, closed), m);
+  }
+  function roundedSlab(m, cx, y, cz, w, d, h, r = 8) {
+    const p = new T.Shape(),
+      x = -w / 2,
+      z = -d / 2;
+    p.moveTo(x + r, z);
+    p.lineTo(-x - r, z);
+    p.quadraticCurveTo(-x, z, -x, z + r);
+    p.lineTo(-x, -z - r);
+    p.quadraticCurveTo(-x, -z, -x - r, -z);
+    p.lineTo(x + r, -z);
+    p.quadraticCurveTo(x, -z, x, -z - r);
+    p.lineTo(x, z + r);
+    p.quadraticCurveTo(x, z, x + r, z);
+    const g = new T.ExtrudeGeometry(p, {
+      depth: h,
+      bevelEnabled: false,
+      curveSegments: 6,
+    });
+    g.rotateX(-Math.PI / 2);
+    g.translate(cx, y, cz);
+    add(g, m);
+  }
+  // Sweep closed sections, including their end caps. Collider bands track each
+  // leg/bridge separately; the void between structures is never one giant box.
+  function sweep(
+    sample,
+    levels = 72,
+    sides = 40,
+    mat = 'glass',
+    colliderId = null,
+  ) {
+    const v = [],
+      faces = [];
+    for (let i = 0; i <= levels; i++)
+      for (let j = 0; j <= sides; j++)
+        v.push(...sample(i / levels, (j / sides) * Math.PI * 2));
+    for (let i = 0; i < levels; i++)
+      for (let j = 0; j < sides; j++) {
+        const a = i * (sides + 1) + j,
+          b = a + sides + 1;
+        faces.push(a, b, a + 1, a + 1, b, b + 1);
+      }
+    add(geometry(v, faces), mat);
+    for (const t of [0, 1]) {
+      const ring = Array.from({ length: sides }, (_, j) =>
+        sample(t, (j / sides) * Math.PI * 2),
+      );
+      const center = ring.reduce(
+        (acc, p) => acc.map((u, k) => u + p[k] / sides),
+        [0, 0, 0],
+      );
+      const f = [];
+      for (let j = 0; j < sides; j++)
+        f.push(
+          ...(t
+            ? [0, ((j + 1) % sides) + 1, j + 1]
+            : [0, j + 1, ((j + 1) % sides) + 1]),
+        );
+      add(geometry([...center, ...ring.flat()], f), 'white');
+    }
+    if (colliderId)
+      for (let start = 0; start < levels; start += 4) {
+        const bounds = new T.Box3();
+        for (let i = start; i <= Math.min(start + 4, levels); i++)
+          for (let j = 0; j < sides; j++)
+            bounds.expandByPoint(
+              new T.Vector3(...sample(i / levels, (j / sides) * Math.PI * 2)),
+            );
+        solid(
+          `${colliderId}-${start / 4}`,
+          bounds.min.toArray(),
+          bounds.max.toArray(),
+        );
+      }
+  }
+  function bands(sample, count, mat = 'white', sides = 40) {
+    // Real thin metallic strips, not painted facade images.
+    for (let k = 1; k < count; k++) {
+      const v = [],
+        faces = [],
+        t = k / count;
+      const ring = Array.from({ length: sides }, (_, j) =>
+        sample(t, (j / sides) * Math.PI * 2),
+      );
+      const center = ring.reduce(
+        (c, p) => [c[0] + p[0] / sides, c[1] + p[2] / sides],
+        [0, 0],
+      );
+      for (let j = 0; j <= sides; j++) {
+        const p = sample(t, (j / sides) * Math.PI * 2),
+          x = center[0] + (p[0] - center[0]) * 1.005,
+          z = center[1] + (p[2] - center[1]) * 1.005;
+        v.push(x, p[1] - 0.13, z, x, p[1] + 0.13, z);
+      }
+      for (let j = 0; j < sides; j++) {
+        const a = j * 2;
+        faces.push(a, a + 1, a + 2, a + 2, a + 1, a + 3);
+      }
+      add(geometry(v, faces), k % 12 === 0 ? 'gold' : mat);
+    }
+  }
+  function ribs(sample, angles, material = 'white', radius = 0.32) {
+    for (const a of angles) {
+      const pts = [];
+      for (let i = 0; i <= 48; i++) pts.push(sample(i / 48, a));
+      tube(pts, radius, material, 48, 5);
+    }
+  }
+  function bridge(points, halfHeight, halfDepth, mat, id) {
+    const curve = new T.CatmullRomCurve3(
+      points.map((p) => new T.Vector3(...p)),
+    );
+    const sample = (t, a) => {
+      const c = curve.getPoint(t),
+        d = curve.getTangent(t),
+        n = new T.Vector3(d.y, -d.x, 0).normalize();
+      return c
+        .addScaledVector(n, Math.cos(a) * halfHeight)
+        .add(new T.Vector3(0, 0, Math.sin(a) * halfDepth))
+        .toArray();
+    };
+    sweep(sample, 24, 20, mat, id);
+    for (const a of [0, Math.PI]) ribs(sample, [a], 'gold', 0.48);
+  }
+  function lobby(x, z, w = 33, d = 45) {
+    roundedSlab('dark', x, 0.18, z, w, d, 6, 7);
+    roundedSlab('gold', x, 6.1, z, w + 0.4, d + 0.4, 0.22, 7);
+    solid(
+      `sealed-lobby-${x}-${z}`,
+      [x - w / 2, 0, z - d / 2],
+      [x + w / 2, 6.32, z + d / 2],
+    );
+    box('blue', x, 2.8, z + d / 2 + 0.04, w * 0.57, 5.0, 0.14);
+    for (const dx of [-w * 0.29, 0, w * 0.29])
+      box('gold', x + dx, 2.8, z + d / 2 + 0.17, 0.18, 5.0, 0.26);
+    roundedSlab('white', x, 5.3, z + d / 2 + 3, w * 0.85, 12, 0.55, 3);
+    box('light', x, 5.24, z + d / 2 + 4, w * 0.71, 0.1, 0.6);
+    solid(
+      `canopy-${x}-${z}`,
+      [x - w * 0.425, 5.24, z + d / 2 - 3],
+      [x + w * 0.425, 5.85, z + d / 2 + 9],
+    );
+  }
+  // Thin 156 m plaza is separate from compact leg-specific podiums.
+  roundedSlab('stone', 0, 0, 0, 156, 156, 0.18, 12);
+  solid('plaza-support', [-78, 0, -78], [78, 0.18, 78]);
+  for (const x of [-65, 65])
+    for (const z of [-48, 0, 48]) {
+      box('dark', x, 0.53, z, 5, 0.7, 9);
+      box('gold', x, 0.92, z, 5.1, 0.12, 9.1);
+    }
 
-function author(spec){
-  const buckets={},colliders=[],materials={};
-  for(const [key,[color,metalness,roughness]] of Object.entries(PALETTE)){
-    materials[key]=new T.MeshStandardMaterial({name:key,color,metalness,roughness});
-    if(key==='light'){materials[key].emissive=new T.Color(0xf5ce85);materials[key].emissiveIntensity=.8;}
-  }
-  const add=(g,m,x=0,y=0,z=0,ry=0)=>{
-    if(ry)g.rotateY(ry);g.translate(x,y,z);if(g.index)g=g.toNonIndexed();
-    delete g.attributes.uv;(buckets[m]??=[]).push(g);
-  };
-  const box=(m,x,y,z,w,h,d,ry=0)=>add(new T.BoxGeometry(w,h,d),m,x,y,z,ry);
-  const solid=(id,min,max)=>colliders.push({id,min,max});
-  const tube=(points,r,m,radial=6)=>{
-    if(points.length<2)return;
-    add(new T.TubeGeometry(new T.CatmullRomCurve3(points),Math.max(1,points.length-1),r,radial,false),m);
-  };
-  const disk=(m,r,h,y,x=0,z=0,n=48)=>add(new T.CylinderGeometry(r,r,h,n),m,x,y,z);
-  const roundedSlab=(m,w,d,r,y,h)=>{
-    const s=new T.Shape(),x=-w/2,z=-d/2;
-    s.moveTo(x+r,z);s.lineTo(-x-r,z);s.quadraticCurveTo(-x,z,-x,z+r);
-    s.lineTo(-x,-z-r);s.quadraticCurveTo(-x,-z,-x-r,-z);s.lineTo(x+r,-z);
-    s.quadraticCurveTo(x,-z,x,-z-r);s.lineTo(x,z+r);s.quadraticCurveTo(x,z,x+r,z);
-    const g=new T.ExtrudeGeometry(s,{depth:h,bevelEnabled:false,curveSegments:8});g.rotateX(-Math.PI/2);add(g,m,0,y,0);
-  };
-  // Sweep samples return world-local positions. All envelope ends are capped.
-  const sweep=(sample,levels,segments,mat='glass',accent=false)=>{
-    const verts=[],indices=[];
-    for(let i=0;i<=levels;i++)for(let j=0;j<=segments;j++)verts.push(...sample(i/levels,j/segments*Math.PI*2));
-    // Conservative vertical bands support third-person camera collision at any height.
-    for(let i=0;i<levels;i+=6){
-      const band=new T.Box3();
-      for(let k=i;k<=Math.min(levels,i+6);k++)for(let j=0;j<segments;j++)band.expandByPoint(new T.Vector3(...sample(k/levels,j/segments*Math.PI*2)));
-      solid(`envelope-${colliders.length}`,band.min.toArray(),band.max.toArray());
-    }
-    for(let i=0;i<levels;i++)for(let j=0;j<segments;j++){
-      const a=i*(segments+1)+j,b=a+segments+1;indices.push(a,b,a+1,a+1,b,b+1);
-    }
-    const geometry=new T.BufferGeometry();geometry.setAttribute('position',new T.Float32BufferAttribute(verts,3));geometry.setIndex(indices);geometry.computeVertexNormals();
-    add(geometry,mat);
-    for(const top of [false,true]){
-      const t=top?1:0,points=Array.from({length:segments},(_,j)=>sample(t,j/segments*Math.PI*2));
-      const center=points.reduce((v,p)=>v.add(new T.Vector3(...p)),new T.Vector3()).multiplyScalar(1/segments);
-      const positions=[...center.toArray(),...points.flat()],faces=[];
-      for(let j=0;j<segments;j++){const a=j+1,b=(j+1)%segments+1;faces.push(...(top?[0,b,a]:[0,a,b]));}
-      const cap=new T.BufferGeometry();cap.setAttribute('position',new T.Float32BufferAttribute(positions,3));cap.setIndex(faces);cap.computeVertexNormals();add(cap,top?'silver':'dark');
-    }
-    if(accent)for(let j=0;j<segments;j+=3){const pts=[];for(let i=0;i<=levels;i++)pts.push(new T.Vector3(...sample(i/levels,j/segments*Math.PI*2)));tube(pts,.16,'silver',5);}
-  };
-  const floorBand=(sample,t,segments,mat='silver',radius=.16)=>{
-    const pts=Array.from({length:segments+1},(_,j)=>new T.Vector3(...sample(t,j/segments*Math.PI*2)));tube(pts,radius,mat,5);
-  };
-  // Pedestrian-scale plaza and a fully sealed podium root prevent floating towers.
-  roundedSlab('stone',96,96,10,0,.18);
-  solid('plaza-slab',[-48,0,-48],[48,.18,48]);
-  roundedSlab('dark',66,62,12,.18,5.82);
-  roundedSlab('gold',67,63,12,5.80,.24);
-  solid('sealed-podium',[-33,0,-31],[33,6.04,31]);
-  // Entrance is an honest sealed lobby facade; interiors/elevators are not built.
-  box('glassDark',0,2.65,31.045,17,4.9,.11);
-  for(const x of [-8.6,-2.6,2.6,8.6])box('gold',x,2.70,31.16,.16,5.05,.30);
-  box('gold',0,5.30,31.17,17.5,.22,.34);
-  // Arcing cantilever with a thin illuminated underside, not a rectangular roof.
-  const canopy=new T.Shape();canopy.moveTo(-16,-3);canopy.quadraticCurveTo(0,-7,16,-3);canopy.lineTo(16,5);canopy.quadraticCurveTo(0,10,-16,5);canopy.closePath();
-  const cg=new T.ExtrudeGeometry(canopy,{depth:.46,bevelEnabled:true,bevelSize:.15,bevelThickness:.10,bevelSegments:1,curveSegments:16});cg.rotateX(-Math.PI/2);add(cg,'silver',0,5.2,33);
-  box('light',0,5.10,35,25,.10,.55);
-  for(const x of [-13.5,13.5]){
-    add(new T.CylinderGeometry(.20,.25,5.0,10),'gold',x,2.68,36.5);
-    solid(`entrance-column-${x}`,[x-.25,.18,36.25],[x+.25,5.18,36.75]);
-  }
-  solid('entrance-canopy',[-16.2,5.05,26],[16.2,5.90,43.2]);
-  for(const s of [-1,1])for(const z of [-35,-14,14,36]){
-    box('stone',s*40,.50,z,5,.65,7);
-    solid(`planter-${s}-${z}`,[s*40-2.5,.18,z-3.5],[s*40+2.5,1.9,z+3.5]);
-    for(let i=0;i<3;i++){
-      const g=new T.SphereGeometry(1,10,6);g.scale(1.1,.9,1.1);add(g,'leaf',s*40,.98,z-2+i*2);
-    }
-  }
-  for(const s of [-1,1]){
-    box('gold',s*21,.30,40,10,.20,2.1);box('dark',s*21,.53,40,9.7,.27,1.7);
-    solid(`bench-${s}`,[s*21-5,.18,38.95],[s*21+5,.665,41.05]);
-  }
-
-  if(spec.id==='GC-OFFICE-001'){
-    const sample=(t,a)=>{
-      const theta=a+1.48*t, r=29*(1-.69*Math.pow(t,1.65))*(1+.13*Math.cos(3*a));
-      return [r*Math.cos(theta),6+474*t,r*Math.sin(theta)];
+  if (spec.id === 'GC-OFFICE-001') {
+    lobby(-47, 0, 37, 51);
+    lobby(47, 0, 37, 51);
+    const left = (t, a) => {
+      const x = -47 + 31 * Math.pow(t, 1.55),
+        rx = 17.5 * (1 - 0.17 * t),
+        rz = 23 * (1 - 0.3 * t);
+      return [
+        x + rx * Math.cos(a),
+        6 + 494 * t,
+        rz * Math.sin(a) + 6 * Math.sin(t * Math.PI),
+      ];
     };
-    sweep(sample,120,60,'glass',true);
-    for(let i=1;i<119;i++)floorBand(sample,i/120,60,i%10===0?'gold':'silver',i%10===0?.30:.14);
-    for(let j=0;j<3;j++){
-      const pts=[];for(let i=0;i<=120;i++)pts.push(new T.Vector3(...sample(i/120,j*Math.PI*2/3)));
-      tube(pts,.52,'gold',7);
-    }
-    disk('gold',7.9,.7,480.35);
-    add(new T.ConeGeometry(1.5,19.3,16),'silver',0,490.35,0);
-    solid('crown-spire',[-1.5,480,-1.5],[1.5,500,1.5]);
-    solid('tower-base',[-33,6,-33],[33,20,33]);
-  }
-  if(spec.id==='GC-OFFICE-002'){
-    const sample=(t,a)=>{
-      const shoulder=t<.57?1+.065*Math.sin(t/.57*Math.PI):1-.70*Math.pow((t-.57)/.43,.75);
-      const wave=1+.035*Math.cos(4*a),turn=.26*Math.sin(Math.PI*t);
-      const xx=27*shoulder*wave*Math.cos(a),zz=24*shoulder*wave*Math.sin(a);
-      return [xx*Math.cos(turn)+zz*Math.sin(turn)+3.5*Math.sin(t*Math.PI),6+316*t,zz*Math.cos(turn)-xx*Math.sin(turn)];
+    const right = (t, a) => {
+      const x = 47 - 9 * Math.sin(t * Math.PI * 0.85),
+        rx = 16.5 * (1 - 0.22 * t),
+        rz = 22 * (1 - 0.19 * t);
+      return [
+        x + rx * Math.cos(a),
+        6 + 403 * t,
+        rz * Math.sin(a) - 5 * Math.sin(t * Math.PI),
+      ];
     };
-    sweep(sample,96,32,'glassLight',true);
-    for(let i=1;i<95;i++)floorBand(sample,i/96,32,i%12===0?'gold':'silver',i%12===0?.34:.17);
-    for(const a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){
-      const pts=[];for(let i=0;i<=96;i++)pts.push(new T.Vector3(...sample(i/96,a)));tube(pts,.45,'silver',6);
-    }
-    // Four unequal crystalline shoulders form an original oblique lantern.
-    const crown=(t,a)=>{const r=8*(1-t);return [r*Math.cos(a),322+16*t+3*Math.sin(a)*(1-t),r*.89*Math.sin(a)];};
-    sweep(crown,8,16,'glassDark');
-    add(new T.ConeGeometry(1.05,12,12),'gold',0,344,0);
-    solid('crown-spire',[-1.05,338,-1.05],[1.05,350,1.05]);
-    solid('tower-base',[-30,6,-27],[31,20,27]);
+    sweep(left, 92, 40, 'glass', 'arc-left');
+    sweep(right, 80, 40, 'blue', 'arc-right');
+    bands(left, 110);
+    bands(right, 91);
+    ribs(left, [0, Math.PI], 'white', 0.7);
+    ribs(right, [0, Math.PI], 'gold', 0.55);
+    // A deep descending inhabited cantilever ties the unequal blades together.
+    bridge(
+      [
+        [-20, 477, 0],
+        [7, 464, -3],
+        [34, 427, -2],
+        [55, 405, 0],
+      ],
+      14,
+      18,
+      'pearl',
+      'arc-high-cantilever',
+    );
+    bridge(
+      [
+        [-35, 245, 0],
+        [-11, 250, 0],
+        [18, 242, 0],
+        [39, 236, 0],
+      ],
+      3.2,
+      7,
+      'white',
+      'arc-thin-crossing',
+    );
+    roundedSlab('gold', -16, 499.3, 0, 26, 32, 0.7, 7);
   }
-  if(spec.id==='GC-OFFICE-003'){
-    const central=(t,a)=>{
-      const r=15.8*(1-.62*t)*(1+.045*Math.cos(5*a));
-      return [r*Math.cos(a),6+377*t,r*Math.sin(a)];
+  if (spec.id === 'GC-OFFICE-002') {
+    lobby(-34, -7, 43, 48);
+    lobby(36, 6, 37, 44);
+    const left = (t, a) => {
+      const rx = 20 * (1 - 0.22 * t),
+        rz = 20 * (1 - 0.12 * t),
+        cx = -34 + 9 * Math.sin(t * Math.PI * 0.7);
+      return [
+        cx + rx * Math.cos(a),
+        6 + 310 * t,
+        -7 + rz * Math.sin(a) + 8 * t,
+      ];
     };
-    sweep(central,108,48,'glass',true);
-    for(let i=1;i<108;i++)floorBand(central,i/108,48,i%15===0?'gold':'silver',.17);
-    // Asymmetrical clustered petals shrink through rounded, explicit setbacks.
-    const petals=[{a:0,h:302,r:12,d:17},{a:2.1,h:348,r:10.5,d:16.5},{a:4.25,h:264,r:12.4,d:17}];
-    for(const [k,p] of petals.entries()){
-      const profile=(t,a)=>{
-        let setback=1;
-        for(const edge of [.36,.59,.79])setback-=.12*Math.min(1,Math.max(0,(t-edge)/.045));
-        const radius=p.r*(1-.43*t)*setback*(1+.07*Math.cos(3*a));
-        const center=p.d*(1-.22*t),spin=p.a+.14*t;
-        return [center*Math.cos(spin)+radius*Math.cos(a),6+(p.h-6)*t,center*Math.sin(spin)+radius*Math.sin(a)];
-      };
-      sweep(profile,90,36,k%2?'glassLight':'glassDark',true);
-      for(let i=1;i<Math.floor(p.h/3.9);i++)floorBand(profile,i/Math.floor(p.h/3.9),36,i%14===0?'gold':'silver',.18);
-      const tip=profile(1,0);disk('gold',p.r*.31,.5,p.h+.25,tip[0]-p.r*(1-.43)*.64,tip[2]);
+    const right = (t, a) => {
+      const rx = 17 * (1 - 0.28 * t),
+        rz = 18.5 * (1 - 0.2 * t),
+        cx = 36 - 5 * Math.sin(t * Math.PI);
+      return [cx + rx * Math.cos(a), 6 + 276 * t, 6 + rz * Math.sin(a) - 7 * t];
+    };
+    sweep(left, 78, 40, 'pearl', 'orbit-left');
+    sweep(right, 68, 40, 'glass', 'orbit-right');
+    bands(left, 72);
+    bands(right, 65);
+    ribs(left, [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2], 'white', 0.4);
+    ribs(right, [0, Math.PI], 'gold', 0.5);
+    bridge(
+      [
+        [-26, 132, 0],
+        [-7, 137, 0],
+        [13, 130, 0],
+        [33, 128, 0],
+      ],
+      4,
+      10,
+      'white',
+      'orbit-bridge-low',
+    );
+    bridge(
+      [
+        [-27, 232, 1],
+        [-9, 225, 1],
+        [12, 220, 1],
+        [35, 227, 1],
+      ],
+      4.5,
+      8,
+      'gold',
+      'orbit-bridge-high',
+    );
+    for (const [cx, y, cz, w, d] of [
+      [-33, 175, -7, 55, 50],
+      [38, 205, 4, 48, 43],
+      [-25, 267, 0, 43, 45],
+    ]) {
+      roundedSlab('white', cx, y, cz, w, d, 1.1, 12);
+      roundedSlab('gold', cx, y + 1.1, cz, w + 0.3, d + 0.3, 0.22, 12);
     }
-    disk('silver',5.7,.6,383.3);
-    add(new T.CylinderGeometry(.48,2.0,22,16),'silver',0,394.6,0);
-    add(new T.ConeGeometry(.48,14.4,12),'gold',0,412.8,0);
-    solid('crown-spire',[-2,383,-2],[2,420,2]);
-    solid('tower-base',[-33,6,-33],[33,20,33]);
+    // Wide paired crown paddles, separated by visible air; neither is a needle.
+    for (const [cx, start, end, radius] of [
+      [-37, 305, 350, 6],
+      [-17, 305, 340, 5.8],
+      [27, 270, 314, 5.2],
+      [43, 270, 303, 5],
+    ]) {
+      const paddle = (t, a) => [
+        cx + t * t * 4 + radius * (1 - 0.22 * t) * Math.cos(a),
+        start + (end - start) * t,
+        1 + 11 * (1 - 0.18 * t) * Math.sin(a),
+      ];
+      sweep(paddle, 12, 24, 'blue', `orbit-crown-${cx}`);
+      ribs(paddle, [0, Math.PI], 'gold', 0.25);
+    }
   }
-  const scene=new T.Group();scene.name=spec.name;
-  let triangles=0;
-  for(const [key,geoms] of Object.entries(buckets)){
-    const merged=mergeGeometries(geoms,false);
-    if(!merged)throw new Error(`Cannot merge ${spec.id}/${key}`);
-    merged.computeBoundingBox();merged.computeBoundingSphere();
-    for(const component of merged.attributes.position.array)if(!Number.isFinite(component))throw new Error('Non-finite vertex');
-    triangles+=merged.attributes.position.count/3;
-    const mesh=new T.Mesh(merged,materials[key]);mesh.name=`${spec.id}-${key}`;scene.add(mesh);
-    for(const g of geoms)g.dispose();
+  if (spec.id === 'GC-OFFICE-003') {
+    lobby(0, 0, 67, 64);
+    const body = (t, a) => {
+      const envelope = 1 - 0.48 * Math.pow(t, 1.2),
+        cx = -8 + 25 * Math.sin(t * Math.PI * 0.58),
+        rz = 29 * envelope;
+      return [
+        cx + 31 * envelope * (1 + 0.055 * Math.cos(3 * a)) * Math.cos(a),
+        6 + 330 * t,
+        rz * Math.sin(a) + 5 * t,
+      ];
+    };
+    sweep(body, 84, 48, 'glass', 'halo-body');
+    bands(body, 79, 'white', 48);
+    ribs(
+      body,
+      [0, Math.PI * 0.3, Math.PI * 0.7, Math.PI, Math.PI * 1.3, Math.PI * 1.7],
+      'white',
+      0.66,
+    );
+    // Huge oval crown tilted in THREE dimensions. Ring thickness is solid
+    // curved geometry; the oval centre remains physically and visually empty.
+    const ringPoints = [];
+    for (let i = 0; i < 96; i++) {
+      const a = (i / 96) * Math.PI * 2;
+      ringPoints.push([
+        13 + 48 * Math.cos(a),
+        369 + 46 * Math.sin(a),
+        5 + 19 * Math.cos(a) + 12 * Math.sin(a),
+      ]);
+    }
+    tube(ringPoints, 5, 'pearl', 96, 10, true);
+    tube(
+      ringPoints.map(([x, y, z]) => [x, y, z + 4.65]),
+      0.42,
+      'gold',
+      96,
+      6,
+      true,
+    );
+    // Local ring colliders follow the perimeter; never fill its central void.
+    for (let i = 0; i < 96; i += 3) {
+      const bounds = new T.Box3();
+      for (let j = 0; j <= 3; j++)
+        bounds.expandByPoint(new T.Vector3(...ringPoints[(i + j) % 96]));
+      bounds.expandByScalar(5);
+      solid(`halo-ring-${i / 3}`, bounds.min.toArray(), bounds.max.toArray());
+    }
+    for (const s of [-1, 1]) {
+      bridge(
+        [
+          [s * 22, 274, 0],
+          [s * 41, 300, 3],
+          [s * 42 + 13, 330, 12],
+          [s * 30 + 13, 338, 14],
+        ],
+        4.4,
+        7,
+        'white',
+        `halo-lateral-${s}`,
+      );
+    }
   }
+  const scene = new T.Group();
+  scene.name = spec.name;
+  let triangles = 0;
+  for (const [key, list] of Object.entries(buckets)) {
+    const g = mergeGeometries(list, false);
+    if (!g) throw new Error(`Merge failed: ${key}`);
+    triangles += g.attributes.position.count / 3;
+    const mesh = new T.Mesh(g, mats[key]);
+    mesh.name = `${spec.id}-${key}`;
+    scene.add(mesh);
+    for (const source of list) source.dispose();
+  }
+  // Normalize minuscule tube/crown extrema while keeping the ground at zero.
+  // Exact height is a verified asset invariant, not an approximate label.
   scene.updateMatrixWorld(true);
-  const bounds=new T.Box3().setFromObject(scene),height=bounds.max.y-bounds.min.y;
-  if(Math.abs(height-spec.height)>.005)throw new Error(`${spec.id}: height ${height}, expected ${spec.height}`);
-  if(bounds.max.x-bounds.min.x>100||bounds.max.z-bounds.min.z>100)throw new Error('Plaza exceeds 100 m');
-  return {scene,manifest:{
-    id:spec.id,name:spec.name,nameZh:spec.nameZh,assetVersion:1,units:'meters',coordinateSystem:'right-handed Y-up; front +Z',
-    heightMeters:spec.height,footprintMeters:{width:96,depth:96},plazaTopY:.18,towerBaseMaxWidthMeters:67,
-    bounds:{min:bounds.min.toArray(),max:bounds.max.toArray()},entranceAnchor:[0,.18,37],
-    files:{lod0:'tower-lod0.glb'},lods:[{level:0,file:'tower-lod0.glb',triangles,drawCalls:scene.children.length}],
-    colliders,design:spec.design,
-    provenance:{type:'original-procedural',author:'AmpliWorld',externalMeshes:[],externalTextures:[],referenceReproduction:false,
-      note:'Original geometry generated mathematically. No imported textures, trademark logos or reproduced building mesh.'},
-    stats:{triangles,materialDrawCalls:scene.children.length,meshes:scene.children.length},
-    limitations:['Exterior-only sealed podium; lobby interiors and lifts pending.','Only LOD0 exported; automatic LOD/HLOD and district streaming are integration work.','Conservative AABB ground colliders; no occupied upper-floor interiors.'],
-  }};
+  let bounds = new T.Box3().setFromObject(scene);
+  const yScale = spec.height / bounds.max.y;
+  for (const mesh of scene.children) {
+    mesh.geometry.scale(1, yScale, 1);
+    mesh.geometry.computeBoundingBox();
+    mesh.geometry.computeBoundingSphere();
+    for (const n of mesh.geometry.attributes.position.array)
+      if (!Number.isFinite(n)) throw new Error('Non-finite geometry');
+  }
+  for (const c of colliders) {
+    c.min[1] *= yScale;
+    c.max[1] *= yScale;
+  }
+  bounds = new T.Box3().setFromObject(scene);
+  if (Math.abs(bounds.max.y - spec.height) > 0.002)
+    throw new Error('Incorrect tower height');
+  if (bounds.max.x - bounds.min.x > 160 || bounds.max.z - bounds.min.z > 160)
+    throw new Error('Footprint exceeds 160 m');
+  return {
+    scene,
+    manifest: {
+      id: spec.id,
+      name: spec.name,
+      nameZh: spec.nameZh,
+      assetVersion: 2,
+      units: 'meters',
+      coordinateSystem: 'right-handed Y-up; front +Z',
+      heightMeters: spec.height,
+      footprintMeters: { width: 156, depth: 156 },
+      plazaTopY: 0.18 * yScale,
+      bounds: { min: bounds.min.toArray(), max: bounds.max.toArray() },
+      files: { lod0: 'tower-lod0.glb' },
+      lods: [
+        {
+          level: 0,
+          file: 'tower-lod0.glb',
+          triangles,
+          drawCalls: scene.children.length,
+        },
+      ],
+      colliders,
+      design: spec.design,
+      provenance: {
+        type: 'original-procedural',
+        author: 'AmpliWorld',
+        externalMeshes: [],
+        externalTextures: [],
+        note: 'Original composed masses and parametric geometry. Broad structural ideas only; no landmark mesh, logo, image facade or exact architectural reproduction.',
+      },
+      stats: {
+        triangles,
+        meshes: scene.children.length,
+        materialDrawCalls: scene.children.length,
+      },
+      limitations: [
+        'Sealed ground lobbies; interiors and lifts not yet implemented.',
+        'LOD0 only.',
+        'Conservative local AABB bands around each mass; open apertures are not blocked by an overall building collider.',
+      ],
+    },
+  };
 }
-
-for(const spec of [
-  {id:'GC-OFFICE-001',name:'Aurelia Helix',nameZh:'曜旋',height:500,design:'Rounded triangular swept tower with continuous 85-degree twist, three bronze helicoidal ribs, slender crown and sealed podium.'},
-  {id:'GC-OFFICE-002',name:'Prism Gate',nameZh:'棱境',height:350,design:'Faceted curved crystal envelope with oblique shoulders, gently shifting centreline and an asymmetric crown lantern.'},
-  {id:'GC-OFFICE-003',name:'Celestial Spire',nameZh:'星穹',height:420,design:'Asymmetric rounded petal cluster, graduated three-stage setbacks, central taper and fine two-stage spire.'},
-]){
-  const {scene,manifest}=author(spec);
-  const out=new URL(`../../public/assets/3d/ampliworld/${spec.id}/`,import.meta.url);
-  await mkdir(out,{recursive:true});
-  const glb=await new GLTFExporter().parseAsync(scene,{binary:true,onlyVisible:true});
-  await writeFile(new URL('tower-lod0.glb',out),Buffer.from(glb));
-  await writeFile(new URL('tower-manifest.json',out),JSON.stringify(manifest,null,2)+'\n');
-  process.stdout.write(`${spec.id}: ${manifest.heightMeters} m; ${manifest.stats.triangles} triangles; ${manifest.stats.materialDrawCalls} meshes\n`);
+let total = 0;
+for (const spec of specs) {
+  const { scene, manifest } = generate(spec);
+  total += manifest.stats.triangles;
+  if (total > 250000)
+    throw new Error(`Combined skyline triangle budget exceeded: ${total}`);
+  const out = new URL(
+    `../../public/assets/3d/ampliworld/${spec.id}/`,
+    import.meta.url,
+  );
+  await mkdir(out, { recursive: true });
+  const glb = await new GLTFExporter().parseAsync(scene, {
+    binary: true,
+    onlyVisible: true,
+  });
+  await writeFile(new URL('tower-lod0.glb', out), Buffer.from(glb));
+  await writeFile(
+    new URL('tower-manifest.json', out),
+    JSON.stringify(manifest, null, 2) + '\n',
+  );
+  process.stdout.write(
+    `${spec.id} ${spec.name}: ${manifest.heightMeters}m, ${manifest.stats.triangles} triangles, plazaY=${manifest.plazaTopY}\n`,
+  );
 }
+process.stdout.write(`Combined: ${total} triangles\n`);

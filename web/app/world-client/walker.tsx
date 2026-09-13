@@ -44,14 +44,16 @@ export function Walker({
   limits = DEFAULT_LIMITS,
   groundHeight = defaultGround,
   active = true,
+  relocation,
 }: {
   controls: React.RefObject<OrbitControlsImpl | null>;
   onPosition: (x: number, z: number) => void;
   spawn?: readonly [number, number];
   obstacles?: readonly Box3[];
   limits?: readonly [number, number];
-  groundHeight?: (x: number, z: number) => number;
+  groundHeight?: (x: number, z: number, currentY?: number) => number;
   active?: boolean;
+  relocation?: { x: number; z: number; y: number; nonce: number };
 }) {
   const body = useRef<Group>(null),
     leftLeg = useRef<Group>(null),
@@ -84,6 +86,18 @@ export function Walker({
     () => [spawn[0], state.feet, spawn[1]] as [number, number, number],
     [],
   );
+  const lastRelocation = useRef(-1);
+  useEffect(() => {
+    if (!relocation || lastRelocation.current === relocation.nonce || !body.current || !controls.current) return;
+    lastRelocation.current = relocation.nonce;
+    state.offset.subVectors(camera.position, controls.current.target).normalize().multiplyScalar(9);
+    body.current.position.set(relocation.x, relocation.y, relocation.z);
+    state.feet=relocation.y; state.velocity=0; state.grounded=true; state.jumpQueued=false;
+    state.gait=0; state.phase=0; keys.current.clear();
+    controls.current.target.set(relocation.x,relocation.y+1.4,relocation.z);
+    camera.position.copy(controls.current.target).add(state.offset); controls.current.update();
+    onPosition(relocation.x,relocation.z); invalidate();
+  }, [relocation, camera, controls, invalidate, onPosition, state]);
   useEffect(() => {
     if (!active) {
       keys.current.clear();
@@ -177,7 +191,7 @@ export function Walker({
       state.heading,
       dt,
     );
-    let floor = groundHeight(nx, nz);
+    let floor = groundHeight(nx, nz, state.feet);
     for (const box of obstacles)
       if (overlaps(box, nx, nz, 0.24) && box.max.y <= state.feet + 0.29)
         floor = Math.max(floor, box.max.y);
@@ -237,7 +251,7 @@ export function Walker({
       .addScaledVector(state.offset, state.desiredRadius);
     controls.current.update();
     camera.position.y = Math.max(
-      groundHeight(camera.position.x, camera.position.z) + 0.45,
+      groundHeight(camera.position.x, camera.position.z, camera.position.y - 1.4) + 0.45,
       camera.position.y,
     );
     state.offset.subVectors(camera.position, controls.current.target);
