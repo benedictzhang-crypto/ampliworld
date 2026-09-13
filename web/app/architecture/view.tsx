@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 
 const ASSET = '/assets/3d/ampliworld/GC-RES-001/';
 
-function StudioLight() {
+export function StudioLight() {
   const { gl, scene, invalidate } = useThree();
   useEffect(() => {
     const generator = new PMREMGenerator(gl);
@@ -44,7 +44,7 @@ const VIEWS = [
   { name: '屋顶 · Roof', position: [38, 63, 35] },
 ] as const;
 
-class CanvasBoundary extends Component<
+export class CanvasBoundary extends Component<
   { children: ReactNode },
   { failed: boolean }
 > {
@@ -64,7 +64,7 @@ class CanvasBoundary extends Component<
   }
 }
 
-function Residence({ lod }: { lod: number }) {
+export function Residence({ lod }: { lod: number }) {
   const { scene } = useGLTF(`${ASSET}residence-lod${lod}.glb`);
   return <Clone object={scene} castShadow receiveShadow />;
 }
@@ -90,12 +90,20 @@ function CameraPreset({
 }
 
 // Isolated metre-space movement. No imports from the compressed legacy world.
-function Walker({
+export function Walker({
   controls,
   onPosition,
+  spawn = [0, 28],
+  obstacles,
+  limits = [55, 55],
+  groundHeight,
 }: {
   controls: React.RefObject<OrbitControlsImpl | null>;
   onPosition: (x: number, z: number) => void;
+  spawn?: readonly [number, number];
+  obstacles?: readonly Box3[];
+  limits?: readonly [number, number];
+  groundHeight?: (x: number, z: number) => number;
 }) {
   const body = useRef<Group>(null);
   const keys = useRef(new Set<string>());
@@ -159,33 +167,51 @@ function Walker({
       .addScaledVector(scratch.right, side)
       .normalize()
       .multiplyScalar(Math.min(dt, 0.05) * 4.5);
-    const x = Math.max(-55, Math.min(55, p.x + scratch.delta.x));
-    const z = Math.max(-55, Math.min(55, p.z + scratch.delta.z));
+    const x = Math.max(-limits[0], Math.min(limits[0], p.x + scratch.delta.x));
+    const z = Math.max(-limits[1], Math.min(limits[1], p.z + scratch.delta.z));
     const inside = (a: number, b: number) =>
-      a > -16.45 && a < 16.45 && b > -12.45 && b < 12.45;
+      obstacles
+        ? obstacles.some(
+            (box) =>
+              box.max.y > 0.45 &&
+              box.min.y < 1.9 &&
+              a > box.min.x - 0.45 &&
+              a < box.max.x + 0.45 &&
+              b > box.min.z - 0.45 &&
+              b < box.max.z + 0.45,
+          )
+        : a > -16.45 && a < 16.45 && b > -12.45 && b < 12.45;
     const nx = inside(x, p.z) ? p.x : x;
     const nz = inside(nx, z) ? p.z : z;
     scratch.delta.set(nx - p.x, 0, nz - p.z);
-    p.set(nx, 0.13, nz);
+    p.set(nx, groundHeight ? groundHeight(nx, nz) - 0.025 : 0.13, nz);
     if (scratch.delta.lengthSq() > 0)
       body.current.rotation.y = Math.atan2(scratch.delta.x, scratch.delta.z);
     camera.position.add(scratch.delta);
-    controls.current.target.set(p.x, 1.5, p.z);
+    controls.current.target.set(p.x, p.y + 1.37, p.z);
     scratch.offset.subVectors(camera.position, controls.current.target);
     const distance = scratch.offset.length();
     scratch.ray.origin.copy(controls.current.target);
     scratch.ray.direction.copy(scratch.offset).normalize();
-    if (scratch.ray.intersectBox(solid, scratch.hit)) {
-      const hitDistance = scratch.hit.distanceTo(controls.current.target);
-      if (hitDistance < distance)
-        camera.position
-          .copy(controls.current.target)
-          .addScaledVector(
-            scratch.ray.direction,
-            Math.max(0.1, hitDistance - 0.15),
-          );
+    let safeDistance = distance;
+    for (const candidate of obstacles ?? [solid]) {
+      if (scratch.ray.intersectBox(candidate, scratch.hit)) {
+        const hitDistance = scratch.hit.distanceTo(controls.current.target);
+        if (hitDistance < safeDistance) {
+          safeDistance = hitDistance;
+          camera.position
+            .copy(controls.current.target)
+            .addScaledVector(
+              scratch.ray.direction,
+              Math.max(0.1, hitDistance - 0.15),
+            );
+        }
+      }
     }
-    camera.position.y = Math.max(0.6, camera.position.y);
+    camera.position.y = Math.max(
+      (groundHeight?.(camera.position.x, camera.position.z) ?? 0) + 0.6,
+      camera.position.y,
+    );
     controls.current.update();
     if (state.clock.elapsedTime - scratch.lastReport > 0.2) {
       onPosition(p.x, p.z);
@@ -194,7 +220,7 @@ function Walker({
     if (k.size) invalidate();
   });
   return (
-    <group ref={body} position={[0, 0.13, 28]}>
+    <group ref={body} position={[spawn[0], 0.13, spawn[1]]}>
       <mesh position={[0, 1.05, 0]} castShadow>
         <capsuleGeometry args={[0.26, 0.65, 4, 8]} />
         <meshStandardMaterial color="#c3a36a" />
@@ -384,6 +410,7 @@ export function ArchitectureLab() {
           <a href={`${ASSET}residence-lod0.glb`} download>
             下载独立 3D 模型 ↗
           </a>
+          <a href="/district">进入可行走花园街区 ↗</a>
           <a
             href="/planning/golden-city-masterplan.svg"
             target="_blank"

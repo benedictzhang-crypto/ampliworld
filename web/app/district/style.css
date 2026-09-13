@@ -1,0 +1,114 @@
+.district {
+  height: 100dvh;
+  background: #9badaf;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+.district-canvas {
+  position: absolute;
+  inset: 0;
+}
+.district-hud {
+  position: absolute;
+  top: 24px;
+  left: 26px;
+  right: 26px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  pointer-events: none;
+  text-shadow: 0 2px 5px #0008;
+}
+.district-hud span {
+  font-size: 12px;
+  letter-spacing: 0.17em;
+}
+.district-hud h1 {
+  font-size: 28px;
+  margin: 8px 0;
+}
+.district-hud p {
+  font-size: 14px;
+  margin: 0;
+}
+.district-time {
+  font-size: 30px;
+  text-align: right;
+}
+.district-time small {
+  display: block;
+  font-size: 12px;
+  margin-top: 8px;
+}
+.district-tools {
+  position: absolute;
+  right: 26px;
+  top: 136px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+}
+.district-tools button,
+.district-tools a {
+  background: #172b32e8;
+  border: 1px solid #d6ba7c66;
+  color: #f3ebda;
+  border-radius: 7px;
+  padding: 10px 15px;
+  font-size: 14px;
+  height: auto;
+  text-decoration: none;
+}
+.district-status {
+  position: absolute;
+  bottom: 20px;
+  left: 26px;
+  right: 26px;
+  border: 1px solid #d6ba7c66;
+  border-radius: 8px;
+  background: #172b32e8;
+  padding: 12px 16px;
+  font-size: 14px;
+  pointer-events: none;
+}
+.district-status small {
+  display: block;
+  font-size: 12px;
+  color: #c3ccc5;
+  line-height: 1.6;
+  margin-top: 8px;
+}
+.district-loading {
+  background: #172b32;
+  color: white;
+  border-radius: 8px;
+  padding: 18px 28px;
+  white-space: nowrap;
+}
+@media (max-width: 650px) {
+  .district-hud {
+    top: 16px;
+    left: 16px;
+    right: 16px;
+  }
+  .district-hud h1 {
+    font-size: 23px;
+  }
+  .district-time small {
+    max-width: 120px;
+    line-height: 1.5;
+  }
+  .district-tools {
+    right: 16px;
+    top: 140px;
+  }
+  .district-status {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+  }
+  .district-hud p {
+    max-width: 190px;
+  }
+}

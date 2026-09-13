@@ -6,6 +6,7 @@ import { spawn } from 'node:child_process';
 const url =
   process.env.AMPLIWORLD_ARCHITECTURE_QA_URL ||
   'http://localhost:3018/architecture';
+const isDistrict = new URL(url).pathname === '/district';
 const base = new URL(
   '../public/assets/3d/ampliworld/GC-RES-001/',
   import.meta.url,
@@ -99,7 +100,7 @@ try {
   let ready = false;
   for (let i = 0; i < 200; i++) {
     ready = await evaluate(
-      "!!document.querySelector('canvas') && !document.querySelector('.architecture-loading') && document.querySelector('canvas').width>0",
+      "!!document.querySelector('canvas') && !document.querySelector('.architecture-loading,.district-loading') && document.querySelector('canvas').width>0",
     );
     if (ready) break;
     await wait(100);
@@ -111,7 +112,7 @@ try {
     writeFileSync(join(temp, name + '.png'), Buffer.from(r.data, 'base64'));
   };
   await shot('corner');
-  for (const label of ['背面', '屋顶']) {
+  for (const label of isDistrict ? ['俯瞰街区'] : ['背面', '屋顶']) {
     await evaluate(
       `Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('${label}')).click()`,
     );
@@ -123,7 +124,7 @@ try {
   );
   await wait(300);
   const caption = () =>
-    evaluate("document.querySelector('.architecture-caption').textContent");
+    evaluate(`document.querySelector('${isDistrict ? '.district-status' : '.architecture-caption'}').textContent`);
   const before = await caption();
   await send('Input.dispatchKeyEvent', {
     type: 'keyDown',
@@ -142,7 +143,7 @@ try {
   const after = await caption();
   const z = Number(after.match(/Z\s+(-?[\d.]+)/)?.[1]);
   assert.ok(
-    z >= 12.4 && z < 27,
+    isDistrict ? z < 24 && z >= -77 : z >= 12.4 && z < 27,
     `Player moves toward but does not enter residence: ${after}`,
   );
   assert.notEqual(before, after);

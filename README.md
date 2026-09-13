@@ -112,7 +112,72 @@ The prototype includes CC0 3D assets from
 license files, official source URLs and package hashes are retained under
 `web/public/assets/3d/vendor/`.
 
-## Project principles
+## City architecture: retain the game, replace the weak construction layer
+
+Our target remains a playable city—not an architectural gallery. Keep the existing
+trading, jobs, housing, wellbeing, social, save and movement systems available at
+the original game route while new metric-space districts are integrated. Do not
+delete working systems or named destinations merely because their rendering needs replacement.
+
+| Inspiration | AmpliWorld architectural decision | Actual state |
+|---|---|---|
+| GTA-style city structure | A connected metric road/civic/transit graph with stable building and entrance IDs | Legacy world registries exist; new 2×2 km plan and first connected street prototype are separate |
+| Genshin-style world presentation | Nearby detailed assets, distant silhouettes/HLOD, streamed cells and a floating origin | Three residence LOD assets exist; full streaming/HLOD/floating origin are still planned |
+| Sims-style individual lives | Stable identities, needs, relationships, memory and selective simulation activation | Cohort research and representative NPC/gameplay systems exist; full city-scale individual minds remain planned |
+
+These are design inspirations, not claims to have copied proprietary game-engine
+implementations. New geometry uses **one unit = one metre**, +Y up and +Z north.
+The 64 planning parcels are **250 m** wide; they are not automatically the future
+256 m streaming tiles. Never enlarge the compressed legacy city to fake scale.
+
+### Languages, assets and backend boundaries
+
+- **TypeScript / React / R3F:** the current lightweight playable web client, UI,
+  development views and typed world registry. It is not the final high-fidelity engine commitment.
+- **Python:** event/cohort research, market simulation and calibration. The authoritative
+  game-action API continues to protect economy and persistence independently of scene meshes.
+- **GLB assets plus semantic manifests:** actual geometry, materials, IDs, dimensions,
+  LODs, colliders, entrance anchors and provenance. Roads, trees, lamps and boats follow
+  the same production rule as buildings; a photograph is not a substitute for geometry.
+- **Engine adapters:** a Blender/Houdini production workflow and UE5 client/Pixel Streaming
+  track are planned, not installed or integrated here. Engine-native gameplay, importer
+  validation, GPU concurrency and server operating cost still require a tested prototype.
+
+Epic documents [World Partition](https://dev.epicgames.com/documentation/unreal-engine/world-partition-in-unreal-engine)
+and [HLOD](https://dev.epicgames.com/documentation/unreal-engine/world-partition---hierarchical-level-of-detail-in-unreal-engine)
+as relevant spatial-loading tools. [Pixel Streaming](https://dev.epicgames.com/documentation/unreal-engine/overview-of-pixel-streaming-in-unreal-engine)
+is a remote rendering/delivery option, not an automatic multiplayer or persistence solution.
+[glTF](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html) transports asset data;
+our gameplay behavior and ownership remain in the application schema.
+
+### Existing atmosphere is retained
+
+`web/app/dynamic-atmosphere.tsx` is reused independently of the large legacy GameShell.
+It supplies sky, clouds, stars, sun/moon, lighting and fog. Preserve its 55-real-minute
+cycle: dawn 10 min, daytime 20 min, dusk 10 min, night 15 min. This is not yet a
+complete weather simulation: persistent rain/snow/storm states are not implemented.
+New metric-space scenes must adapt fog/shadow ranges; floating-origin lighting is pending.
+
+### Current construction slices and next gates
+
+- `/architecture`: one original 32×24 m residence with 84 genuine geometric balconies,
+  four complete facades, roof, three LODs, and an exterior walk test.
+- `/district`: 220×160 m connected test block, four instances of that residence,
+  crossed roads, cycle lanes, sidewalks, street furniture, a schematic metro pavilion,
+  shared character control and retained day/night sky. **Four instances are not four
+  architectural types.** The metro is not yet operational; interiors and trading UI
+  adapters remain pending in this upgraded block.
+- Next: distinct residential types, a functional entrance/interior contract,
+  transit/economy connection, automatic LOD selection and streaming, then block-by-block
+  expansion inside the 2×2 km quality core. No completed 2×2 km city is claimed.
+
+The retained geography, income-tier housing, villas, civic campuses, marinas and
+city references are specified in [the design continuity brief](docs/GOLDEN_CITY_DESIGN_CONTINUITY.md).
+Per-block status is tracked in [the five-minute workplan](docs/AMPLIWORLD_5_MINUTE_WORKPLAN.md).
+Imported assets must retain source/licence records; publicly viewable real-estate
+photographs are references, not automatically redistributable textures.
+
+## Research principles
 
 - Simulation produces hypotheses, not ground truth.
 - Every portfolio decision must retain its event, cohort and scenario lineage.
