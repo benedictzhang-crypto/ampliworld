@@ -17,4 +17,6 @@ Headless browser driving checks passed: enter car, trackpad pitch/yaw, unchanged
 
 ## Remaining polish
 
+The retired GC-MALL-001 asset was moved intact from public serving into web/asset-library/archived/GC-MALL-001 after exceeding the hosting expanded-archive limit. Its generator now targets that archive. No current scene references the retired asset, and no original model was deleted.
+
 Parked vehicles are original simplified static models, not additional driveable actors. No automated valet, car ownership, payment or persistent parking storage. Expanded manual driving playtests, further material/lighting refinement, ceiling fixture collision detail and shared movement/look input extraction remain next steps.

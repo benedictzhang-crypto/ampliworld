@@ -17,7 +17,7 @@ if (!globalThis.FileReader)
     }
   };
 const out = new URL(
-  '../../public/assets/3d/ampliworld/GC-MALL-001/',
+  '../../asset-library/archived/GC-MALL-001/',
   import.meta.url,
 );
 await mkdir(out, { recursive: true });
