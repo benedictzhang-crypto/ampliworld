@@ -198,7 +198,6 @@ export function DistrictClient() {
           {walking ? '俯瞰街区' : '控制小人'}
         </Button>
         <a href="/architecture">住宅细节</a>
-        <a href="/">原有城市 / 交易生活</a>
       </nav>
       <div className="district-status" aria-live="polite">
         {walking

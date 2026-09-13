@@ -13,18 +13,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ampliworld-game.peachy-mule-6239.chatgpt.site'),
-  title: 'AmpliWorld — Trade the Living World',
-  description: 'A persistent world-market game where every player begins with $10,000 and builds wealth through virtual trading.',
+  metadataBase: new URL('https://ampliworld-game.benedictzhang01.chatgpt.site'),
+  title: 'AmpliWorld — Golden City',
+  description:
+    'Explore AmpliWorld’s growing three-dimensional city: residential streets, a courtyard galleria and gardens.',
   openGraph: {
-    title: 'AmpliWorld — Trade the Living World',
-    description: 'Begin with $10,000. Read the living world. Build wealth through the market.',
+    title: 'AmpliWorld — Golden City',
+    description:
+      'Explore residential streets, a courtyard galleria and gardens in the new AmpliWorld.',
     images: ['/og.png'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AmpliWorld — Trade the Living World',
-    description: 'Begin with $10,000. Read the living world. Build wealth through the market.',
+    title: 'AmpliWorld — Golden City',
+    description:
+      'Explore residential streets, a courtyard galleria and gardens in the new AmpliWorld.',
     images: ['/og.png'],
   },
 };
@@ -35,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="zh-CN">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

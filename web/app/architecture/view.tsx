@@ -132,7 +132,7 @@ export function ArchitectureLab() {
           <h1>先造一栋真正的楼。</h1>
           <p>住宅样板 · GC-RES-001 · 新架构施工区</p>
         </div>
-        <a href="/">返回原有可玩城市 ↗</a>
+        <a href="/">返回城市街道 ↗</a>
       </header>
       <section className="architecture-workspace">
         <div

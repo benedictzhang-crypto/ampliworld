@@ -39,7 +39,7 @@ export const DISTRICT = {
   limitations: [
     'Four instances of one residential type, not four architectural designs.',
     'Metro pavilion is not yet connected to fares or train travel.',
-    'Economy and interiors remain in the legacy client / pending adapters.',
+    'Economy services are retained for future integration; retired legacy scene has no player route.',
   ],
 } as const;
 

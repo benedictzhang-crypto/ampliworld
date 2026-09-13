@@ -1,5 +1,7 @@
 # AmpliWorld
 
+**Current world entry:** `/` opens the new metric-space street world directly; `/district` remains a compatible link to that same world. The compressed legacy scene is retired and has no player-facing route. All future city construction extends the new street/asset architecture. Legacy source is retained only as implementation reference; economy services and saved data are preserved for later integration, not exposed through the old scene.
+
 The upgraded `/district` now includes **Aurea Galleria / 金庭汇**, an original six-storey courtyard mall with curved floor ribbons, twenty geometric merchandise windows and four ground-level garden passages, alongside the four existing residences. Its reusable GLB, metric placement and compound colliders are stored as `GC-MALL-001`. The current 220 × 360 m ground envelope is a growing prototype block; upper retail floors and purchasing are not yet playable. See `docs/CHECKPOINT_2026_09_12_MALL.md`.
 
 AmpliWorld is an open financial world model for event-driven market simulation.
@@ -94,10 +96,10 @@ The next research layer is empirical calibration: replace hand-initialized
 behavioral priors with measured consumer, attention and market outcomes; enforce
 point-in-time data; then evaluate walk-forward performance including costs.
 
-## Playable world prototype
+## Retained gameplay systems (legacy scene retired)
 
-The `web` application turns the research loop into a persistent third-person
-virtual city. A player starts with $10,000 in virtual cash, reads the current
+The prior `web` prototype implemented a persistent third-person
+virtual city. A player started with $10,000 in virtual cash, read the current
 world event, trades a paper market with 1×–5× exposure, and converts progress
 into lifestyle goods and property. Account-level cross-margin clearing,
 idempotent actions, city taxes, limited bankruptcy relief, gated districts,
@@ -114,12 +116,14 @@ The prototype includes CC0 3D assets from
 license files, official source URLs and package hashes are retained under
 `web/public/assets/3d/vendor/`.
 
-## City architecture: retain the game, replace the weak construction layer
+## City architecture: develop the new world only
 
-Our target remains a playable city—not an architectural gallery. Keep the existing
-trading, jobs, housing, wellbeing, social, save and movement systems available at
-the original game route while new metric-space districts are integrated. Do not
-delete working systems or named destinations merely because their rendering needs replacement.
+Our target remains a playable city—not an architectural gallery. The user retired
+the old visual world on 2026-09-12. The homepage now renders the new metric-space
+street directly, with no old-city navigation. Retain useful trading, jobs, housing,
+wellbeing, social and save logic as references/services for explicit migration;
+do not restore the legacy scene as a fallback. Existing geographic and building
+design intentions remain requirements for the new world, not old meshes to reuse.
 
 | Inspiration | AmpliWorld architectural decision | Actual state |
 |---|---|---|
@@ -164,9 +168,9 @@ New metric-space scenes must adapt fog/shadow ranges; floating-origin lighting i
 
 - `/architecture`: one original 32×24 m residence with 84 genuine geometric balconies,
   four complete facades, roof, three LODs, and an exterior walk test.
-- `/district`: 220×160 m connected test block, four instances of that residence,
+- `/` and `/district`: the same 220×360 m block envelope, four instances of that residence,
   crossed roads, cycle lanes, sidewalks, street furniture, a schematic metro pavilion,
-  shared character control and retained day/night sky. **Four instances are not four
+  six-storey courtyard mall, shared character control and retained day/night sky. **Four instances are not four
   architectural types.** The metro is not yet operational; interiors and trading UI
   adapters remain pending in this upgraded block.
 - Both new views now use full-detail residence geometry throughout their current
