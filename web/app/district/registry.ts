@@ -2,6 +2,7 @@ import cbdStreet from '../../public/assets/3d/ampliworld/GC-CBD-STREET-001/stree
 import concourse from '../../public/assets/3d/ampliworld/GC-CBD-CONCOURSE-001/concourse-manifest.json';
 import { cityGroundHeight } from '../world-client/city-surface';
 import { civicGroundHeight } from '../world-client/civic-registry';
+import { communityGroundHeight } from '../world-client/community-registry';
 import { garageGroundHeight } from '../world-client/mall-garage';
 // New metre-space block. City origin and asset transforms are data, not mesh JSX.
 export const DISTRICT = {
@@ -80,6 +81,8 @@ export function districtGroundHeight(x: number, z: number, currentY = 0) {
   if (garageY !== undefined) return garageY;
   const civicY = civicGroundHeight(x, z, currentY);
   if (civicY !== undefined) return civicY;
+  const communityY = communityGroundHeight(x, z, currentY);
+  if (communityY !== undefined) return communityY;
   if (Math.abs(x) > 600 || Math.abs(z) > 1100) return cityGroundHeight(x, z);
   for (const r of concourse.ramps)
     if (x >= r.min[0] && x <= r.max[0] && z >= r.min[1] && z <= r.max[1])

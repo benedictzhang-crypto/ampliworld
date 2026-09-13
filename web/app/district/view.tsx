@@ -11,12 +11,11 @@ import { CITY, CityLayer } from '../world-client/city-layer';
 import { CITY_INFRA } from '../world-client/city-surface';
 import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
 import { CivicPlaces } from '../world-client/civic-places';
+import { Communities } from '../world-client/communities';
+import { COMMUNITY_COLLIDERS } from '../world-client/community-registry';
 import { StreetTrees } from '../world-client/street-trees';
 import { findVehicleExit } from '../world-client/vehicle-safety';
-import {
-  GARAGE_COLLIDERS,
-  parkedGarageBay,
-} from '../world-client/mall-garage';
+import { GARAGE_COLLIDERS, parkedGarageBay } from '../world-client/mall-garage';
 import { CityPlan } from '../world-client/city-plan';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls } from '@react-three/drei';
@@ -175,7 +174,7 @@ function SetupCamera({
   walking: boolean;
   controls: React.RefObject<OrbitControlsImpl | null>;
   wide: boolean;
-  focus: 'cbd' | 'stadium' | 'sushi' | 'auto' | 'garage';
+  focus: 'cbd' | 'stadium' | 'sushi' | 'auto' | 'garage' | 'middle' | 'river';
 }) {
   const { camera, invalidate } = useThree();
   const savedWalkCamera = useRef<{ position: Vector3; target: Vector3 } | null>(
@@ -198,6 +197,18 @@ function SetupCamera({
     if (walking && savedWalkCamera.current) {
       camera.position.copy(savedWalkCamera.current.position);
       controls.current?.target.copy(savedWalkCamera.current.target);
+      controls.current?.update();
+      invalidate();
+      return;
+    }
+    if (!walking && !wide && (focus === 'middle' || focus === 'river')) {
+      if (focus === 'middle') {
+        camera.position.set(-570, 235, 1060);
+        controls.current?.target.set(-850, 12, 750);
+      } else {
+        camera.position.set(2550, 240, 1390);
+        controls.current?.target.set(2010, 8, 980);
+      }
       controls.current?.update();
       invalidate();
       return;
@@ -267,7 +278,7 @@ export function DistrictClient() {
   const [planOpen, setPlanOpen] = useState(false);
   const look = useRef({ pitch: 0 });
   const [focus, setFocus] = useState<
-    'cbd' | 'stadium' | 'sushi' | 'auto' | 'garage'
+    'cbd' | 'stadium' | 'sushi' | 'auto' | 'garage' | 'middle' | 'river'
   >('cbd');
   const [loadedTiles, setLoadedTiles] = useState<Set<string>>(() => new Set());
   const onTileReady = useCallback(
@@ -315,7 +326,7 @@ export function DistrictClient() {
   }, []);
   const solids = useMemo(
     () => [
-      ...[...CIVIC_COLLIDERS, ...GARAGE_COLLIDERS].map(
+      ...[...CIVIC_COLLIDERS, ...GARAGE_COLLIDERS, ...COMMUNITY_COLLIDERS].map(
         (c) =>
           new Box3(
             new Vector3(...(c.min as [number, number, number])),
@@ -496,6 +507,7 @@ export function DistrictClient() {
                 <CBDBoulevards />
                 <Concourse />
                 <CivicPlaces />
+                <Communities />
                 <StreetTrees />
                 <CoreReady onReady={onCoreReady} />
                 <DriveableCar
@@ -653,6 +665,26 @@ export function DistrictClient() {
                 : '靠近前街汽车上车'}
           </Button>
         )}
+        <Button
+          onClick={() => {
+            setFocus('middle');
+            setWide(false);
+            setWalking(false);
+            (document.activeElement as HTMLElement)?.blur();
+          }}
+        >
+          青庭花园 · 15 栋
+        </Button>
+        <Button
+          onClick={() => {
+            setFocus('river');
+            setWide(false);
+            setWalking(false);
+            (document.activeElement as HTMLElement)?.blur();
+          }}
+        >
+          澜岸别墅 · 60 栋
+        </Button>
         <Button
           onClick={() => {
             setWalking((v) => !v);

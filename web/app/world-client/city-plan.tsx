@@ -11,6 +11,7 @@ import { CITY } from './city-layer';
 import { CITY_INFRA, riverX } from './city-surface';
 import { CIVIC_PLACES, SPORTS_STREETS } from './civic-registry';
 import { DISTRICT } from '../district/registry';
+import { COMMUNITIES, COMMUNITY_SURFACES, HOMES } from './community-registry';
 import cbd from '../../public/assets/3d/ampliworld/GC-CBD-STREET-001/street-manifest.json';
 const compounds = CITY.tiles.flatMap((t) => t.compounds);
 const categories: Record<string, [string, string]> = {
@@ -98,6 +99,12 @@ export function CityPlan({
           </Button>
           <Button onClick={() => setView({ x: 0, z: 100, span: 3100 })}>
             核心城区
+          </Button>
+          <Button onClick={() => setView({ x: -850, z: 750, span: 850 })}>
+            青庭花园
+          </Button>
+          <Button onClick={() => setView({ x: 2020, z: 1000, span: 1500 })}>
+            澜岸别墅
           </Button>
           <Button
             onClick={() =>
@@ -251,6 +258,46 @@ export function CityPlan({
                   />
                 ))}
             <path d="M-110 0H110 M0-80V80" stroke="#65787d" strokeWidth={14} />
+            {showRoads &&
+              COMMUNITY_SURFACES.filter((s) => s.kind === 'road').map((s) => (
+                <rect
+                  key={s.id}
+                  x={s.min[0]}
+                  y={s.min[1]}
+                  width={s.max[0] - s.min[0]}
+                  height={s.max[1] - s.min[1]}
+                  fill="#65787d"
+                />
+              ))}
+            {showHomes &&
+              HOMES.map((p) => (
+                <rect
+                  key={p.id}
+                  x={p.x - 14}
+                  y={p.z - 12}
+                  width={28}
+                  height={24}
+                  fill={p.kind === 'villa' ? '#4c9b91' : '#a9bd7f'}
+                  onClick={() => {
+                    setSelected(null);
+                    setSelectedInfo(
+                      `${p.id} · ${p.kind === 'villa' ? '独栋别墅；私人室内后续建设' : '中端住宅；楼内住宅后续建设'} · X ${p.x.toFixed(0)} / Z ${p.z}`,
+                    );
+                  }}
+                />
+              ))}
+            {COMMUNITIES.map((c) => (
+              <text
+                key={c.id}
+                x={c.x}
+                y={c.z - 220}
+                fontSize={Math.max(20, fs * 0.75)}
+                textAnchor="middle"
+                fill="#234c44"
+              >
+                {c.name}
+              </text>
+            ))}
             <rect
               x={-112.5}
               y={-278}

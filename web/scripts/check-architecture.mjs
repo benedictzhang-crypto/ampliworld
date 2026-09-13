@@ -181,6 +181,8 @@ try {
       ['日料街景', 'sushi'],
       ['汽车中心览景', 'dealership'],
       ['地库览景', 'garage'],
+      ['青庭花园 · 15 栋', 'middle-community'],
+      ['澜岸别墅 · 60 栋', 'river-villas'],
     ]) {
       await evaluate(
         `Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('${label}')).click()`,
