@@ -1,5 +1,7 @@
 # AmpliWorld
 
+**Mall campus update:** the main world now uses `GC-MALL-002`, a six-storey 225 × 180 m mall (6.25× the previous main footprint), walkable ground-floor galleries on both sides of the garden passage, 48 outdoor parking bays and a descending B1 entry ramp/vestibule. The 430 × 620 m ground envelope is not fully built out. Complete underground parking and upper-floor retail remain deferred. See `docs/CHECKPOINT_2026_09_12_MALL_CAMPUS.md`.
+
 **Current world entry:** `/` opens the new metric-space street world directly; `/district` remains a compatible link to that same world. The compressed legacy scene is retired and has no player-facing route. All future city construction extends the new street/asset architecture. Legacy source is retained only as implementation reference; economy services and saved data are preserved for later integration, not exposed through the old scene.
 
 The upgraded `/district` now includes **Aurea Galleria / 金庭汇**, an original six-storey courtyard mall with curved floor ribbons, twenty geometric merchandise windows and four ground-level garden passages, alongside the four existing residences. Its reusable GLB, metric placement and compound colliders are stored as `GC-MALL-001`. The current 220 × 360 m ground envelope is a growing prototype block; upper retail floors and purchasing are not yet playable. See `docs/CHECKPOINT_2026_09_12_MALL.md`.

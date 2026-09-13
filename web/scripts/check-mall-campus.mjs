@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { DISTRICT,districtGroundHeight } from '../app/district/registry.ts';
+const m=JSON.parse(readFileSync(new URL('../public/assets/3d/ampliworld/GC-MALL-002/mall-manifest.json',import.meta.url)));
+assert.equal(m.mainFootprintRatioToPrevious,6.25);assert.equal(m.stories,6);
+assert.equal(m.parking.bays,48);assert.equal(m.parking.cars,16);
+const blocked=(x,z)=>{const feet=districtGroundHeight(x,z+DISTRICT.mall.z);return m.colliders.some(c=>x>c.min[0]-.35&&x<c.max[0]+.35&&z>c.min[2]-.35&&z<c.max[2]+.35&&c.max[1]>feet+.29&&c.min[1]<feet+2.08);};
+for(let z=120;z>=30;z-=.25)assert.equal(blocked(0,z),false,`Garden route blocked at ${z}`);
+for(let x=-30;x<=30;x+=.25)assert.equal(blocked(x,74),false,`Indoor gallery door blocked at ${x}`);
+for(let z=110;z>=62;z-=.25)assert.equal(blocked(120.5,z),false,`Ramp route blocked at ${z}`);
+assert.equal(blocked(120.5,60),true,'Incomplete garage ends at a closed door');
+assert.equal(districtGroundHeight(120.5,72+DISTRICT.mall.z),-4.2);
+assert.ok(Math.abs(districtGroundHeight(120.5,108+DISTRICT.mall.z)-.17)<1e-6);
+const b=readFileSync(new URL('../public/assets/3d/ampliworld/GC-MALL-002/mall-lod0.glb',import.meta.url));
+const j=JSON.parse(b.toString('utf8',20,20+b.readUInt32LE(12)));assert.equal(j.images?.length||0,0);
+console.log('PASS: 6.25x footprint; 48 bays; 16 cars; continuous courtyard, both indoor doors and ramp; B1 boundary blocked; geometric facade.');

@@ -7,6 +7,7 @@ const url =
   process.env.AMPLIWORLD_ARCHITECTURE_QA_URL ||
   'http://localhost:3018/architecture';
 const isDistrict = ['/', '/district'].includes(new URL(url).pathname);
+const isCampus = process.env.QA_MALL_CAMPUS === '1';
 const base = new URL(
   '../public/assets/3d/ampliworld/GC-RES-001/',
   import.meta.url,
@@ -246,7 +247,7 @@ try {
     windowsVirtualKeyCode: 32,
   });
   await wait(200);
-  if (isDistrict) {
+  if (isDistrict && !isCampus) {
     await send('Input.dispatchKeyEvent', {
       type: 'keyDown',
       key: 'w',

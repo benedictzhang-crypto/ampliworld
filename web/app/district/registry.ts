@@ -2,7 +2,7 @@
 export const DISTRICT = {
   id: 'GC-GARDENS-B01',
   originWorldMeters: [-625, 8, -125],
-  sizeMeters: [220, 360],
+  sizeMeters: [430, 620],
   status: 'WALKABLE_BLOCK_PROTOTYPE',
   buildings: [
     {
@@ -34,7 +34,7 @@ export const DISTRICT = {
       rotationY: Math.PI,
     },
   ],
-  mall: { id: 'GC-GARDENS-M01', assetId: 'GC-MALL-001', x: 0, z: -124 },
+  mall: { id: 'GC-GARDENS-M01', assetId: 'GC-MALL-002', x: 0, z: -188 },
   spawnLocalMeters: [0, -68],
   limitations: [
     'Four instances of one residential type, not four architectural designs.',
@@ -45,7 +45,15 @@ export const DISTRICT = {
 
 // Surface heights from the exported street kit, not a flat offset above every surface.
 export function districtGroundHeight(x: number, z: number) {
-  if (z < -81 && Math.abs(x) < 52 && z > -167) return 0.17;
+  const mz = z - DISTRICT.mall.z;
+  if (x >= 115 && x <= 126 && mz >= 72 && mz <= 108)
+    return -4.2 + ((mz - 72) * 4.37) / 36;
+  if (x >= 115 && x <= 126 && mz >= 60 && mz < 72) return -4.2;
+  if(x>=114&&x<=127&&mz>108&&mz<=121)return .17;
+  if(x>=127&&x<=190&&mz>=-48&&mz<=70)return .17;
+  if(Math.abs(x)<=112.5&&Math.abs(mz)<=90)return .17;
+  if(Math.abs(x)<=112.5&&mz>=92&&mz<=104)return .16;
+  if(x>=-112.5&&x<=192.5&&mz>=105&&mz<=121)return .07;
   if (z < -80) return 0.035;
   const ax = Math.abs(x),
     az = Math.abs(z);

@@ -19,10 +19,10 @@ import {
 } from '../dynamic-atmosphere';
 import { DISTRICT, districtGroundHeight } from './registry';
 import streetData from '../../public/assets/3d/ampliworld/GC-STREET-001/street-manifest.json';
-import mallData from '../../public/assets/3d/ampliworld/GC-MALL-001/mall-manifest.json';
+import mallData from '../../public/assets/3d/ampliworld/GC-MALL-002/mall-manifest.json';
 
 function Mall() {
-  const { scene } = useGLTF('/assets/3d/ampliworld/GC-MALL-001/mall-lod0.glb');
+  const { scene } = useGLTF('/assets/3d/ampliworld/GC-MALL-002/mall-lod0.glb');
   return (
     <group position={[DISTRICT.mall.x, 0, DISTRICT.mall.z]}>
       <Clone object={scene} castShadow receiveShadow />
@@ -32,17 +32,21 @@ function Mall() {
 function MallApproach() {
   return (
     <group>
-      <mesh position={[0, -0.045, 0]} receiveShadow>
-        <boxGeometry args={[220, 0.06, 360]} />
-        <meshStandardMaterial color="#c9ceca" roughness={0.9} />
-      </mesh>
+      {/* Real opening in the ground for the below-grade ramp; no hidden plane. */}
+      {[
+        [-50.5, 0, 329, 620],
+        [171, 0, 88, 620],
+        [120.5, -219, 13, 182],
+        [120.5, 115.5, 13, 389],
+      ].map(([x, z, w, d], i) => (
+        <mesh key={i} position={[x, -0.045, z]} receiveShadow>
+          <boxGeometry args={[w, 0.06, d]} />
+          <meshStandardMaterial color="#c9ceca" roughness={0.9} />
+        </mesh>
+      ))}
       <mesh position={[0, 0, -81]} receiveShadow>
         <boxGeometry args={[14, 0.06, 14]} />
         <meshStandardMaterial color="#8b9294" roughness={0.85} />
-      </mesh>
-      <mesh position={[0, 0.08, -82]} receiveShadow>
-        <boxGeometry args={[104, 0.16, 6]} />
-        <meshStandardMaterial color="#d7d7cf" roughness={0.8} />
       </mesh>
     </group>
   );
@@ -64,9 +68,13 @@ function SetupCamera({
   const { camera, invalidate } = useThree();
   useEffect(() => {
     camera.position.set(
-      ...((walking ? [0, 4, -59] : [140, 150, 65]) as [number, number, number]),
+      ...((walking ? [0, 4, -59] : [285, 240, 85]) as [number, number, number]),
     );
-    controls.current?.target.set(0, walking ? 1.5 : 0, walking ? -68 : -60);
+    controls.current?.target.set(
+      walking ? 0 : 30,
+      walking ? 1.5 : 0,
+      walking ? -68 : -110,
+    );
     controls.current?.update();
     invalidate();
   }, [walking, controls, camera, invalidate]);
@@ -158,7 +166,7 @@ export function DistrictClient() {
                 makeDefault
                 enableDamping={false}
                 minDistance={walking ? 0.1 : 35}
-                maxDistance={walking ? 18 : 340}
+                maxDistance={walking ? 18 : 650}
                 maxPolarAngle={Math.PI / 2 - 0.04}
                 enablePan={!walking}
               />
@@ -169,7 +177,7 @@ export function DistrictClient() {
                   onPosition={(x, z) => setPosition([x, z])}
                   spawn={DISTRICT.spawnLocalMeters}
                   obstacles={solids}
-                  limits={[107, 177]}
+                  limits={[212, 307]}
                   groundHeight={districtGroundHeight}
                 />
               )}
@@ -181,7 +189,7 @@ export function DistrictClient() {
         <div>
           <span>AMPLIWORLD · GOLDEN CITY</span>
           <h1>花园街区 · 金庭汇</h1>
-          <p>六层回廊商场 · 中央花园 · 住宅街道</p>
+          <p>大型六层商业街区 · 室内长廊 · 花园 · 停车场</p>
         </div>
         <div className="district-time">
           {formatWorldTime(minutes)}
@@ -204,7 +212,7 @@ export function DistrictClient() {
           ? `WASD 行走 · 空格跳跃 · 鼠标拖动看四周 · X ${position[0].toFixed(1)} m / Z ${position[1].toFixed(1)} m`
           : '拖动俯瞰 · 滚轮缩放 · 点击「控制小人」回到街道'}
         <small>
-          沿街直行进入花园 · 两侧立体商品橱窗 · 商场楼上及购买功能待接入
+          花园通道左右大门进入室内 · 右侧地面停车 / 地库坡道 · 楼上及购物待接入
         </small>
       </div>
     </main>
