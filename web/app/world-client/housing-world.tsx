@@ -1,5 +1,14 @@
 'use client';
-import { Suspense, useEffect, useMemo, useRef } from 'react';
+import {
+  Component,
+  Suspense,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  type ReactNode,
+} from 'react';
+import { useThree } from '@react-three/fiber';
+import { housingProxy } from './housing-streaming';
 import { useGLTF } from '@react-three/drei';
 import { InstancedMesh, Mesh, Matrix4, Quaternion, Vector3 } from 'three';
 import {
@@ -8,11 +17,13 @@ import {
   HOUSING_BOXES,
   HOUSING_TREES,
   HOUSING_PLAN,
+  housingGateBox,
 } from './housing-registry';
 type Placement = { x: number; z: number; y: number; yaw: number };
 function Batch({ mesh, items }: { mesh: Mesh; items: Placement[] }) {
   const ref = useRef<InstancedMesh>(null);
-  useEffect(() => {
+  const invalidate = useThree((s) => s.invalidate);
+  useLayoutEffect(() => {
     if (!ref.current) return;
     const m = new Matrix4(),
       q = new Quaternion(),
@@ -29,7 +40,8 @@ function Batch({ mesh, items }: { mesh: Mesh; items: Placement[] }) {
     });
     ref.current.instanceMatrix.needsUpdate = true;
     ref.current.computeBoundingSphere();
-  }, [mesh, items]);
+    invalidate();
+  }, [mesh, items, invalidate]);
   return (
     <instancedMesh
       ref={ref}
@@ -72,7 +84,8 @@ function Boxes({
   color: string;
 }) {
   const ref = useRef<InstancedMesh>(null);
-  useEffect(() => {
+  const invalidate = useThree((s) => s.invalidate);
+  useLayoutEffect(() => {
     if (!ref.current) return;
     const m = new Matrix4(),
       q = new Quaternion(),
@@ -89,7 +102,8 @@ function Boxes({
     });
     ref.current.instanceMatrix.needsUpdate = true;
     ref.current.computeBoundingSphere();
-  }, [items]);
+    invalidate();
+  }, [items, invalidate]);
   return (
     <instancedMesh
       ref={ref}
@@ -100,6 +114,18 @@ function Boxes({
       <meshStandardMaterial color={color} roughness={0.82} />
     </instancedMesh>
   );
+}
+class AssetBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
 }
 export function HousingWorld({
   x,
@@ -128,25 +154,14 @@ export function HousingWorld({
   );
   const proxies = useMemo(
     () =>
-      HOUSING_INSTANCES.filter((i) => !near.has(i.parcel)).map((i) => {
-        const b = HOUSING_MODELS[i.model].bounds;
-        return {
-          ...i,
-          y: i.y + b.max[1] / 2,
-          w: b.max[0] - b.min[0],
-          d: b.max[2] - b.min[2],
-          h: b.max[1],
-        };
-      }),
+      HOUSING_INSTANCES.filter((i) => !near.has(i.parcel)).map(housingProxy),
     [near],
   );
   const surfaces = useMemo(
     () =>
-      ['garden', 'road', 'wall', 'gate'].map((kind) =>
+      ['garden', 'road', 'wall', 'gate', 'walk'].map((kind) =>
         HOUSING_BOXES.filter((b) => b.kind === kind).map((b) =>
-          kind === 'gate' && open.has(b.id.split('/')[0])
-            ? { ...b, y: 3.6 }
-            : b,
+          kind === 'gate' ? housingGateBox(b, open.has(b.id.split('/')[0])) : b,
         ),
       ),
     [open],
@@ -165,18 +180,29 @@ export function HousingWorld({
         <Boxes
           key={i}
           items={items}
-          color={['#7e9570', '#697578', '#b8b4a8', '#ac9053'][i]}
+          color={['#7e9570', '#697578', '#b8b4a8', '#ac9053', '#d4d0c3'][i]}
         />
       ))}
       {batches.map(
         (items, i) =>
           items.length > 0 && (
-            <Suspense key={i} fallback={null}>
-              <Model
-                url={`/assets/3d/ampliworld/${HOUSING_MODELS[i].kit}/${HOUSING_MODELS[i].file}`}
-                items={items}
-              />
-            </Suspense>
+            <AssetBoundary
+              key={i}
+              fallback={
+                <Boxes items={items.map(housingProxy)} color="#b9b8aa" />
+              }
+            >
+              <Suspense
+                fallback={
+                  <Boxes items={items.map(housingProxy)} color="#b9b8aa" />
+                }
+              >
+                <Model
+                  url={`/assets/3d/ampliworld/${HOUSING_MODELS[i].kit}/${HOUSING_MODELS[i].file}`}
+                  items={items}
+                />
+              </Suspense>
+            </AssetBoundary>
           ),
       )}
       {trees.length > 0 && (

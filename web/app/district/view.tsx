@@ -21,6 +21,7 @@ import {
   HOUSING_PLAN,
   HOUSING_LABELS,
   housingColliders,
+  canCloseHousingGate,
 } from '../world-client/housing-registry';
 import { StreetTrees } from '../world-client/street-trees';
 import { findVehicleExit } from '../world-client/vehicle-safety';
@@ -349,24 +350,22 @@ export function DistrictClient() {
   const [minutes, setMinutes] = useState(480);
   const [position, setPosition] = useState<number[]>([0, -68]);
   const [openGates, setOpenGates] = useState<Set<string>>(() => new Set());
-  const previewParcel =
-    !walking && focus.startsWith('housing-')
-      ? HOUSING_PLAN.placements.find((p) => p.type === focus.slice(8))
-      : undefined;
-  const housingX =
-    previewParcel?.x ??
-    (!walking && focus === 'east'
-      ? 5000
-      : !walking && focus === 'south'
-        ? -1000
-        : Math.round(position[0] / 1000) * 1000);
-  const housingZ =
-    previewParcel?.z ??
-    (!walking && focus === 'east'
-      ? 3000
-      : !walking && focus === 'south'
-        ? 8000
-        : Math.round(position[1] / 1000) * 1000);
+  const [visualAnchor, setVisualAnchor] = useState<[number, number]>([0, 0]);
+  const housingX = walking
+    ? Math.round(position[0] / 1000) * 1000
+    : visualAnchor[0];
+  const housingZ = walking
+    ? Math.round(position[1] / 1000) * 1000
+    : visualAnchor[1];
+  const renderTiles = useMemo(
+    () =>
+      CITY.tiles.filter(
+        (t) =>
+          Math.abs(t.cx - housingX) <= 2000 &&
+          Math.abs(t.cz - housingZ) <= 2000,
+      ),
+    [housingX, housingZ],
+  );
   const nearGate = HOUSING_PLAN.placements.find(
     (p) =>
       ['high', 'ultra', 'mixedVilla', 'largeDetached'].includes(p.type) &&
@@ -389,6 +388,10 @@ export function DistrictClient() {
   const playerFloor = useRef(0);
   const [driving, setDriving] = useState(false),
     [carReport, setCarReport] = useState<CarState>({ ...car.current });
+  const gateCanClose =
+    !!nearGate &&
+    canCloseHousingGate(nearGate.id, position[0], position[1], 1) &&
+    canCloseHousingGate(nearGate.id, car.current.x, car.current.z, 3.5);
   const [relocation, setRelocation] = useState<{
     x: number;
     z: number;
@@ -629,7 +632,7 @@ export function DistrictClient() {
                 ))}
               </Suspense>
               <CityLayer
-                tiles={nearTiles}
+                tiles={renderTiles}
                 loaded={loadedTiles}
                 onReady={onTileReady}
                 overview={wide}
@@ -637,6 +640,15 @@ export function DistrictClient() {
               <OrbitControls
                 ref={controls}
                 makeDefault
+                onChange={() => {
+                  if (walking || wide || !controls.current) return;
+                  const target = controls.current.target,
+                    x = Math.round(target.x / 500) * 500,
+                    z = Math.round(target.z / 500) * 500;
+                  setVisualAnchor((v) =>
+                    v[0] === x && v[1] === z ? v : [x, z],
+                  );
+                }}
                 enableDamping={false}
                 minDistance={
                   walking || focus === 'garage'
@@ -810,8 +822,10 @@ export function DistrictClient() {
         ))}
         {walking && nearGate && (
           <Button
+            disabled={openGates.has(nearGate.id) && !gateCanClose}
             onClick={() =>
               setOpenGates((s) => {
+                if (s.has(nearGate.id) && !gateCanClose) return s;
                 const n = new Set(s);
                 n.has(nearGate.id) ? n.delete(nearGate.id) : n.add(nearGate.id);
                 return n;
@@ -819,7 +833,9 @@ export function DistrictClient() {
             }
           >
             {openGates.has(nearGate.id)
-              ? '关闭小区门禁'
+              ? gateCanClose
+                ? '关闭小区门禁'
+                : '请先离开门口再关闭'
               : '打开小区门禁（试玩）'}
           </Button>
         )}

@@ -47,7 +47,7 @@ export type HousingBox = {
   d: number;
   h: number;
   yaw: number;
-  kind: 'garden' | 'road' | 'wall' | 'gate';
+  kind: 'garden' | 'road' | 'walk' | 'wall' | 'gate';
 };
 export function housingPoint(
   p: HousingParcel,
@@ -243,6 +243,39 @@ for (const p of plan.placements) {
   }
   if (p.type === 'ultra' || p.type === 'largeDetached')
     add(p, 11, -p.width / 2 + 65, p.depth / 2 - 38, 'amenity');
+  for (let r = 0; r < rows; r++)
+    for (const side of [-1, 1])
+      box(
+        p,
+        `walk-${r}-${side}`,
+        0,
+        z0 + (r * (z1 - z0)) / Math.max(1, rows - 1) + 25 + side * 6,
+        p.width - 40,
+        3,
+        0.03,
+        0.2,
+        'walk',
+      );
+  for (const home of HOUSING_INSTANCES.filter(
+    (i) => i.parcel === p.id && i.role === 'home',
+  )) {
+    const model = HOUSING_MODELS[home.model];
+    const door = model.entrance;
+    const start = home.localZ + door[1],
+      end = home.localZ + 25;
+    if (end > start)
+      box(
+        p,
+        home.id + '/entry-walk',
+        home.localX + door[0],
+        (start + end) / 2,
+        3,
+        end - start,
+        0.03,
+        0.2,
+        'walk',
+      );
+  }
   for (let i = 1; i < p.connector.points.length; i++) {
     const a = p.connector.points[i - 1],
       b = p.connector.points[i],
@@ -271,6 +304,32 @@ function collider(b: HousingBox) {
     min: [b.x - w, b.y - b.h / 2, b.z - d],
     max: [b.x + w, b.y + b.h / 2, b.z + d],
   };
+}
+// A folded gate occupies the wall-side pocket, not an uncollidable overhead bar.
+export function housingGateBox(b: HousingBox, open: boolean): HousingBox {
+  if (!open) return b;
+  const offset = b.w / 2 + 1.25;
+  return {
+    ...b,
+    x: b.x + offset * Math.cos(b.yaw),
+    z: b.z - offset * Math.sin(b.yaw),
+    w: 2.5,
+  };
+}
+export function canCloseHousingGate(
+  id: string,
+  x: number,
+  z: number,
+  radius = 1,
+) {
+  const b = HOUSING_BOXES.find((b) => b.id === id + '/access-gate');
+  if (!b) return false;
+  const dx = x - b.x,
+    dz = z - b.z;
+  return (
+    Math.abs(dx * Math.cos(b.yaw) - dz * Math.sin(b.yaw)) > b.w / 2 + radius ||
+    Math.abs(dx * Math.sin(b.yaw) + dz * Math.cos(b.yaw)) > b.d / 2 + radius
+  );
 }
 const collisionCache = new Map<string, ReturnType<typeof collider>[]>();
 export function housingColliders(
@@ -333,21 +392,62 @@ export function housingColliders(
         }
         collisionCache.set(p.id, result);
       }
-      return open.has(p.id)
-        ? result
-        : [
-            ...result,
-            ...HOUSING_BOXES.filter((b) => b.id === p.id + '/access-gate').map(
-              collider,
-            ),
-          ];
+      return [
+        ...result,
+        ...HOUSING_BOXES.filter((b) => b.id === p.id + '/access-gate').map(
+          (b) => collider(housingGateBox(b, open.has(p.id))),
+        ),
+      ];
     });
 }
+const surfacesByCell = new Map<string, HousingBox[]>();
+for (const b of HOUSING_BOXES.filter(
+  (b) => b.kind === 'road' || b.kind === 'walk',
+)) {
+  const bounds = collider(b);
+  for (
+    let x = Math.floor(bounds.min[0] / 500);
+    x <= Math.floor(bounds.max[0] / 500);
+    x++
+  )
+    for (
+      let z = Math.floor(bounds.min[2] / 500);
+      z <= Math.floor(bounds.max[2] / 500);
+      z++
+    ) {
+      const key = x + ',' + z,
+        a = surfacesByCell.get(key) || [];
+      a.push(b);
+      surfacesByCell.set(key, a);
+    }
+}
+const instancesByParcel = new Map(
+  plan.placements.map((p) => [
+    p.id,
+    HOUSING_INSTANCES.filter((i) => i.parcel === p.id),
+  ]),
+);
 export function housingGroundHeight(
   x: number,
   z: number,
   currentY: number,
 ): number | undefined {
+  let support: number | undefined;
+  for (const b of surfacesByCell.get(
+    Math.floor(x / 500) + ',' + Math.floor(z / 500),
+  ) || []) {
+    const dx = x - b.x,
+      dz = z - b.z,
+      c = Math.cos(b.yaw),
+      s = Math.sin(b.yaw),
+      top = b.y + b.h / 2;
+    if (
+      Math.abs(dx * c - dz * s) <= b.w / 2 &&
+      Math.abs(dx * s + dz * c) <= b.d / 2 &&
+      top <= currentY + 0.29
+    )
+      support = Math.max(support ?? -Infinity, top);
+  }
   for (const p of plan.placements) {
     const dx = x - p.x,
       dz = z - p.z,
@@ -356,19 +456,20 @@ export function housingGroundHeight(
       lx = dx * c - dz * s,
       lz = dx * s + dz * c;
     if (Math.abs(lx) > p.width / 2 || Math.abs(lz) > p.depth / 2) continue;
-    let y = p.retainExistingFootprints ? undefined : 0.18;
-    for (const i of HOUSING_INSTANCES)
-      if (i.parcel === p.id)
-        for (const f of HOUSING_MODELS[i.model].surfaces)
-          if (
-            lx - i.localX >= f.min[0] &&
-            lx - i.localX <= f.max[0] &&
-            lz - i.localZ >= f.min[1] &&
-            lz - i.localZ <= f.max[1] &&
-            f.y + i.y <= currentY + 0.29
-          )
-            y = Math.max(y ?? -Infinity, f.y + i.y);
+    let y = p.retainExistingFootprints
+      ? support
+      : Math.max(0.18, support ?? -Infinity);
+    for (const i of instancesByParcel.get(p.id)!)
+      for (const f of HOUSING_MODELS[i.model].surfaces)
+        if (
+          lx - i.localX >= f.min[0] &&
+          lx - i.localX <= f.max[0] &&
+          lz - i.localZ >= f.min[1] &&
+          lz - i.localZ <= f.max[1] &&
+          f.y + i.y <= currentY + 0.29
+        )
+          y = Math.max(y ?? -Infinity, f.y + i.y);
     return y;
   }
-  return undefined;
+  return support;
 }

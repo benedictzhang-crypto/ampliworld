@@ -77,6 +77,8 @@ try {
   const pending = new Map();
   let id = 0;
   const exceptions = [];
+  const pausedHousing=[];
+  let holdHousing=process.env.QA_HOUSING_STREAM==='1';
   socket.addEventListener('message', (e) => {
     const m = JSON.parse(String(e.data));
     if (m.id) {
@@ -85,6 +87,10 @@ try {
       m.error ? p.reject(m.error) : p.resolve(m.result);
     } else if (m.method === 'Runtime.exceptionThrown')
       exceptions.push(m.params.exceptionDetails.text);
+    else if(m.method==='Fetch.requestPaused'){
+      if(holdHousing)pausedHousing.push(m.params.requestId);
+      else send('Fetch.continueRequest',{requestId:m.params.requestId});
+    }
   });
   await new Promise((r) => socket.addEventListener('open', r, { once: true }));
   const send = (method, params = {}) =>
@@ -98,6 +104,7 @@ try {
       .value;
   await send('Runtime.enable');
   await send('Page.enable');
+  if(holdHousing)await send('Fetch.enable',{patterns:[{urlPattern:'*GC-HOUSING-KIT-001/hk-low-*.glb',requestStage:'Request'}]});
   await send('Page.navigate', { url });
   let ready = false;
   for (let i = 0; i < 200; i++) {
@@ -114,6 +121,16 @@ try {
     writeFileSync(join(temp, name + '.png'), Buffer.from(r.data, 'base64'));
   };
   await shot('corner');
+  if(process.env.QA_HOUSING_STREAM==='1'){
+    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='老城里览景').click()");
+    await wait(600);assert.ok(pausedHousing.length>0,'Real housing requests held for loading-fallback QA');
+    await shot('housing-loading-proxies');
+    holdHousing=false;await Promise.all(pausedHousing.map(requestId=>send('Fetch.continueRequest',{requestId})));
+    await wait(1700);await shot('housing-loaded-detail');
+    assert.equal(exceptions.length,0,exceptions.join('\n'));
+    console.log(JSON.stringify({status:'passed',scenario:'delayed-housing-load',requestsHeld:pausedHousing.length,screenshots:temp}));
+    socket.close();chrome.kill('SIGTERM');clearTimeout(timeout);process.exit(0);
+  }
   if (process.env.QA_PLAN_LOOK === '1') {
     const player = () =>
       evaluate(
