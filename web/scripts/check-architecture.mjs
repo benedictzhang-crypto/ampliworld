@@ -124,7 +124,9 @@ try {
   );
   await wait(300);
   const caption = () =>
-    evaluate(`document.querySelector('${isDistrict ? '.district-status' : '.architecture-caption'}').textContent`);
+    evaluate(
+      `document.querySelector('${isDistrict ? '.district-status' : '.architecture-caption'}').textContent`,
+    );
   const before = await caption();
   await send('Input.dispatchKeyEvent', {
     type: 'keyDown',
@@ -132,7 +134,23 @@ try {
     code: 'KeyW',
     windowsVirtualKeyCode: 87,
   });
-  await wait(5500);
+  await wait(750);
+  const player = () =>
+    evaluate(
+      "JSON.parse(document.querySelector('canvas').dataset.player || '{}')",
+    );
+  const gaitA = await player();
+  await wait(300);
+  const gaitB = await player();
+  assert.ok(
+    Math.abs(gaitA.leftLeg - gaitB.leftLeg) > 0.01,
+    'Leg pose must animate while walking',
+  );
+  assert.ok(
+    Math.abs(gaitB.leftLeg + gaitB.rightLeg) < 0.001,
+    'Legs must alternate',
+  );
+  await wait(4450);
   await send('Input.dispatchKeyEvent', {
     type: 'keyUp',
     key: 'w',
@@ -143,11 +161,118 @@ try {
   const after = await caption();
   const z = Number(after.match(/Z\s+(-?[\d.]+)/)?.[1]);
   assert.ok(
-    isDistrict ? z < 24 && z >= -77 : z >= 12.4 && z < 27,
+    isDistrict ? z < 24 && z >= -77 : z >= 12.3 && z < 27,
     `Player moves toward but does not enter residence: ${after}`,
   );
   assert.notEqual(before, after);
   await shot('walk');
+  // S is a turn-and-walk toward camera, not a backwards strafe animation.
+  await send('Input.dispatchKeyEvent', {
+    type: 'keyDown',
+    key: 's',
+    code: 'KeyS',
+    windowsVirtualKeyCode: 83,
+  });
+  await wait(1300);
+  await send('Input.dispatchKeyEvent', {
+    type: 'keyUp',
+    key: 's',
+    code: 'KeyS',
+    windowsVirtualKeyCode: 83,
+  });
+  await wait(300);
+  const returning = await player();
+  assert.ok(returning.z > z + 1, 'S must move toward the camera');
+  assert.ok(
+    Math.abs(Math.atan2(Math.sin(returning.yaw), Math.cos(returning.yaw))) <
+      0.2,
+    'Visible face must point toward camera on S',
+  );
+  await shot('return-facing-camera');
+  // Tap and release immediately; demand rendering must continue through landing.
+  const floor = returning.y;
+  await send('Input.dispatchKeyEvent', {
+    type: 'keyDown',
+    key: ' ',
+    code: 'Space',
+    windowsVirtualKeyCode: 32,
+  });
+  await wait(60);
+  await send('Input.dispatchKeyEvent', {
+    type: 'keyUp',
+    key: ' ',
+    code: 'Space',
+    windowsVirtualKeyCode: 32,
+  });
+  await wait(300);
+  const airborne = await player();
+  assert.ok(
+    !airborne.grounded && airborne.y > floor + 0.3,
+    'Released jump must still rise',
+  );
+  await shot('jump');
+  await wait(1200);
+  const landed = await player();
+  assert.ok(
+    landed.grounded && Math.abs(landed.y - floor) < 0.05,
+    'Released jump must land without held keys',
+  );
+  assert.ok(
+    Math.hypot(landed.x - returning.x, landed.z - returning.z) < 0.01,
+    'Jump must not reset position to spawn',
+  );
+  await send('Input.dispatchKeyEvent', {
+    type: 'keyDown',
+    key: ' ',
+    code: 'Space',
+    windowsVirtualKeyCode: 32,
+  });
+  await wait(1600);
+  let held = await player();
+  for(let attempt=0;attempt<20&&!held.grounded;attempt++){await wait(100);held=await player();}
+  assert.ok(held.grounded, 'Holding Space must not bunny-hop');
+  await wait(400);assert.ok((await player()).grounded,'Held Space must remain grounded after landing');
+  await send('Input.dispatchKeyEvent', {
+    type: 'keyUp',
+    key: ' ',
+    code: 'Space',
+    windowsVirtualKeyCode: 32,
+  });
+  await wait(200);
+  const beforeOrbit = await player();
+  await send('Input.dispatchMouseEvent', {
+    type: 'mousePressed',
+    x: 450,
+    y: 380,
+    button: 'left',
+    clickCount: 1,
+  });
+  for (let i = 1; i <= 6; i++)
+    await send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved',
+      x: 450 + i * 50,
+      y: 380,
+      button: 'left',
+      buttons: 1,
+    });
+  await send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased',
+    x: 750,
+    y: 380,
+    button: 'left',
+    clickCount: 1,
+  });
+  await wait(200);
+  const afterOrbit = await player();
+  assert.ok(
+    Math.hypot(afterOrbit.x - beforeOrbit.x, afterOrbit.z - beforeOrbit.z) <
+      0.01,
+    'Mouse orbit must not move the avatar',
+  );
+  assert.ok(
+    Math.abs(afterOrbit.yaw - beforeOrbit.yaw) < 0.01,
+    'Mouse orbit must not rotate an idle avatar',
+  );
   assert.equal(exceptions.length, 0, exceptions.join('\n'));
   console.log(
     JSON.stringify({ status: 'passed', before, after, screenshots: temp }),

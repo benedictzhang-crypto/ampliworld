@@ -167,6 +167,14 @@ New metric-space scenes must adapt fog/shadow ranges; floating-origin lighting i
   shared character control and retained day/night sky. **Four instances are not four
   architectural types.** The metro is not yet operational; interiors and trading UI
   adapters remain pending in this upgraded block.
+- Both new views now use full-detail residence geometry throughout their current
+  playable/inspection range. The three exported LODs remain asset-library variants,
+  not compulsory near/mid/far switches. Future large-city distant simplification
+  must be selected by measured screen coverage and performance, with stable transitions.
+- Shared metre-space locomotion lives in `web/app/world-client/`: camera-relative
+  eight-direction input, smooth turn-to-travel (including S facing the camera),
+  displacement-driven limb animation and release-gated Space jumping. This is a
+  prototype character controller, not a full physics-engine or animation-rig integration.
 - Next: distinct residential types, a functional entrance/interior contract,
   transit/economy connection, automatic LOD selection and streaming, then block-by-block
   expansion inside the 2×2 km quality core. No completed 2×2 km city is claimed.

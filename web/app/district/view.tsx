@@ -112,7 +112,7 @@ export function DistrictClient() {
                     position={[b.x, 0, b.z]}
                     rotation={[0, b.rotationY, 0]}
                   >
-                    <Residence lod={1} />
+                    <Residence lod={0} />
                   </group>
                 ))}
               </Suspense>
@@ -165,7 +165,7 @@ export function DistrictClient() {
       </nav>
       <div className="district-status" aria-live="polite">
         {walking
-          ? `WASD 行走 · 鼠标拖动看四周 · X ${position[0].toFixed(1)} m / Z ${position[1].toFixed(1)} m`
+          ? `WASD 行走 · 空格跳跃 · 鼠标拖动看四周 · X ${position[0].toFixed(1)} m / Z ${position[1].toFixed(1)} m`
           : '拖动俯瞰 · 滚轮缩放 · 点击「控制小人」回到街道'}
         <small>
           四栋同型住宅 · 连续道路与步道 · 地铁入口外壳（乘车待接入） ·

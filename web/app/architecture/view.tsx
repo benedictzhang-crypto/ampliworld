@@ -4,14 +4,14 @@ import {
   Component,
   Suspense,
   useEffect,
-  useMemo,
   useRef,
   useState,
   type ReactNode,
 } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls, useGLTF } from '@react-three/drei';
-import { Box3, Group, PMREMGenerator, Ray, Vector3 } from 'three';
+import { PMREMGenerator } from 'three';
+import { Walker } from '../world-client/walker';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { Button } from '@/components/ui/button';
@@ -89,156 +89,7 @@ function CameraPreset({
   return null;
 }
 
-// Isolated metre-space movement. No imports from the compressed legacy world.
-export function Walker({
-  controls,
-  onPosition,
-  spawn = [0, 28],
-  obstacles,
-  limits = [55, 55],
-  groundHeight,
-}: {
-  controls: React.RefObject<OrbitControlsImpl | null>;
-  onPosition: (x: number, z: number) => void;
-  spawn?: readonly [number, number];
-  obstacles?: readonly Box3[];
-  limits?: readonly [number, number];
-  groundHeight?: (x: number, z: number) => number;
-}) {
-  const body = useRef<Group>(null);
-  const keys = useRef(new Set<string>());
-  const scratch = useMemo(
-    () => ({
-      forward: new Vector3(),
-      right: new Vector3(),
-      delta: new Vector3(),
-      offset: new Vector3(),
-      hit: new Vector3(),
-      ray: new Ray(),
-      lastReport: 0,
-    }),
-    [],
-  );
-  const { camera, invalidate } = useThree();
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement)?.closest('button,a,input,select,textarea'))
-        return;
-      if (/^(Key[WASD]|Arrow(Up|Down|Left|Right))$/.test(e.code)) {
-        e.preventDefault();
-        keys.current.add(e.code);
-        invalidate();
-      }
-    };
-    const up = (e: KeyboardEvent) => keys.current.delete(e.code);
-    const clear = () => keys.current.clear();
-    window.addEventListener('keydown', down);
-    window.addEventListener('keyup', up);
-    window.addEventListener('blur', clear);
-    return () => {
-      window.removeEventListener('keydown', down);
-      window.removeEventListener('keyup', up);
-      window.removeEventListener('blur', clear);
-    };
-  }, [invalidate]);
-  // Conservative closed building envelope; detailed balcony/entrance colliders replace it next.
-  const solid = useMemo(
-    () => new Box3(new Vector3(-16, -1, -12), new Vector3(16, 29.1, 12)),
-    [],
-  );
-  useFrame((state, dt) => {
-    if (!body.current || !controls.current) return;
-    const k = keys.current;
-    const p = body.current.position;
-    scratch.forward
-      .subVectors(controls.current.target, camera.position)
-      .setY(0)
-      .normalize();
-    scratch.right.set(-scratch.forward.z, 0, scratch.forward.x);
-    const forward =
-      Number(k.has('KeyW') || k.has('ArrowUp')) -
-      Number(k.has('KeyS') || k.has('ArrowDown'));
-    const side =
-      Number(k.has('KeyD') || k.has('ArrowRight')) -
-      Number(k.has('KeyA') || k.has('ArrowLeft'));
-    scratch.delta
-      .copy(scratch.forward)
-      .multiplyScalar(forward)
-      .addScaledVector(scratch.right, side)
-      .normalize()
-      .multiplyScalar(Math.min(dt, 0.05) * 4.5);
-    const x = Math.max(-limits[0], Math.min(limits[0], p.x + scratch.delta.x));
-    const z = Math.max(-limits[1], Math.min(limits[1], p.z + scratch.delta.z));
-    const inside = (a: number, b: number) =>
-      obstacles
-        ? obstacles.some(
-            (box) =>
-              box.max.y > 0.45 &&
-              box.min.y < 1.9 &&
-              a > box.min.x - 0.45 &&
-              a < box.max.x + 0.45 &&
-              b > box.min.z - 0.45 &&
-              b < box.max.z + 0.45,
-          )
-        : a > -16.45 && a < 16.45 && b > -12.45 && b < 12.45;
-    const nx = inside(x, p.z) ? p.x : x;
-    const nz = inside(nx, z) ? p.z : z;
-    scratch.delta.set(nx - p.x, 0, nz - p.z);
-    p.set(nx, groundHeight ? groundHeight(nx, nz) - 0.025 : 0.13, nz);
-    if (scratch.delta.lengthSq() > 0)
-      body.current.rotation.y = Math.atan2(scratch.delta.x, scratch.delta.z);
-    camera.position.add(scratch.delta);
-    controls.current.target.set(p.x, p.y + 1.37, p.z);
-    scratch.offset.subVectors(camera.position, controls.current.target);
-    const distance = scratch.offset.length();
-    scratch.ray.origin.copy(controls.current.target);
-    scratch.ray.direction.copy(scratch.offset).normalize();
-    let safeDistance = distance;
-    for (const candidate of obstacles ?? [solid]) {
-      if (scratch.ray.intersectBox(candidate, scratch.hit)) {
-        const hitDistance = scratch.hit.distanceTo(controls.current.target);
-        if (hitDistance < safeDistance) {
-          safeDistance = hitDistance;
-          camera.position
-            .copy(controls.current.target)
-            .addScaledVector(
-              scratch.ray.direction,
-              Math.max(0.1, hitDistance - 0.15),
-            );
-        }
-      }
-    }
-    camera.position.y = Math.max(
-      (groundHeight?.(camera.position.x, camera.position.z) ?? 0) + 0.6,
-      camera.position.y,
-    );
-    controls.current.update();
-    if (state.clock.elapsedTime - scratch.lastReport > 0.2) {
-      onPosition(p.x, p.z);
-      scratch.lastReport = state.clock.elapsedTime;
-    }
-    if (k.size) invalidate();
-  });
-  return (
-    <group ref={body} position={[spawn[0], 0.13, spawn[1]]}>
-      <mesh position={[0, 1.05, 0]} castShadow>
-        <capsuleGeometry args={[0.26, 0.65, 4, 8]} />
-        <meshStandardMaterial color="#c3a36a" />
-      </mesh>
-      <mesh position={[0, 1.77, 0]} castShadow>
-        <sphereGeometry args={[0.22, 12, 8]} />
-        <meshStandardMaterial color="#ecc4a4" />
-      </mesh>
-      {[-0.16, 0.16].map((x) => (
-        <mesh key={x} position={[x, 0.37, 0]} castShadow>
-          <boxGeometry args={[0.2, 0.65, 0.24]} />
-          <meshStandardMaterial color="#273940" />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
+export { Walker } from '../world-client/walker';
 function Plot() {
   return (
     <group>
@@ -268,7 +119,6 @@ function Plot() {
 
 export function ArchitectureLab() {
   const [view, setView] = useState(0);
-  const [lod, setLod] = useState(0);
   const [walking, setWalking] = useState(false);
   const [position, setPosition] = useState([0, 28]);
   const [mounted, setMounted] = useState(false);
@@ -325,7 +175,7 @@ export function ArchitectureLab() {
                     </Html>
                   }
                 >
-                  <Residence lod={lod} />
+                  <Residence lod={0} />
                 </Suspense>
                 <StudioLight />
                 <Plot />
@@ -354,7 +204,7 @@ export function ArchitectureLab() {
           </CanvasBoundary>
           <div className="architecture-caption">
             {walking
-              ? `WASD / 方向键走路 · 拖动看四周 · X ${position[0].toFixed(1)} m / Z ${position[1].toFixed(1)} m`
+              ? `WASD / 方向键走路 · 空格跳跃 · 拖动看四周 · X ${position[0].toFixed(1)} m / Z ${position[1].toFixed(1)} m`
               : '拖动旋转 · 双指缩放 · 四面与屋顶均为模型几何'}
           </div>
         </div>
@@ -393,17 +243,7 @@ export function ArchitectureLab() {
               </Button>
             ))}
           </div>
-          <label className="architecture-select">
-            模型细节 / LOD
-            <select
-              value={lod}
-              onChange={(e) => setLod(Number(e.target.value))}
-            >
-              <option value={0}>近景 · 完整几何</option>
-              <option value={1}>中景 · 简化几何</option>
-              <option value={2}>远景 · 建筑轮廓</option>
-            </select>
-          </label>
+          <p>当前使用完整细节；正常缩放不切换近、中、远模型。</p>
           <p className="architecture-note">
             本轮是可绕楼行走的施工样板，不是整座新城。室内副本尚未开放；步行采用保守外轮廓碰撞。旧版交易与生活系统继续保留。
           </p>
