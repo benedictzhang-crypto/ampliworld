@@ -14,20 +14,20 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://ampliworld-game.benedictzhang01.chatgpt.site'),
-  title: 'AmpliWorld — Golden City',
+  title: 'AmpliWorld — Observable World Lab',
   description:
-    'Explore AmpliWorld’s growing three-dimensional city: residential streets, a courtyard galleria and gardens.',
+    'Observe synthetic households, consumption and city services in a detailed three-dimensional world. Experimental simulation, not a calibrated forecast.',
   openGraph: {
-    title: 'AmpliWorld — Golden City',
+    title: 'AmpliWorld — Observable World Lab',
     description:
-      'Explore residential streets, a courtyard galleria and gardens in the new AmpliWorld.',
+      'Observe synthetic households, commerce and public services in AmpliWorld’s detailed 3D city.',
     images: ['/og.png'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AmpliWorld — Golden City',
+    title: 'AmpliWorld — Observable World Lab',
     description:
-      'Explore residential streets, a courtyard galleria and gardens in the new AmpliWorld.',
+      'Observe synthetic households, commerce and public services in AmpliWorld’s detailed 3D city.',
     images: ['/og.png'],
   },
 };

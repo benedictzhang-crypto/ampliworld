@@ -354,7 +354,7 @@ export function DistrictClient() {
   const [mounted, setMounted] = useState(false);
   const [coreReady, setCoreReady] = useState(false);
   const onCoreReady = useCallback(() => setCoreReady(true), []);
-  const [walking, setWalking] = useState(true);
+  const [walking, setWalking] = useState(false);
   const [wide, setWide] = useState(false);
   const [planOpen, setPlanOpen] = useState(false);
   const [garageLevel, setGarageLevel] = useState(0);
@@ -766,9 +766,9 @@ export function DistrictClient() {
       </div>
       <header className="district-hud">
         <div>
-          <span>AMPLIWORLD · GOLDEN CITY</span>
-          <h1>金庭 · 20 × 30 km 主城区</h1>
-          <p>金庭商场 · 四色停车分区 · 四组垂直电梯 · 六层商业与屋顶步道</p>
+          <span>AMPLIWORLD · OBSERVABLE WORLD LAB</span>
+          <h1>企业世界实验室</h1>
+          <p>社会结构 · 消费行为 · 城市服务 ｜ 保留真实尺度的步行与驾驶</p>
         </div>
         <div className="district-time">
           {formatWorldTime(minutes)}
@@ -776,6 +776,8 @@ export function DistrictClient() {
         </div>
       </header>
       <nav className="district-tools">
+        <Button onClick={()=>{setWalking(false);setFocus('cbd');setWide(false)}}>实验室 · 街区观察</Button>
+        <Button onClick={()=>{setWalking(true);setWide(false);(document.activeElement as HTMLElement)?.blur();}}>进入现场 · 步行 / 驾驶</Button>
         <Button onClick={()=>{setFocus('mall');setWide(false);setWalking(false)}}>商场楼层览景</Button>
         {!walking && focus==='mall' && MALL_LEVELS.map((l,i)=>l.y>=0&&<Button key={l.id} aria-pressed={i===mallLevel} onClick={()=>setMallLevel(i)}>{l.label}</Button>)}
         {walking && !driving && nearbyLift && <Button onClick={()=>setLiftPanel(v=>!v)}>电梯 {nearbyLift.id} · {currentMallLevel.id}</Button>}
