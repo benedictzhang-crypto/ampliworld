@@ -31,7 +31,7 @@ function CivicAsset({
   }, [scene, id]);
   return (
     <group position={[x, 0, z]}>
-      <Clone object={display} castShadow receiveShadow />
+      {id==='GC-MARINA-001'?<primitive object={display}/>:<Clone object={display} castShadow receiveShadow />}
     </group>
   );
 }
