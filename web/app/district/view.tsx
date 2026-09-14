@@ -776,6 +776,7 @@ export function DistrictClient() {
         </div>
       </header>
       <nav className="district-tools">
+        <Button onClick={()=>setSelectedResident(population.world?.residents[0]?.id||null)}>居民档案 · {population.world?.residents.length||0} 人</Button>
         <Button onClick={()=>{setWalking(false);setFocus('cbd');setWide(false)}}>实验室 · 街区观察</Button>
         <Button onClick={()=>{setWalking(true);setWide(false);(document.activeElement as HTMLElement)?.blur();}}>进入现场 · 步行 / 驾驶</Button>
         <Button onClick={()=>{setFocus('mall');setWide(false);setWalking(false)}}>商场楼层览景</Button>

@@ -135,7 +135,7 @@ export type CitizenProfile = {
   studyMinutes: number;
   venueId: string;
 };
-export function profileAt(i: number, liquidCents: number): CitizenProfile {
+export function profileAt(i: number, liquidCents: number, populationSize=100): CitizenProfile {
   const rank = (i * 37) % 100,
     group =
       rank < 50
@@ -148,8 +148,10 @@ export function profileAt(i: number, liquidCents: number): CitizenProfile {
   const groupStart = rank < 50 ? 0 : rank < 90 ? 50 : rank < 99 ? 90 : 99,
     within = rank - groupStart;
   const budget = (WEALTH_REFERENCE.scenarioTotalCents * group.share) / 100,
-    base = Math.floor(budget / group.people),
-    target = base + (within < budget - base * group.people ? 1 : 0);
+    members=group.people*(populationSize/100),
+    base = Math.floor(budget / members),
+    ordinal=within+Math.floor(i/100)*group.people,
+    target = base + (ordinal < budget - base * members ? 1 : 0);
   const occupation = OCCUPATIONS[i % OCCUPATIONS.length];
   return {
     occupation: occupation.id,

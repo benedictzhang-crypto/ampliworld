@@ -9,6 +9,7 @@ import {
   type LifeWorld,
 } from './engine';
 import { OCCUPATIONS, VENUES, WEALTH_REFERENCE } from './society';
+import {CENSUS_SIZE} from './census';
 import './population.css';
 type PopulationResponse = { world?: LifeWorld; error?: string };
 
@@ -96,15 +97,17 @@ export function PopulationLayer({
     world.residents.forEach((r, i) => {
       const offset = (i % 4) * 0.28;
       object.position.set(r.x + offset, 0.99, r.z);
-      object.scale.set(1, 1, 1);
+      const scale=(r.identity?.age??18)<12?.67:1;
+      object.scale.setScalar(scale);
+      object.position.y=.17+.82*scale;
       object.updateMatrix();
       bodies.current!.setMatrixAt(i, object.matrix);
       bodies.current!.setColorAt(i, color.setHSL((i * 0.137) % 1, 0.28, 0.52));
-      object.position.y = 1.57;
+      object.position.y = .17+1.4*scale;
       object.updateMatrix();
       heads.current!.setMatrixAt(i, object.matrix);
       for (let leg = 0; leg < 2; leg++) {
-        object.position.set(r.x + offset + (leg ? -0.13 : 0.13), 0.38, r.z);
+        object.position.set(r.x + offset + (leg ? -0.13 : 0.13)*scale, .17+.21*scale, r.z);
         object.updateMatrix();
         legs.current!.setMatrixAt(i * 2 + leg, object.matrix);
       }
@@ -122,7 +125,7 @@ export function PopulationLayer({
     <group>
       <instancedMesh
         ref={bodies}
-        args={[undefined, undefined, 100]}
+        args={[undefined, undefined, CENSUS_SIZE]}
         onClick={(event) => {
           event.stopPropagation();
           if (event.instanceId !== undefined)
@@ -132,11 +135,11 @@ export function PopulationLayer({
         <capsuleGeometry args={[0.22, 0.48, 3, 6]} />
         <meshStandardMaterial roughness={0.9} />
       </instancedMesh>
-      <instancedMesh ref={heads} args={[undefined, undefined, 100]}>
+      <instancedMesh ref={heads} args={[undefined, undefined, CENSUS_SIZE]}>
         <sphereGeometry args={[0.18, 8, 6]} />
         <meshStandardMaterial color="#c49b7f" />
       </instancedMesh>
-      <instancedMesh ref={legs} args={[undefined, undefined, 200]}>
+      <instancedMesh ref={legs} args={[undefined, undefined, CENSUS_SIZE*2]}>
         <cylinderGeometry args={[0.09, 0.08, 0.7, 6]} />
         <meshStandardMaterial color="#3c434d" />
       </instancedMesh>
@@ -195,6 +198,7 @@ export function PopulationPanel({
       (n, r) => n + residentNetWorth(r, world.minute),
       0,
     ) || 1;
+  const occupations=Array.from(new Map((world?.residents||[]).map(r=>[r.profile?.occupation||r.job,{id:r.profile?.occupation||r.job,label:r.job}])).values());
   return (
     <aside
       className={`population-panel ${open ? 'is-open' : ''}`}
@@ -208,7 +212,7 @@ export function PopulationPanel({
         WORLD LAB{' '}
         <span>
           {world
-            ? `${world.residents.length} 户代表 · ${timestamp(world.minute)}`
+            ? `${world.residents.length} 名居民 · ${timestamp(world.minute)}`
             : '加载实验存档'}{' '}
           {open ? '−' : '＋'}
         </span>
@@ -216,7 +220,7 @@ export function PopulationPanel({
       {open && (
         <div className="population-content">
           <p className="population-note">
-            企业观察实验室 · 合成家庭代表 / 规则模型 · 尚未完成现实行为校准
+            企业观察实验室 · 同一居民身份、生活与财务存档 · 合成规则模型
           </p>
           {error && (
             <p role="alert" className="population-error">
@@ -289,11 +293,10 @@ export function PopulationPanel({
           {world && tab === 'society' && (
             <section aria-label="家庭财富与职业结构">
               <h3>
-                财富分布 <small>美国 · Fed DFA · 2026 Q1</small>
+                居民财富分布 <small>实验情景</small>
               </h3>
               <p className="population-note">
-                每名居民代表一户，不代表真实人口。新实验以 $100m
-                总净财富按四组官方份额初始化；旧存档保留既有财产，不强行调平。组内差异、工资和现金结构尚未校准。
+                每名居民是独立个体，同一家人各有个人账户。初始财富差异借用美国家庭统计作为情景参考，并非已校准的个人财富分布；旧存档保留既有财产。CBD 数万人是扩容目标，不是当前已运行人数。
               </p>
               <div className="wealth-table">
                 {WEALTH_REFERENCE.groups.map((group) => {
@@ -312,7 +315,7 @@ export function PopulationPanel({
                       <a href={group.url} target="_blank" rel="noreferrer">
                         {group.label}
                       </a>
-                      <span>{members.length} 户</span>
+                      <span>{members.length} 人</span>
                       <b>{share.toFixed(1)}%</b>
                       <div className="wealth-track">
                         <i style={{ width: `${Math.min(100, share)}%` }} />
@@ -324,7 +327,7 @@ export function PopulationPanel({
               </div>
               <h4>职业覆盖</h4>
               <div className="occupation-grid">
-                {OCCUPATIONS.map((o) => (
+                {occupations.map((o) => (
                   <button
                     key={o.id}
                     onClick={() => {
@@ -410,7 +413,7 @@ export function PopulationPanel({
                   }}
                 >
                   <option value="all">全部职业</option>
-                  {OCCUPATIONS.map((o) => (
+                  {occupations.map((o) => (
                     <option key={o.id} value={o.id}>
                       {o.label}
                     </option>
@@ -438,6 +441,8 @@ export function PopulationPanel({
                 {resident.name} <small>{resident.job}</small>
               </h3>
               <p>{resident.reason}</p>
+              <p>{resident.id} · {resident.identity?.age} 岁<br/>模拟银行账户：{resident.bankAccountId}</p>
+              {resident.identity&&<><p>{resident.identity.home}<br/><small>{resident.identity.homeStatus}</small></p><p>兴趣：{resident.identity.preference} · 工作单位：{resident.identity.workplace||'家庭 / 学校 / 社区'}</p><h4>家庭、邻居与同事</h4><div className="occupation-grid">{resident.identity.relations.map(link=>{const other=world.residents.find(r=>r.id===`R${String(link.index+1).padStart(3,'0')}`);return other?<button key={other.id} onClick={()=>onSelect(other.id)}>{link.type} · {other.name}</button>:null;})}{world.residents.filter(r=>r.id!==resident.id&&!!resident.identity?.workplace&&r.identity?.workplace===resident.identity.workplace).slice(0,4).map(r=><button key={`coworker-${r.id}`} onClick={()=>onSelect(r.id)}>同事 · {r.name}</button>)}</div><h4>人格参数（合成，非大模型）</h4>{Object.entries(resident.identity.personality).map(([key,value],i)=><p className="service-hours" key={key}><span>{['开放性','尽责性','外向性','亲和性','情绪稳定性'][i]}</span><b>{value}</b></p>)}</>}
               <div className="population-needs">
                 {(
                   [
@@ -484,12 +489,15 @@ export function PopulationPanel({
                   <dt>非现金资产（情景值）</dt>
                   <dd>{usd(resident.profile?.nonCashAssets || 0)}</dd>
                 </div>
+                <div><dt>贷款余额</dt><dd>{usd(resident.profile?.debt||0)}</dd></div>
+                <div><dt>个人净资产</dt><dd>{usd(residentNetWorth(resident,world.minute))}</dd></div>
                 <div>
                   <dt>家庭食品库存</dt>
                   <dd>{resident.profile?.pantry || 0} 份</dd>
                 </div>
               </dl>
               <h4>最近记忆与收支</h4>
+              <p className="population-note">资产目前记录个人总估值；房产、车辆逐项产权及贷款合同、利息和还款计划尚未接入。这里的账户是模拟居民账户，不是真实银行或真人登录账号。</p>
               <ol className="population-memory">
                 {resident.memory
                   .slice(-8)

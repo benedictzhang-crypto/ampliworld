@@ -1,5 +1,6 @@
 /** Deterministic, inspectable bootstrap policy. Not an LLM or calibrated human predictor. */
 import { OCCUPATIONS, VENUES, profileAt, type CitizenProfile } from './society';
+import {citizen,CENSUS_SIZE,CENSUS_VERSION} from './census';
 export type Action =
   | 'home'
   | 'drink'
@@ -24,6 +25,8 @@ export const FACILITIES = [
   { id: 'trade', label: '虚拟证券服务点', x: 10, z: -10, color: '#86b2f0' },
 ] as const;
 export type Resident = {
+  identity?: ReturnType<typeof citizen>;
+  bankAccountId?: string;
   profile?: CitizenProfile;
   id: string;
   name: string;
@@ -52,6 +55,8 @@ export type Resident = {
   memory: { minute: number; text: string; cashDelta: number }[];
 };
 export type LifeWorld = {
+  censusVersion?:string;
+  socialEncounters?:{minute:number;a:string;b:string;text:string;topic:string;kind:string}[];
   societyVersion?: 1;
   venueStats?: Record<string, { visits: number; revenue: number }>;
   serviceHours?: Record<string, number>;
@@ -78,14 +83,14 @@ export const moneyTotal = (w: LifeWorld) =>
   w.treasury + w.residents.reduce((n, r) => n + r.cash + r.savings, 0);
 export function createLifeWorld(): LifeWorld {
   const jobs = OCCUPATIONS.map((o) => o.label);
-  const residents = Array.from({ length: 100 }, (_, i): Resident => {
+  const residents = Array.from({ length: CENSUS_SIZE }, (_, i): Resident => {
     const sx = i % 2 ? 1 : -1,
       sz = Math.floor(i / 2) % 2 ? 1 : -1,
       home: [number, number] = [sx * (36 + (i % 6) * 3), sz * 19];
     const cash = 12000 + ((i * 913) % 54000),
       savings = 10000 + ((i * 1771) % 85000);
     return {
-      profile: profileAt(i, cash + savings),
+      profile: profileAt(i, cash + savings,CENSUS_SIZE),
       id: `R${String(i + 1).padStart(3, '0')}`,
       name: `居民 ${String(i + 1).padStart(3, '0')}`,
       job: jobs[i % jobs.length],
@@ -128,13 +133,28 @@ export function createLifeWorld(): LifeWorld {
   w.venueStats = {};
   w.serviceHours = {};
   w.openingMoney = moneyTotal(w);
+  attachIdentities(w);
   return w;
 }
+function attachIdentities(w:LifeWorld){
+  w.residents.forEach((r)=>{
+    const i=Number(r.id.slice(1))-1;
+    r.identity??=citizen(i);
+    r.bankAccountId??=`SIM-BANK-${r.id}`;
+    r.name=r.identity.name;r.job=r.identity.occupation;
+    const employed=!!r.identity.workplace;
+    if(!employed){r.wage=0;if(r.action==='work'){r.action='home';r.remaining=0;r.route=[];}}
+    else if(!r.wage)r.wage=2400;
+    if(r.profile){const known=OCCUPATIONS.find(o=>o.label===r.job);r.profile.occupation=r.identity.age<18||r.job==='大学生'?'student':known?.id||r.job;r.profile.sector=known?.sector||(employed?'社会职业':'非就业');}
+    if(r.identity.age<18&&r.action==='trade'){r.action='home';r.remaining=0;r.route=[];}
+  });
+  w.censusVersion=CENSUS_VERSION;
+}
 export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
-  if (input.societyVersion === 1) return input;
+  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION) return input;
   const w = structuredClone(input),
     fresh = createLifeWorld();
-  for (let i = 0; i < w.residents.length; i++) {
+  if(input.societyVersion!==1)for (let i = 0; i < w.residents.length; i++) {
     const r = w.residents[i],
       occupation = OCCUPATIONS[i % OCCUPATIONS.length];
     r.profile = profileAt(
@@ -144,17 +164,19 @@ export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
     r.job = occupation.label;
     r.wage = occupation.wage;
   }
-  for (const r of fresh.residents.slice(w.residents.length)) {
+  const existingIds=new Set(w.residents.map(r=>r.id));
+  for (const r of fresh.residents.filter(r=>!existingIds.has(r.id))) {
     r.cash = Math.min(r.cash, Math.max(0, w.treasury));
     w.treasury -= r.cash;
     r.savings = Math.min(r.savings, Math.max(0, w.treasury));
     w.treasury -= r.savings;
-    r.profile = profileAt(w.residents.length, r.cash + r.savings);
+    r.profile = profileAt(Number(r.id.slice(1))-1, r.cash + r.savings,CENSUS_SIZE);
     w.residents.push(r);
   }
   w.societyVersion = 1;
-  w.venueStats = {};
-  w.serviceHours = {};
+  w.venueStats ??= {};
+  w.serviceHours ??= {};
+  attachIdentities(w);
   return w;
 }
 export const residentNetWorth = (r: Resident, minute: number) =>
@@ -208,7 +230,7 @@ function choose(w: LifeWorld, r: Resident): [Action, string] {
     r.profile.pantry < 2
   )
     return ['shop', '检查家庭食品库存，根据预算采购生活必需品'];
-  if (r.risk > 0.55 && r.cash > 30000 && r.lastTradeDay !== day)
+  if ((r.identity?.age??18)>=18 && r.risk > 0.55 && r.cash > 30000 && r.lastTradeDay !== day)
     return ['trade', '生活费有余，按风险预算进行一次虚拟交易'];
   if (day % 7 >= 5 && r.cash > 25000 && r.lastTripDay !== day)
     return ['travel', '休息日有预算，安排一次短途出游'];
@@ -342,6 +364,7 @@ function complete(w: LifeWorld, r: Resident) {
       remember(w, r, '完成一小时学习，无工资支付');
       break;
     case 'work': {
+      if((r.identity?.age??18)<18)break;
       const wage = Math.min(w.treasury, r.wage);
       w.treasury -= wage;
       r.cash += wage;
@@ -389,6 +412,7 @@ function complete(w: LifeWorld, r: Resident) {
       break;
     }
     case 'trade': {
+      if((r.identity?.age??18)<18)break;
       const price = paperPrice(w.minute);
       if (r.shares > 0) {
         const proceeds = r.shares * price;
@@ -461,6 +485,12 @@ export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
       }
     }
   }
+  // Conversations only involve persisted residents who actually share a location.
+  const a=w.residents[Math.floor(w.minute/15)%w.residents.length];
+  const b=w.residents.find(r=>r.id!==a.id&&Math.hypot(r.x-a.x,r.z-a.z)<3);
+  if(b){const text=(a.identity?.age??18)<18||(b.identity?.age??18)<18?'今天学校和生活过得怎么样？':'今天过得怎么样？一起聊聊附近的生活。';
+    w.socialEncounters=[...(w.socialEncounters||[]),{minute:w.minute,a:a.id,b:b.id,text,topic:'附近居民交流',kind:'规则模板交谈'}].slice(-50);
+    remember(w,a,`与${b.name}交谈：${text}`);remember(w,b,`与${a.name}交谈：${text}`);}
   w.revision++;
   return w;
 }
