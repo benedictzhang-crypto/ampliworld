@@ -46,7 +46,7 @@ for (const p of CIVIC_PLACES) {
   assert.equal(json.images?.length || 0, 0, 'No facade image substitution');
   assert.ok(p.manifest.triangles < 180000);
 }
-const stadium = CIVIC_PLACES[0].manifest;
+const stadium = CIVIC_PLACES.find(p=>p.id==='GC-STADIUM-001').manifest;
 assert.equal(stadium.pitch.widthMeters, 68);
 assert.equal(stadium.pitch.lengthMeters, 105);
 assert.ok(stadium.roof.openOculusMeters[0] > 68);
@@ -128,7 +128,7 @@ console.log(
   JSON.stringify({
     status: 'passed',
     stadiumTriangles: stadium.triangles,
-    sushiTriangles: CIVIC_PLACES[1].manifest.triangles,
+    sushiTriangles: CIVIC_PLACES.find(p=>p.id==='GC-SUSHI-001').manifest.triangles,
     parkingBays: 44,
     checked:
       'entrances, floor continuity, core/global route centres and GLB geometry',

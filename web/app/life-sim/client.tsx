@@ -363,6 +363,7 @@ export function PopulationPanel({
                 本轮累计完成的服务；标为“服务点”的条目不代表新建筑室内已建成。
               </p>
               <div className="venue-table">
+                {Object.values(world.businesses||{}).map(b=><details key={b.id}><summary><strong>{b.name}</strong> · {b.staffIds.length} 人 · 今日 {b.todayVisits} 单 / {usd(b.todayRevenue)}</summary><p>{b.open}:00–{b.close}:00 · 累计工时 {b.workedHours}<br/>经营余额 {usd(b.cash)} · 未付工资 {usd(b.unpaidWages)}</p><p>{b.ownerId?'经营者':'负责人'}：{world.residents.find(r=>r.id===(b.ownerId||b.managerId))?.name||'待招聘'}</p><div className="occupation-grid">{b.staffIds.slice(0,12).map(id=>{const r=world.residents.find(r=>r.id===id);return r?<button key={id} onClick={()=>onSelect(id)}>{r.name} · {r.job}</button>:null;})}</div><small>{b.id}{b.floor?' · '+b.floor:''}</small></details>)}
                 {VENUES.map((v) => (
                   <div key={v.id}>
                     <strong>
@@ -394,7 +395,7 @@ export function PopulationPanel({
                 </p>
               ))}
               <p className="population-note">
-                当前为工时观察；未据此声称治安改善、诊疗效果或草坪维护已完成物理联动。零售非食品购买策略待接入。
+                店铺按实际完成的消费记账；工资从经营账户支付，公共服务由公共账户支持。未付工资单独显示，不凭空补钱。医院与警务当前接入人员和服务工时，并不代表完整诊疗或治安模型；酒店短住为消费事件，客房内部尚未逐间构建。
               </p>
             </section>
           )}

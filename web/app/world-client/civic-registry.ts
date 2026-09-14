@@ -4,8 +4,18 @@ import dealership from '../../public/assets/3d/ampliworld/GC-AUTO-001/dealership
 import streets from '../../public/assets/3d/ampliworld/GC-SPORT-STREET-001/street-manifest.json';
 import sushiGarden from '../../public/assets/3d/ampliworld/GC-SUSHI-GARDEN-001/garden-manifest.json';
 import marina from '../../public/assets/3d/ampliworld/GC-MARINA-001/marina-manifest.json';
+import hotel5 from '../../public/assets/3d/ampliworld/GC-HOTEL-005/manifest.json';
+import hotel4 from '../../public/assets/3d/ampliworld/GC-HOTEL-004/manifest.json';
+import restaurant1 from '../../public/assets/3d/ampliworld/GC-RESTAURANT-001/manifest.json';
+import restaurant2 from '../../public/assets/3d/ampliworld/GC-RESTAURANT-002/manifest.json';
+import restaurant3 from '../../public/assets/3d/ampliworld/GC-RESTAURANT-003/manifest.json';
 
 export const CIVIC_PLACES = [
+  {id:'GC-HOTEL-005',name:'Aurelia Grand · 五星酒店',x:-150,z:-644.5,file:'model.glb',manifest:hotel5},
+  {id:'GC-HOTEL-004',name:'Meridian · 四星酒店',x:150,z:-644.5,file:'model.glb',manifest:hotel4},
+  {id:'GC-RESTAURANT-001',name:'Olive Terrace · 地中海餐厅',x:245,z:-82,file:'model.glb',manifest:restaurant1},
+  {id:'GC-RESTAURANT-002',name:'Bronze Garden · 花园中餐',x:290,z:-82,file:'model.glb',manifest:restaurant2},
+  {id:'GC-RESTAURANT-003',name:'Ember Grill · 炭烤餐厅',x:335,z:-82,file:'model.glb',manifest:restaurant3},
   {id:'GC-MARINA-001',name:'东湾游艇港酒店 · 150 泊位',x:6500,z:13200,file:'marina-yacht-hotel.glb',manifest:marina},
   {
     id: 'GC-STADIUM-001',

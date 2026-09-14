@@ -4,6 +4,8 @@ import {citizen,CENSUS_SIZE,CENSUS_VERSION} from './census';
 import {crossingWait} from './traffic';
 import {consumerPersona} from './persona-adapter';
 import {bindResidency,type Dwelling,type Employment} from './residency';
+import {initializeCommerce,chooseBusiness,COMMERCE_VERSION,type Business} from './commerce';
+import {occupationFor} from './occupation-weights';
 export type Action =
   | 'home'
   | 'drink'
@@ -28,6 +30,9 @@ export const FACILITIES = [
   { id: 'trade', label: '虚拟证券服务点', x: 10, z: -10, color: '#86b2f0' },
 ] as const;
 export type Resident = {
+  businessId?:string;
+  diningOut?:boolean;
+  lastBrowseDay?:number;
   dwellingId?:string;
   employment?:Employment;
   journey?:{destination:[number,number];minutes:number};
@@ -64,6 +69,8 @@ export type Resident = {
   memory: { minute: number; text: string; cashDelta: number }[];
 };
 export type LifeWorld = {
+  commerceVersion?:number;
+  businesses?:Record<string,Business>;
   residencyVersion?:number;
   housing?:Record<string,Dwelling>;
   censusVersion?:string;
@@ -91,7 +98,7 @@ const cap = (v: number) => Math.max(0, Math.min(100, v));
 export const paperPrice = (minute: number) =>
   1000 + Math.round(Math.sin(Math.floor(minute / 1440) * 0.77) * 120);
 export const moneyTotal = (w: LifeWorld) =>
-  w.treasury + w.residents.reduce((n, r) => n + r.cash + r.savings, 0);
+  w.treasury + w.residents.reduce((n, r) => n + r.cash + r.savings, 0)+Object.values(w.businesses||{}).reduce((n,b)=>n+b.cash,0);
 export function createLifeWorld(): LifeWorld {
   const jobs = OCCUPATIONS.map((o) => o.label);
   const residents = Array.from({ length: CENSUS_SIZE }, (_, i): Resident => {
@@ -146,6 +153,7 @@ export function createLifeWorld(): LifeWorld {
   w.openingMoney = moneyTotal(w);
   attachIdentities(w);
   bindResidency(w);
+  initializeCommerce(w);
   for(const r of w.residents){r.x=r.home[0];r.z=r.home[1];}
   return w;
 }
@@ -153,19 +161,20 @@ function attachIdentities(w:LifeWorld){
   w.residents.forEach((r)=>{
     const i=Number(r.id.slice(1))-1;
     r.identity??=citizen(i);
+    if(w.commerceVersion!==COMMERCE_VERSION)r.identity.occupation=occupationFor(i,r.identity.age,r.identity.occupation);
     r.consumerPersona??=consumerPersona(i);
     r.bankAccountId??=`SIM-BANK-${r.id}`;
     r.name=r.identity.name;r.job=r.identity.occupation;
     const employed=!!r.identity.workplace;
     if(!employed){r.wage=0;if(r.action==='work'){r.action='home';r.remaining=0;r.route=[];}}
     else if(!r.wage)r.wage=2400;
-    if(r.profile){const known=OCCUPATIONS.find(o=>o.label===r.job);r.profile.occupation=r.identity.age<18||r.job==='大学生'?'student':known?.id||r.job;r.profile.sector=known?.sector||(employed?'社会职业':'非就业');}
+    if(r.profile&&w.commerceVersion!==COMMERCE_VERSION){const known=OCCUPATIONS.find(o=>o.label===r.job);r.profile.occupation=r.identity.age<18||r.job==='大学生'?'student':known?.id||r.job;r.profile.sector=known?.sector||(employed?'社会职业':'非就业');}
     if(r.identity.age<18&&r.action==='trade'){r.action='home';r.remaining=0;r.route=[];}
   });
   w.censusVersion=CENSUS_VERSION;
 }
 export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
-  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===1&&input.housing&&input.residents.every(r=>r.consumerPersona)) return input;
+  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===1&&input.commerceVersion===COMMERCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona)) return input;
   const w = structuredClone(input),
     fresh = createLifeWorld();
   if(input.societyVersion!==1)for (let i = 0; i < w.residents.length; i++) {
@@ -192,6 +201,7 @@ export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
   w.serviceHours ??= {};
   attachIdentities(w);
   bindResidency(w);
+  initializeCommerce(w);
   return w;
 }
 export const residentNetWorth = (r: Resident, minute: number) =>
@@ -230,7 +240,9 @@ function choose(w: LifeWorld, r: Resident): [Action, string] {
     r.profile?.occupation === 'student'
   )
     return ['study', '前往学院学习，不把学生上课计作工资收入'];
-  if (hour >= 9 && hour < 17 && r.worked < 480 && day % 7 < 5 && r.wage > 0)
+  const employer=r.employment&&w.businesses?.[r.employment.placeId];
+  const shiftStart=employer&&['hotel','hospital','police'].includes(employer.type)?(Number(r.id.slice(1))%3)*8:employer?.type==='restaurant'?11:9;
+  if (hour >= shiftStart && hour < shiftStart+8 && r.worked < 480 && (day % 7 < 5||employer&&['hotel','hospital','police','restaurant','retail-shop'].includes(employer.type)) && r.wage > 0)
     return ['work', `${r.job}：在岗位完成一小时服务，完成后领取工资`];
   if (r.cash > 65000) return ['bank', '保留生活费，把多余现金存入银行'];
   if (r.happiness < 48)
@@ -249,6 +261,7 @@ function choose(w: LifeWorld, r: Resident): [Action, string] {
     return ['trade', '生活费有余，按风险预算进行一次虚拟交易'];
   if (day % 7 >= 5 && r.cash > 25000 && r.lastTripDay !== day)
     return ['travel', '休息日有预算，安排一次短途出游'];
+  if((r.identity?.age||0)>=18&&r.cash>12000&&r.lastBrowseDay!==day&&hour>=10&&hour<21&&Number(r.id.slice(1))%4===day%4)return ['leisure','有可支配预算，逛店或安排车辆服务'];
   return ['home', '回家补充精力，保留消费预算'];
 }
 // Explicit sidewalk waypoints in the detailed core. Cross-city navigation is not implied.
@@ -269,7 +282,10 @@ function start(w: LifeWorld, r: Resident) {
   const [action, reason] = choose(w, r),
     f = FACILITIES.find((f) => f.id === action);
   let venueId = '';
-  if (action === 'eat' && !r.profile?.pantry) {
+  r.businessId=undefined;r.diningOut=false;
+  if (action === 'eat' && (!r.profile?.pantry||((Number(r.id.slice(1))+Math.floor(w.minute/1440))%10)<(r.frugality>.5?3:6))) {
+    const restaurant=chooseBusiness(w,r,['restaurant'],Math.max(0,Math.min(r.cash-1500,r.cash*.35)));
+    if(restaurant){r.businessId=restaurant.id;r.diningOut=true;}
     const restaurants = VENUES.filter(
       (v) => v.kind === '餐饮' && v.price <= Math.min(r.cash, r.cash * 0.18),
     );
@@ -305,10 +321,14 @@ function start(w: LifeWorld, r: Resident) {
                     ? 'clothing'
                     : '';
   }
+  if(action==='hospital')r.businessId='SERVICE-clinic';
+  if(action==='leisure'&&reason.includes('逛店')){r.businessId=chooseBusiness(w,r,Number(r.id.slice(1))%8===0?['auto']:['retail-shop'],r.cash-6000)?.id;r.lastBrowseDay=Math.floor(w.minute/1440);}
+  if(action==='travel')r.businessId=chooseBusiness(w,r,['hotel'],Math.max(0,r.cash-15000))?.id;
   if (r.profile) r.profile.venueId = venueId;
   const venue = VENUES.find((v) => v.id === venueId);
   r.action = action;
-  r.reason = reason + (venue ? ` · ${venue.name}` : '');
+  const business=r.businessId?w.businesses?.[r.businessId]:undefined;
+  r.reason = reason + (business?` · ${business.name}`:venue ? ` · ${venue.name}` : '');
   r.remaining =
     action === 'rest'
       ? 120
@@ -319,8 +339,8 @@ function start(w: LifeWorld, r: Resident) {
           : action === 'home'
             ? 30
             : 15;
-  const homeMeal = action === 'eat' && !!r.profile?.pantry;
-  const destination:[number,number]=action==='work'&&r.employment?r.employment.entry:venue?[venue.x,venue.z]:homeMeal?r.home:f?[f.x,f.z]:r.home;
+  const homeMeal = action === 'eat' && !!r.profile?.pantry&&!r.diningOut;
+  const destination:[number,number]=action==='work'&&r.employment?r.employment.entry:business?business.entry:homeMeal?r.home:venue?[venue.x,venue.z]:f?[f.x,f.z]:r.home;
   const distance=Math.hypot(destination[0]-r.x,destination[1]-r.z);
   // Outside the verified core footpath: timed, abstract transit, not a straight walk through buildings.
   if(distance>250||Math.abs(r.x)>140||Math.abs(r.z)>140||Math.abs(destination[0])>140||Math.abs(destination[1])>140){
@@ -332,7 +352,9 @@ function start(w: LifeWorld, r: Resident) {
 function complete(w: LifeWorld, r: Resident) {
   const log = w.daily.at(-1)!;
   const venue = VENUES.find((v) => v.id === r.profile?.venueId);
+  const business=r.businessId?w.businesses?.[r.businessId]:undefined;
   const recordVisit = (revenue: number) => {
+    if(business){business.visits++;business.todayVisits++;business.revenue+=revenue;business.todayRevenue+=revenue;}
     if (!venue) return;
     w.venueStats ??= {};
     const stats = (w.venueStats[venue.id] ??= { visits: 0, revenue: 0 });
@@ -342,7 +364,7 @@ function complete(w: LifeWorld, r: Resident) {
   const pay = (cents: number, description: string) => {
     const cost = Math.min(r.cash, cents);
     r.cash -= cost;
-    w.treasury += cost;
+    if(business)business.cash+=cost;else w.treasury += cost;
     log.consumption += cost;
     remember(w, r, description, -cost);
     return cost;
@@ -353,14 +375,14 @@ function complete(w: LifeWorld, r: Resident) {
       remember(w, r, '完成饮水（免费）');
       break;
     case 'eat':
-      if (r.profile && r.profile.pantry > 0) {
+      if (r.profile && r.profile.pantry > 0&&!r.diningOut) {
         r.profile.pantry--;
         remember(w, r, '在家使用已购食材做饭');
       } else {
         recordVisit(
           pay(
-            venue?.price || 0,
-            venue ? `${venue.name}用餐` : '领取社区救助餐',
+            business?.price||venue?.price || 0,
+            business?`${business.name}用餐`:venue ? `${venue.name}用餐` : '领取社区救助餐',
           ),
         );
       }
@@ -383,8 +405,10 @@ function complete(w: LifeWorld, r: Resident) {
       break;
     case 'work': {
       if((r.identity?.age??18)<18)break;
-      const wage = Math.min(w.treasury, r.wage);
-      w.treasury -= wage;
+      const employer=r.employment&&w.businesses?.[r.employment.placeId];
+      const publicEmployer=!!employer&&['hospital','police','school'].includes(employer.type);
+      const wage = Math.min(employer&&!publicEmployer?employer.cash:w.treasury, r.wage);
+      if(employer){if(publicEmployer)w.treasury-=wage;else employer.cash-=wage;employer.workedHours++;employer.unpaidWages+=r.wage-wage;}else w.treasury -= wage;
       r.cash += wage;
       r.worked += 60;
       log.wages += wage;
@@ -410,11 +434,11 @@ function complete(w: LifeWorld, r: Resident) {
       log.clinicVisits++;
       break;
     case 'leisure':
-      pay(r.cash >= 600 ? 600 : 0, '完成休闲活动');
+      recordVisit(pay(business?.price||(r.cash >= 600 ? 600 : 0), business?`${business.name}完成消费或服务`:'完成休闲活动'));
       r.happiness = cap(r.happiness + 30);
       break;
     case 'travel':
-      pay(2200, '完成短途公园出游（含交通）');
+      recordVisit(pay(business?.price||2200, business?`${business.name}完成短住体验`:'完成短途公园出游（含交通）'));
       r.happiness = cap(r.happiness + 40);
       r.energy = cap(r.energy - 10);
       r.lastTripDay = Math.floor(w.minute / 1440);
@@ -466,6 +490,7 @@ export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
     const previousDay = Math.floor(w.minute / 1440);
     w.minute += 5;
     if (Math.floor(w.minute / 1440) !== previousDay) {
+      for(const b of Object.values(w.businesses||{})){b.day=previousDay+1;b.todayVisits=0;b.todayRevenue=0;}
       w.residents.forEach((r) => (r.worked = 0));
       w.daily.push({
         day: previousDay + 1,
@@ -478,7 +503,7 @@ export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
     }
     for (const r of w.residents) {
       r.water = cap(r.water - 0.32);
-      r.nutrition = cap(r.nutrition - 0.23);
+      r.nutrition = cap(r.nutrition - 0.48);
       r.energy = cap(r.energy - 0.13);
       r.happiness = cap(r.happiness - 0.045);
       if (r.water < 12 || r.nutrition < 12) r.health = cap(r.health - 0.12);
