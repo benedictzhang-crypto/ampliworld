@@ -9,8 +9,14 @@ import hotel4 from '../../public/assets/3d/ampliworld/GC-HOTEL-004/manifest.json
 import restaurant1 from '../../public/assets/3d/ampliworld/GC-RESTAURANT-001/manifest.json';
 import restaurant2 from '../../public/assets/3d/ampliworld/GC-RESTAURANT-002/manifest.json';
 import restaurant3 from '../../public/assets/3d/ampliworld/GC-RESTAURANT-003/manifest.json';
+import salon from '../../public/assets/3d/ampliworld/GC-SALON-001/manifest.json';
 
 export const CIVIC_PLACES = [
+  {id:'GC-NAILS-01',assetId:'GC-SALON-001',name:'青庭 Nail Atelier',x:-1100,z:1000,file:'model.glb',manifest:salon},
+  {id:'GC-NAILS-02',assetId:'GC-SALON-001',name:'东城 Luma Nails',x:5350,z:3350,file:'model.glb',manifest:salon},
+  {id:'GC-NAILS-03',assetId:'GC-SALON-001',name:'河西 Willow Nails',x:-1350,z:8350,file:'model.glb',manifest:salon},
+  {id:'GC-SC-DINE-01',assetId:'GC-RESTAURANT-001',name:'东城 Olive Terrace',x:5300,z:3400,file:'model.glb',manifest:restaurant1},
+  {id:'GC-SC-DINE-02',assetId:'GC-RESTAURANT-002',name:'河西 Bronze Garden',x:-1300,z:8400,file:'model.glb',manifest:restaurant2},
   {id:'GC-HOTEL-005',name:'Aurelia Grand · 五星酒店',x:-150,z:-644.5,file:'model.glb',manifest:hotel5},
   {id:'GC-HOTEL-004',name:'Meridian · 四星酒店',x:150,z:-644.5,file:'model.glb',manifest:hotel4},
   {id:'GC-RESTAURANT-001',name:'Olive Terrace · 地中海餐厅',x:245,z:-82,file:'model.glb',manifest:restaurant1},

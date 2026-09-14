@@ -1,5 +1,6 @@
 import { getChatGPTUser } from '../../chatgpt-auth';
-import { populationDB } from '../../life-sim/storage';
+import { populationDB,inferenceConfig } from '../../life-sim/storage';
+import {deliberate} from '../../life-sim/deliberation';
 import {encodeSnapshot,decodeSnapshot} from '../../life-sim/snapshot-codec';
 import {
   createLifeWorld,
@@ -76,6 +77,7 @@ export async function POST(request: Request) {
         { world: current, error: '其他窗口已推进世界，已刷新' },
         409,
       );
+    if(body.llmResidentId!==undefined){if(typeof body.llmResidentId!=='string')return response({error:'居民编号无效'},400);try{await deliberate(current,body.llmResidentId,inferenceConfig());}catch(e){return response({error:e instanceof Error?e.message:'推理失败'},422);}}
     const next = advanceLifeWorld(current, body.minutes);
     next.lastOperation = body.operationId;
     const update = await populationDB()

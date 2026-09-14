@@ -6,6 +6,8 @@ import {consumerPersona} from './persona-adapter';
 import {bindResidency,type Dwelling,type Employment} from './residency';
 import {initializeCommerce,chooseBusiness,COMMERCE_VERSION,type Business} from './commerce';
 import {occupationFor} from './occupation-weights';
+import type {Decision} from './deliberation';
+import {expandRegionalServices} from './regional-services';
 export type Action =
   | 'home'
   | 'drink'
@@ -30,6 +32,7 @@ export const FACILITIES = [
   { id: 'trade', label: '虚拟证券服务点', x: 10, z: -10, color: '#86b2f0' },
 ] as const;
 export type Resident = {
+  plannedDecision?:Decision;
   businessId?:string;
   diningOut?:boolean;
   lastBrowseDay?:number;
@@ -69,6 +72,8 @@ export type Resident = {
   memory: { minute: number; text: string; cashDelta: number }[];
 };
 export type LifeWorld = {
+  regionalVersion?:number;
+  deliberation?:{status:string;residentId?:string;model?:string;minute?:number};
   commerceVersion?:number;
   businesses?:Record<string,Business>;
   residencyVersion?:number;
@@ -154,6 +159,7 @@ export function createLifeWorld(): LifeWorld {
   attachIdentities(w);
   bindResidency(w);
   initializeCommerce(w);
+  expandRegionalServices(w);
   for(const r of w.residents){r.x=r.home[0];r.z=r.home[1];}
   return w;
 }
@@ -174,7 +180,7 @@ function attachIdentities(w:LifeWorld){
   w.censusVersion=CENSUS_VERSION;
 }
 export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
-  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===1&&input.commerceVersion===COMMERCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona)) return input;
+  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===1&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.housing&&input.residents.every(r=>r.consumerPersona)) return input;
   const w = structuredClone(input),
     fresh = createLifeWorld();
   if(input.societyVersion!==1)for (let i = 0; i < w.residents.length; i++) {
@@ -202,6 +208,7 @@ export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
   attachIdentities(w);
   bindResidency(w);
   initializeCommerce(w);
+  expandRegionalServices(w);
   return w;
 }
 export const residentNetWorth = (r: Resident, minute: number) =>
@@ -279,7 +286,10 @@ function routeTo(r: Resident, dest: [number, number]): [number, number][] {
   ];
 }
 function start(w: LifeWorld, r: Resident) {
-  const [action, reason] = choose(w, r),
+  const plan=r.plannedDecision&&r.plannedDecision.validUntil>=w.minute&&r.health>=40&&r.water>=38&&r.nutrition>=38?r.plannedDecision:undefined;
+  delete r.plannedDecision;
+  if(w.deliberation?.residentId===r.id&&w.deliberation.status==='proposed')w.deliberation.status=plan?'executing':'overridden-by-needs';
+  const [action, reason] = plan?[plan.action,'自主决策 · '+plan.reason]:choose(w, r),
     f = FACILITIES.find((f) => f.id === action);
   let venueId = '';
   r.businessId=undefined;r.diningOut=false;
@@ -322,8 +332,9 @@ function start(w: LifeWorld, r: Resident) {
                     : '';
   }
   if(action==='hospital')r.businessId='SERVICE-clinic';
-  if(action==='leisure'&&reason.includes('逛店')){r.businessId=chooseBusiness(w,r,Number(r.id.slice(1))%8===0?['auto']:['retail-shop'],r.cash-6000)?.id;r.lastBrowseDay=Math.floor(w.minute/1440);}
+  if(action==='leisure'&&reason.includes('逛店')){r.businessId=chooseBusiness(w,r,(r.consumerPersona?.personalCareInterest||0)>.65?['salon']:Number(r.id.slice(1))%8===0?['auto']:['retail-shop'],r.cash-6000)?.id;r.lastBrowseDay=Math.floor(w.minute/1440);}
   if(action==='travel')r.businessId=chooseBusiness(w,r,['hotel'],Math.max(0,r.cash-15000))?.id;
+  if(plan?.businessId){r.businessId=plan.businessId;r.diningOut=action==='eat';}
   if (r.profile) r.profile.venueId = venueId;
   const venue = VENUES.find((v) => v.id === venueId);
   r.action = action;

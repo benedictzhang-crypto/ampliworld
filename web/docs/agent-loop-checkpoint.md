@@ -1,0 +1,11 @@
+# Research decision-loop checkpoint
+
+The single-resident pilot sends persona parameters, current needs, budget, recent memories and nearby venues to a configured chat-completion inference endpoint. The model can propose an action and existing venue, never mutate balances or write code. Server validation rejects unknown actions/venues, inappropriate work, closed businesses and unaffordable purchases. Normal simulation executes approved proposals and records outcomes for the next decision. Urgent needs can override proposals.
+
+This is NOT an active 3,000-person LLM simulation. No production inference credentials/model are currently configured, and no live model call has been verified. Set server-only AMPLIWORLD_LLM_TOKEN and AMPLIWORLD_LLM_MODEL; optional AMPLIWORLD_LLM_URL defaults to https://router.huggingface.co/v1/chat/completions. The owner must choose a provider/model and approve its operating budget. The UI exposes one manual inference request per idle resident; there is no automatic paid inference loop.
+
+Twenty actual synthetic MatrAIx research samples were retrieved anonymously from the official HF dataset viewer and saved outside this public source repository, with research-only provenance and terms. They have NOT replaced existing live residents. Dataset: https://huggingface.co/datasets/MatrAIx2026/MatrAIx_Persona_1M ; research paper: https://arxiv.org/abs/2608.04205 . A full million-person import, representative cohort matching and permission-aware private data integration remain pending.
+
+Regional additions: three nail salons (Qingting residential district, east subcenter, west subcenter), restaurants at both subcenters, six fictional company tenancies in named subcenter office towers. Staff are reassigned from existing offices without adding/duplicating people or resetting merchant accounts. Nail-salon demand uses individual personal-care preference, not gender or attractiveness.
+
+Next: configure and verify a real inference provider; durable cross-request inference budget/idempotency reservations; independent schema/behavior evals; private research-persona mapping; continuous event-triggered scheduling, service queues and full street navigation. Buildings reuse original project geometry with distinct physical instance IDs. No foreground browser or visual render QA this phase.

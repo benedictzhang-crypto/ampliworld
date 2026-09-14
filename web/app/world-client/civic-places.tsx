@@ -6,16 +6,18 @@ import { Mesh, Material } from 'three';
 import { MALL_GARAGE, garageLevelAt } from './mall-garage';
 function CivicAsset({
   id,
+  assetId,
   file,
   x,
   z,
 }: {
   id: string;
+  assetId?:string;
   file: string;
   x: number;
   z: number;
 }) {
-  const { scene } = useGLTF(`/assets/3d/ampliworld/${id}/${file}`);
+  const { scene } = useGLTF(`/assets/3d/ampliworld/${assetId||id}/${file}`);
   const display = useMemo(() => {
     const c = scene.clone(true);
     if (id === 'GC-SPORT-STREET-001')
@@ -46,7 +48,7 @@ export function CivicPlaces({ garageY = 0 }: { garageY?: number }) {
         z={0}
       />
       {CIVIC_PLACES.map((p) => (
-        <CivicAsset key={p.id} {...p} />
+        <CivicAsset key={`${p.id}/${p.x}/${p.z}`} {...p} />
       ))}
       <CivicAsset id="GC-MALL-GARAGE-002" file="garage.glb" x={0} z={-188} />
       {[-70, 0, 75].flatMap((x) =>

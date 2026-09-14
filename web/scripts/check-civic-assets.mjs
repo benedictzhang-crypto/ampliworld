@@ -40,7 +40,7 @@ function route(a, b) {
   }
 }
 for (const p of CIVIC_PLACES) {
-  const b = readFileSync(new URL(`${p.id}/${p.file}`, base));
+  const b = readFileSync(new URL(`${p.assetId||p.id}/${p.file}`, base));
   assert.equal(b.toString('ascii', 0, 4), 'glTF');
   const json = JSON.parse(b.toString('utf8', 20, 20 + b.readUInt32LE(12)));
   assert.equal(json.images?.length || 0, 0, 'No facade image substitution');

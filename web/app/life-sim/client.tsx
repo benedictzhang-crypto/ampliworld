@@ -36,7 +36,7 @@ export function usePopulation() {
   useEffect(() => {
     void load();
   }, [load]);
-  const advance = useCallback(async (minutes: number) => {
+  const advance = useCallback(async (minutes: number,llmResidentId?:string) => {
     if (locked.current || !current.current) return;
     locked.current = true;
     setBusy(true);
@@ -46,6 +46,7 @@ export function usePopulation() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             minutes,
+            ...(llmResidentId?{llmResidentId}:{}),
             revision: current.current.revision,
             operationId: crypto.randomUUID(),
           }),
@@ -401,6 +402,7 @@ export function PopulationPanel({
           )}
           {world && tab === 'resident' && (
             <>
+              <button disabled={busy||!resident||resident.remaining>0||!!resident.journey} onClick={()=>resident&&void advance(15,resident.id)}>为此居民请求一次大模型决策</button><p className="population-note">单人验证模式：需要配置推理服务；每次只请求一个决定，服务器检查后执行。未配置时会明确报错，不把规则结果冒充大模型。</p>
               <label className="population-select">
                 职业筛选
                 <select
