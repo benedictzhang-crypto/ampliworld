@@ -1,6 +1,8 @@
 /** Deterministic, inspectable bootstrap policy. Not an LLM or calibrated human predictor. */
 import { OCCUPATIONS, VENUES, profileAt, type CitizenProfile } from './society';
 import {citizen,CENSUS_SIZE,CENSUS_VERSION} from './census';
+import {crossingWait} from './traffic';
+import {consumerPersona} from './persona-adapter';
 export type Action =
   | 'home'
   | 'drink'
@@ -25,6 +27,9 @@ export const FACILITIES = [
   { id: 'trade', label: '虚拟证券服务点', x: 10, z: -10, color: '#86b2f0' },
 ] as const;
 export type Resident = {
+  consumerPersona?:ReturnType<typeof consumerPersona>;
+  travelSeconds?:number;
+  crossingWaitSeconds?:number;
   identity?: ReturnType<typeof citizen>;
   bankAccountId?: string;
   profile?: CitizenProfile;
@@ -140,6 +145,7 @@ function attachIdentities(w:LifeWorld){
   w.residents.forEach((r)=>{
     const i=Number(r.id.slice(1))-1;
     r.identity??=citizen(i);
+    r.consumerPersona??=consumerPersona(i);
     r.bankAccountId??=`SIM-BANK-${r.id}`;
     r.name=r.identity.name;r.job=r.identity.occupation;
     const employed=!!r.identity.workplace;
@@ -151,7 +157,7 @@ function attachIdentities(w:LifeWorld){
   w.censusVersion=CENSUS_VERSION;
 }
 export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
-  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION) return input;
+  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residents.every(r=>r.consumerPersona)) return input;
   const w = structuredClone(input),
     fresh = createLifeWorld();
   if(input.societyVersion!==1)for (let i = 0; i < w.residents.length; i++) {
@@ -471,12 +477,16 @@ export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
           dx = target[0] - r.x,
           dz = target[1] - r.z,
           d = Math.hypot(dx, dz),
-          step = Math.min(d, walkBudget);
+          crossing=Math.abs(r.z)<.01&&Math.abs(target[1])<.01&&r.x*target[0]<0,
+          wait=crossing?crossingWait((w.minute-5)*60+(375-walkBudget)/1.25,d):0;
+        if(wait>0){const spent=Math.min(wait,walkBudget/1.25);walkBudget-=spent*1.25;r.crossingWaitSeconds=(r.crossingWaitSeconds||0)+spent;r.travelSeconds=(r.travelSeconds||0)+spent;if(walkBudget<=0)break;}
+        const step=Math.min(d,walkBudget);
         if (d > 0.001) {
           r.x += (dx / d) * step;
           r.z += (dz / d) * step;
         }
         walkBudget -= step;
+        r.travelSeconds=(r.travelSeconds||0)+step/1.25;
         if (d <= step + 0.001) r.route.shift();
       }
       if (!r.route.length) {

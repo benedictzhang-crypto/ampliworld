@@ -4,6 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { Clone, useGLTF } from '@react-three/drei';
 import { Box3, Group, Ray, Vector3 } from 'three';
 import { clipVehicleCamera } from './vehicle-safety';
+import {coreCarMustStop} from '../life-sim/traffic';
 import type { OrbitControls } from 'three-stdlib';
 export { carBlocked, stepVehicleMotion } from './vehicle-physics';
 export type { CarState } from './vehicle-physics';
@@ -176,9 +177,12 @@ export function DriveableCar({
       const steer =
         Number(k.has('KeyA') || k.has('ArrowLeft')) -
         Number(k.has('KeyD') || k.has('ArrowRight'));
+      const approachSpeed=s.speed+throttle*10*dt;
+      const redStop=(s.y??0)>-1&&coreCarMustStop(s.x,s.z,s.x-Math.sin(s.yaw)*approachSpeed*dt,s.z-Math.cos(s.yaw)*approachSpeed*dt,Date.now()/1000);
+      if(redStop)s.speed=0;
       stepVehicleMotion(
         s,
-        { throttle, steer, brake: k.has('Space') },
+        { throttle:redStop?0:throttle, steer, brake: redStop||k.has('Space') },
         dt,
         obstacles,
         groundHeight,

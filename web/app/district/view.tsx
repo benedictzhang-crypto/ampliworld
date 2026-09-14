@@ -10,6 +10,7 @@ import {
 import { CITY, CityLayer } from '../world-client/city-layer';
 import {usePopulation,PopulationLayer,PopulationPanel} from '../life-sim/client';
 import { CITY_INFRA } from '../world-client/city-surface';
+import {CoreSignals} from '../world-client/core-signals';
 import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
 import { CivicPlaces } from '../world-client/civic-places';
 import { MallElevators } from '../world-client/mall-elevators';
@@ -208,6 +209,7 @@ function SetupCamera({
     | 'east'
     | 'south'
     | 'estuary'
+    | 'marina'
     | `housing-${string}`;
 }) {
   const { camera, invalidate } = useThree();
@@ -235,6 +237,7 @@ function SetupCamera({
       invalidate();
       return;
     }
+    if(!walking&&!wide&&focus==='marina'){camera.position.set(6820,150,13530);controls.current?.target.set(6500,0,13300);controls.current?.update();invalidate();return;}
     if (!walking && !wide && focus === 'garage') {
       const floor = MALL_GARAGE.levels[garageLevel].floorY;
       camera.position.set(36, floor + 3, -130);
@@ -372,6 +375,7 @@ export function DistrictClient() {
     | 'east'
     | 'south'
     | 'estuary'
+    | 'marina'
     | `housing-${string}`
   >('cbd');
   const [loadedTiles, setLoadedTiles] = useState<Set<string>>(() => new Set());
@@ -653,6 +657,7 @@ export function DistrictClient() {
                 />
                 <StudioLight intensity={0.3} />
                 <PopulationLayer world={population.world} onSelect={setSelectedResident}/>
+                <CoreSignals/>
                 <MallApproach />
                 <CityInfrastructure />
                 <Street />
@@ -777,6 +782,7 @@ export function DistrictClient() {
       </header>
       <nav className="district-tools">
         <Button onClick={()=>setSelectedResident(population.world?.residents[0]?.id||null)}>居民档案 · {population.world?.residents.length||0} 人</Button>
+        <Button onClick={()=>{setFocus('marina');setWide(false);setWalking(false);}}>东湾游艇港 · 150 泊位</Button>
         <Button onClick={()=>{setWalking(false);setFocus('cbd');setWide(false)}}>实验室 · 街区观察</Button>
         <Button onClick={()=>{setWalking(true);setWide(false);(document.activeElement as HTMLElement)?.blur();}}>进入现场 · 步行 / 驾驶</Button>
         <Button onClick={()=>{setFocus('mall');setWide(false);setWalking(false)}}>商场楼层览景</Button>

@@ -3,8 +3,10 @@ import sushi from '../../public/assets/3d/ampliworld/GC-SUSHI-001/sushi-manifest
 import dealership from '../../public/assets/3d/ampliworld/GC-AUTO-001/dealership-manifest.json';
 import streets from '../../public/assets/3d/ampliworld/GC-SPORT-STREET-001/street-manifest.json';
 import sushiGarden from '../../public/assets/3d/ampliworld/GC-SUSHI-GARDEN-001/garden-manifest.json';
+import marina from '../../public/assets/3d/ampliworld/GC-MARINA-001/marina-manifest.json';
 
 export const CIVIC_PLACES = [
+  {id:'GC-MARINA-001',name:'东湾游艇港酒店 · 150 泊位',x:6500,z:13200,file:'marina-yacht-hotel.glb',manifest:marina},
   {
     id: 'GC-STADIUM-001',
     name: '晖环体育场',
@@ -47,6 +49,7 @@ export function civicGroundHeight(
   z: number,
   currentY = 0,
 ): number | undefined {
+  for(const ramp of marina.ramps){const lx=x-6500,lz=z-13200;if(lx>=ramp.min[0]&&lx<=ramp.max[0]&&lz>=ramp.min[1]&&lz<=ramp.max[1])return ramp.startY+(lz-ramp.min[1])/(ramp.max[1]-ramp.min[1])*(ramp.endY-ramp.startY);}
   let support: number | undefined, lowest: number | undefined;
   for (const p of CIVIC_PLACES)
     for (const s of p.manifest.surfaces)
