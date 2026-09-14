@@ -121,6 +121,13 @@ try {
     writeFileSync(join(temp, name + '.png'), Buffer.from(r.data, 'base64'));
   };
   await shot('corner');
+  if(process.env.QA_SUSHI==='1'){
+    await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='日料街景').click();document.querySelector('.population-panel').style.display='none'");
+    await wait(1000);await shot('sushi-garden');
+    assert.equal(exceptions.length,0,exceptions.join('\n'));
+    console.log(JSON.stringify({status:'passed',scenario:'sushi-garden',screenshots:temp}));
+    socket.close();chrome.kill('SIGTERM');clearTimeout(timeout);process.exit(0);
+  }
   if(process.env.QA_GARAGE_LEVELS==='1'){
     await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='地库览景').click()");
     for(let level=1;level<=4;level++){

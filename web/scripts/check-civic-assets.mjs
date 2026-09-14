@@ -53,9 +53,20 @@ assert.ok(stadium.roof.openOculusMeters[0] > 68);
 assert.ok(stadium.roof.openOculusMeters[1] > 105);
 route([0, 900], [0, 600]);
 route([180, -20], [180, -36.5]);
-assert.ok(blocked(186, -31.1), 'Sushi front glazing must block the player');
+assert.ok(blocked(187, -29.1), 'Enlarged sushi front glazing must block the player');
 assert.ok(blocked(180, -38.1), 'Sushi stool must block the player');
 assert.ok(blocked(180, -40.1), 'Sushi counter must block the player');
+route([180,-20],[180,-36.5]);
+route([180,-36.5],[186.4,-36.5]);
+route([186.4,-36.5],[186.4,-42.7]);
+route([186.4,-42.7],[188.2,-42.7]);
+route([188.2,-42.7],[188.2,-46.3]);
+const garden=CIVIC_PLACES.find(p=>p.id==='GC-SUSHI-GARDEN-001').manifest;
+assert.equal(garden.parking.capacity,12);assert.equal(garden.parking.bays.length,12);
+assert.equal(new Set(garden.parking.bays.map(b=>b.id)).size,12);
+for(const [a,b] of [[[164.6,-25],[164.6,-52.7]],[[164.6,-52.7],[195.4,-52.7]],[[195.4,-52.7],[195.4,-25]],[[195.4,-25],[214,-25]],[[214,-1],[214,-50]]])route(a,b);
+// Conservative car envelope along the entrance and aisle; parking wheel stops remain physical.
+for(let z=-1;z>=-50;z-=.25){const y=districtGroundHeight(214,z);assert(!obstacles.some(c=>c.min[1]<y+1.7&&c.max[1]>y+.2&&c.min[0]<215.05&&c.max[0]>212.95&&c.min[2]<z+2.5&&c.max[2]>z-2.5),`Car entry blocked at ${z}`);}
 const auto = CIVIC_PLACES.find((p) => p.id === 'GC-AUTO-001');
 assert.ok(auto);
 assert.ok(

@@ -15,10 +15,7 @@ if (!globalThis.FileReader)
       });
     }
   };
-const out = new URL(
-  '../../public/assets/3d/ampliworld/GC-SUSHI-001/',
-  import.meta.url,
-);
+const out = new URL('../../public/assets/3d/ampliworld/GC-SUSHI-001/', import.meta.url);
 await mkdir(out, { recursive: true });
 const FLOOR = 0.18,
   buckets = {},
@@ -39,6 +36,8 @@ for (const [name, color, metalness, roughness] of [
   ['bottle', 0x416b59, 0.2, 0.28],
   ['indigo', 0x334753, 0, 0.95],
   ['leaf', 0x4e7459, 0, 0.94],
+  ['stainless', 0xb4bcc1, 0.8, 0.3],
+  ['tile', 0xa6ada6, 0.02, 0.72],
 ])
   materials[name] = new T.MeshStandardMaterial({
     name,
@@ -93,76 +92,81 @@ function rail(m, a, b, r = 0.025) {
   add(g, m, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2);
 }
 // Plinth and individually modelled floorboards. No room-sized solid collider.
-box('stone', 0, 0.04, 0, 20, 0.22, 14);
-box('stone', 0, 0.055, 8.8, 18, 0.25, 3.6);
-box('cedar', 0, 0.1625, 0, 19.65, 0.025, 13.65);
-for (let x = -9.65; x < 9.8; x += 0.27)
-  box('hinoki', x, 0.1775, 0, 0.25, 0.005, 13.58);
-for (const z of [7.4, 8.2, 9, 9.8, 10.5])
-  box('plaster', 0, 0.182, z, 17.7, 0.006, 0.015);
+box('stone', 0, 0.04, -1, 24, 0.22, 20);
+box('stone', 0, 0.055, 10.8, 22, 0.25, 3.6);
+box('cedar', 0, 0.1625, 1.1, 23.65, 0.025, 15.5);
+for (let x = -11.65; x < 11.7; x += 0.27)
+  box('hinoki', x, 0.1775, 1.1, 0.25, 0.005, 15.5);
+box('tile', 0, 0.1725, -8.7, 23.65, 0.015, 4.3);
+for (let x = -11.5; x < 11.8; x += 0.7)
+  box('plaster', x, 0.181, -8.7, 0.012, 0.002, 4.25);
+for (let z = -10.6; z < -6.5; z += 0.7)
+  box('plaster', 0, 0.181, z, 23.6, 0.002, 0.012);
+for (const z of [9.4, 10.2, 11, 11.8, 12.5])
+  box('plaster', 0, 0.182, z, 21.7, 0.006, 0.015);
 // Complete rear and side envelopes. Front is segmented around two windows and a 4m door.
-box('plaster', 0, 2.25, -6.88, 20, 4.14, 0.24, true, 'rear-wall');
-for (const x of [-9.88, 9.88])
-  box('plaster', x, 2.25, 0, 0.24, 4.14, 14, true, 'side-wall');
+box('plaster', 0, 2.25, -10.88, 24, 4.14, 0.24, true, 'rear-wall');
+for (const x of [-11.88, 11.88])
+  box('plaster', x, 2.25, -1, 0.24, 4.14, 20, true, 'side-wall');
 for (const sign of [-1, 1]) {
-  box('stone', sign * 6, 0.68, 6.9, 8, 1, 0.2, true, 'front-window-base');
-  box('cedar', sign * 6, 3.62, 6.9, 8, 1.56, 0.24, true, 'front-upper-wall');
-  for (const x of [sign * 2.15, sign * 9.75])
-    box('cedar', x, 2.25, 6.9, 0.3, 4.14, 0.35, true, 'front-post');
+  box('stone', sign * 7, 0.68, 8.9, 10, 1, 0.2, true, 'front-window-base');
+  box('cedar', sign * 7, 3.62, 8.9, 10, 1.56, 0.24, true, 'front-upper-wall');
+  for (const x of [sign * 2.15, sign * 11.75])
+    box('cedar', x, 2.25, 8.9, 0.3, 4.14, 0.35, true, 'front-post');
   // Transparent glass remains a real impassable window, not an invisible door.
   box(
     'glass',
-    sign * 6,
+    sign * 7,
     2.0,
-    6.92,
-    7.25,
+    8.92,
+    9.25,
     1.65,
     0.055,
     true,
     'front-display-window',
   );
-  for (const x of [sign * 3.7, sign * 5.25, sign * 6.8, sign * 8.35])
-    box('cedar', x, 2.02, 7.0, 0.075, 1.8, 0.13);
-  box('hinoki', sign * 6, 1.18, 7.04, 7.5, 0.1, 0.36);
+  for (const x of [sign * 3.7, sign * 5.25, sign * 6.8, sign * 8.35, sign * 10])
+    box('cedar', x, 2.02, 9.0, 0.075, 1.8, 0.13);
+  box('hinoki', sign * 7, 1.18, 9.04, 9.5, 0.1, 0.36);
 }
-box('cedar', 0, 4.02, 6.9, 4, 0.6, 0.32, true, 'door-lintel');
+box('cedar', 0, 4.02, 8.9, 4, 0.6, 0.32, true, 'door-lintel');
 // Deep timber facade fins wrap the sides; their depth casts real shadow and parallax.
 for (const sign of [-1, 1]) {
-  for (let z = -6.8; z < 6.6; z += 0.42)
-    box('cedar', sign * 10.04, 2.3, z, 0.27, 4.1, 0.085);
-  for (let x = 2.4; x < 9.7; x += 0.31)
-    box('cedar', sign * x, 0.71, 7.1, 0.095, 0.95, 0.23);
+  for (let z = -10.8; z < 8.6; z += 0.42)
+    box('cedar', sign * 12.04, 2.3, z, 0.27, 4.1, 0.085);
+  for (let x = 2.4; x < 11.7; x += 0.31)
+    box('cedar', sign * x, 0.71, 9.1, 0.095, 0.95, 0.23);
 }
-for (let x = -9.6; x < 9.7; x += 0.55)
-  box('cedar', x, 2.3, -7.04, 0.11, 4.1, 0.22);
+for (let x = -11.6; x < 11.7; x += 0.55)
+  box('cedar', x, 2.3, -11.04, 0.11, 4.1, 0.22);
 // Noren hangs above head height; all four metres of the central doorway are walkable.
 for (const x of [-1.49, -0.5, 0.5, 1.49]) {
-  box('indigo', x, 3.3, 7.02, 0.93, 0.62, 0.035);
-  cylinder('paper', x, 3.32, 7.06, 0.075, 0.025, 8);
+  box('indigo', x, 3.3, 9.02, 0.93, 0.62, 0.035);
+  cylinder('paper', x, 3.32, 9.06, 0.075, 0.025, 8);
 }
 // Fully three-dimensional shallow gabled roof with deep eaves, ridge and exposed rafters.
 for (const sign of [-1, 1]) {
-  const d = 8.55,
-    g = new T.BoxGeometry(22.6, 0.26, d),
+  const d = 11.55,
+    g = new T.BoxGeometry(26.6, 0.26, d),
     a = g.attributes.position;
   for (let i = 0; i < a.count; i++) {
-    const worldZ = sign * 4.275 + a.getZ(i);
-    a.setY(i, a.getY(i) + 5.35 - Math.abs(worldZ) * 0.105);
+    const worldZ = sign * 5.775 + a.getZ(i);
+    a.setY(i, a.getY(i) + 5.7 - Math.abs(worldZ) * 0.105);
   }
   g.computeVertexNormals();
-  add(g, 'dark', 0, 0, sign * 4.275);
-  box('bronze', 0, 4.48, sign * 8.55, 22.7, 0.12, 0.11);
-  for (let x = -10.8; x < 11; x += 0.65) {
-    const beam = new T.BoxGeometry(0.13, 0.2, 8.65);
+  add(g, 'dark', 0, 0, -1 + sign * 5.775);
+  box('bronze', 0, 4.48, -1 + sign * 11.55, 26.7, 0.12, 0.11);
+  for (let x = -12.8; x < 13; x += 0.65) {
+    const beam = new T.BoxGeometry(0.13, 0.2, 11.65);
     beam.rotateX(sign * 0.105);
-    add(beam, 'cedar', x, 4.83, sign * 4.1);
+    add(beam, 'cedar', x, 4.96, -1 + sign * 5.6);
   }
 }
-box('bronze', 0, 5.51, 0, 22.75, 0.12, 0.22);
+box('bronze', 0, 5.86, -1, 26.75, 0.12, 0.22);
 colliders.push({
   id: 'roof-clearance',
-  min: [-11.375, 4.38, -8.605],
-  max: [11.375, 5.65, 8.605],
+  min: [-13.375, 4.38, -12.605],
+  max: [13.375, 5.95, 10.605],
 });
 // Hand-authored raised lettering, not a facade photograph or sign texture.
 const glyphs = {
@@ -182,7 +186,7 @@ const title = 'MORI SUSHI',
       0,
     ) * pixel;
 let tx = -total / 2;
-box('dark', 0, 3.89, 7.08, total + 0.55, 0.76, 0.1);
+box('dark', 0, 3.89, 9.08, total + 0.55, 0.76, 0.1);
 for (const c of title) {
   if (c === ' ') {
     tx += pixel * 3;
@@ -196,7 +200,7 @@ for (const c of title) {
           'paper',
           tx + x * pixel,
           4.12 - y * pixel,
-          7.15,
+          9.15,
           pixel * 0.76,
           pixel * 0.76,
           0.04,
@@ -221,7 +225,7 @@ function lantern(x, y, z, scale = 1) {
   }
   rail('dark', [x, y + 0.38 * scale, z], [x, 4.25, z], 0.018);
 }
-for (const x of [-7.4, -4.0, 4.0, 7.4]) lantern(x, 2.85, 7.95, 1.05);
+for (const x of [-9.4, -4.0, 4.0, 9.4]) lantern(x, 2.85, 9.95, 1.05);
 for (const x of [-5, -1.7, 1.7, 5]) lantern(x, 3.26, -0.25, 0.9);
 // Refined central hinoki sushi counter; chef aisle remains open behind it.
 box('cedar', 0, 0.7, -2.1, 11, 1.04, 1.45, true, 'sushi-counter');
@@ -290,21 +294,87 @@ for (const x of [-4.5, -2.9, -1.5, 0, 1.5, 2.9, 4.5]) {
     );
   cylinder('dark', x + 0.45, 1.365, -1.82, 0.065, 0.025, 10);
 }
-// Small side dining bays leave the central door-to-counter approach unobstructed.
+// Four-legged Japanese timber dining furniture; aisle and front approach remain open.
+function chair(x,z, facing) {
+  box('cedar',x,0.64,z,0.62,0.12,0.6,true,'timber-chair-seat');
+  box('indigo',x,0.717,z,0.53,0.035,0.5);
+  for (const dx of [-0.23,0.23]) for (const dz of [-0.22,0.22])
+    box('cedar',x+dx,0.385,z+dz,0.075,0.41,0.075);
+  for (const dx of [-0.25,0.25])
+    box('cedar',x+dx,0.96,z-facing*0.25,0.065,0.7,0.065);
+  box('hinoki',x,1.22,z-facing*0.25,0.59,0.16,0.07,true,'timber-chair-back');
+  for (const dx of [-0.14,0,0.14])
+    box('cedar',x+dx,1.01,z-facing*0.25,0.035,0.27,0.04);
+}
 for (const sign of [-1, 1])
-  for (const z of [1.5, 4.7]) {
-    const x = sign * 7.1;
-    box('cedar', x, 0.79, z, 1.55, 0.13, 1.35, true, 'dining-table');
-    box('dark', x, 0.48, z, 0.22, 0.6, 0.22, true, 'table-pedestal');
+  for (const z of [1.5, 5.4]) {
+    const x = sign * 8.1;
+    box('hinoki', x, 0.97, z, 2, 0.14, 1.55, true, 'dining-table');
+    for (const dx of [-0.8,0.8]) for (const dz of [-0.57,0.57])
+      box('cedar', x+dx,0.55,z+dz,0.13,0.74,0.13,true,'table-pedestal');
+    box('cedar',x,0.58,z,1.7,0.1,0.12);
     for (const dz of [-1, 1]) {
-      box('cedar', x, 0.48, z + dz, 1.35, 0.16, 0.5, true, 'bench-seat');
-      box('indigo', x, 0.59, z + dz, 1.25, 0.08, 0.46);
-      for (const dx of [-0.5, 0.5])
-        box('dark', x + dx, 0.3, z + dz, 0.1, 0.38, 0.36);
+      for (const dx of [-0.53,0.53]) chair(x+dx,z+dz*1.12,-dz);
     }
-    sushiPlate(x - 0.3, 0.87, z);
-    sushiPlate(x + 0.3, 0.87, z + 0.1);
+    sushiPlate(x - 0.53, 1.05, z-0.36);
+    sushiPlate(x + 0.53, 1.05, z+0.36);
   }
+// Rear kitchen separated from dining: open 1.8m staff door at x[7.3,9.1].
+box('plaster',-2.35,2.2,-6.7,19.3,4.04,0.18,true,'kitchen-partition');
+box('plaster',10.55,2.2,-6.7,2.9,4.04,0.18,true,'kitchen-partition');
+box('cedar',8.2,3.7,-6.7,1.8,1.04,0.2,true,'staff-door-lintel');
+for (const x of [7.23,9.17]) box('cedar',x,1.63,-6.69,0.14,2.9,0.24,true,'staff-door-jamb');
+// Real sliding door leaf is parked left of the aperture, never blocking circulation.
+box('cedar',6.36,1.61,-6.81,1.6,2.8,0.09,true,'staff-door-open-leaf');
+box('glass',6.36,2.02,-6.75,1.16,0.68,0.035);
+rail('bronze',[6.9,1.15,-6.71],[6.9,1.53,-6.71],0.022);
+rail('dark',[5.5,3.08,-6.77],[9.2,3.08,-6.77],0.035);
+function steelTable(x,z,w,d,id) {
+  box('stainless',x,1.08,z,w,0.1,d,true,id);
+  box('stainless',x,0.43,z,w-0.12,0.055,d-0.12);
+  for(const dx of [-w/2+0.09,w/2-0.09]) for(const dz of [-d/2+0.09,d/2-0.09])
+    box('stainless',x+dx,0.61,z+dz,0.07,0.86,0.07);
+}
+steelTable(-7.8,-9.9,5.4,1.3,'kitchen-prep');
+box('stainless',-7.8,1.33,-10.49,5.4,0.5,0.06);
+for(const x of [-9.3,-7.8,-6.3]) {
+  box('hinoki',x,1.16,-9.85,0.7,0.05,0.48);
+  cylinder('celadon',x+0.25,1.25,-10.1,0.17,0.15,12);
+}
+// Twin-bowl sink: walls and inset bases form visibly recessed bowls.
+steelTable(-2.65,-9.9,3.8,1.3,'kitchen-sink-base');
+for(const x of [-3.55,-1.75]) {
+  box('dark',x,1.145,-9.9,1.35,0.02,0.85);
+  box('stainless',x,1.16,-9.9,1.05,0.025,0.57);
+  for(const dx of [-0.57,0.57]) box('stainless',x+dx,1.22,-9.9,0.06,0.15,0.7);
+  for(const dz of [-0.37,0.37]) box('stainless',x,1.22,-9.9+dz,1.2,0.15,0.06);
+  rail('stainless',[x,1.15,-10.4],[x,1.68,-10.4],0.035);
+  rail('stainless',[x,1.68,-10.4],[x,1.68,-10.05],0.035);
+  rail('stainless',[x,1.68,-10.05],[x,1.58,-10.05],0.035);
+}
+// Commercial range with six burners, control knobs, oven front and overhead hood.
+box('stainless',2.1,0.69,-9.95,3.3,1.02,1.2,true,'kitchen-range');
+box('dark',2.1,1.225,-9.95,3.2,0.05,1.1);
+for(const x of [1.05,2.1,3.15]) for(const z of [-10.25,-9.7]) {
+  cylinder('dark',x,1.27,z,0.19,0.06,12);
+  rail('stainless',[x-0.23,1.31,z],[x+0.23,1.31,z],0.02);
+  rail('stainless',[x,1.31,z-0.23],[x,1.31,z+0.23],0.02);
+}
+for(const x of [0.9,1.5,2.1,2.7,3.3]) ellipsoid('dark',x,1.06,-9.32,0.055,0.055,0.035);
+box('dark',2.1,0.63,-9.335,2.6,0.51,0.04);
+rail('stainless',[1,0.87,-9.28],[3.2,0.87,-9.28],0.035);
+box('stainless',2.1,2.8,-9.9,3.75,0.43,1.65,true,'kitchen-extractor-hood');
+box('dark',2.1,2.57,-9.9,3.4,0.035,1.35);
+for(let x=0.5;x<3.8;x+=0.2) box('stainless',x,2.54,-9.9,0.055,0.05,1.2);
+box('stainless',2.1,3.58,-10.1,1.15,1.15,0.8);
+// Open pantry shelving at the east end, clear of the doorway aisle.
+for(const y of [0.42,1.16,1.9,2.64]) box('stainless',10.45,y,-9.35,1.65,0.065,2.4,true,'kitchen-pantry-shelf');
+for(const x of [9.72,11.18]) for(const z of [-10.45,-8.25]) box('stainless',x,1.43,z,0.07,2.5,0.07);
+for(const y of [0.5,1.24,1.98]) for(const z of [-10.1,-9.35,-8.65]) {
+  cylinder('rice',10.2,y+0.17,z,0.19,0.34,10);
+  cylinder('dark',10.2,y+0.35,z,0.2,0.035,10);
+  box('hinoki',10.8,y+0.13,z,0.4,0.26,0.44);
+}
 // Exterior menu and two quiet porch seats; neither occupies x[-2,2] door approach.
 box('cedar', 4.0, 0.78, 9.35, 0.12, 1.2, 0.12, true, 'menu-post');
 const menu = new T.BoxGeometry(0.8, 0.08, 0.7);
@@ -366,14 +436,14 @@ const manifest = {
   upAxis: 'Y',
   frontAxis: '+Z',
   floorY: FLOOR,
-  mainFootprintMeters: [20, 14],
-  entrance: [0, 7.2],
+  mainFootprintMeters: [24, 20],
+  entrance: [0, 9.2],
   entranceWidth: 4,
   bounds: { min: bounds.min.toArray(), max: bounds.max.toArray() },
   colliders,
   surfaces: [
-    { min: [-9.76, -6.76], max: [9.76, 6.8], y: FLOOR },
-    { min: [-9, 6.8], max: [9, 10.6], y: FLOOR },
+    { min: [-11.76, -10.76], max: [11.76, 8.8], y: FLOOR },
+    { min: [-11, 8.8], max: [11, 12.6], y: FLOOR },
   ],
   triangles,
   drawCalls: scene.children.length,
@@ -391,7 +461,9 @@ const manifest = {
     'Real four-sided envelope, projecting fins, deep roof, lanterns, counter, stools and geometric food.',
     'Door approach x[-2,2] remains unobstructed. Room has wall/furniture colliders, never a full-volume collider.',
     'Interior is visually enterable; no ordering, checkout, staffing or simulated restaurant service is implemented.',
-    'Main building is 20×14m; roof eaves and porch extend beyond that footprint.',
+    'Main building is 24×20m including rear kitchen; roof eaves and porch extend beyond that footprint.',
+    'Seven counter stools and sixteen Japanese timber dining chairs; unobstructed central circulation.',
+    'Back kitchen z[-10.7,-6.5] has prep benches, twin sinks, six-burner range, extractor and stocked shelves. Staff aperture x[7.3,9.1] at z=-6.7 remains open.',
   ],
 };
 await writeFile(

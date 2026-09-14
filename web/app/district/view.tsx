@@ -304,7 +304,7 @@ function SetupCamera({
               : focus === 'auto'
                 ? [-425, 30, 815]
                 : focus === 'sushi'
-                  ? [210, 13, -5]
+                  ? [229, 28, 13]
                   : [430, 660, 740]) as [number, number, number]),
     );
     controls.current?.target.set(

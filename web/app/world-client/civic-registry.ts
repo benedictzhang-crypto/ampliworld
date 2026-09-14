@@ -2,6 +2,7 @@ import stadium from '../../public/assets/3d/ampliworld/GC-STADIUM-001/stadium-ma
 import sushi from '../../public/assets/3d/ampliworld/GC-SUSHI-001/sushi-manifest.json';
 import dealership from '../../public/assets/3d/ampliworld/GC-AUTO-001/dealership-manifest.json';
 import streets from '../../public/assets/3d/ampliworld/GC-SPORT-STREET-001/street-manifest.json';
+import sushiGarden from '../../public/assets/3d/ampliworld/GC-SUSHI-GARDEN-001/garden-manifest.json';
 
 export const CIVIC_PLACES = [
   {
@@ -28,6 +29,7 @@ export const CIVIC_PLACES = [
     file: 'dealership.glb',
     manifest: dealership,
   },
+  {id:'GC-SUSHI-GARDEN-001',name:'森间日式庭院与停车场',x:180,z:-38,file:'garden.glb',manifest:sushiGarden},
 ] as const;
 export const SPORTS_STREETS = streets;
 export const CIVIC_COLLIDERS = [

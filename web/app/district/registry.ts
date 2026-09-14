@@ -158,8 +158,8 @@ export function districtGroundHeight(x: number, z: number, currentY = 0) {
 export function districtLocation(x: number, z: number) {
   if (Math.abs(x) < 145 && z > 420 && z < 780)
     return '晖环体育场 · 南侧开放入口通向足球场 · 看台暂未开放';
-  if (Math.abs(x - 180) < 13 && Math.abs(z + 38) < 14)
-    return '森间寿司 · 沿暖光门洞进入 · 餐饮交易尚未接入';
+  if (x>=160&&x<=227&&z>=-58&&z<=0)
+    return '森间寿司 · 日式庭院与石板路 · 东侧 12 车位 · 板前与后厨';
   if (Math.abs(x) < 450 && z > 80 && z < 1050)
     return '体育公园街区 · 沿中央步道向南，绕球场东侧到南入口';
   if (Math.abs(x) > 650 || Math.abs(z) > 1150)
