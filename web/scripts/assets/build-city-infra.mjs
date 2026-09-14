@@ -6,6 +6,7 @@ import {
   mergeVertices,
 } from 'three/addons/utils/BufferGeometryUtils.js';
 import { mkdir, writeFile } from 'node:fs/promises';
+import housingPlan from '../../app/world-client/housing-parcels.json' with { type: 'json' };
 import {
   riverCenterX as riverX,
   riverHalfWidth as halfWidth,
@@ -260,8 +261,42 @@ const bands = [
   [36, 43, 'asphalt'],
   [43, 45, 'walk'],
 ];
-function segment(axis, center, a, b, y0, y1, intersection = false) {
+// Keep raised sidewalks/cycle bands out of housing driveway mouths.
+const housingJunctions = new Map();
+for (const p of housingPlan.placements) {
+  const road = p.connector?.joinsRoad, points = p.connector?.points;
+  if (!road || !points || points.length < 2) continue; // Qingting joins a core road.
+  const axis = road.axis, along = axis === 'x' ? 0 : 1, normal = 1 - along;
+  const end = points.at(-1), before = points.at(-2);
+  const dx = end[0] - before[0], dz = end[1] - before[1], length = Math.hypot(dx, dz);
+  if (!length || (axis !== 'x' && axis !== 'z')) continue;
+  const direction = [dx / length, dz / length];
+  if (Math.abs(direction[normal]) < 0.1) continue;
+  // Project the complete driveway through the 90m ROW; add a 2m clear shoulder.
+  const halfWidth = (p.connector.width / 2) / Math.abs(direction[normal])
+    + ROW / 2 * Math.abs(direction[along] / direction[normal]) + 2;
+  const key = axis + ':' + end[normal], list = housingJunctions.get(key) || [];
+  list.push({ id: p.id, min: end[along] - halfWidth, max: end[along] + halfWidth });
+  housingJunctions.set(key, list);
+}
+function segment(axis, center, a, b, y0, y1, intersection = false, splitHousing = true) {
   if (b - a < 0.01) return;
+  if (splitHousing && !intersection) {
+    const joins = (housingJunctions.get(axis + ':' + center) || [])
+      .filter((j) => j.max > a && j.min < b);
+    if (joins.length) {
+      const cuts = [...new Set([a, b, ...joins.flatMap((j) =>
+        [Math.max(a, j.min), Math.min(b, j.max)])])].sort((x, z) => x - z);
+      for (let i = 1; i < cuts.length; i++) {
+        const lo = cuts[i - 1], hi = cuts[i], mid = (lo + hi) / 2;
+        const clear = joins.some((j) => mid >= j.min && mid <= j.max);
+        segment(axis, center, lo, hi,
+          y0 + (y1 - y0) * (lo - a) / (b - a),
+          y0 + (y1 - y0) * (hi - a) / (b - a), clear, false);
+      }
+      return;
+    }
+  }
   const min = axis === 'x' ? [a, center - 45] : [center - 45, a],
     max = axis === 'x' ? [b, center + 45] : [center + 45, b];
   const entry = { min, max, y: (y0 + y1) / 2, axis, startY: y0, endY: y1 };

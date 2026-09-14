@@ -253,3 +253,9 @@ export const workShifts = sqliteTable(
     uniqueIndex('work_shifts_user_turn_unique').on(table.userId, table.turn),
   ],
 );
+export const populationRuns = sqliteTable('population_runs', {
+  userId: text('user_id').primaryKey(),
+  revision: integer('revision').notNull().default(0),
+  stateJson: text('state_json').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});

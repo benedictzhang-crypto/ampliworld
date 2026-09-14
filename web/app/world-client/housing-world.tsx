@@ -10,7 +10,7 @@ import {
 import { useThree } from '@react-three/fiber';
 import { housingProxy } from './housing-streaming';
 import { useGLTF } from '@react-three/drei';
-import { InstancedMesh, Mesh, Matrix4, Quaternion, Vector3 } from 'three';
+import { InstancedMesh, Mesh, Matrix4, Quaternion, Vector3, BufferGeometry, Float32BufferAttribute } from 'three';
 import {
   HOUSING_INSTANCES,
   HOUSING_MODELS,
@@ -18,8 +18,23 @@ import {
   HOUSING_TREES,
   HOUSING_PLAN,
   housingGateBox,
+  HOUSING_APRONS,
 } from './housing-registry';
 type Placement = { x: number; z: number; y: number; yaw: number };
+function GateAprons(){
+  const geometry=useMemo(()=>{
+    const vertices:number[]=[];
+    for(const a of HOUSING_APRONS){
+      const pts=[[-a.width/2,a.innerY,-8],[a.width/2,a.innerY,-8],[-a.width/2,a.outerY,8],[a.width/2,a.outerY,8]];
+      for(const j of [0,2,1,1,2,3]){
+        const [x,y,z]=pts[j];vertices.push(a.x+x*Math.cos(a.yaw)+z*Math.sin(a.yaw),y+.002,a.z-x*Math.sin(a.yaw)+z*Math.cos(a.yaw));
+      }
+    }
+    const g=new BufferGeometry();g.setAttribute('position',new Float32BufferAttribute(vertices,3));g.computeVertexNormals();return g;
+  },[]);
+  useLayoutEffect(()=>()=>geometry.dispose(),[geometry]);
+  return <mesh geometry={geometry} receiveShadow><meshStandardMaterial color="#697578" roughness={.85}/></mesh>;
+}
 function Batch({ mesh, items }: { mesh: Mesh; items: Placement[] }) {
   const ref = useRef<InstancedMesh>(null);
   const invalidate = useThree((s) => s.invalidate);
@@ -173,10 +188,13 @@ export function HousingWorld({
       ),
     [x, z],
   );
+  const wallGroups=useMemo(()=>Array.from(new Set(HOUSING_BOXES.filter(b=>b.kind==='wall').map(b=>b.color))).map(color=>({color:color??'#b8b4a8',items:HOUSING_BOXES.filter(b=>b.kind==='wall'&&b.color===color)})),[]);
   return (
     <group name="tiered-chinese-neighborhoods">
       <Boxes items={proxies} color="#b9b8aa" />
-      {surfaces.map((items, i) => (
+      <GateAprons />
+      {wallGroups.map(g=><Boxes key={g.color} items={g.items} color={g.color}/>)}
+      {surfaces.map((items, i) => i!==2&&(
         <Boxes
           key={i}
           items={items}

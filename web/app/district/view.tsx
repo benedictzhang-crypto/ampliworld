@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import { CITY, CityLayer } from '../world-client/city-layer';
+import {usePopulation,PopulationLayer,PopulationPanel} from '../life-sim/client';
 import { CITY_INFRA } from '../world-client/city-surface';
 import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
 import { CivicPlaces } from '../world-client/civic-places';
@@ -348,6 +349,8 @@ function SetupCamera({
 }
 
 export function DistrictClient() {
+  const population=usePopulation();
+  const [selectedResident,setSelectedResident]=useState<string|null>(null);
   const [mounted, setMounted] = useState(false);
   const [coreReady, setCoreReady] = useState(false);
   const onCoreReady = useCallback(() => setCoreReady(true), []);
@@ -649,6 +652,7 @@ export function DistrictClient() {
                   fogFar={wide ? 95000 : 16000}
                 />
                 <StudioLight intensity={0.3} />
+                <PopulationLayer world={population.world} onSelect={setSelectedResident}/>
                 <MallApproach />
                 <CityInfrastructure />
                 <Street />
@@ -998,6 +1002,7 @@ export function DistrictClient() {
               : '俯瞰不会改变角色位置 · 返回继续原地行走'}
         </small>
       </div>
+      <PopulationPanel controller={population} selected={selectedResident} onSelect={setSelectedResident}/>
     </main>
   );
 }

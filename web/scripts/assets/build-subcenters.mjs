@@ -1,5 +1,6 @@
 /** Six ORIGINAL angular skyline towers in two independently exported campus kits.
- * Install as scripts/assets/build-subcenters.mjs. Metres, local groundY=.035.
+ * Detail revision 2: original revised profiles, open structural crowns and real facade layers.
+ * Install as scripts/assets/build-subcenters.mjs. Metres, local groundY=.18.
  */
 import * as T from 'three';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
@@ -28,7 +29,7 @@ const G = 0.18,
         {
           id: 'SC1-T01',
           name: 'Vector Exchange',
-          height: 280,
+          height: 460,
           x: -132,
           z: -90,
           type: 'vector',
@@ -36,7 +37,7 @@ const G = 0.18,
         {
           id: 'SC1-T02',
           name: 'Twin Fold',
-          height: 220,
+          height: 320,
           x: 132,
           z: -90,
           type: 'twin',
@@ -44,7 +45,7 @@ const G = 0.18,
         {
           id: 'SC1-T03',
           name: 'Prism Stack',
-          height: 170,
+          height: 235,
           x: 0,
           z: 130,
           type: 'stack',
@@ -60,7 +61,7 @@ const G = 0.18,
         {
           id: 'SC2-T01',
           name: 'Tidal Lantern',
-          height: 245,
+          height: 400,
           x: -132,
           z: -90,
           type: 'tidal',
@@ -68,7 +69,7 @@ const G = 0.18,
         {
           id: 'SC2-T02',
           name: 'Harbor Ledger',
-          height: 190,
+          height: 290,
           x: 132,
           z: -90,
           type: 'ledger',
@@ -76,7 +77,7 @@ const G = 0.18,
         {
           id: 'SC2-T03',
           name: 'Culture Beacon',
-          height: 155,
+          height: 225,
           x: 0,
           z: 130,
           type: 'beacon',
@@ -91,7 +92,8 @@ function createCampus(config) {
     towers = [],
     materials = {};
   let activeBounds = null,
-    towerTopY = Infinity;
+    towerTopY = Infinity,
+    towerShells = [];
   for (const [name, color, metalness, roughness] of [
     ['ivory', 0xe1e2d7, 0.18, 0.47],
     ['silver', 0xb8c6cd, 0.8, 0.28],
@@ -159,6 +161,7 @@ function createCampus(config) {
   ];
   // Closed, flat-shaded polygon loft. Welding later retains hard crease normals.
   function loft(id, cx, cz, rings, mat) {
+    if (id && !id.endsWith("-podium")) towerShells.push({ cx, cz, rings });
     const v = [],
       f = [],
       n = rings[0].p.length;
@@ -194,6 +197,7 @@ function createCampus(config) {
     g = g.toNonIndexed();
     g.computeVertexNormals();
     add(g, mat);
+    if (id && !id.endsWith('-podium')) facadeDetail(cx, cz, rings);
     if (id)
       for (let i = 0; i < rings.length - 1; i++) {
         const bounds = new T.Box3();
@@ -216,12 +220,14 @@ function createCampus(config) {
     );
   }
   function ringsFrom(levels, shape) {
-    return levels.map(([y, rx, rz, dx = 0, dz = 0]) => ({
-      y,
+    return levels.map(([y, rx, rz, dx = 0, dz = 0], i) => ({
+      // Occupied glazing stops beneath a genuinely open 14m structural crown.
+      y: i === levels.length - 1 ? y - 14 : y,
       p: shape(rx, rz).map(([x, z]) => [x + dx, z + dz]),
     }));
   }
   function facadeBands(cx, cz, rings, step = 6) {
+    step = 4.2; // Repeated true floor-height spandrels rather than oversized old bands.
     for (let y = rings[0].y + step; y < rings.at(-1).y - 0.5; y += step) {
       let i = 0;
       while (i < rings.length - 2 && y > rings[i + 1].y) i++;
@@ -237,9 +243,68 @@ function createCampus(config) {
         cz,
         y,
         p.map(([x, z]) => [x * 1.004, z * 1.004]),
-        0.2,
-        Math.round(y / step) % 6 === 0 ? 'gold' : 'silver',
+        0.32,
+        Math.round(y / step) % 10 === 0 ? 'gold' : 'silver',
       );
+    }
+  }
+  function ringAt(rings, y) {
+    let i=0;
+    while(i<rings.length-2 && y>rings[i+1].y) i++;
+    const a=rings[i],b=rings[i+1],t=Math.max(0,Math.min(1,(y-a.y)/(b.y-a.y)));
+    return a.p.map((p,j)=>[p[0]+(b.p[j][0]-p[0])*t,p[1]+(b.p[j][1]-p[1])*t]);
+  }
+  function facadeDetail(cx,cz,rings) {
+    for(let r=0;r<rings.length-1;r++) {
+      const a=rings[r],b=rings[r+1];
+      for(let edge=0;edge<a.p.length;edge++) {
+        const next=(edge+1)%a.p.length;
+        const span=Math.hypot(a.p[next][0]-a.p[edge][0],a.p[next][1]-a.p[edge][1]);
+        const divisions=Math.max(2,Math.ceil(span/5.5));
+        for(let m=0;m<=divisions;m++) {
+          const t=m/divisions;
+          const point=(ring)=>[cx+(ring.p[edge][0]+(ring.p[next][0]-ring.p[edge][0])*t)*1.012,G+ring.y,cz+(ring.p[edge][1]+(ring.p[next][1]-ring.p[edge][1])*t)*1.012];
+          rod('silver',point(a),point(b),m===0?.28:.15,.22);
+        }
+      }
+    }
+    // Deep diagonal external bracing; section changes follow the actual loft.
+    for(let y=rings[0].y;y<rings.at(-1).y-1;y+=27) {
+      const y1=Math.min(y+27,rings.at(-1).y),a=ringAt(rings,y),b=ringAt(rings,y1);
+      for(let j=0;j<a.length;j+=2) {
+        const k=(j+1)%a.length;
+        rod('gold',[cx+a[j][0]*1.025,G+y,cz+a[j][1]*1.025],[cx+b[k][0]*1.025,G+y1,cz+b[k][1]*1.025],.55,.6);
+        rod('ivory',[cx+a[k][0]*1.025,G+y,cz+a[k][1]*1.025],[cx+b[j][0]*1.025,G+y1,cz+b[j][1]*1.025],.40,.48);
+      }
+    }
+  }
+  function crown({cx,cz,rings}) {
+    const a=rings.at(-1),cap=a.y+14;
+    for(let j=0;j<a.p.length;j++) {
+      const p=a.p[j],q=a.p[(j+1)%a.p.length],top=cap-(j%3)*2.8;
+      const px=cx+p[0]*1.035,pz=cz+p[1]*1.035;
+      rod('ivory',[cx+p[0],G+a.y-5,cz+p[1]],[px,G+top-.35,pz],.75,.65);
+      box('gold',px,G+top-.08,pz,1.1,.16,1.0);
+      rod('gold',[px,G+a.y+5,pz],[cx+q[0]*1.035,G+a.y+5,cz+q[1]*1.035],.3,.4);
+      rod('silver',[cx+p[0],G+a.y+.3,cz+p[1]],[cx+q[0]*1.035,G+Math.min(top-1,a.y+11),cz+q[1]*1.035],.28,.3);
+    }
+  }
+  function skyTerrace(cx,cz,rings,y,id) {
+    const p=ringAt(rings,y),xs=p.map(q=>q[0]);
+    const minX=Math.min(...xs),maxX=Math.max(...xs),midX=(minX+maxX)/2;
+    const intersections=[];
+    for(let j=0;j<p.length;j++) { const a=p[j],b=p[(j+1)%p.length]; if(Math.abs(b[0]-a[0])>.00001 && midX>=Math.min(a[0],b[0]) && midX<=Math.max(a[0],b[0])) intersections.push(a[1]+(b[1]-a[1])*(midX-a[0])/(b[0]-a[0])); }
+    const front=Math.max(...intersections);
+    const width=Math.min(24,maxX-minX-5),xx=cx+(minX+maxX)/2,zz=cz+front+2.5;
+    box('ivory',xx,G+y-.25,zz,width,.5,7);
+    solid(id,[xx-width/2,G+y-.5,zz-3.5],[xx+width/2,G+y,zz+3.5]);
+    box('glass',xx,G+y+.65,zz+3.45,width,1.3,.1);
+    box('gold',xx,G+y+1.32,zz+3.45,width,.07,.15);
+    for(const sx of [-1,1]) {
+      box('glass',xx+sx*width/2,G+y+.65,zz,.1,1.3,7);
+      box('stone',xx+sx*(width/2-2.1),G+y+.4,zz+1,2.8,.8,2.8);
+      add(new T.IcosahedronGeometry(1.25,1),'leaf',xx+sx*(width/2-2.1),G+y+1.5,zz+1);
+      rod('silver',[xx+sx*(width/2-1),G+y-6,cz+front-.5],[xx+sx*(width/2-1),G+y-.4,zz+3],.45,.45);
     }
   }
   function tree(x, y, z) {
@@ -276,6 +341,7 @@ function createCampus(config) {
       z = spec.z,
       H = spec.height;
     activeBounds = new T.Box3();
+    towerShells = [];
     towerTopY = G + H;
     // Closed street lobbies have true grounded mass and dimensional door frames.
     const podium = octagon(42, 37);
@@ -311,10 +377,12 @@ function createCampus(config) {
       sections = ringsFrom(
         [
           [6, 29, 25],
-          [78, 29, 25, 0, 0],
-          [160, 25, 23, 8, 0],
-          [234, 20, 20, 11, -2],
-          [280, 12, 17, -2, 0],
+          [112, 30, 25, 0, 0],
+          [198, 27, 24, 6, -1],
+          [276, 26, 22, 10, 1],
+          [346, 20, 22, 5, -4],
+          [414, 17, 19, -5, -2],
+          [460, 11, 14, -9, 1],
         ],
         octagon,
       );
@@ -334,11 +402,12 @@ function createCampus(config) {
         }
     } else if (spec.type === 'twin') {
       for (const s of [-1, 1]) {
-        const h = s < 0 ? 220 : 194;
+        const h = s < 0 ? 320 : 282;
         const r = ringsFrom(
           [
             [6, 12, 22, s * 15, 0],
-            [98, 12, 21, s * 13, 0],
+            [136, 12.5, 21, s * 14, 0],
+            [222, 11, 18, s * 11, s * 2],
             [h, 9.5, 16, s * 10, s * 3],
           ],
           octagon,
@@ -354,29 +423,29 @@ function createCampus(config) {
             0.8,
           );
       }
-      box('gold', x, G + 135, z, 46, 10, 13);
+      box('gold', x, G + 186, z, 46, 10, 13);
       solid(
         `${spec.id}-sky-link`,
-        [x - 23, G + 130, z - 6.5],
-        [x + 23, G + 140, z + 6.5],
+        [x - 23, G + 181, z - 6.5],
+        [x + 23, G + 191, z + 6.5],
       );
     } else if (spec.type === 'stack') {
       sections = ringsFrom(
         [
           [6, 29, 25],
-          [55, 29, 25],
-          [56, 24, 23, 5, 0],
-          [111, 24, 23, 5, 0],
-          [112, 18, 20, -3, 0],
-          [170, 18, 20, -3, 0],
+          [72, 29, 25],
+          [73, 24, 23, 5, 0],
+          [153, 24, 23, 5, 0],
+          [154, 18, 20, -3, 0],
+          [235, 18, 20, -3, 0],
         ],
         octagon,
       );
       loft(spec.id, x, z, sections, 'glass');
       facadeBands(x, z, sections, 5.8);
       for (const [y, rx, rz, dx] of [
-        [55.2, 31, 27, 0],
-        [111.2, 26, 25, 5],
+        [72.2, 31, 27, 0],
+        [153.2, 26, 25, 5],
       ]) {
         polygonSlab(x + dx, z, y, octagon(rx, rz), 0.45, 'ivory');
         for (const sx of [-1, 1])
@@ -396,10 +465,12 @@ function createCampus(config) {
       sections = ringsFrom(
         [
           [6, 29, 25],
-          [85, 30, 24, 0, 0],
-          [165, 25, 23, 5, 0],
-          [231, 19, 20, 0, 2],
-          [245, 18, 18, 0, 2],
+          [96, 30, 24, 0, 0],
+          [174, 28, 25, 4, -2],
+          [245, 25, 23, 6, 0],
+          [307, 23, 21, -2, 4],
+          [359, 20, 20, -6, 2],
+          [400, 15, 16, -2, -2],
         ],
         chevron,
       );
@@ -421,22 +492,22 @@ function createCampus(config) {
       sections = ringsFrom(
         [
           [6, 29, 17],
-          [57, 29, 17],
-          [58, 26, 17, 2, 0],
-          [112, 26, 17, 2, 0],
-          [113, 22, 16, -3, 1],
-          [166, 22, 16, -3, 1],
-          [167, 18, 15, 0, 1],
-          [190, 18, 15, 0, 1],
+          [82, 29, 17],
+          [83, 26, 17, 2, 0],
+          [161, 26, 17, 2, 0],
+          [162, 22, 16, -3, 1],
+          [239, 22, 16, -3, 1],
+          [240, 18, 15, 0, 1],
+          [290, 18, 15, 0, 1],
         ],
         octagon,
       );
       loft(spec.id, x, z, sections, 'blue');
       facadeBands(x, z, sections, 5.7);
       for (const [y, rx] of [
-        [57.3, 30],
-        [112.3, 28],
-        [166.3, 24],
+        [82.3, 30],
+        [161.3, 28],
+        [239.3, 24],
       ]) {
         polygonSlab(x, z, y, octagon(rx, 21), 0.38, 'ivory');
         tree(x + rx - 3, G + y, z + 17);
@@ -446,7 +517,7 @@ function createCampus(config) {
         rod(
           'gold',
           [x + sx * 28, G + 6, z - 17],
-          [x + sx * 18, G + 190, z - 14],
+          [x + sx * 18, G + 276, z - 14],
           0.75,
           0.8,
         );
@@ -464,10 +535,11 @@ function createCampus(config) {
       sections = ringsFrom(
         [
           [6, 29, 26],
-          [61, 29, 26],
-          [119, 22, 22, 4, 0],
-          [146, 24, 20, 0, -2],
-          [155, 16, 13, -6, -2],
+          [74, 29, 26],
+          [136, 25, 23, 5, 0],
+          [183, 21, 22, 1, -3],
+          [205, 24, 20, -2, -2],
+          [225, 16, 13, -6, -2],
         ],
         bevel,
       );
@@ -486,6 +558,22 @@ function createCampus(config) {
           );
         }
     }
+    for(const shell of towerShells) {
+      crown(shell);
+      // View terraces project only a few metres; all remain within existing podium bounds.
+      const roof=shell.rings.at(-1).y;
+      for(const fraction of [.30,.57,.78])
+        skyTerrace(shell.cx,shell.cz,shell.rings,Math.round(roof*fraction/4.2)*4.2,spec.id+'-terrace-'+fraction+'-'+shell.rings[0].p[0][0]);
+    }
+    // Human-scale entrance soffit ribs and lights stay within the original canopy.
+    for(let xx=-9;xx<=9;xx+=1.5) {
+      box('silver',x+xx,G+5.26,z+40,.10,.14,7.5);
+      if(Math.abs(xx)<7) box('light',x+xx,G+5.17,z+40,.055,.035,5.8);
+    }
+    for(const side of [-1,1]) {
+      box('gold',x+side*10,G+5.5,z+40,.14,.42,8);
+      box('silver',x+side*35,G+3,z+19,.15,5.8,20);
+    }
     // Vertical champagne lobby fins at human scale, all grounded on the plinth.
     for (let f = -30; f <= 30; f += 5)
       box(
@@ -498,12 +586,15 @@ function createCampus(config) {
         0.4,
       );
     const measured = activeBounds.clone();
+    if(Math.abs(measured.max.y-(G+H))>.04) throw new Error(`Measured tower height mismatch: ${spec.id} ${measured.max.y-G} vs ${H}`);
     activeBounds = null;
     towerTopY = Infinity;
     towers.push({
       ...spec,
       position: [x, G, z],
       height: H,
+      detailRevision: 2,
+      architecturalDetail: ['4.2m floor spandrels','separate 3D facade mullions','27m diagonal structural bays','14m open structural crown','three exterior planted sky terraces per shaft','ribbed illuminated supported podium canopy'],
       bounds: { min: measured.min.toArray(), max: measured.max.toArray() },
       entrance: [x, G, z + 37.5],
       interiorState: 'closed-future',
@@ -557,7 +648,7 @@ function createCampus(config) {
       name: config.name,
       nameZh: config.nameZh,
       flavor: config.flavor,
-      version: 1,
+      version: 2,
       file: 'center.glb',
       units: 'meters',
       bounds: { min: bounds.min.toArray(), max: bounds.max.toArray() },
@@ -617,8 +708,8 @@ for (const config of configs) {
   totalBytes += buffer.byteLength;
   assets.push({ manifest, buffer });
 }
-if (totalBytes > 1600000)
-  throw new Error(`Combined indexed subcenter GLBs exceed1.6MB:${totalBytes}`);
+if (totalBytes > 10000000)
+  throw new Error(`Combined indexed subcenter GLBs exceed10MB:${totalBytes}`);
 for (const { manifest, buffer } of assets) {
   const out = new URL(
     `../../public/assets/3d/ampliworld/${manifest.id}/`,

@@ -19,12 +19,15 @@ export const HOUSING_COLORS: Record<string, string> = {
   largeDetached: '#a59ab8',
 };
 export const HOUSING_MODELS = [
-  ...housing.prototypes.map((p) => ({ ...p, kit: 'GC-HOUSING-KIT-001' })),
+  ...housing.prototypes.slice(0,8).map((p) => ({ ...p, kit: 'GC-HOUSING-KIT-001' })),
   ...amenities.prototypes.map((p) => ({
     ...p,
     kit: 'GC-NEIGHBORHOOD-KIT-001',
   })),
+  ...housing.prototypes.slice(8).map((p) => ({ ...p, kit: 'GC-HOUSING-KIT-001' })),
 ];
+const modelById = (id:string) => HOUSING_MODELS.findIndex(m=>m.id===id);
+const housingChoices = (kind:string) => HOUSING_MODELS.flatMap((m,i)=>m.kind===kind?[i]:[]);
 export type HousingParcel = (typeof plan.placements)[number];
 export type HousingInstance = {
   id: string;
@@ -37,6 +40,7 @@ export type HousingInstance = {
   yaw: number;
   parcel: string;
   role: 'home' | 'amenity';
+  laneZ?: number;
 };
 export type HousingBox = {
   id: string;
@@ -48,6 +52,7 @@ export type HousingBox = {
   h: number;
   yaw: number;
   kind: 'garden' | 'road' | 'walk' | 'wall' | 'gate';
+  color?: string;
 };
 export function housingPoint(
   p: HousingParcel,
@@ -60,9 +65,15 @@ export function housingPoint(
   ];
 }
 export const HOUSING_INSTANCES: HousingInstance[] = [];
+export function housingInstancePoint(i:HousingInstance,x:number,z:number):[number,number] {
+  return [i.x+x*Math.cos(i.yaw)+z*Math.sin(i.yaw),i.z-x*Math.sin(i.yaw)+z*Math.cos(i.yaw)];
+}
+const parcelSeed=(id:string)=>Array.from(id).reduce((s,c)=>Math.imul(s,31)+c.charCodeAt(0)|0,7)>>>0;
+const wallPalette=['#948477','#a39e88','#b7aa94','#89958e','#c0b6a2'];
 export const HOUSING_BOXES: HousingBox[] = [];
 export const HOUSING_TREES: { x: number; z: number; y: number; yaw: number }[] =
   [];
+export const HOUSING_APRONS = plan.placements.filter(p=>!p.retainExistingFootprints).map(p=>({id:p.id,x:p.gateWorld[0]+8*Math.sin(p.angle),z:p.gateWorld[1]+8*Math.cos(p.angle),yaw:p.angle,width:p.gateWidth,depth:16,innerY:.205,outerY:.065}));
 function box(
   p: HousingParcel,
   id: string,
@@ -85,6 +96,7 @@ function box(
     h,
     yaw: p.angle,
     kind,
+    color:kind==='wall'?wallPalette[parcelSeed(p.id)%wallPalette.length]:undefined,
   });
 }
 function add(
@@ -93,6 +105,8 @@ function add(
   x: number,
   z: number,
   role: HousingInstance['role'],
+  angle = 0,
+  laneZ?: number,
 ) {
   const q = housingPoint(p, x, z);
   HOUSING_INSTANCES.push({
@@ -102,13 +116,15 @@ function add(
     z: q[1],
     localX: x,
     localZ: z,
-    y: model < 8 ? 0.14 : 0,
-    yaw: p.angle,
+    y: HOUSING_MODELS[model].kit === 'GC-HOUSING-KIT-001' ? 0.14 : 0,
+    yaw: p.angle + angle,
     parcel: p.id,
     role,
+    laneZ,
   });
 }
 for (const p of plan.placements) {
+  const seed=parcelSeed(p.id), irregular=p.type==='low'||p.type==='lowerMiddle';
   if (p.retainExistingFootprints) {
     add(p, 8, 50, -180, 'amenity');
     continue;
@@ -125,16 +141,23 @@ for (const p of plan.placements) {
     z0 = -p.depth / 2 + 60,
     z1 = p.depth / 2 - 95;
   for (let i = 0; i < p.buildingCount; i++) {
-    const x =
+    let x =
         -xExtent +
         ((i % cols) * 2 * xExtent) / (cols - 1) +
         (Math.floor(i / cols) % 2 ? 4 : -4),
       z = z0 + (Math.floor(i / cols) * (z1 - z0)) / Math.max(1, rows - 1);
+    const laneZ=z+25;
+    const angle=irregular?Math.sin((i+1)*2.17+seed%37)*(p.type==='low'?.36:.24):0;
+    if(irregular){
+      x+=Math.sin(i*1.41+seed%29)*4;
+      if(Math.abs(x)<40)x=Math.sign(x||1)*40;
+      z+=Math.sin(i*.91+seed%41)*4;
+    }
     const model =
       p.type === 'low'
-        ? i % 2
+        ? housingChoices('low')[(i+seed)%housingChoices('low').length]
         : p.type === 'lowerMiddle'
-          ? 2 + (i % 2)
+          ? housingChoices('lower-middle')[(i+seed)%housingChoices('lower-middle').length]
           : p.type === 'high'
             ? 4 + (i % 2)
             : p.type === 'ultra'
@@ -142,7 +165,7 @@ for (const p of plan.placements) {
               : p.type === 'mixedVilla'
                 ? [13, 14, 12][i % 3]
                 : 12;
-    add(p, model, x, z, 'home');
+    add(p, model, x, z, 'home', angle, laneZ);
     if (p.type !== 'low' || i % 3 === 0) {
       const q = housingPoint(p, x + HOUSING_MODELS[model].bounds.max[0] + 5, z);
       HOUSING_TREES.push({ x: q[0], z: q[1], y: 0.18, yaw: 0 });
@@ -210,31 +233,28 @@ for (const p of plan.placements) {
       0.1925,
       'road',
     );
-  for (const side of [-1, 1])
-    box(
-      p,
-      'side-wall-' + side,
-      (side * p.width) / 2,
-      0,
-      0.6,
-      p.depth,
-      2.2,
-      1.28,
-      'wall',
-    );
-  box(p, 'rear-wall', 0, -p.depth / 2, p.width, 0.6, 2.2, 1.28, 'wall');
-  for (const side of [-1, 1])
-    box(
-      p,
-      'front-wall-' + side,
-      (side * (p.width + p.gateWidth)) / 4,
-      p.depth / 2,
-      (p.width - p.gateWidth) / 2,
-      0.6,
-      2.2,
-      1.28,
-      'wall',
-    );
+  const wallHeight=(p.type==='low'?1.9:2.25)+(seed%4)*.14;
+  const boundary=(id:string,a:[number,number],b:[number,number],inward:[number,number])=>{
+    const count=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/24);
+    const point=(j:number):[number,number]=>{
+      const t=j/count,step=irregular?Math.pow(Math.sin(t*Math.PI*(3+seed%3)),2)*(2+seed%4):0;
+      return [a[0]+(b[0]-a[0])*t+inward[0]*step,a[1]+(b[1]-a[1])*t+inward[1]*step];
+    };
+    for(let j=0;j<count;j++){
+      const u=point(j),v=point(j+1),wa=housingPoint(p,...u),wb=housingPoint(p,...v),yaw=Math.atan2(wb[0]-wa[0],wb[1]-wa[1]),length=Math.hypot(wb[0]-wa[0],wb[1]-wa[1])+.1;
+      const common={x:(wa[0]+wb[0])/2,z:(wa[1]+wb[1])/2,yaw,kind:'wall' as const};
+      HOUSING_BOXES.push({...common,id:p.id+'/'+id+j,w:.55,d:length,h:wallHeight,y:.18+wallHeight/2,color:wallPalette[seed%5]});
+      HOUSING_BOXES.push({...common,id:p.id+'/'+id+j+'-coping',w:.77,d:length+.06,h:.16,y:.18+wallHeight+.08,color:wallPalette[(seed+2)%5]});
+      box(p,id+j+'-pier',u[0],u[1],1.0,1.0,wallHeight+.4,.18+(wallHeight+.4)/2,'wall');
+    }
+  };
+  boundary('west-edge',[-p.width/2,-p.depth/2],[-p.width/2,p.depth/2],[1,0]);
+  boundary('east-edge',[p.width/2,-p.depth/2],[p.width/2,p.depth/2],[-1,0]);
+  boundary('rear-edge',[-p.width/2,-p.depth/2],[p.width/2,-p.depth/2],[0,1]);
+  boundary('front-west',[-p.width/2,p.depth/2],[-p.gateWidth/2,p.depth/2],[0,-1]);
+  boundary('front-east',[p.gateWidth/2,p.depth/2],[p.width/2,p.depth/2],[0,-1]);
+  for(const s of [-1,1])box(p,'gate-pier-'+s,s*(p.gateWidth/2+.65),p.depth/2,1.25,1.65,3.1,.18+1.55,'wall');
+  if(irregular)for(let j=0;j<7;j++)box(p,'gate-crown-'+j,((j+.5)/7-.5)*p.gateWidth,p.depth/2,p.gateWidth/7+.05,1.45,.24,3.2+Math.sin((j+.5)/7*Math.PI)*(seed%2?.6:.25),'wall');
   if (p.type === 'lowerMiddle') add(p, 8, -48, p.depth / 2 - 34, 'amenity');
   if (['high', 'ultra', 'mixedVilla', 'largeDetached'].includes(p.type)) {
     add(p, 10, p.gateWidth / 2 + 6, p.depth / 2 - 10, 'amenity');
@@ -261,20 +281,14 @@ for (const p of plan.placements) {
   )) {
     const model = HOUSING_MODELS[home.model];
     const door = model.entrance;
-    const start = home.localZ + door[1],
-      end = home.localZ + 25;
-    if (end > start)
-      box(
-        p,
-        home.id + '/entry-walk',
-        home.localX + door[0],
-        (start + end) / 2,
-        3,
-        end - start,
-        0.03,
-        0.2,
-        'walk',
-      );
+    const a=housingInstancePoint(home,door[0],door[1]),b=housingPoint(p,home.localX,home.laneZ??home.localZ+25);
+    HOUSING_BOXES.push({id:home.id+'/entry-walk',x:(a[0]+b[0])/2,z:(a[1]+b[1])/2,w:3,d:Math.hypot(b[0]-a[0],b[1]-a[1])+.2,h:.03,y:.2,yaw:Math.atan2(b[0]-a[0],b[1]-a[1]),kind:'walk'});
+  }
+  for(const amenity of HOUSING_INSTANCES.filter(i=>i.parcel===p.id&&i.role==='amenity')){
+    const door=HOUSING_MODELS[amenity.model].entrance,frontZ=amenity.localZ+door[1]+2;
+    // Exit forwards first, then connect sideways, never cut through the building.
+    const a=housingInstancePoint(amenity,door[0],door[1]),b=housingPoint(p,amenity.localX+door[0],frontZ),c=housingPoint(p,0,frontZ);
+    for(const [j,u,v] of [[0,a,b],[1,b,c]] as const)HOUSING_BOXES.push({id:amenity.id+'/amenity-walk-'+j,x:(u[0]+v[0])/2,z:(u[1]+v[1])/2,w:3,d:Math.hypot(v[0]-u[0],v[1]-u[1])+.2,h:.03,y:.2,yaw:Math.atan2(v[0]-u[0],v[1]-u[1]),kind:'walk'});
   }
   for (let i = 1; i < p.connector.points.length; i++) {
     const a = p.connector.points[i - 1],
@@ -351,10 +365,10 @@ export function housingColliders(
               m = c.min[1] < 3 ? Math.ceil(d / 3) : 1;
             for (let a = 0; a < n; a++)
               for (let b = 0; b < m; b++) {
-                const q = housingPoint(
-                  p,
-                  i.localX + c.min[0] + ((a + 0.5) * w) / n,
-                  i.localZ + c.min[2] + ((b + 0.5) * d) / m,
+                const q = housingInstancePoint(
+                  i,
+                  c.min[0] + ((a + 0.5) * w) / n,
+                  c.min[2] + ((b + 0.5) * d) / m,
                 );
                 result.push(
                   collider({
@@ -365,7 +379,7 @@ export function housingColliders(
                     w: w / n,
                     d: d / m,
                     h: c.max[1] - c.min[1],
-                    yaw: p.angle,
+                    yaw: i.yaw,
                     kind: 'wall',
                   }),
                 );
@@ -432,6 +446,10 @@ export function housingGroundHeight(
   z: number,
   currentY: number,
 ): number | undefined {
+  for(const a of HOUSING_APRONS){
+    const dx=x-a.x,dz=z-a.z,lx=dx*Math.cos(a.yaw)-dz*Math.sin(a.yaw),lz=dx*Math.sin(a.yaw)+dz*Math.cos(a.yaw);
+    if(Math.abs(lx)<=a.width/2&&Math.abs(lz)<=a.depth/2)return a.innerY+(a.outerY-a.innerY)*(lz/a.depth+.5);
+  }
   let support: number | undefined;
   for (const b of surfacesByCell.get(
     Math.floor(x / 500) + ',' + Math.floor(z / 500),
@@ -459,16 +477,15 @@ export function housingGroundHeight(
     let y = p.retainExistingFootprints
       ? support
       : Math.max(0.18, support ?? -Infinity);
-    for (const i of instancesByParcel.get(p.id)!)
+    for (const i of instancesByParcel.get(p.id)!) {
+      const ix=(x-i.x)*Math.cos(i.yaw)-(z-i.z)*Math.sin(i.yaw),iz=(x-i.x)*Math.sin(i.yaw)+(z-i.z)*Math.cos(i.yaw);
       for (const f of HOUSING_MODELS[i.model].surfaces)
         if (
-          lx - i.localX >= f.min[0] &&
-          lx - i.localX <= f.max[0] &&
-          lz - i.localZ >= f.min[1] &&
-          lz - i.localZ <= f.max[1] &&
+          ix >= f.min[0] && ix <= f.max[0] && iz >= f.min[1] && iz <= f.max[1] &&
           f.y + i.y <= currentY + 0.29
         )
           y = Math.max(y ?? -Infinity, f.y + i.y);
+    }
     return y;
   }
   return support;
