@@ -98,7 +98,7 @@ export function PopulationLayer({
       const offset = (i % 4) * 0.28;
       object.position.set(r.x + offset, 0.99, r.z);
       const scale=(r.identity?.age??18)<12?.67:1;
-      object.scale.setScalar(scale);
+      object.scale.setScalar(r.journey?0:scale);
       object.position.y=.17+.82*scale;
       object.updateMatrix();
       bodies.current!.setMatrixAt(i, object.matrix);
@@ -298,6 +298,7 @@ export function PopulationPanel({
               <p className="population-note">
                 每名居民是独立个体，同一家人各有个人账户。初始财富差异借用美国家庭统计作为情景参考，并非已校准的个人财富分布；旧存档保留既有财产。CBD 数万人是扩容目标，不是当前已运行人数。
               </p>
+              {world.housing&&<p>已入住 {Object.keys(world.housing).length} 户 · {new Set(Object.values(world.housing).map(h=>h.group)).size} 个住宅片区 · {Object.values(world.housing).filter(h=>h.tenure==='owner').length} 户自有住房 · {world.residents.filter(r=>r.employment).length} 名就业居民。覆盖 CBD 与周边社区，并非全部住在 CBD 核心地块。</p>}
               <div className="wealth-table">
                 {WEALTH_REFERENCE.groups.map((group) => {
                   const members = world.residents.filter(
@@ -498,7 +499,8 @@ export function PopulationPanel({
                 </div>
               </dl>
               <h4>最近记忆与收支</h4>
-              <p className="population-note">资产目前记录个人总估值；房产、车辆逐项产权及贷款合同、利息和还款计划尚未接入。这里的账户是模拟居民账户，不是真实银行或真人登录账号。</p>
+              {resident.dwellingId&&world.housing?.[resident.dwellingId]&&(()=>{const h=world.housing![resident.dwellingId!];return <><h4>住房产权与就业</h4><p>{h.buildingName}<br/>{h.unitId}</p><p>{h.tenure==='owner'?'家庭自有住房':'租住房屋'} · 产权人：{h.ownerResidentId||'城市住房信托'}<br/>住户：{h.residentIds.join(' / ')}</p><dl className="population-money"><div><dt>本人估算税前月薪</dt><dd>{usd(resident.employment?.monthlyGrossCents||0)}</dd></div><div><dt>房屋情景估值</dt><dd>{usd(h.propertyValueCents)}</dd></div><div><dt>家庭剩余房贷</dt><dd>{usd(h.loanBalanceCents)}</dd></div><div><dt>{h.tenure==='owner'?'估算月供':'估算月租'}</dt><dd>{usd(h.monthlyMortgageCents||h.monthlyRentCents)}</dd></div></dl><p>{resident.employment?resident.employment.name+' · '+resident.employment.placeId:'非就业居民'}{resident.employment?.floor?' · '+resident.employment.floor:''}</p><p className="population-note">房价、工资与租金均为可调整的模拟假设。贷款按年利率3.6%、最长30年估算；住房支出不超过家庭税前收入35%，不足部分属于开局住房补助。自有房净值已包含在原非现金资产中，不重复加总。本轮记录期初余额与月供，还款扣账尚未启用；房号为逻辑单元。</p></>;})()}
+              <p className="population-note">账户为模拟居民账户。跨区通勤目前按距离估时，不代表已完成全城道路寻路。</p>
               <ol className="population-memory">
                 {resident.memory
                   .slice(-8)

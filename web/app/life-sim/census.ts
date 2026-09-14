@@ -1,7 +1,7 @@
 /** Seed identities materialized into the same persisted Resident objects used by the simulation. */
-export const CENSUS_SIZE=300;
+export const CENSUS_SIZE=3000;
 export const CENSUS_TARGET=30000;
-export const CENSUS_VERSION='unified-residents-1';
+export const CENSUS_VERSION='ampliworld-residents-3000-1';
 export const SOCIAL_JOBS=['酒店前台','销售顾问','客户经理','行政助理','软件工程师','产品经理','设计师','会计','审计员','律师','银行柜员','研究员','医生','护士','药剂师','康复师','教师','幼教老师','图书管理员','实验室技术员','厨师','服务员','咖啡师','烘焙师','超市理货员','收银员','店长','理发师','健身教练','保洁员','园林养护员','电工','水管工','维修技师','公交司机','出租车司机','配送员','仓库管理员','物业管家','保安','警员','消防员','社工','照护员','摄影师','音乐教师','创业者','自由职业者','全职家庭照护者','求职者'];
 const surnames=['林','陈','周','王','张','李','赵','吴','郑','许','黄','徐','刘','杨','何','宋'];
 const names=['晨','宁','安','远','悦','然','清','宇','禾','辰','语','新','明','思','文','嘉'];

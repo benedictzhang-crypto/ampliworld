@@ -3,6 +3,7 @@ import { OCCUPATIONS, VENUES, profileAt, type CitizenProfile } from './society';
 import {citizen,CENSUS_SIZE,CENSUS_VERSION} from './census';
 import {crossingWait} from './traffic';
 import {consumerPersona} from './persona-adapter';
+import {bindResidency,type Dwelling,type Employment} from './residency';
 export type Action =
   | 'home'
   | 'drink'
@@ -27,6 +28,9 @@ export const FACILITIES = [
   { id: 'trade', label: '虚拟证券服务点', x: 10, z: -10, color: '#86b2f0' },
 ] as const;
 export type Resident = {
+  dwellingId?:string;
+  employment?:Employment;
+  journey?:{destination:[number,number];minutes:number};
   consumerPersona?:ReturnType<typeof consumerPersona>;
   travelSeconds?:number;
   crossingWaitSeconds?:number;
@@ -60,6 +64,8 @@ export type Resident = {
   memory: { minute: number; text: string; cashDelta: number }[];
 };
 export type LifeWorld = {
+  residencyVersion?:number;
+  housing?:Record<string,Dwelling>;
   censusVersion?:string;
   socialEncounters?:{minute:number;a:string;b:string;text:string;topic:string;kind:string}[];
   societyVersion?: 1;
@@ -139,6 +145,8 @@ export function createLifeWorld(): LifeWorld {
   w.serviceHours = {};
   w.openingMoney = moneyTotal(w);
   attachIdentities(w);
+  bindResidency(w);
+  for(const r of w.residents){r.x=r.home[0];r.z=r.home[1];}
   return w;
 }
 function attachIdentities(w:LifeWorld){
@@ -157,7 +165,7 @@ function attachIdentities(w:LifeWorld){
   w.censusVersion=CENSUS_VERSION;
 }
 export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
-  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residents.every(r=>r.consumerPersona)) return input;
+  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===1&&input.housing&&input.residents.every(r=>r.consumerPersona)) return input;
   const w = structuredClone(input),
     fresh = createLifeWorld();
   if(input.societyVersion!==1)for (let i = 0; i < w.residents.length; i++) {
@@ -183,6 +191,7 @@ export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
   w.venueStats ??= {};
   w.serviceHours ??= {};
   attachIdentities(w);
+  bindResidency(w);
   return w;
 }
 export const residentNetWorth = (r: Resident, minute: number) =>
@@ -311,10 +320,13 @@ function start(w: LifeWorld, r: Resident) {
             ? 30
             : 15;
   const homeMeal = action === 'eat' && !!r.profile?.pantry;
-  r.route = routeTo(
-    r,
-    venue ? [venue.x, venue.z] : homeMeal ? r.home : f ? [f.x, f.z] : r.home,
-  );
+  const destination:[number,number]=action==='work'&&r.employment?r.employment.entry:venue?[venue.x,venue.z]:homeMeal?r.home:f?[f.x,f.z]:r.home;
+  const distance=Math.hypot(destination[0]-r.x,destination[1]-r.z);
+  // Outside the verified core footpath: timed, abstract transit, not a straight walk through buildings.
+  if(distance>250||Math.abs(r.x)>140||Math.abs(r.z)>140||Math.abs(destination[0])>140||Math.abs(destination[1])>140){
+    r.route=[];r.journey={destination,minutes:Math.max(5,Math.ceil(distance/400)+5)};
+    r.reason+=' · 估算通勤（未连接逐段道路寻路）';
+  }else r.route=routeTo(r,destination);
   remember(w, r, r.reason);
 }
 function complete(w: LifeWorld, r: Resident) {
@@ -471,6 +483,7 @@ export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
       r.happiness = cap(r.happiness - 0.045);
       if (r.water < 12 || r.nutrition < 12) r.health = cap(r.health - 0.12);
       if (!r.remaining) start(w, r);
+      if(r.journey){r.journey.minutes=Math.max(0,r.journey.minutes-5);r.travelSeconds=(r.travelSeconds||0)+300;if(!r.journey.minutes){[r.x,r.z]=r.journey.destination;r.journey=undefined;}continue;}
       let walkBudget = 1.25 * 300;
       while (r.route.length && walkBudget > 0) {
         const target = r.route[0],

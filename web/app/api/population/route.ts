@@ -1,5 +1,6 @@
 import { getChatGPTUser } from '../../chatgpt-auth';
 import { populationDB } from '../../life-sim/storage';
+import {encodeSnapshot,decodeSnapshot} from '../../life-sim/snapshot-codec';
 import {
   createLifeWorld,
   advanceLifeWorld,
@@ -21,7 +22,7 @@ async function load(userId: string) {
       .prepare(
         'INSERT OR IGNORE INTO population_runs (user_id, revision, state_json, updated_at) VALUES (?, 0, ?, ?)',
       )
-      .bind(userId, JSON.stringify(createLifeWorld()), new Date().toISOString())
+      .bind(userId, await encodeSnapshot(createLifeWorld()), new Date().toISOString())
       .run();
     row = await db
       .prepare(
@@ -31,7 +32,7 @@ async function load(userId: string) {
       .first<{ revision: number; state_json: string }>();
   }
   if (!row) throw new Error('Population persistence unavailable');
-  return upgradeLifeWorld(JSON.parse(row.state_json) as LifeWorld);
+  return upgradeLifeWorld(await decodeSnapshot(row.state_json));
 }
 export async function GET() {
   const user = await getChatGPTUser();
@@ -83,7 +84,7 @@ export async function POST(request: Request) {
       )
       .bind(
         next.revision,
-        JSON.stringify(next),
+        await encodeSnapshot(next),
         new Date().toISOString(),
         user.userId,
         current.revision,
