@@ -4,7 +4,7 @@ import {encodeSnapshot} from '../app/life-sim/snapshot-codec';
 async function main(){
 let w=createLifeWorld();const opening=moneyTotal(w),shops=Object.values(w.businesses!).filter(b=>b.type==='retail-shop');
 assert.equal(shops.length,108);for(const b of shops)assert(b.staffIds.length>=2&&b.staffIds.length<=6);
-const ids=Object.values(w.businesses!).flatMap(b=>b.staffIds);assert.equal(ids.length,new Set(ids).size);assert.equal(ids.length,1920);
+const ids=Object.values(w.businesses!).flatMap(b=>b.staffIds);assert.equal(ids.length,new Set(ids).size);assert.equal(ids.length,1920);assert(Object.values(w.businesses!).every(b=>b.staffIds.length>0));
 for(const b of Object.values(w.businesses!)){for(const id of b.staffIds){const r=w.residents.find(r=>r.id===id)!;assert(r.identity!.age>=18);assert.equal(r.employment!.placeId,b.id);}if(b.type==='restaurant')assert(b.staffIds.includes(b.ownerId!));}
 const old=structuredClone(w);delete old.commerceVersion;delete old.businesses;old.treasury+=Object.values(w.businesses!).reduce((n,b)=>n+b.cash,0);
 const upgraded=upgradeLifeWorld(old);assert.equal(moneyTotal(upgraded),moneyTotal(old));

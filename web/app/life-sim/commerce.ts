@@ -40,7 +40,7 @@ export function initializeCommerce(w:LifeWorld){
  const ordered=definitions.sort((a,b)=>Number(a.type==='office')-Number(b.type==='office'));
  for(const d of ordered){
   const target=d.type==='retail-shop'?2+hash(d.id)%5:d.type==='restaurant'?12:d.type==='auto'?22:d.type==='office'?Math.min(d.jobCapacity,60+hash(d.id)%210):Math.min(d.jobCapacity,8+hash(d.id)%19);
-  const requested=['hospital','police','school','hotel'].includes(d.type)?d.jobCapacity:target;
+  const requested=d.type==='office'?Math.min(target,Math.max(0,remaining.size-(ordered.length-ordered.indexOf(d)-1)*8)):['hospital','police','school','hotel'].includes(d.type)?d.jobCapacity:target;
   const b:Business=w.businesses[d.id]??={id:d.id,name:d.name,type:d.type,entry:d.entry as [number,number],...('floor' in d&&d.floor?{floor:d.floor}:{}),staffIds:[],managerId:null,ownerId:null,price:'price' in d?d.price:d.type==='restaurant'?2600:d.type==='retail-shop'?2500+(hash(d.id)%12)*1500:d.type==='auto'?8500:d.type==='hospital'?1800:0,open:['hotel','hospital','police'].includes(d.type)?0:8,close:['hotel','hospital','police'].includes(d.type)?24:22,cash:0,visits:0,revenue:0,workedHours:0,day:Math.floor(w.minute/1440),todayVisits:0,todayRevenue:0,unpaidWages:0};
   for(let i=0;i<requested&&remaining.size;i++){
    const wanted=role(d.type,i);
