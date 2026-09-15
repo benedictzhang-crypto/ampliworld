@@ -11,6 +11,7 @@ import { CITY, CityLayer } from '../world-client/city-layer';
 import {usePopulation,PopulationLayer,PopulationPanel} from '../life-sim/client';
 import { CITY_INFRA } from '../world-client/city-surface';
 import {CoreSignals} from '../world-client/core-signals';
+import {escalatorVelocity} from '../world-client/mall-escalators.mjs';
 import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
 import { CivicPlaces } from '../world-client/civic-places';
 import { MallElevators } from '../world-client/mall-elevators';
@@ -757,6 +758,7 @@ export function DistrictClient() {
                 look={look}
                 relocation={relocation}
                 carrier={liftCarrier}
+                surfaceVelocity={escalatorVelocity}
                 controls={controls}
                 onPosition={(x, z, y) => {
                   playerFloor.current = y ?? 0;

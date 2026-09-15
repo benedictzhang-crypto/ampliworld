@@ -11,6 +11,7 @@ import fontJson from 'three/examples/fonts/helvetiker_regular.typeface.json' wit
 import { mkdir, writeFile } from 'node:fs/promises';
 import { merchandise } from './mall-merchandise.mjs';
 import { buildParking } from './mall-parking.mjs';
+import {ESCALATORS,ESCALATOR_OPENING} from '../../app/world-client/mall-escalators.mjs';
 if (!globalThis.FileReader) globalThis.FileReader = class { readAsArrayBuffer(b) { b.arrayBuffer().then(v => { this.result = v; this.onloadend?.(); }); } };
 const out = new URL('../../public/assets/3d/ampliworld/GC-MALL-002/', import.meta.url);
 const materials = {};
@@ -40,8 +41,25 @@ const liftGroups=[
 ];
 // Rectangle subtraction avoids hidden solid floor across an elevator shaft.
 function subtract(r,h){const x0=Math.max(r[0],h.min[0]),z0=Math.max(r[1],h.min[1]),x1=Math.min(r[2],h.max[0]),z1=Math.min(r[3],h.max[1]);if(x1<=x0||z1<=z0)return[r];return [[r[0],r[1],x0,r[3]],[x1,r[1],r[2],r[3]],[x0,r[1],x1,z0],[x0,z1,x1,r[3]]].filter(a=>a[2]-a[0]>.001&&a[3]-a[1]>.001);}
-function plate(level,y,thickness){let rs=[[-112.5,-90,112.5,-35],[-112.5,35,112.5,90],[-112.5,-35,-45,35],[45,-35,112.5,35]];for(const h of liftGroups)rs=rs.flatMap(r=>subtract(r,h));rs.forEach((r,i)=>{const id=`${level}-plate-${i}`;block(id,'ivory',(r[0]+r[2])/2,y-thickness/2,(r[1]+r[3])/2,r[2]-r[0],thickness,r[3]-r[1]);surfaces.push({id,min:[r[0],r[1]],max:[r[2],r[3]],y,level});});}
+function plate(level,y,thickness){let rs=[[-112.5,-90,112.5,-35],[-112.5,35,112.5,90],[-112.5,-35,-45,35],[45,-35,112.5,35]];for(const h of [...liftGroups,...(level!=='L1'&&level!=='ROOF'?[ESCALATOR_OPENING]:[])])rs=rs.flatMap(r=>subtract(r,h));rs.forEach((r,i)=>{const id=`${level}-plate-${i}`;block(id,'ivory',(r[0]+r[2])/2,y-thickness/2,(r[1]+r[3])/2,r[2]-r[0],thickness,r[3]-r[1]);surfaces.push({id,min:[r[0],r[1]],max:[r[2],r[3]],y,level});});}
 FLOOR_Y.forEach((y,i)=>plate('L'+(i+1),y,i===0?.17:.48));plate('ROOF',ROOF_Y,.5);
+for(const e of ESCALATORS){
+ const n=70,dz=(e.maxZ-e.minZ)/n,dy=(e.high-e.low)/n;
+ for(let i=0;i<n;i++){
+  const z=e.minZ+(i+.5)*dz,y=e.low+(i+.5)*dy;
+  box('dark',e.x,y-.12,z,2.5,.24,dz+.015);
+  box('gold',e.x,y+.008,z+dz*.4,2.4,.025,.035);
+  for(const s of [-1,1]){
+   block(`${e.id}-side-${s}-${i}`,'glass',e.x+s*1.4,y+.5,z,.16,1.1,dz+.015);
+   box('dark',e.x+s*1.4,y+1.07,z,.24,.11,dz+.035);
+  }
+ }
+ for(const [z,y] of [[e.minZ-.4,e.low],[e.maxZ+.3,e.high]]){
+  block(`${e.id}-landing-${z}`,'dark',e.x,y-.12,z,2.5,.24,1);
+  surfaces.push({id:`${e.id}-landing-${z}`,min:[e.x-1.25,z-.5],max:[e.x+1.25,z+.5],y,level:e.id});
+ }
+ text3d(e.direction>0?'UP':'DOWN',e.x,e.low+.025,e.minZ-.6,.35);
+}
 // The garden is ground-level only. Every upper floor retains the open 90 x 70m atrium.
 block('courtyard-base','ivory',0,.085,0,90,.17,70);surfaces.push({id:'courtyard',min:[-45,-35],max:[45,35],y:.17,level:'L1'});
 function rail(id,x,z,w,d,y){block(id,'glass',x,y+.58,z,w,1.16,d);box('gold',x,y+1.18,z,w+.04,.07,d+.04);}
@@ -163,6 +181,30 @@ for(const s of [-1,1]){
 for(let x=-110;x<=110;x+=3)box('stone',x,.164,98,.035,.006,11.5);
 for(const z of [93,96,99,102])box('stone',0,.164,z,224,.006,.035);
 text3d('AUREA GALLERIA',0,5,90.8,1.05);
+// Monumental entrance frame: three-dimensional limestone portal and bronze soffit.
+for(const x of [-18,18]){
+ block(`entry-monolith-${x}`,'ivory',x,6.2,93,2.4,12.4,4.8);
+ box('gold',x+(x<0?1.24:-1.24),6.15,94,.12,11.4,3.4);
+ box('light',x+(x<0?1.32:-1.32),6.15,94,.045,10.6,2.6);
+}
+block('entry-crown','ivory',0,12.1,93,38.4,1.4,4.8);
+box('gold',0,11.34,94,33,.14,4.4);
+text3d('AUREA',0,9.1,95.55,1.65);
+// Warm shopfront displays give the arrival facade depth at walking height.
+for(const s of [-1,1])for(const x of [30,54,78,102]){
+ box('wood',s*x,2.6,84.8,8,4.7,.25);
+ box('light',s*x,4.85,87,7.8,.08,4.3);
+ block(`arrival-display-${s}-${x}`,'stone',s*x, .62,87,5.6,.9,1.2);
+ merchandise(T,add,box,x===30?'handbag':x===54?'necklace':x===78?'watch':'shoe-pair',s*x,1.08,87,0);
+}
+// Small layered trees sit within the existing planters, clear of the entrance route.
+for(const x of [-28,28,-68,68]){
+ block(`arrival-tree-${x}`,'wood',x,2.25,98,.3,3.1,.3);
+ for(let n=0;n<9;n++){const a=n*2.4,r=1.35*(n%3)/2;
+  const g=new T.IcosahedronGeometry(.85+(n%3)*.18,1);g.scale(1,.72,1);
+  add(g,'leaf',x+Math.cos(a)*r,3.6+(n%4)*.4,98+Math.sin(a)*.65);
+ }
+}
 const scene=new T.Scene();scene.name='GC-MALL-002_Six_Level_Walkable_Galleries';let triangles=0;
 for(const [m,parts]of Object.entries(buckets)){const g=mergeVertices(mergeGeometries(parts),1e-5);const mesh=new T.Mesh(g,materials[m]);mesh.name='mall_'+m;mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);triangles+=(g.index?.count??g.attributes.position.count)/3;}
 scene.updateMatrixWorld(true);const bounds=new T.Box3().setFromObject(scene);

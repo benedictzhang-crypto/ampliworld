@@ -49,6 +49,7 @@ export function Walker({
   relocation,
   look,
   carrier,
+  surfaceVelocity,
 }: {
   controls: React.RefObject<OrbitControlsImpl | null>;
   onPosition: (x: number, z: number, y?: number) => void;
@@ -60,6 +61,7 @@ export function Walker({
   relocation?: { x: number; z: number; y: number; nonce: number };
   look?: React.RefObject<{ pitch: number }>;
   carrier?: React.RefObject<LiftCarrier>;
+  surfaceVelocity?: (x:number,z:number,y:number)=>number;
 }) {
   const body = useRef<Group>(null),
     leftLeg = useRef<Group>(null),
@@ -268,6 +270,7 @@ export function Walker({
       .addScaledVector(state.right, r)
       .normalize()
       .multiplyScalar(dt * WALK_SPEED);
+    if(state.grounded && !carrier?.current.active)state.delta.z+=(surfaceVelocity?.(p.x,p.z,state.feet)??0)*dt;
     const x = Math.max(-limits[0], Math.min(limits[0], p.x + state.delta.x));
     const z = Math.max(-limits[1], Math.min(limits[1], p.z + state.delta.z));
     const nx =

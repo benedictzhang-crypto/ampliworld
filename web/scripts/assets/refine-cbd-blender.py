@@ -3,6 +3,9 @@ Run after build-mall-campus.mjs and build-hospitality.mjs with Blender --backgro
 """
 import bpy
 import json
+import math
+import random
+import sys
 from pathlib import Path
 from mathutils import Vector
 
@@ -13,10 +16,52 @@ EDITABLE.mkdir(parents=True, exist_ok=True)
 bpy.context.preferences.filepaths.save_version = 0
 jobs = [('GC-MALL-002', 'mall-lod0.glb', 'mall-manifest.json')]
 jobs += [(f'GC-RESTAURANT-00{i}', 'model.glb', 'manifest.json') for i in range(1, 4)]
+if '--mall-only' in sys.argv:
+    jobs = jobs[:1]
 for asset_id, filename, manifest_name in jobs:
     bpy.ops.wm.read_factory_settings(use_empty=True)
     folder = ASSETS / asset_id
     bpy.ops.import_scene.gltf(filepath=str(folder / filename))
+    # Exportable texture images, metre-scale planar UVs: the Web client receives
+    # the same stone grain and timber surfaces as the Blender inspection render.
+    rng = random.Random(41)
+    for material in bpy.data.materials:
+        label = material.name.lower()
+        timber = any(k in label for k in ['wood','teak'])
+        stone = any(k in label for k in ['ivory','stone'])
+        if not (timber or stone) or not material.use_nodes:
+            continue
+        shader = material.node_tree.nodes.get('Principled BSDF')
+        if not shader:
+            continue
+        tex = bpy.data.images.new(material.name+' surface', width=256, height=256)
+        pixels = []
+        for y in range(256):
+            for x in range(256):
+                grain = rng.uniform(-.026,.026)
+                if timber:
+                    v = .48+.07*math.sin(x*.23+math.sin(y*.045))+.025*math.sin(x*1.6)+grain
+                    rgb = (v*.9,v*.64,v*.38)
+                else:
+                    v = .78+.015*math.sin(y*.32+math.sin(x*.08))+grain
+                    if x<1 or y<1: v -= .1
+                    rgb = (v,v*.985,v*.95)
+                pixels.extend((*rgb,1))
+        tex.pixels.foreach_set(pixels)
+        tex.pack()
+        node = material.node_tree.nodes.new('ShaderNodeTexImage')
+        node.image = tex
+        material.node_tree.links.new(node.outputs['Color'],shader.inputs['Base Color'])
+        shader.inputs['Roughness'].default_value = .6 if timber else .72
+    for obj in bpy.context.scene.objects:
+        if obj.type != 'MESH': continue
+        uv = obj.data.uv_layers.active or obj.data.uv_layers.new(name='MetricSurface')
+        for polygon in obj.data.polygons:
+            axis = max(range(3),key=lambda a:abs(polygon.normal[a]))
+            axes = [a for a in range(3) if a!=axis]
+            for li in polygon.loop_indices:
+                co = obj.data.vertices[obj.data.loops[li].vertex_index].co
+                uv.data[li].uv = (co[axes[0]]/2,co[axes[1]]/2)
     for obj in list(bpy.context.scene.objects):
         if obj.type != 'MESH':
             continue
@@ -64,4 +109,11 @@ for asset_id, filename, manifest_name in jobs:
     scene.render.filepath = str(EDITABLE / f'{asset_id}.png')
     bpy.ops.wm.save_as_mainfile(filepath=str(EDITABLE / f'{asset_id}.blend'), compress=True)
     bpy.ops.render.render(write_still=True)
+    if big:
+        camera.data.type = 'PERSP'
+        camera.data.lens = 28
+        camera.location = (25,-135,1.7)
+        camera.rotation_euler = (Vector((0,-90,6))-camera.location).to_track_quat('-Z','Y').to_euler()
+        scene.render.filepath = str(EDITABLE / f'{asset_id}-arrival.png')
+        bpy.ops.render.render(write_still=True)
     print('FINISHED', asset_id, manifest['triangles'], flush=True)
