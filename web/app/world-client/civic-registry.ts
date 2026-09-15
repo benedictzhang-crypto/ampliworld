@@ -10,8 +10,10 @@ import restaurant1 from '../../public/assets/3d/ampliworld/GC-RESTAURANT-001/man
 import restaurant2 from '../../public/assets/3d/ampliworld/GC-RESTAURANT-002/manifest.json';
 import restaurant3 from '../../public/assets/3d/ampliworld/GC-RESTAURANT-003/manifest.json';
 import salon from '../../public/assets/3d/ampliworld/GC-SALON-001/manifest.json';
+import sculptedHomes from '../../public/assets/3d/ampliworld/GC-CBD-RESIDENCES-001/manifest.json';
 
 export const CIVIC_PLACES = [
+  {id:'GC-CBD-RESIDENCES-001',name:'云庭曲廊 · 五栋露台公馆',x:535,z:-250,file:'residences.glb',manifest:sculptedHomes},
   {id:'GC-NAILS-01',assetId:'GC-SALON-001',name:'青庭 Nail Atelier',x:-1100,z:1000,file:'model.glb',manifest:salon},
   {id:'GC-NAILS-02',assetId:'GC-SALON-001',name:'东城 Luma Nails',x:5350,z:3350,file:'model.glb',manifest:salon},
   {id:'GC-NAILS-03',assetId:'GC-SALON-001',name:'河西 Willow Nails',x:-1350,z:8350,file:'model.glb',manifest:salon},
