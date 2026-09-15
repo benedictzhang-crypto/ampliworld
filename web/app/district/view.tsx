@@ -1,4 +1,5 @@
 'use client';
+import {Localized,LanguageSwitch} from '../language';
 import {
   Suspense,
   useCallback,
@@ -774,7 +775,7 @@ export function DistrictClient() {
           )}
         </CanvasBoundary>
       </div>
-      <header className="district-hud">
+      <Localized><header className="district-hud">
         <div>
           <span>AMPLIWORLD · OBSERVABLE WORLD LAB</span>
           <h1>企业世界实验室</h1>
@@ -786,6 +787,7 @@ export function DistrictClient() {
         </div>
       </header>
       <nav className="district-tools">
+        <LanguageSwitch />
         <Button onClick={()=>setSelectedResident(population.world?.residents[0]?.id||null)}>居民档案 · {population.world?.residents.length||0} 人</Button>
         <Button onClick={()=>{setFocus('marina');setWide(false);setWalking(false);}}>东湾游艇港 · 150 泊位</Button>
         <Button onClick={()=>{setWalking(false);setFocus('cbd');setWide(false)}}>实验室 · 街区观察</Button>
@@ -966,9 +968,9 @@ export function DistrictClient() {
             {label}
           </Button>
         ))}
-      </nav>
+      </nav></Localized>
       {walking && (
-        <div className="district-look">
+        <Localized><div className="district-look">
           <Button
             onClick={() => {
               look.current.pitch = Math.min(1.48, look.current.pitch + 0.24);
@@ -993,14 +995,14 @@ export function DistrictClient() {
           >
             视角归正
           </Button>
-        </div>
+        </div></Localized>
       )}
       <CityPlan
         open={planOpen}
         onOpenChange={setPlanOpen}
         position={position}
       />
-      <div className="district-status" aria-live="polite">
+      <Localized><div className="district-status" aria-live="polite">
         {driving && walking
           ? `驾驶 · ${Math.abs(carReport.speed * 3.6).toFixed(0)} km/h · WASD / 空格刹车 · E 下车`
           : walking
@@ -1015,7 +1017,7 @@ export function DistrictClient() {
               ? districtLocation(position[0], position[1])
               : '俯瞰不会改变角色位置 · 返回继续原地行走'}
         </small>
-      </div>
+      </div></Localized>
       <PopulationPanel controller={population} selected={selectedResident} onSelect={setSelectedResident}/>
     </main>
   );

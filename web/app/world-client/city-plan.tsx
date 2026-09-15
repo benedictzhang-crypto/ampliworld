@@ -1,4 +1,5 @@
 'use client';
+import {Localized} from '../language';
 import { useMemo, useRef, useState } from 'react';
 import {
   Dialog,
@@ -107,7 +108,7 @@ export function CityPlan({
     }
   };
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Localized><Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="city-plan-dialog">
         <DialogTitle>金庭城市平面图 · 20 × 30 km</DialogTitle>
         <DialogDescription>
@@ -646,6 +647,6 @@ export function CityPlan({
           </aside>
         </div>
       </DialogContent>
-    </Dialog>
+    </Dialog></Localized>
   );
 }

@@ -1,4 +1,5 @@
 'use client';
+import {Localized} from '../language';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useThree } from '@react-three/fiber';
 import { Color, InstancedMesh, Object3D } from 'three';
@@ -201,7 +202,7 @@ export function PopulationPanel({
     ) || 1;
   const occupations=Array.from(new Map((world?.residents||[]).map(r=>[r.profile?.occupation||r.job,{id:r.profile?.occupation||r.job,label:r.job}])).values());
   return (
-    <aside
+    <Localized><aside
       className={`population-panel ${open ? 'is-open' : ''}`}
       onKeyDown={(event) => event.stopPropagation()}
     >
@@ -528,6 +529,6 @@ export function PopulationPanel({
           </p>
         </div>
       )}
-    </aside>
+    </aside></Localized>
   );
 }
