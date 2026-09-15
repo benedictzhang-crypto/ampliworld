@@ -555,6 +555,9 @@ export function DistrictClient() {
             new Vector3(...(c.max as [number, number, number])),
           ),
       ),
+      // Vehicle signal poles are solid; their arms clear even tall road vehicles.
+      ...[[9.8,16.8],[-9.8,-16.8],[16.8,-9.8],[-16.8,9.8]].map(([x,z])=>
+        new Box3(new Vector3(x-.2,0,z-.2),new Vector3(x+.2,7,z+.2))),
     ],
     [nearTiles, cellX, cellZ, openGates, liftCars],
   );

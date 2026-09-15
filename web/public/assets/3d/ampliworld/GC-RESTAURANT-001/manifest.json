@@ -34,13 +34,13 @@
   "bounds": {
     "min": [
       -8.699999809265137,
-      -5.2452087118126656e-8,
+      -5.2452087118126656e-08,
       -7.699999809265137
     ],
     "max": [
       8.699999809265137,
       4.829999923706055,
-      10.199999809265137
+      11.229999542236328
     ]
   },
   "colliders": [
@@ -253,7 +253,59 @@
       ]
     },
     {
-      "id": "planter-16",
+      "id": "table-16",
+      "min": [
+        -6.26,
+        0,
+        8.639999999999999
+      ],
+      "max": [
+        -4.74,
+        0.85,
+        9.76
+      ]
+    },
+    {
+      "id": "planter-17",
+      "min": [
+        -7.95,
+        0,
+        10.05
+      ],
+      "max": [
+        -7.05,
+        0.9,
+        10.95
+      ]
+    },
+    {
+      "id": "table-18",
+      "min": [
+        4.74,
+        0,
+        8.639999999999999
+      ],
+      "max": [
+        6.26,
+        0.85,
+        9.76
+      ]
+    },
+    {
+      "id": "planter-19",
+      "min": [
+        7.05,
+        0,
+        10.05
+      ],
+      "max": [
+        7.95,
+        0.9,
+        10.95
+      ]
+    },
+    {
+      "id": "planter-20",
       "min": [
         -6.95,
         0,
@@ -266,7 +318,7 @@
       ]
     },
     {
-      "id": "planter-17",
+      "id": "planter-21",
       "min": [
         5.6499999999999995,
         0,
@@ -279,7 +331,7 @@
       ]
     },
     {
-      "id": "pergola-post-18",
+      "id": "pergola-post-22",
       "min": [
         -7.68,
         0,
@@ -292,7 +344,7 @@
       ]
     },
     {
-      "id": "pergola-post-19",
+      "id": "pergola-post-23",
       "min": [
         7.52,
         0,
@@ -472,7 +524,51 @@
       ]
     },
     {
-      "id": "planter-16",
+      "id": "table-16",
+      "min": [
+        -6.26,
+        8.639999999999999
+      ],
+      "max": [
+        -4.74,
+        9.76
+      ]
+    },
+    {
+      "id": "planter-17",
+      "min": [
+        -7.95,
+        10.05
+      ],
+      "max": [
+        -7.05,
+        10.95
+      ]
+    },
+    {
+      "id": "table-18",
+      "min": [
+        4.74,
+        8.639999999999999
+      ],
+      "max": [
+        6.26,
+        9.76
+      ]
+    },
+    {
+      "id": "planter-19",
+      "min": [
+        7.05,
+        10.05
+      ],
+      "max": [
+        7.95,
+        10.95
+      ]
+    },
+    {
+      "id": "planter-20",
       "min": [
         -6.95,
         7.1
@@ -483,7 +579,7 @@
       ]
     },
     {
-      "id": "planter-17",
+      "id": "planter-21",
       "min": [
         5.6499999999999995,
         7.1
@@ -494,7 +590,7 @@
       ]
     },
     {
-      "id": "pergola-post-18",
+      "id": "pergola-post-22",
       "min": [
         -7.68,
         8.92
@@ -505,7 +601,7 @@
       ]
     },
     {
-      "id": "pergola-post-19",
+      "id": "pergola-post-23",
       "min": [
         7.52,
         8.92
@@ -542,9 +638,9 @@
       "y": 0.1
     }
   ],
-  "triangles": 6996,
+  "triangles": 10840,
   "drawCalls": 9,
-  "bytes": 328216,
+  "bytes": 459864,
   "provenance": {
     "type": "ORIGINAL_PROCEDURAL_GEOMETRY",
     "creator": "AmpliWorld",
@@ -560,5 +656,10 @@
     "Original built geometry with open 3.2m entry and central circulation aisle.",
     "Four dining tables, eight chairs, counter, kitchen display and pendant lights.",
     "No ordering, staffing or payment functionality."
-  ]
+  ],
+  "finishing": {
+    "tool": "Blender 4.5.3",
+    "editable": "asset-library/blender/cbd/GC-RESTAURANT-001.blend",
+    "bevelMeters": 0.015
+  }
 }

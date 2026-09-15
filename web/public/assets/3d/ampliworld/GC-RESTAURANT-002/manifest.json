@@ -34,13 +34,13 @@
   "bounds": {
     "min": [
       -9.050000190734863,
-      -5.2452087118126656e-8,
+      -5.2452087118126656e-08,
       -8.050000190734863
     ],
     "max": [
       9.050000190734863,
       5.275000095367432,
-      8.399999618530273
+      11.229999542236328
     ]
   },
   "colliders": [
@@ -253,7 +253,59 @@
       ]
     },
     {
-      "id": "planter-16",
+      "id": "table-16",
+      "min": [
+        -6.26,
+        0,
+        8.639999999999999
+      ],
+      "max": [
+        -4.74,
+        0.85,
+        9.76
+      ]
+    },
+    {
+      "id": "planter-17",
+      "min": [
+        -7.95,
+        0,
+        10.05
+      ],
+      "max": [
+        -7.05,
+        0.9,
+        10.95
+      ]
+    },
+    {
+      "id": "table-18",
+      "min": [
+        4.74,
+        0,
+        8.639999999999999
+      ],
+      "max": [
+        6.26,
+        0.85,
+        9.76
+      ]
+    },
+    {
+      "id": "planter-19",
+      "min": [
+        7.05,
+        0,
+        10.05
+      ],
+      "max": [
+        7.95,
+        0.9,
+        10.95
+      ]
+    },
+    {
+      "id": "planter-20",
       "min": [
         -6.95,
         0,
@@ -266,7 +318,7 @@
       ]
     },
     {
-      "id": "planter-17",
+      "id": "planter-21",
       "min": [
         5.6499999999999995,
         0,
@@ -446,7 +498,51 @@
       ]
     },
     {
-      "id": "planter-16",
+      "id": "table-16",
+      "min": [
+        -6.26,
+        8.639999999999999
+      ],
+      "max": [
+        -4.74,
+        9.76
+      ]
+    },
+    {
+      "id": "planter-17",
+      "min": [
+        -7.95,
+        10.05
+      ],
+      "max": [
+        -7.05,
+        10.95
+      ]
+    },
+    {
+      "id": "table-18",
+      "min": [
+        4.74,
+        8.639999999999999
+      ],
+      "max": [
+        6.26,
+        9.76
+      ]
+    },
+    {
+      "id": "planter-19",
+      "min": [
+        7.05,
+        10.05
+      ],
+      "max": [
+        7.95,
+        10.95
+      ]
+    },
+    {
+      "id": "planter-20",
       "min": [
         -6.95,
         7.1
@@ -457,7 +553,7 @@
       ]
     },
     {
-      "id": "planter-17",
+      "id": "planter-21",
       "min": [
         5.6499999999999995,
         7.1
@@ -494,9 +590,9 @@
       "y": 0.1
     }
   ],
-  "triangles": 7096,
+  "triangles": 10940,
   "drawCalls": 9,
-  "bytes": 341008,
+  "bytes": 472608,
   "provenance": {
     "type": "ORIGINAL_PROCEDURAL_GEOMETRY",
     "creator": "AmpliWorld",
@@ -512,5 +608,10 @@
     "Original built geometry with open 3.2m entry and central circulation aisle.",
     "Four dining tables, eight chairs, counter, kitchen display and pendant lights.",
     "No ordering, staffing or payment functionality."
-  ]
+  ],
+  "finishing": {
+    "tool": "Blender 4.5.3",
+    "editable": "asset-library/blender/cbd/GC-RESTAURANT-002.blend",
+    "bevelMeters": 0.015
+  }
 }

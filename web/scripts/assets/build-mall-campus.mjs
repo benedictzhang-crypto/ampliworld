@@ -134,7 +134,35 @@ text3d('SERVICE / LOADING ONLY',158,3.5,47,.8);text3d('B1 PARKING VIA RAMP',159,
 box('ivory',0,.08,98,225,.16,12);surfaces.push({id:'front-forecourt',min:[-112.5,92],max:[112.5,104],y:.16});
 box('stone',.75,.035,113,226.5,.07,16);box('stone',159.75,.035,113,65.5,.07,16);box('stone',120.5,.085,114.5,13,.17,13);
 for(const z of [-91,91]){box('gold',0,5.6,z,18,.2,7);box('light',0,5.45,z,16,.08,6);}
-text3d('AUREA GALLERIA',0,5,90.3,1.05);
+// Deep facade ribbons are physical geometry with open ground-level portals.
+for(const side of [-1,1])for(let f=1;f<=6;f++){
+ const y=f===6?ROOF_Y:FLOOR_Y[f];
+ for(let x=-108;x<=108;x+=6){const depth=1.4+.8*Math.cos(x/23+f*.65);
+  box('ivory',x,y-.12,side*(90+depth/2),6.05,.48,depth);
+  box('gold',x,y-.39,side*(90+depth),6.05,.08,.14);
+ }
+ for(let z=-84;z<=84;z+=6){const depth=1.3+.7*Math.cos(z/20+f*.65);
+  box('ivory',side*(112.5+depth/2),y-.12,z,depth,.48,6.05);
+  box('gold',side*(112.5+depth),y-.39,z,.14,.08,6.05);
+ }
+}
+for(const s of [-1,1])for(let x=-102;x<=102;x+=12){
+ if(Math.abs(x)<9)continue; // Preserve the full 16m entrance opening.
+ block(`facade-pier-${s}-${x}`,'ivory',x,2.85,s*90.25,.7,5.4,.9);
+ box('light',x+.42,2.9,s*90.75,.06,4.7,.07);
+}
+for(const s of [-1,1]){
+ for(let x=-14;x<=14;x+=2)box('gold',x,6.25,s*94,.14,.26,10);
+ box('glass',0,6.42,s*94,30,.18,10);
+ for(const x of [-28,28,-68,68]){
+  block(`forecourt-planter-${s}-${x}`,'stone',x,.48,s*98,8,.64,2.2);
+  box('leaf',x,.87,s*98,7.6,.16,1.8);
+  block(`forecourt-seat-${s}-${x}`,'wood',x,.52,s*100,7,.3,.85);
+ }
+}
+for(let x=-110;x<=110;x+=3)box('stone',x,.164,98,.035,.006,11.5);
+for(const z of [93,96,99,102])box('stone',0,.164,z,224,.006,.035);
+text3d('AUREA GALLERIA',0,5,90.8,1.05);
 const scene=new T.Scene();scene.name='GC-MALL-002_Six_Level_Walkable_Galleries';let triangles=0;
 for(const [m,parts]of Object.entries(buckets)){const g=mergeVertices(mergeGeometries(parts),1e-5);const mesh=new T.Mesh(g,materials[m]);mesh.name='mall_'+m;mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);triangles+=(g.index?.count??g.attributes.position.count)/3;}
 scene.updateMatrixWorld(true);const bounds=new T.Box3().setFromObject(scene);

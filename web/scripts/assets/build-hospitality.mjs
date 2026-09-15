@@ -61,6 +61,21 @@ async function restaurant(v){
  for(const x of [-4.7,4.7])for(const z of [-.5,3.1])k.table(x,z,v===0);
  box('stone',-2.4,.68,-4.7,7.5,1.15,1.3,true,'service-counter');box('ivory',-2.4,1.3,-4.7,7.7,.12,1.5);for(let x=-5.6;x<1;x+=.3)box('bronze',x,.69,-3.99,.07,1,.09);
  box('dark',0,1,-6.4,13,1.8,.7,true,'rear-kitchen');box('ivory',0,1.94,-6.4,13.2,.1,.85);for(const x of [-5,-2,1,4]){box('bronze',x,2.45,-6.58,1.8,.08,.45);for(let j=0;j<4;j++)cyl('glass',x-.55+j*.35,2.7,-6.48,.09,.4,8);}box('stone',3.8,3,-6.2,3,.6,1.15);for(let x=2.8;x<5.2;x+=.15)box('dark',x,3.01,-5.61,.045,.38,.03);
+ // Layered stone paving, framed menus and furnished terrace leave the central door clear.
+ for(let x=-7.5;x<=7.5;x+=1.5)for(let z=7.5;z<=10.5;z+=1.5)box(v===1?'dark':'concrete',x,.055,z,1.46,.11,1.46);
+ for(const x of [-5.5,5.5]){k.table(x,9.2,v!==2);plant(x>0?7.5:-7.5,10.5,.45);}
+ for(const s of [-1,1]){
+  box('bronze',s*2.05,1.5,7.27,.72,1.14,.1);
+  box('dark',s*2.05,1.5,7.34,.64,1.06,.05);
+  for(let n=0;n<5;n++)box('ivory',s*2.05,1.78-n*.14,7.38,.43,.025,.025);
+ }
+ // Detailed place settings, open kitchen equipment, shelving and booth upholstery.
+ for(const x of [-4.7,4.7])for(const z of [-.5,3.1])for(const s of [-1,1]){
+  cyl('ivory',x,.858,z+s*.32,.20,.025,20);cyl('glass',x+.42,.98,z+s*.3,.065,.24,12);
+  box('bronze',x-.3,.861,z+s*.32,.035,.015,.28);
+ }
+ for(let x=-5;x<=0;x+=1.3){box('dark',x,.65,-6.02,1.14,1.1,.12);box('bronze',x,1.03,-5.94,.7,.04,.06);}
+ for(const x of [2.8,4.1]){cyl('dark',x,2.02,-6.1,.33,.05,20);cyl('bronze',x,2.14,-6.1,.23,.2,16);}
  sign(label,3.69,7.23,.09);for(const x of [-6.3,6.3])plant(x,7.75,.65);
  for(const x of [-4,4]){cyl('bronze',x,3.2,2,.045,1.2,8);add(new T.SphereGeometry(.38,12,8),'light',x,2.61,2);}
  if(v===0){
