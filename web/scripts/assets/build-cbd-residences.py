@@ -55,47 +55,63 @@ def sofa(x,y,z):
  box('marble',x,y-1.8,z+.43,1.8,.95,.13,True,'coffee-table');box('bronze',x,y-1.8,z+.21,.8,.5,.4)
 # Five independent buildings in the eastern CBD pocket; 45–65m spacing.
 placements=[(-30,70,7),(30,60,8),(-32,-10,6),(32,-20,7),(0,-90,8)]
+def plan_area(points):
+ return abs(sum(x*points[(i+1)%len(points)][1]-points[(i+1)%len(points)][0]*y for i,(x,y) in enumerate(points)))/2
+def rounded_plan(x,y,w,d,r=.65):
+ return [(x+sx*(w/2-r)+r*math.cos(a+i*math.pi/24),y+sy*(d/2-r)+r*math.sin(a+i*math.pi/24))for sx,sy,a in [(1,1,0),(-1,1,math.pi/2),(-1,-1,math.pi),(1,-1,math.pi*1.5)]for i in range(13)]
 for index,(cx,cy,floors) in enumerate(placements):
- w=29+(index%2)*2;d=23+(index%3);phase=index*.37
- buildings.append({'id':f'GC-CBD-LUX-{index+1:02}','name':f'云庭 {index+1} 座','position':[cx,0,-cy],'floors':floors,'floorHeight':4.2,'terraceDepth':3.5,'interior':'furnished ground lobby; upper floors visual only'})
- points=contour(cx,cy,w,d,phase)
+ iw=15.2+index*.4;idp=250/iw;w,d=iw+1.2,idp+1.2;phase=index*.37;deck_y=cy-idp/2-4
+ enclosed=[(cx-iw/2,cy-idp/2),(cx+iw/2,cy-idp/2),(cx+iw/2,cy+idp/2),(cx-iw/2,cy+idp/2)]
+ terrace=[(cx-5,cy-idp/2),(cx+5,cy-idp/2),(cx+5,cy-idp/2-8),(cx-5,cy-idp/2-8)]
+ buildings.append({'id':f'GC-CBD-LUX-{index+1:02}','name':f'云庭 {index+1} 座','position':[cx,0,-cy],'floors':floors,'floorHeight':4.2,'terraceDepth':8,'terraceWidth':10,'enclosedFloorAreaM2':round(plan_area(enclosed),4),'areaBasis':'Rectangular enclosed plan including service core; clear 10 by 8 metre terrace excludes railing and fascia','enclosedPlan':[[x-cx,y-cy]for x,y in enclosed],'enclosedDimensions':[iw,idp],'terracePlan':[[x-cx,y-cy]for x,y in terrace],'terraceAreaM2':round(plan_area(terrace),4),'interior':'furnished ground lobby; upper floors visual only'})
+ points=rounded_plan(cx,cy,w,d,1.1)
+ terrace_outline=rounded_plan(cx,deck_y,10.6,8.6,.3)
  slab('limestone',contour(cx,cy,w+5,d+5,phase),0,.16)
  surfaces.append({'min':[cx-w/2-2,-cy-d/2-2],'max':[cx+w/2+2,-cy+d/2+2],'y':.16})
- surfaces.append({'min':[cx-10,-cy-6],'max':[cx+10,-cy+6],'y':.245})
+ surfaces.append({'min':[cx-iw/2,-cy-idp/2],'max':[cx+iw/2,-cy+idp/2],'y':.245})
  # Ground lobby: three solid sides, two glazed frontage wings, open central door.
- box('limestone',cx,cy+6,2.15,20,.45,4.3,True,'rear-wall')
+ box('limestone',cx,cy+idp/2,2.15,iw,.45,4.3,True,'rear-wall')
  for side in [-1,1]:
-  box('limestone',cx+side*10,cy,2.15,.45,12,4.3,True,'side-wall')
-  box('glass',cx+side*6.3,cy-6,2.15,7.4,.14,3.9,True,'lobby-glazing')
-  sofa(cx+side*5.5,cy+2,.16)
-  box('bronze',cx+side*2.6,cy-6,2.1,.18,.4,4.2,True,'entry-jamb')
- box('marble',cx,cy+4.4,1.05,5,1,1.8,True,'concierge')
+  box('limestone',cx+side*iw/2,cy,2.15,.45,idp,4.3,True,'side-wall')
+  wing=(iw-5.2)/2
+  box('glass',cx+side*(2.6+wing/2),cy-idp/2,2.15,wing,.14,3.9,True,'lobby-glazing')
+  sofa(cx+side*iw*.26,cy+1,.16)
+  box('bronze',cx+side*2.6,cy-idp/2,2.1,.18,.4,4.2,True,'entry-jamb')
+ box('marble',cx,cy+idp/2-1.6,1.05,5,1,1.8,True,'concierge')
  for f in range(floors):
   z=-.16 if f==0 else .16+f*4.2
   # Broad sculpted floor plates with timber ceilings, not strips over a box.
-  slab('limestone',points,z,.32);slab('teak',contour(cx,cy,w-.35,d-.35,phase),z+.33,.075)
-  if f>0:slab('teak',contour(cx,cy,w-.4,d-.4,phase),z-.045,.035)
+  slab('limestone',points,z,.32);slab('teak',rounded_plan(cx,cy,w-.15,d-.15,1),z+.33,.075)
+  if f>0:
+   slab('teak',points,z-.045,.035)
+   slab('limestone',terrace_outline,z+.008,.32);slab('teak',terrace_outline,z+.338,.075)
+   slab('teak',terrace_outline,z-.045,.035)
   band('bronze',points,z+.15,.13,.12)
   if f>0:
-   band('glass',points,z+.44,1.08,.09);band('bronze',points,z+1.52,.055,.065)
+   for side in [-1,1]:
+    box('glass',cx+side*5.2,deck_y,z+.99,.09,8.2,1.08)
+    box('bronze',cx+side*5.2,deck_y,z+1.55,.12,8.2,.055)
+   box('glass',cx,deck_y-4.2,z+.99,10.4,.09,1.08)
+   box('bronze',cx,deck_y-4.2,z+1.55,10.4,.12,.055)
   if f>0:
-   inner=contour(cx,cy,w-7,d-7,phase)
+   inner=enclosed
    band('glass',inner,z+.4,3.75,.1)
    # Opaque lift/service core makes occupied depth visible behind the glazing.
    box('limestone',cx,cy+2,z+2.1,4,7,3.85)
-   for s in [-1,1]:sofa(cx+s*5,cy-1,z+.4)
+   for s in [-1,1]:sofa(cx+s*iw*.26,cy-1,z+.4)
   # Warm ceiling downlights and vertical stone piers, spaced as structure.
   for sx in [-1,1]:
-   box('limestone',cx+sx*(w/2-5),cy,z+2.3,.75,d-6,3.9,f==0,'pier')
-   for yy in [-7,-2,3,8]:box('light',cx+sx*(w/2-2),cy+yy,z+4.1,.22,.22,.04)
+   box('limestone',cx+sx*(iw/2-.4),cy,z+2.3,.5,idp-1,3.9,f==0,'pier')
+   for yy in [2,6]:box('light',cx+sx*3,cy-idp/2-yy,z+4.1,.22,.22,.04)
    # Wood decking, terrace furniture and planted pots.
-   for yy in range(-9,10):box('bronze',cx+sx*(w/2-2),cy+yy,z+.414,3,.025,.018)
+   for j in range(26):box('bronze',cx+sx*2.5,cy-idp/2-.2-j*.3,z+.414,5,.018,.018)
    if f>0:
-    box('teak',cx+sx*(w/2-2),cy-3,z+.82,1.6,.8,.12)
-    sphere('cream',cx+sx*(w/2-2),cy-5,z+.85,.6,(1,.9,.65))
-    box('limestone',cx+sx*(w/2-2),cy+6,z+.75,.9,.9,.7)
-    sphere('leaf',cx+sx*(w/2-2),cy+6,z+1.4,.6)
- slab('teak',points,.16+floors*4.2,.16);slab('limestone',contour(cx,cy,w+.4,d+.4,phase),.32+floors*4.2,.3)
+    box('teak',cx+sx*2.5,deck_y,z+.82,1.6,.8,.12)
+    sphere('cream',cx+sx*2.5,deck_y-1.5,z+.85,.6,(1,.9,.65))
+    box('limestone',cx+sx*4.2,deck_y-2.5,z+.75,.9,.9,.7)
+    sphere('leaf',cx+sx*4.2,deck_y-2.5,z+1.4,.6)
+ slab('teak',points,.16+floors*4.2,.16);slab('limestone',rounded_plan(cx,cy,w+.4,d+.4,1.3),.32+floors*4.2,.3)
+ slab('teak',terrace_outline,.18+floors*4.2,.16);slab('limestone',terrace_outline,.34+floors*4.2,.3)
  # Dense-but-grounded garden clusters around the communal paths.
  for side in [-1,1]:
   tx=cx+side*(w/2+3);ty=cy-6

@@ -12,6 +12,14 @@ has a different phase/proportion. The ground lobby has actual walls, glass and a
 open entry, furnished lounge and concierge desk. Upper apartments are visual shells;
 functional upper-floor access, duplex stairs, bedrooms and full fit-out remain.
 
+Scale revision: each rectangular upper-floor enclosed contour is 250m² including its
+service core. The terrace has a separate clear 10×8m activity rectangle (80m²).
+Structural edging and curved soffits sit beyond that clear rectangle and are not
+counted as activity area. This is geometric plan area, not a surveyed net saleable
+floor area. The terrace is concentrated on the main frontage with 8m depth; furniture
+keeps metre-scale dimensions. Buildings retain 4.2m floor-to-floor height. Plan
+dimensions and polygon coordinates are stored in the asset manifest for verification.
+
 All five are original Blender geometry, with balcony slabs, curved glass railings,
 timber soffits, terrace furniture, planted pots and courtyard paths. A westward
 pedestrian connection meets the existing CBD sidewalk. Placement inspection found
