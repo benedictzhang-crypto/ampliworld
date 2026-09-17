@@ -207,7 +207,7 @@ export function PopulationPanel({
   const rankedResidents=[...(world?.residents||[])].sort((a,b)=>residentNetWorth(a,world!.minute)-residentNetWorth(b,world!.minute)||a.id.localeCompare(b.id));
   const memoryText=(item:{minute:number;text:string})=>{
     if(language!=='en')return item.text;
-    const match=item.text.match(/^与(.+?)交谈：(.*)$/s);
+    const match=item.text.match(/^与(.+?)交谈：([\s\S]*)$/);
     if(!match)return item.text;
     const encounter=world?.socialEncounters?.find(e=>e.minute===item.minute&&(e.a===resident?.id||e.b===resident?.id));
     const partnerId=encounter?(encounter.a===resident?.id?encounter.b:encounter.a):undefined;
