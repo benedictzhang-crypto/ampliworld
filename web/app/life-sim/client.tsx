@@ -205,6 +205,15 @@ export function PopulationPanel({
     ) ?? 0;
   const occupations=Array.from(new Map((world?.residents||[]).map(r=>[r.profile?.occupation||r.job,{id:r.profile?.occupation||r.job,label:r.job}])).values());
   const rankedResidents=[...(world?.residents||[])].sort((a,b)=>residentNetWorth(a,world!.minute)-residentNetWorth(b,world!.minute)||a.id.localeCompare(b.id));
+  const memoryText=(item:{minute:number;text:string})=>{
+    if(language!=='en')return item.text;
+    const match=item.text.match(/^与(.+?)交谈：(.*)$/s);
+    if(!match)return item.text;
+    const encounter=world?.socialEncounters?.find(e=>e.minute===item.minute&&(e.a===resident?.id||e.b===resident?.id));
+    const partnerId=encounter?(encounter.a===resident?.id?encounter.b:encounter.a):undefined;
+    const candidates=world?.residents.filter(r=>partnerId?r.id===partnerId:r.name===match[1])||[];
+    return `Conversation with ${candidates.length===1?displayName(candidates[0]):'another resident'}: ${match[2]}`;
+  };
   return (
     <Localized><aside
       className={`population-panel ${open ? 'is-open' : ''}`}
@@ -517,7 +526,7 @@ export function PopulationPanel({
                   .map((item, i) => (
                     <li key={`${item.minute}-${i}`}>
                       <time>{timestamp(item.minute)}</time>
-                      {item.text}
+                      {memoryText(item)}
                       {item.cashDelta !== 0 && (
                         <b>
                           {item.cashDelta > 0 ? '+' : '−'}

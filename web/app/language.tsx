@@ -1,12 +1,14 @@
 'use client';
 import {Children,cloneElement,isValidElement,useSyncExternalStore,type ReactNode,type ReactElement,useEffect} from 'react';
 import {Button} from '@/components/ui/button';
+import {worldEnglish} from './language-world';
 type Language='en'|'zh';
 let language:Language='en';
 const listeners=new Set<()=>void>();
 const subscribe=(fn:()=>void)=>{listeners.add(fn);return()=>{listeners.delete(fn);};};
 function change(next:Language){language=next;try{localStorage.setItem('ampliworld-language',next);}catch{}document.documentElement.lang=next==='en'?'en':'zh-CN';listeners.forEach(fn=>fn());}
 const dictionary:Record<string,string>={
+ ...worldEnglish,
  '净财富后 50%':'Bottom 50% by net worth','第 50–90 百分位':'50th–90th wealth percentiles','第 90–99 百分位':'90th–99th wealth percentiles','净财富前 1%':'Top 1% by net worth',
  ' 户自有住房':' owner-occupied households',' 人口占比':' population share','财富份额':'Share of total net worth','初始家庭统计参考':'Initial household benchmark',
  '当前按个人净财富重新排序分组；人数占比和财富份额是不同指标。参考数据按家庭统计，仅作情景对照。':'Groups are ranked by current individual net worth. Population share and wealth share are different measures. The reference uses households, not individuals, and is a scenario comparison only.',
