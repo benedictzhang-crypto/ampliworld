@@ -1,5 +1,6 @@
 'use client';
-import {Localized} from '../language';
+import {Localized,useLanguage} from '../language';
+import {englishNameFor} from './english-names';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useThree } from '@react-three/fiber';
 import { Color, InstancedMesh, Object3D } from 'three';
@@ -169,6 +170,8 @@ export function PopulationPanel({
   selected: string | null;
   onSelect: (id: string | null) => void;
 }) {
+  const language=useLanguage();
+  const displayName=(r:{id:string;name:string;englishName?:string})=>language==='en'?(r.englishName||englishNameFor(r.id)):r.name;
   const [open, setOpen] = useState(true),
     [occupation, setOccupation] = useState('all'),
     [tab, setTab] = useState<'society' | 'services' | 'resident'>('society'),
@@ -199,8 +202,9 @@ export function PopulationPanel({
     world?.residents.reduce(
       (n, r) => n + residentNetWorth(r, world.minute),
       0,
-    ) || 1;
+    ) ?? 0;
   const occupations=Array.from(new Map((world?.residents||[]).map(r=>[r.profile?.occupation||r.job,{id:r.profile?.occupation||r.job,label:r.job}])).values());
+  const rankedResidents=[...(world?.residents||[])].sort((a,b)=>residentNetWorth(a,world!.minute)-residentNetWorth(b,world!.minute)||a.id.localeCompare(b.id));
   return (
     <Localized><aside
       className={`population-panel ${open ? 'is-open' : ''}`}
@@ -301,29 +305,29 @@ export function PopulationPanel({
                 每名居民是独立个体，同一家人各有个人账户。初始财富差异借用美国家庭统计作为情景参考，并非已校准的个人财富分布；旧存档保留既有财产。CBD 数万人是扩容目标，不是当前已运行人数。
               </p>
               {world.housing&&<p>已入住 {Object.keys(world.housing).length} 户 · {new Set(Object.values(world.housing).map(h=>h.group)).size} 个住宅片区 · {Object.values(world.housing).filter(h=>h.tenure==='owner').length} 户自有住房 · {world.residents.filter(r=>r.employment).length} 名就业居民。覆盖 CBD 与周边社区，并非全部住在 CBD 核心地块。</p>}
+              <p className="population-note">当前按个人净财富重新排序分组；人数占比和财富份额是不同指标。参考数据按家庭统计，仅作情景对照。</p>
               <div className="wealth-table">
-                {WEALTH_REFERENCE.groups.map((group) => {
-                  const members = world.residents.filter(
-                      (r) => r.profile?.cohort === group.id,
-                    ),
+                {WEALTH_REFERENCE.groups.map((group, index) => {
+                  const boundaries=[0,.5,.9,.99,1];
+                  const members = rankedResidents.slice(Math.floor(rankedResidents.length*boundaries[index]),Math.floor(rankedResidents.length*boundaries[index+1])),
                     share =
                       (members.reduce(
                         (n, r) => n + residentNetWorth(r, world.minute),
                         0,
                       ) /
-                        netWorth) *
+                        (netWorth || 1)) *
                       100;
                   return (
                     <div key={group.id}>
                       <a href={group.url} target="_blank" rel="noreferrer">
                         {group.label}
                       </a>
-                      <span>{members.length} 人</span>
-                      <b>{share.toFixed(1)}%</b>
+                      <span>{members.length.toLocaleString('en-US')}{' 人 · '}{(members.length/Math.max(1,world.residents.length)*100).toFixed(0)}%{' 人口占比'}</span>
+                      <b>财富份额 {netWorth>0?share.toFixed(1)+'%':'—'}</b>
                       <div className="wealth-track">
-                        <i style={{ width: `${Math.min(100, share)}%` }} />
+                        <i style={{ width: `${Math.max(0,Math.min(100, share))}%` }} />
                       </div>
-                      <small>初始参考 {group.share}%</small>
+                      <small>初始家庭统计参考 {group.share}%</small>
                     </div>
                   );
                 })}
@@ -365,7 +369,7 @@ export function PopulationPanel({
                 本轮累计完成的服务；标为“服务点”的条目不代表新建筑室内已建成。
               </p>
               <div className="venue-table">
-                {Object.values(world.businesses||{}).map(b=><details key={b.id}><summary><strong>{b.name}</strong> · {b.staffIds.length} 人 · 今日 {b.todayVisits} 单 / {usd(b.todayRevenue)}</summary><p>{b.open}:00–{b.close}:00 · 累计工时 {b.workedHours}<br/>经营余额 {usd(b.cash)} · 未付工资 {usd(b.unpaidWages)}</p><p>{b.ownerId?'经营者':'负责人'}：{world.residents.find(r=>r.id===(b.ownerId||b.managerId))?.name||'待招聘'}</p><div className="occupation-grid">{b.staffIds.slice(0,12).map(id=>{const r=world.residents.find(r=>r.id===id);return r?<button key={id} onClick={()=>onSelect(id)}>{r.name} · {r.job}</button>:null;})}</div><small>{b.id}{b.floor?' · '+b.floor:''}</small></details>)}
+                {Object.values(world.businesses||{}).map(b=><details key={b.id}><summary><strong>{b.name}</strong> · {b.staffIds.length} 人 · 今日 {b.todayVisits} 单 / {usd(b.todayRevenue)}</summary><p>{b.open}:00–{b.close}:00 · 累计工时 {b.workedHours}<br/>经营余额 {usd(b.cash)} · 未付工资 {usd(b.unpaidWages)}</p><p>{b.ownerId?'经营者':'负责人'}：{(()=>{const owner=world.residents.find(r=>r.id===(b.ownerId||b.managerId));return owner?displayName(owner):'待招聘';})()}</p><div className="occupation-grid">{b.staffIds.slice(0,12).map(id=>{const r=world.residents.find(r=>r.id===id);return r?<button key={id} onClick={()=>onSelect(id)}>{displayName(r)} · {r.job}</button>:null;})}</div><small>{b.id}{b.floor?' · '+b.floor:''}</small></details>)}
                 {VENUES.map((v) => (
                   <div key={v.id}>
                     <strong>
@@ -433,7 +437,7 @@ export function PopulationPanel({
                 >
                   {filtered.map((r) => (
                     <option key={r.id} value={r.id}>
-                      {r.name} · {r.job}
+                      {displayName(r)} · {r.job}
                     </option>
                   ))}
                 </select>
@@ -443,12 +447,12 @@ export function PopulationPanel({
           {resident && world && tab === 'resident' && (
             <>
               <h3>
-                {resident.name} <small>{resident.job}</small>
+                {displayName(resident)} <small>{resident.job}</small>
               </h3>
               <p>{resident.reason}</p>
               <p className="population-note">累计出行 {((resident.travelSeconds||0)/60).toFixed(1)} 分钟 · 其中等灯 {((resident.crossingWaitSeconds||0)/60).toFixed(1)} 分钟</p>
               <p>{resident.id} · {resident.identity?.age} 岁<br/>模拟银行账户：{resident.bankAccountId}</p>
-              {resident.identity&&<><p>{resident.identity.home}<br/><small>{resident.identity.homeStatus}</small></p><p>兴趣：{resident.identity.preference} · 工作单位：{resident.identity.workplace||'家庭 / 学校 / 社区'}</p><h4>家庭、邻居与同事</h4><div className="occupation-grid">{resident.identity.relations.map(link=>{const other=world.residents.find(r=>r.id===`R${String(link.index+1).padStart(3,'0')}`);return other?<button key={other.id} onClick={()=>onSelect(other.id)}>{link.type} · {other.name}</button>:null;})}{world.residents.filter(r=>r.id!==resident.id&&!!resident.identity?.workplace&&r.identity?.workplace===resident.identity.workplace).slice(0,4).map(r=><button key={`coworker-${r.id}`} onClick={()=>onSelect(r.id)}>同事 · {r.name}</button>)}</div><h4>人格参数（合成，非大模型）</h4>{Object.entries(resident.identity.personality).map(([key,value],i)=><p className="service-hours" key={key}><span>{['开放性','尽责性','外向性','亲和性','情绪稳定性'][i]}</span><b>{value}</b></p>)}</>}
+              {resident.identity&&<><p>{resident.identity.home}<br/><small>{resident.identity.homeStatus}</small></p><p>兴趣：{resident.identity.preference} · 工作单位：{resident.identity.workplace||'家庭 / 学校 / 社区'}</p><h4>家庭、邻居与同事</h4><div className="occupation-grid">{resident.identity.relations.map(link=>{const other=world.residents.find(r=>r.id===`R${String(link.index+1).padStart(3,'0')}`);return other?<button key={other.id} onClick={()=>onSelect(other.id)}>{link.type} · {displayName(other)}</button>:null;})}{world.residents.filter(r=>r.id!==resident.id&&!!resident.identity?.workplace&&r.identity?.workplace===resident.identity.workplace).slice(0,4).map(r=><button key={`coworker-${r.id}`} onClick={()=>onSelect(r.id)}>同事 · {displayName(r)}</button>)}</div><h4>人格参数（合成，非大模型）</h4>{Object.entries(resident.identity.personality).map(([key,value],i)=><p className="service-hours" key={key}><span>{['开放性','尽责性','外向性','亲和性','情绪稳定性'][i]}</span><b>{value}</b></p>)}</>}
               <div className="population-needs">
                 {(
                   [
@@ -490,6 +494,7 @@ export function PopulationPanel({
                   </dd>
                 </div>
               </dl>
+              <p className="population-note">存款是可用资金，非现金资产不是存款。开局流动资金按年龄和工资分层；旧存档仅调整原开局额度，后续收入保留。完整税费、生活账单尚未校准。</p>
               <dl className="population-money">
                 <div>
                   <dt>非现金资产（情景值）</dt>

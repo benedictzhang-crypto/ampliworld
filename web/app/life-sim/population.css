@@ -205,7 +205,7 @@
 }
 .wealth-table > div {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 5px 12px;
   padding: 10px 0;
 }

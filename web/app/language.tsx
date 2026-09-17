@@ -7,6 +7,14 @@ const listeners=new Set<()=>void>();
 const subscribe=(fn:()=>void)=>{listeners.add(fn);return()=>{listeners.delete(fn);};};
 function change(next:Language){language=next;try{localStorage.setItem('ampliworld-language',next);}catch{}document.documentElement.lang=next==='en'?'en':'zh-CN';listeners.forEach(fn=>fn());}
 const dictionary:Record<string,string>={
+ '净财富后 50%':'Bottom 50% by net worth','第 50–90 百分位':'50th–90th wealth percentiles','第 90–99 百分位':'90th–99th wealth percentiles','净财富前 1%':'Top 1% by net worth',
+ ' 户自有住房':' owner-occupied households',' 人口占比':' population share','财富份额':'Share of total net worth','初始家庭统计参考':'Initial household benchmark',
+ '当前按个人净财富重新排序分组；人数占比和财富份额是不同指标。参考数据按家庭统计，仅作情景对照。':'Groups are ranked by current individual net worth. Population share and wealth share are different measures. The reference uses households, not individuals, and is a scenario comparison only.',
+ '存款是可用资金，非现金资产不是存款。开局流动资金按年龄和工资分层；旧存档仅调整原开局额度，后续收入保留。完整税费、生活账单尚未校准。':'Deposits are liquid funds; non-cash assets are not bank deposits. Opening liquidity varies by age and pay. Existing saves retain subsequent earnings. Taxes and living expenses are not fully calibrated.',
+ '职业比例是测试覆盖，并非真实就业结构；职业不用于推断性格或能力。净财富包括非现金资产，不等于购物预算。':'Occupational shares are synthetic test coverage, not census estimates. Occupation does not determine personality or ability. Net worth includes non-cash assets and is not a spending budget.',
+ '医院行政主管':'Hospital administrator','医院前台':'Hospital receptionist','警务主管':'Police supervisor','警务文员':'Police clerk','餐厅经营者':'Restaurateur','酒店经理':'Hotel manager','客房保洁员':'Housekeeper','礼宾员':'Concierge','汽车中心经理':'Dealership manager','汽车销售顾问':'Automotive sales adviser','零售顾问':'Retail adviser','物业经理':'Property manager','超市店长':'Supermarket manager',
+ '酒店前台':'Hotel receptionist','销售顾问':'Sales adviser','客户经理':'Account manager','行政助理':'Administrative assistant','软件工程师':'Software engineer','产品经理':'Product manager','设计师':'Designer','会计':'Accountant','审计员':'Auditor','律师':'Lawyer','银行柜员':'Bank teller','研究员':'Researcher','医生':'Doctor','护士':'Nurse','药剂师':'Pharmacist','康复师':'Physical therapist','教师':'Teacher','幼教老师':'Preschool teacher','图书管理员':'Librarian','实验室技术员':'Lab technician','厨师':'Chef','服务员':'Server','咖啡师':'Barista','烘焙师':'Baker','超市理货员':'Stock clerk','收银员':'Cashier','店长':'Store manager','理发师':'Hairdresser','健身教练':'Fitness trainer','保洁员':'Cleaner','园林养护员':'Groundskeeper','电工':'Electrician','水管工':'Plumber','维修技师':'Technician','公交司机':'Bus driver','出租车司机':'Taxi driver','配送员':'Courier','仓库管理员':'Warehouse clerk','物业管家':'Property concierge','保安':'Security guard','警员':'Police officer','消防员':'Firefighter','社工':'Social worker','照护员':'Caregiver','摄影师':'Photographer','音乐教师':'Music teacher','创业者':'Entrepreneur','自由职业者':'Freelancer','全职家庭照护者':'Family caregiver','求职者':'Job seeker','退休居民':'Retired resident','大学生':'University student','在校学生':'School student','学龄前儿童':'Preschool child',
+ '监护人':'Guardian','成年子女':'Adult child','子女':'Child','父母':'Parent','伴侣':'Partner','室友':'Housemate','邻居':'Neighbor','模拟银行账户：':'Simulated bank account: ',' 岁':' years old','虚拟持仓':'Simulated holdings',
  '真实场景坐标：小区边界、大门、主路、河道与桥梁。拖动平移，滚轮缩放；地图不会传送人物。':'World coordinates show communities, gates, roads, rivers and bridges. Drag to pan and scroll to zoom. The map does not teleport your avatar.',
  '金色虚线表示三中心布局关系，不是道路；浅金色标识高价值地段，尚未设置售价。':'Dashed gold lines connect the three urban centers. Pale gold marks high-value districts; prices have not been assigned.',
  '点击彩色小区查看边界、大门及建设状态。':'Select a colored community to inspect its boundary, gate and development status.',
@@ -87,6 +95,7 @@ export function Localized({children}:{children:ReactNode}){
  const locale=useSyncExternalStore(subscribe,()=>language,()=>'en' as Language);
  return localize(children,locale);
 }
+export function useLanguage(){return useSyncExternalStore(subscribe,()=>language,()=>'en' as Language);}
 export function LanguageSwitch(){
  const locale=useSyncExternalStore(subscribe,()=>language,()=>'en' as Language);
  useEffect(()=>{try{const q=new URLSearchParams(location.search).get('lang');const saved=q||localStorage.getItem('ampliworld-language');if(saved==='zh'||saved==='en')change(saved);}catch{}},[]);

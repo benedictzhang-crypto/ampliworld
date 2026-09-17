@@ -8,6 +8,8 @@ import {initializeCommerce,chooseBusiness,COMMERCE_VERSION,type Business} from '
 import {occupationFor} from './occupation-weights';
 import type {Decision} from './deliberation';
 import {expandRegionalServices} from './regional-services';
+import {englishNameFor} from './english-names';
+import {correctOpeningLiquidity} from './liquidity';
 export type Action =
   | 'home'
   | 'drink'
@@ -47,6 +49,7 @@ export type Resident = {
   profile?: CitizenProfile;
   id: string;
   name: string;
+  englishName?: string;
   job: string;
   cash: number;
   savings: number;
@@ -72,6 +75,7 @@ export type Resident = {
   memory: { minute: number; text: string; cashDelta: number }[];
 };
 export type LifeWorld = {
+  liquidityVersion?: number;
   regionalVersion?:number;
   deliberation?:{status:string;residentId?:string;model?:string;minute?:number};
   commerceVersion?:number;
@@ -160,6 +164,7 @@ export function createLifeWorld(): LifeWorld {
   bindResidency(w);
   initializeCommerce(w);
   expandRegionalServices(w);
+  correctOpeningLiquidity(w);
   for(const r of w.residents){r.x=r.home[0];r.z=r.home[1];}
   return w;
 }
@@ -171,6 +176,7 @@ function attachIdentities(w:LifeWorld){
     r.consumerPersona??=consumerPersona(i);
     r.bankAccountId??=`SIM-BANK-${r.id}`;
     r.name=r.identity.name;r.job=r.identity.occupation;
+    r.englishName=englishNameFor(r.id);
     const employed=!!r.identity.workplace;
     if(!employed){r.wage=0;if(r.action==='work'){r.action='home';r.remaining=0;r.route=[];}}
     else if(!r.wage)r.wage=2400;
@@ -180,7 +186,7 @@ function attachIdentities(w:LifeWorld){
   w.censusVersion=CENSUS_VERSION;
 }
 export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
-  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===1&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.housing&&input.residents.every(r=>r.consumerPersona)) return input;
+  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===1&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName)) return input;
   const w = structuredClone(input),
     fresh = createLifeWorld();
   if(input.societyVersion!==1)for (let i = 0; i < w.residents.length; i++) {
@@ -209,6 +215,7 @@ export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
   bindResidency(w);
   initializeCommerce(w);
   expandRegionalServices(w);
+  correctOpeningLiquidity(w);
   return w;
 }
 export const residentNetWorth = (r: Resident, minute: number) =>
