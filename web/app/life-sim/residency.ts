@@ -2,7 +2,8 @@ import catalog from './occupancy-catalog.json';
 import {createOpeningHousing,monthlySalaryCents,monthlyMortgagePaymentCents,type HousingLedger} from './housing-finance';
 import type {LifeWorld,Resident} from './engine';
 import {VENUES} from './society';
-export type Dwelling = HousingLedger & {buildingId:string;buildingName:string;group:string;tier:string;equityAccounting:'included-in-existing-net-assets';landlordId:string};
+import type {HousingPaymentState} from './housing-payments';
+export type Dwelling = HousingLedger & {buildingId:string;buildingName:string;group:string;tier:string;equityAccounting:'included-in-existing-net-assets';landlordId:string;payment?:HousingPaymentState};
 export type Employment = {placeId:string;name:string;entry:[number,number];monthlyGrossCents:number;floor?:string};
 export const RESIDENCY_VERSION=1;
 export function bindResidency(w:LifeWorld){

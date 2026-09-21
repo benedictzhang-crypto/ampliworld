@@ -19,7 +19,7 @@ export function correctOpeningLiquidity(w: LifeWorld) {
     const moved = cashReduction + savingsReduction;
     if (r.profile) r.profile.nonCashAssets += moved;
     w.treasury += moved;
-    if (moved) r.memory.push({minute:w.minute, text:'Opening liquidity correction: transferred to non-cash assets; net worth unchanged.', cashDelta:-cashReduction});
+    if (moved) r.memory.push({minute:w.minute, text:'Opening liquidity correction: transferred to non-cash assets; net worth unchanged.', cashDelta:cashReduction?-cashReduction:0});
     r.memory = r.memory.slice(-32);
   }
   w.liquidityVersion = 1;

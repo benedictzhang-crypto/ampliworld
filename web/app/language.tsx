@@ -64,6 +64,8 @@ const dictionary:Record<string,string>={
  '开放性':'Openness','尽责性':'Conscientiousness','外向性':'Extraversion','亲和性':'Agreeableness','情绪稳定性':'Emotional stability',
  '最近记忆与收支':'Recent memories & transactions','住房产权与就业':'Housing & employment','家庭自有住房':'Owner-occupied home','租住房屋':'Rented home',
  '本人估算税前月薪':'Estimated gross monthly pay','房屋情景估值':'Scenario property value','家庭剩余房贷':'Household mortgage balance','估算月供':'Estimated monthly mortgage','估算月租':'Estimated monthly rent',
+ '每月房贷':'Monthly mortgage','每月租金':'Monthly rent','上月实付':'Last payment','住房欠款':'Housing arrears','家庭房贷月供':'Household mortgage payment','家庭月租':'Household rent',
+ '房价、工资与租金均为可调整的模拟假设。每30个模拟日按家庭账户实际扣取租金或房贷；现金不足时使用存款，仍不足的部分记为欠款。房贷利息进入公共金融账户，本金转为业主非现金资产；完整税费、处置和信用模型尚未接入。':'Property prices, wages and rents are adjustable simulation assumptions. Rent or mortgage is debited from household accounts every 30 simulated days; savings are used after cash, and any unpaid amount becomes arrears. Mortgage interest enters the public financial account while principal becomes owner non-cash assets. Taxes, foreclosure and credit models are not yet connected.',
  '老城里':'Old Town','宜居家园':'Urban Commons','锦庭府':'Garden Residences','云境天邸':'Sky Residences','城市御墅':'Urban Villas','山麓庄园':'Hillside Estates',
  '云庭曲廊 · 五栋露台公馆':'Cloud Terrace · Five residences','云庭':'Cloud Terrace','金庭':'Golden Gardens',
  '天阙之环':'Celestial Ring','双曜之门':'Twin Halo Gate','星环中心':'Stellar Center','森间寿司':'Morima Sushi','晖环体育场':'Halo Stadium',

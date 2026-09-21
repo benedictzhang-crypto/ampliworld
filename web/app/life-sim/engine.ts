@@ -10,6 +10,7 @@ import type {Decision} from './deliberation';
 import {expandRegionalServices} from './regional-services';
 import {englishNameFor} from './english-names';
 import {correctOpeningLiquidity} from './liquidity';
+import {HOUSING_FINANCE_VERSION,initializeHousingPayments,settleHousingThrough} from './housing-payments';
 export type Action =
   | 'home'
   | 'drink'
@@ -75,6 +76,8 @@ export type Resident = {
   memory: { minute: number; text: string; cashDelta: number }[];
 };
 export type LifeWorld = {
+  housingFinanceVersion?:number;
+  housingPaidThroughMonth?:number;
   liquidityVersion?: number;
   regionalVersion?:number;
   deliberation?:{status:string;residentId?:string;model?:string;minute?:number};
@@ -165,6 +168,7 @@ export function createLifeWorld(): LifeWorld {
   initializeCommerce(w);
   expandRegionalServices(w);
   correctOpeningLiquidity(w);
+  initializeHousingPayments(w);
   for(const r of w.residents){r.x=r.home[0];r.z=r.home[1];}
   return w;
 }
@@ -186,7 +190,7 @@ function attachIdentities(w:LifeWorld){
   w.censusVersion=CENSUS_VERSION;
 }
 export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
-  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===1&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName)) return input;
+  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===1&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housingFinanceVersion===HOUSING_FINANCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName)) return input;
   const w = structuredClone(input),
     fresh = createLifeWorld();
   if(input.societyVersion!==1)for (let i = 0; i < w.residents.length; i++) {
@@ -216,6 +220,7 @@ export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
   initializeCommerce(w);
   expandRegionalServices(w);
   correctOpeningLiquidity(w);
+  initializeHousingPayments(w);
   return w;
 }
 export const residentNetWorth = (r: Resident, minute: number) =>
@@ -508,6 +513,7 @@ export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
     const previousDay = Math.floor(w.minute / 1440);
     w.minute += 5;
     if (Math.floor(w.minute / 1440) !== previousDay) {
+      settleHousingThrough(w,Math.floor(w.minute/(30*1440)));
       for(const b of Object.values(w.businesses||{})){b.day=previousDay+1;b.todayVisits=0;b.todayRevenue=0;}
       w.residents.forEach((r) => (r.worked = 0));
       w.daily.push({
