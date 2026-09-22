@@ -15,10 +15,13 @@ export const CITY_SERVICE_PLAN=[
   {kind:'samsung-store',label:'Samsung products store',count:2,staff:16,price:65000},
   {kind:'electronics-repair',label:'Electronics repair shop',count:10,staff:5,price:8500},
   {kind:'auto-repair',label:'Automotive repair shop',count:10,staff:9,price:22000},
-  {kind:'laundry',label:'Laundry and dry cleaning',count:15,staff:4,price:2200},
+  {kind:'dry-cleaning',label:'Full-service dry cleaner',count:8,staff:6,price:3800},
+  {kind:'laundromat',label:'Self-service laundromat',count:10,staff:3,price:1400},
   {kind:'salon',label:'Hair, nail and personal care',count:24,staff:6,price:4800},
   {kind:'gym',label:'Gym and fitness studio',count:12,staff:9,price:6500},
   {kind:'bank',label:'Bank branch',count:10,staff:12,price:0},
+  {kind:'bar',label:'Neighborhood bar',count:18,staff:8,price:3200},
+  {kind:'nightclub',label:'Nightclub',count:5,staff:22,price:8500},
   {kind:'clinic',label:'Community clinic',count:12,staff:18,price:1800},
   {kind:'dentist',label:'Dental clinic',count:10,staff:9,price:8500},
   {kind:'daycare',label:'Daycare center',count:10,staff:14,price:5200},
@@ -44,11 +47,25 @@ const mallSlots:Record<string,{x:number;z:number;floor:string;shopId:string}>={
   'premium-restaurant:0':{x:-96,z:-137,floor:'L5',shopId:'L5-shop-7'},'premium-restaurant:1':{x:-54,z:-239,floor:'L6',shopId:'L6-shop-1'},'premium-restaurant:2':{x:-54,z:-137,floor:'L6',shopId:'L6-shop-8'},'premium-restaurant:3':{x:70,z:-208,floor:'L6',shopId:'L6-shop-16'},'premium-restaurant:4':{x:70,z:-168,floor:'L6',shopId:'L6-shop-17'},
   'cafe:0':{x:88,z:-239,floor:'L5',shopId:'L5-shop-6'},'cafe:1':{x:46,z:-239,floor:'L6',shopId:'L6-shop-4'},
 };
+const occupiedStreetSites:{x:number;z:number}[]=[];
 export const SERVICE_SITES=CITY_SERVICE_PLAN.flatMap((service,categoryIndex)=>Array.from({length:service.count},(_,i)=>{
-  const center=centers[(i+categoryIndex)%centers.length],ring=180+Math.floor(i/centers.length)*135,angle=(i*2.399+categoryIndex*.73);
+  const center=centers[(i+categoryIndex)%centers.length],baseRing=180+Math.floor(i/centers.length)*135,baseAngle=(i*2.399+categoryIndex*.73);
   const slot=mallSlots[`${service.kind}:${i}`];
-  const x=slot?.x??Math.round(center[0]+Math.cos(angle)*ring),z=slot?.z??Math.round(center[1]+Math.sin(angle)*ring);
-  return {id:`CITY-${service.kind.toUpperCase()}-${String(i+1).padStart(3,'0')}`,name:`${service.label} ${i+1}`,type:service.kind,x,z,staff:service.staff,price:service.price,...(slot?{placement:'mall' as const,floor:slot.floor,shopId:slot.shopId}:{placement:'street' as const})};
+  let x=slot?.x??0,z=slot?.z??0;
+  if(!slot){
+    for(let attempt=0;attempt<240;attempt++){
+      const ring=baseRing+Math.floor(attempt/12)*48,angle=baseAngle+attempt*.517;
+      const candidate={x:Math.round(center[0]+Math.cos(angle)*ring),z:Math.round(center[1]+Math.sin(angle)*ring)};
+      if(occupiedStreetSites.every(other=>Math.hypot(candidate.x-other.x,candidate.z-other.z)>=38)){x=candidate.x;z=candidate.z;break;}
+    }
+    occupiedStreetSites.push({x,z});
+  }
+  const name=service.kind==='bank'
+    ? `${i<5?'AmpliTrust Bank':'Worldline Bank'} · ${['Central','East Arc','Riverfront','Southgate','Marina'][i%5]} Branch`
+    : service.kind==='police'
+      ? `Metropolitan Police Precinct ${i+1}`
+      : `${service.label} ${i+1}`;
+  return {id:`CITY-${service.kind.toUpperCase()}-${String(i+1).padStart(3,'0')}`,name,type:service.kind,x,z,staff:service.staff,price:service.price,...(slot?{placement:'mall' as const,floor:slot.floor,shopId:slot.shopId}:{placement:'street' as const})};
 }));
 
 export const TRANSPORT_HUBS=[

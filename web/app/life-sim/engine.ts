@@ -272,8 +272,9 @@ function choose(w: LifeWorld, r: Resident): [Action, string] {
   )
     return ['study', '前往学院学习，不把学生上课计作工资收入'];
   const employer=r.employment&&w.businesses?.[r.employment.placeId];
-  const shiftStart=employer&&['hotel','hospital','police'].includes(employer.type)?(Number(r.id.slice(1))%3)*8:employer?.type==='restaurant'?11:9;
-  if (hour >= shiftStart && hour < shiftStart+8 && r.worked < 480 && (day % 7 < 5||employer&&['hotel','hospital','police','restaurant','retail-shop','supermarket','cinema'].includes(employer.type)) && r.wage > 0)
+  const shiftStart=employer&&['hotel','hospital','police'].includes(employer.type)?(Number(r.id.slice(1))%3)*8:employer?.type==='nightclub'?20:employer?.type==='bar'?17:employer?.type==='restaurant'?11:9;
+  const onShift=shiftStart+8<=24?hour>=shiftStart&&hour<shiftStart+8:hour>=shiftStart||hour<(shiftStart+8)%24;
+  if (onShift && r.worked < 480 && (day % 7 < 5||employer&&['hotel','hospital','police','restaurant','bar','nightclub','retail-shop','supermarket','cinema'].includes(employer.type)) && r.wage > 0)
     return ['work', `${r.job}：在岗位完成一小时服务，完成后领取工资`];
   if (r.cash > 65000) return ['bank', '保留生活费，把多余现金存入银行'];
   if (r.happiness < 48)
@@ -317,6 +318,7 @@ function start(w: LifeWorld, r: Resident) {
     f = FACILITIES.find((f) => f.id === action);
   let venueId = '';
   r.businessId=undefined;r.diningOut=false;
+  const hour=(w.minute%1440)/60;
   if (action === 'eat' && (!r.profile?.pantry||((Number(r.id.slice(1))+Math.floor(w.minute/1440))%10)<(r.frugality>.5?3:6))) {
     const restaurant=chooseBusiness(w,r,['restaurant'],Math.max(0,Math.min(r.cash-1500,r.cash*.35)));
     if(restaurant){r.businessId=restaurant.id;r.diningOut=true;}
@@ -356,6 +358,10 @@ function start(w: LifeWorld, r: Resident) {
                     : '';
   }
   if(action==='hospital')r.businessId='SERVICE-clinic';
+  if(action==='bank')r.businessId=chooseBusiness(w,r,['bank'],Number.MAX_SAFE_INTEGER)?.id;
+  if(action==='leisure'&&(r.identity?.age||0)>=21&&hour>=18){
+    r.businessId=chooseBusiness(w,r,hour>=20?['nightclub','bar']:['bar'],Math.max(0,r.cash-6000))?.id;
+  }
   if(action==='leisure'&&reason.includes('逛店')){const n=Number(r.id.slice(1));r.businessId=chooseBusiness(w,r,(r.consumerPersona?.personalCareInterest||0)>.65?['salon']:n%5===0?['cinema']:n%8===0?['auto']:['retail-shop','supermarket'],r.cash-6000)?.id;r.lastBrowseDay=Math.floor(w.minute/1440);}
   if(action==='travel')r.businessId=chooseBusiness(w,r,['hotel'],Math.max(0,r.cash-15000))?.id;
   if(plan?.businessId){r.businessId=plan.businessId;r.diningOut=action==='eat';}
@@ -485,6 +491,7 @@ function complete(w: LifeWorld, r: Resident) {
           : -Math.max(0, r.cash - 25000);
       r.cash += delta;
       r.savings -= delta;
+      recordVisit(0);
       remember(w, r, delta >= 0 ? '从个人存款取现' : '现金转入个人存款', delta);
       break;
     }
