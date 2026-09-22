@@ -92,7 +92,7 @@ export const CITY_OPERATION_SITES=[
   {id:'SEWAGE-01',name:'South Basin Wastewater Reclamation Plant',type:'wastewater',x:-6500,z:9800,staff:120},
   {id:'CITYHALL-01',name:'AmpliWorld City Hall and Civic Services',type:'city-hall',x:1250,z:520,entry:[1250,572],staff:260},
   {id:'COURT-01',name:'Metropolitan Court and Justice Center',type:'court',x:1450,z:520,entry:[1450,569],staff:190},
-  {id:'EMS-01',name:'Metropolitan Emergency Medical Service',type:'ems',x:3270,z:4400,staff:125},
+  {id:'EMS-01',name:'Metropolitan Emergency Medical Service',type:'ems',x:3270,z:4400,entry:[3321,4439],staff:125},
   {id:'DOT-01',name:'Department of Roads and Transportation',type:'transport-authority',x:2300,z:7200,staff:230},
 ] as const;
 

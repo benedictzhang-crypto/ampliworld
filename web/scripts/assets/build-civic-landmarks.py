@@ -25,6 +25,9 @@ PALETTE = {
     "foliage": ((0.13, 0.29, 0.18, 1), 0.9, 0.0),
     "timber": ((0.42, 0.27, 0.15, 1), 0.65, 0.0),
     "warm light": ((1.0, 0.66, 0.32, 1), 0.32, 0.0),
+    "emergency red": ((0.74, 0.09, 0.09, 1), 0.34, 0.2),
+    "white enamel": ((0.88, 0.9, 0.87, 1), 0.26, 0.1),
+    "asphalt": ((0.17, 0.2, 0.21, 1), 0.92, 0.0),
 }
 
 
@@ -220,6 +223,77 @@ def court():
         sculpture.data.materials.append(MATS["bronze"])
 
 
+def ambulance(x, y):
+    """A parked emergency vehicle with genuine body, cab, windows and wheels."""
+    box("Ambulance cargo body", (x, y + 1.15, 1.45), (2.55, 3.9, 2.6), "white enamel", .28)
+    box("Ambulance cab", (x, y - 2.0, 1.21), (2.55, 2.6, 2.05), "white enamel", .35)
+    box("Windshield", (x, y - 3.32, 1.65), (2.08, .08, .9), "smoked glass", .08)
+    for side in (-1, 1):
+        box("Emergency red side band", (x + side * 1.3, y + .9, 1.66), (.045, 3.7, .42), "emergency red")
+        box("Cab side glass", (x + side * 1.31, y - 2.0, 1.71), (.055, 1.25, .7), "smoked glass")
+        for wy in (y - 2.1, y + 2.1):
+            wheel = cylinder("Rubber ambulance wheel", (x + side * 1.34, wy, .56), .56, .29, "dark metal", 20)
+            wheel.rotation_euler[1] = math.radians(90)
+            hub = cylinder("Wheel hub", (x + side * 1.52, wy, .56), .26, .08, "champagne metal", 18)
+            hub.rotation_euler[1] = math.radians(90)
+    box("Emergency roof beacon", (x, y - 2.1, 2.55), (1.35, .42, .26), "emergency red", .1)
+
+
+def emergency_center():
+    # Clinical circulation and the service apron are separate, real volumes.
+    box("EMS arrival plaza", (0, 0, .09), (150, 110, .18), "paving")
+    box("Vehicle dispatch apron", (-8, -29, .195), (116, 48, .04), "asphalt")
+    for x in (-51, -27, -3, 21):
+        box("Emergency dispatch lane", (x, -29, .225), (.18, 38, .025), "ivory stone")
+        box("Bay red threshold", (x + 11.5, -9, .235), (18, .5, .04), "emergency red")
+    for x in (-67, 67):
+        for y in (-42, -23, 10, 28, 43):
+            tree(x, y, 7)
+
+    # The elevated clinical wing and shorter diagnostic wing frame the ambulance bays.
+    box("Rear triage and treatment core", (-7, 22, 12), (112, 42, 22), "ivory stone", 1.2)
+    box("Diagnostics rear core", (48, 1, 8.1), (30, 10, 15.5), "warm limestone", .9)
+    box("Diagnostics west wing", (38, -11, 8.1), (10, 14, 15.5), "warm limestone", .9)
+    box("Diagnostics east wing", (58, -11, 8.1), (10, 14, 15.5), "warm limestone", .9)
+    rounded_plate("Floating clinical roof", 127, 65, 8, 22.7, 1.2, "shadow stone", (-4, 14))
+    rounded_plate("White roof highlight", 122, 60, 8, 23.9, .3, "white enamel", (-4, 14))
+    rounded_plate("Heli-reception pavilion", 27, 18, 4, 24.2, 3.4, "dark metal", (42, 16))
+    rounded_plate("Heli skylight", 24, 15, 3.5, 27.62, .16, "smoked glass", (42, 16))
+    rounded_plate("Healing roof garden", 24, 37, 6, 24.21, .25, "foliage", (-39, 13))
+    for y in (-1, 11, 23):
+        box("Garden stone seat", (-39, y, 24.73), (10, 2, .54), "ivory stone", .2)
+    for x in (-55, -23):
+        for y in (-5, 27):
+            cylinder("Rooftop shrub", (x, y, 25), 1.2, 1.35, "foliage", 14)
+
+    # Garage openings remain open meshes; there is no facade hiding the vehicles.
+    for x in (-51, -27, -3, 21, 45):
+        box("Ambulance bay structural pier", (x, -13, 5.3), (1.4, 2, 10), "ivory stone", .25)
+        box("Bay pier red reveal", (x, -14.1, 5.4), (.25, .14, 8.5), "emergency red")
+    box("Emergency garage canopy", (-3, -15, 10.8), (98, 25, 1.1), "white enamel", 1.3)
+    box("Canopy red leading edge", (-3, -27.6, 10.64), (100, .36, .44), "emergency red", .08)
+    for x in (-39, -15, 9, 33):
+        box("Raised ambulance bay track", (x, -15, .28), (17.3, 19, .08), "asphalt")
+        ambulance(x, -19)
+
+    # Clinic entrance is adjacent to, but physically separate from, the garages.
+    for x in (38, 58):
+        box("Urgent care lobby stone jamb", (x, -18.2, 7.8), (10, .6, 13), "shadow stone", .15)
+        box("Urgent care lobby glazing", (x, -18.63, 7.7), (7, .16, 10), "smoked glass")
+    box("Urgent care entry lintel", (48, -18.1, 14.25), (11, 1.1, 1.1), "white enamel", .2)
+    box("Medical cross horizontal", (58, -18.86, 10.5), (3.9, .13, 1.0), "emergency red")
+    box("Medical cross vertical", (58, -18.88, 10.5), (1.0, .13, 3.9), "emergency red")
+    rounded_plate("Urgent care entry canopy", 31, 12, 3, 14.8, .6, "emergency red", (51, -19))
+    for x in range(-52, 45, 12):
+        for z in (15.5, 20):
+            box("Upper clinical window dark recess", (x, .81, z), (7.5, .4, 2.8), "shadow stone", .12)
+            box("Upper clinical glazing", (x, .55, z), (6.6, .09, 2.1), "smoked glass")
+    for x in (-59, 48):
+        rounded_plate("Public landscape bed", 12, 16, 3, .2, .35, "foliage", (x, -31))
+        for y in (-34, -27):
+            cylinder("Landscape grasses", (x, y, 1.05), .8, 1.1, "foliage", 12)
+
+
 JOBS = [
     {
         "id": "GC-CITYHALL-001", "name": "AmpliWorld City Hall and Civic Services",
@@ -253,6 +327,21 @@ JOBS = [
             {"id": "court-plinth", "min": [-57, -43], "max": [57, 29], "y": .38},
         ],
         "entrance": [0, 0, 49],
+    },
+    {
+        "id": "GC-EMS-001", "name": "Metropolitan Emergency Medical Service",
+        "build": emergency_center,
+        "bounds": {"min": [-75, 0, -55], "max": [75, 28, 55]},
+        "colliders": [
+            {"id": "clinical-wing", "min": [-63, 0, -44], "max": [49, 24, -1]},
+            {"id": "diagnostics-rear", "min": [33, 0, -6], "max": [63, 17, 4]},
+            {"id": "diagnostics-west", "min": [33, 0, 4], "max": [43, 17, 19]},
+            {"id": "diagnostics-east", "min": [53, 0, 4], "max": [63, 17, 19]},
+            {"id": "garage-west-pier", "min": [-52, 0, 12], "max": [-50, 11, 17]},
+            {"id": "garage-east-pier", "min": [44, 0, 12], "max": [46, 11, 17]},
+        ],
+        "surfaces": [{"id": "ems-arrival", "min": [-75, -55], "max": [75, 55], "y": .18}],
+        "entrance": [51, 0, 39],
     },
 ]
 
