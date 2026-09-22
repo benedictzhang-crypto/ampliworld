@@ -40,7 +40,7 @@ The following dated stages describe the retained detailed core; their smaller gr
 
 **Mall campus update:** the main world now uses `GC-MALL-002`, a six-storey 225 × 180 m mall (6.25× the previous main footprint), walkable ground-floor galleries on both sides of the garden passage, 48 outdoor parking bays and a descending B1 entry ramp/vestibule. Complete underground parking and upper-floor retail remain deferred. See `docs/CHECKPOINT_2026_09_12_MALL_CAMPUS.md`.
 
-**Current world entry:** `/` opens the new metric-space street world directly; `/district` remains a compatible link to that same world. The compressed legacy scene is retired and has no player-facing route. All future city construction extends the new street/asset architecture. Legacy source is retained only as implementation reference; economy services and saved data are preserved for later integration, not exposed through the old scene.
+**Current world entry:** `/` opens the metric-space street world directly; `/district` is a compatible link to the same `DistrictClient`. The unmounted compressed-city `GameShell` and its misleading live-asset catalog were removed on 2026-09-22. All future city construction extends `web/app/district/view.tsx` and `web/app/world-client/`; reusable economy services and saved data remain for explicit integration, but the old scene is not a second development target.
 
 The original smaller `GC-MALL-001` asset remains archived in the library; the active world uses its larger successor `GC-MALL-002` above. See `docs/CHECKPOINT_2026_09_12_MALL.md` for that historical construction stage.
 
@@ -143,8 +143,9 @@ virtual city. A player started with $10,000 in virtual cash, read the current
 world event, trades a paper market with 1×–5× exposure, and converts progress
 into lifestyle goods and property. Account-level cross-margin clearing,
 idempotent actions, city taxes, limited bankruptcy relief, gated districts,
-representative NPCs and persistent world turns are implemented as game systems;
-none of them connects to real-money brokerage execution.
+representative NPCs and persistent world turns were implemented in the retired
+client. Backend services and Git history remain, but these are **not yet all
+integrated in the current city UI**. None connects to real-money brokerage execution.
 
 The browser does not attempt to render 8.3 billion autonomous processes. It
 uses a hierarchical simulation: the Persona 8B population frame informs
@@ -159,9 +160,9 @@ license files, official source URLs and package hashes are retained under
 ## City architecture: develop the new world only
 
 Our target remains a playable city—not an architectural gallery. The user retired
-the old visual world on 2026-09-12. The homepage now renders the new metric-space
+the old visual world on 2026-09-12. The homepage now renders the metric-space
 street directly, with no old-city navigation. Retain useful trading, jobs, housing,
-wellbeing, social and save logic as references/services for explicit migration;
+wellbeing, social and save logic as services/Git history for explicit migration;
 do not restore the legacy scene as a fallback. Existing geographic and building
 design intentions remain requirements for the new world, not old meshes to reuse.
 
@@ -198,7 +199,7 @@ our gameplay behavior and ownership remain in the application schema.
 
 ### Existing atmosphere is retained
 
-`web/app/dynamic-atmosphere.tsx` is reused independently of the large legacy GameShell.
+`web/app/dynamic-atmosphere.tsx` is reused in the metric city independently of the retired client.
 It supplies sky, clouds, stars, sun/moon, lighting and fog. Preserve its 55-real-minute
 cycle: dawn 10 min, daytime 20 min, dusk 10 min, night 15 min. This is not yet a
 complete weather simulation: persistent rain/snow/storm states are not implemented.

@@ -1243,7 +1243,7 @@ export const LEGACY_RIDGE_VILLA_FOUNDATION_GEOMETRY = Object.freeze({
 
 /**
  * Canonical placement registry for the five metropolitan residential quarters.
- * The render parent positions preserve the existing GameShell composition,
+ * These positions document the retired compressed-world composition,
  * while `position` and `rotationY` are the single world-space source of truth.
  */
 export const METROPOLITAN_RESIDENTIAL_QUARTER_SPECS = [

@@ -1,6 +1,6 @@
 'use client';
 import {Localized} from '../language';
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,7 @@ import {
   CENTER_ROADS,
   landValueZone,
 } from './metropolitan-registry';
-import { CIVIC_PLACES, SPORTS_STREETS } from './civic-registry';
+import { SPORTS_STREETS } from './civic-registry';
 import { DISTRICT } from '../district/registry';
 import { COMMUNITIES, COMMUNITY_SURFACES, HOMES } from './community-registry';
 import {
@@ -29,6 +29,15 @@ import {
 } from './housing-registry';
 import cbd from '../../public/assets/3d/ampliworld/GC-CBD-STREET-001/street-manifest.json';
 const compounds = CITY.tiles.flatMap((t) => t.compounds);
+const cityRoadPath = CITY_INFRA.roadrects
+  .map((road) => `M${road.min[0]} ${road.min[1]}h${road.max[0] - road.min[0]}v${road.max[1] - road.min[1]}h${road.min[0] - road.max[0]}Z`)
+  .join('');
+const housingInstancesByParcel = new Map<string, (typeof HOUSING_INSTANCES)[number][]>();
+for (const instance of HOUSING_INSTANCES) {
+  const group = housingInstancesByParcel.get(instance.parcel) ?? [];
+  group.push(instance);
+  housingInstancesByParcel.set(instance.parcel, group);
+}
 const categories: Record<string, [string, string]> = {
   'office-campus': ['办公园区', '#8daed1'],
   hospital: ['医院园区', '#dc96a5'],
@@ -73,6 +82,7 @@ export function CityPlan({
     [showRoads, setShowRoads] = useState(true);
   const drag = useRef<{ x: number; y: number } | null>(null),
     moved = useRef(false);
+  const [mapElement, setMapElement] = useState<SVGSVGElement | null>(null);
   const [selectedInfo, setSelectedInfo] = useState('');
   const w = view.span * 0.85,
     fs = view.span / 70;
@@ -85,17 +95,59 @@ export function CityPlan({
       ),
     [view, w],
   );
-  const roads = useMemo(
-    () =>
-      CITY_INFRA.roadrects.filter(
-        (r) =>
-          r.max[0] >= view.x - w / 2 &&
-          r.min[0] <= view.x + w / 2 &&
-          r.max[1] >= view.z - view.span / 2 &&
-          r.min[1] <= view.z + view.span / 2,
-      ),
-    [view, w],
-  );
+  const visibleHousing = useMemo(() =>
+    HOUSING_PLAN.placements.filter((p) =>
+      !p.retainExistingFootprints &&
+      Math.abs(p.x - view.x) < w / 2 + p.width &&
+      Math.abs(p.z - view.z) < view.span / 2 + p.depth,
+    ), [view, w]);
+  const zoomAt = useCallback((factor: number, anchor: { x: number; z: number }) =>
+    setView((current) => {
+      const span = Math.max(650, Math.min(32000, current.span * factor));
+      const ratio = span / current.span;
+      return {
+        span,
+        x: Math.max(-10000, Math.min(10000, anchor.x + (current.x - anchor.x) * ratio)),
+        z: Math.max(-15000, Math.min(15000, anchor.z + (current.z - anchor.z) * ratio)),
+      };
+    }), []);
+  useEffect(() => {
+    if (!open) return;
+    const svg = mapElement;
+    if (!svg) return;
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return;
+      const point = svg.createSVGPoint();
+      point.x = event.clientX;
+      point.y = event.clientY;
+      const world = point.matrixTransform(ctm.inverse());
+      zoomAt(event.deltaY > 0 ? 1.15 : 0.87, { x: world.x, z: world.y });
+    };
+    const preventPagePinch = (event: Event) => event.preventDefault();
+    const handleDoubleClick = (event: MouseEvent) => {
+      event.preventDefault();
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return;
+      const point = svg.createSVGPoint();
+      point.x = event.clientX;
+      point.y = event.clientY;
+      const world = point.matrixTransform(ctm.inverse());
+      zoomAt(0.5, { x: world.x, z: world.y });
+    };
+    svg.addEventListener('wheel', handleWheel, { passive: false });
+    svg.addEventListener('dblclick', handleDoubleClick);
+    svg.addEventListener('gesturestart', preventPagePinch, { passive: false });
+    svg.addEventListener('gesturechange', preventPagePinch, { passive: false });
+    return () => {
+      svg.removeEventListener('wheel', handleWheel);
+      svg.removeEventListener('dblclick', handleDoubleClick);
+      svg.removeEventListener('gesturestart', preventPagePinch);
+      svg.removeEventListener('gesturechange', preventPagePinch);
+    };
+  }, [open, mapElement, zoomAt]);
   const zoom = (factor: number) =>
     setView((v) => ({
       ...v,
@@ -163,14 +215,10 @@ export function CityPlan({
         </div>
         <div className="plan-layout">
           <svg
+            ref={setMapElement}
             className="city-plan-map"
-            role="img"
             aria-label="可缩放城市用地平面图"
             viewBox={`${view.x - w / 2} ${view.z - view.span / 2} ${w} ${view.span}`}
-            onWheel={(e) => {
-              e.stopPropagation();
-              zoom(e.deltaY > 0 ? 1.15 : 0.87);
-            }}
             onPointerDown={(e) => {
               drag.current = { x: e.clientX, y: e.clientY };
               moved.current = false;
@@ -227,23 +275,9 @@ export function CityPlan({
                 pointerEvents="none"
               />
             ))}
-            {showRoads && (
-              <g fill="#7e898b">
-                {roads.map((r, i) => (
-                  <rect
-                    key={i}
-                    x={r.min[0]}
-                    y={r.min[1]}
-                    width={r.max[0] - r.min[0]}
-                    height={r.max[1] - r.min[1]}
-                  />
-                ))}
-              </g>
-            )}
+            {showRoads && <path d={cityRoadPath} fill="#7e898b" pointerEvents="none" />}
             {showHomes &&
-              HOUSING_PLAN.placements
-                .filter((p) => !p.retainExistingFootprints)
-                .map((p) => (
+              visibleHousing.map((p) => (
                   <g
                     key={p.id}
                     onClick={() => {
@@ -275,7 +309,7 @@ export function CityPlan({
                       strokeWidth={2}
                     />
                     {view.span < 2500 &&
-                      HOUSING_INSTANCES.filter((i) => i.parcel === p.id).map(
+                      (housingInstancesByParcel.get(p.id) ?? []).map(
                         (i) => {
                           const b = HOUSING_MODELS[i.model].bounds;
                           return (

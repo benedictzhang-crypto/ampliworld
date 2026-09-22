@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { spawn } from 'node:child_process';
 const url =
   process.env.AMPLIWORLD_ARCHITECTURE_QA_URL ||
-  'http://localhost:3018/architecture';
+  (process.env.QA_MAP === '1' ? 'http://localhost:3000/' : 'http://localhost:3018/architecture');
 const isDistrict = ['/', '/district'].includes(new URL(url).pathname);
 const isCampus = process.env.QA_MALL_CAMPUS === '1';
 const base = new URL(
@@ -106,6 +106,28 @@ try {
   await send('Page.enable');
   if(holdHousing)await send('Fetch.enable',{patterns:[{urlPattern:'*GC-HOUSING-KIT-001/hk-low-*.glb',requestStage:'Request'}]});
   await send('Page.navigate', { url });
+  if (process.env.QA_MAP === '1') {
+    assert.ok(isDistrict, 'Map QA must target the active city route');
+    let mapReady = false;
+    for (let attempt = 0; attempt < 150; attempt++) {
+      mapReady = await evaluate("(()=>{const map=document.querySelector('svg.city-plan-map');if(map)return true;const button=Array.from(document.querySelectorAll('button')).find(b=>/城市平面图|City map/.test(b.textContent));button?.click();return false})()");
+      if (mapReady) break;
+      await wait(100);
+    }
+    assert.ok(mapReady, 'The active metric city map opens');
+    await wait(350);
+    const before = await evaluate("(()=>{const svg=document.querySelector('svg.city-plan-map');const r=svg.getBoundingClientRect();const x=r.x+r.width*.55,y=r.y+r.height*.45;return {box:svg.getAttribute('viewBox'),x,y,width:r.width,height:r.height,target:document.elementFromPoint(x,y)?.tagName??'',scroll:scrollY,scale:visualViewport?.scale??1}})()");
+    assert.ok(before.width > 200 && before.height > 200, 'Map is laid out before wheel testing');
+    await send('Input.dispatchMouseEvent', { type: 'mouseWheel', x: before.x, y: before.y, deltaX: 0, deltaY: -240 });
+    await wait(250);
+    const after = await evaluate("(()=>({box:document.querySelector('svg.city-plan-map')?.getAttribute('viewBox'),scroll:scrollY,scale:visualViewport?.scale??1}))()");
+    assert.notEqual(after.box, before.box, 'Wheel changes the city map viewBox');
+    assert.equal(after.scroll, before.scroll, 'Map wheel does not scroll the page');
+    assert.equal(after.scale, before.scale, 'Map wheel does not zoom the browser page');
+    assert.equal(exceptions.length, 0, exceptions.join('\n'));
+    console.log(JSON.stringify({ status: 'passed', scenario: 'active-city-map', before: before.box, after: after.box }));
+    socket.close(); chrome.kill('SIGTERM'); clearTimeout(timeout); process.exit(0);
+  }
   let ready = false;
   for (let i = 0; i < 200; i++) {
     ready = await evaluate(

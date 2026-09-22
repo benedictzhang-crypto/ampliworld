@@ -799,6 +799,8 @@ export function DistrictClient() {
         <LanguageSwitch />
         <Button onClick={()=>{setDriving(false);setWalking(true);setWide(false);setFocus('cbd');setRelocation({x:0,z:-68,y:0,nonce:Date.now()});(document.activeElement as HTMLElement)?.blur();}}>人物起点</Button>
         <Button onClick={()=>{car.current={x:6,z:-68,yaw:0,speed:0};setCarReport({...car.current});setDriving(true);setWalking(true);setWide(false);setFocus('cbd');setPosition([6,-68]);(document.activeElement as HTMLElement)?.blur();}}>车辆起点</Button>
+        <Button onClick={() => setPlanOpen(true)}>城市平面图</Button>
+        <Button onClick={() => { setWide(true); setWalking(false); }}>全城总览</Button>
         {legacyNavigationEnabled&&<>
         <Button onClick={()=>setSelectedResident(population.world?.residents[0]?.id||null)}>居民档案 · {population.world?.residents.length||0} 人</Button>
         <Button onClick={()=>{setFocus('marina');setWide(false);setWalking(false);}}>东湾游艇港 · 150 泊位</Button>
@@ -815,16 +817,6 @@ export function DistrictClient() {
             {MALL_LEVELS.map(l=><Button key={l.id} disabled={liftCarrier.current.active} onClick={()=>rideLift(l.y)}>{l.label}</Button>)}
           </div>
         </section>}
-        <Button onClick={() => setPlanOpen(true)}>城市平面图</Button>
-        <Button
-          onClick={() => {
-            setWide(true);
-            setWalking(false);
-            (document.activeElement as HTMLElement)?.blur();
-          }}
-        >
-          全城总览
-        </Button>
         <Button
           onClick={() => {
             setFocus('stadium');

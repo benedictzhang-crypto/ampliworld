@@ -1,6 +1,6 @@
 # AmpliWorld — retained city brief
 
-The architecture upgrade does not discard the game or the owner's world design. Keep the legacy playable client available while replacing terrain, roads and architecture district by district. Do not claim a construction-yard asset viewer is the upgraded city. Do not delete named buildings or functional destinations to make room for unreviewed replacements.
+The architecture upgrade does not discard the game or the owner's world design. There is one playable city client: `DistrictClient` at both `/` and `/district`. The former compressed-city client is retired; migrate useful services into the metric world rather than maintaining a parallel visual city. Do not claim a construction-yard asset viewer is the upgraded city. Do not delete named buildings or functional destinations from the active city to make room for unreviewed replacements.
 
 ## The whole city remains the objective
 
