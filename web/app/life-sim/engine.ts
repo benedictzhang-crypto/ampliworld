@@ -77,6 +77,11 @@ export type Resident = {
   memory: { minute: number; text: string; cashDelta: number }[];
 };
 export type LifeWorld = {
+  populationTotal?:number;
+  householdTotal?:number;
+  employedTotal?:number;
+  businessTotal?:number;
+  observableSample?:number;
   worldEvents?:WorldEvent[];
   housingFinanceVersion?:number;
   housingPaidThroughMonth?:number;

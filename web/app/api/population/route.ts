@@ -8,6 +8,7 @@ import {
   upgradeLifeWorld,
 } from '../../life-sim/engine';
 import {applyWorldEvent} from '../../life-sim/world-events';
+import type {LifeWorld} from '../../life-sim/engine';
 const response = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 async function load(userId: string) {
@@ -35,11 +36,24 @@ async function load(userId: string) {
   if (!row) throw new Error('Population persistence unavailable');
   return upgradeLifeWorld(await decodeSnapshot(row.state_json));
 }
+let guestWorld:LifeWorld|undefined;
+function observable(world:LifeWorld):LifeWorld{
+  const sample=world.residents.slice(0,1200);
+  return {...world,
+    populationTotal:world.residents.length,
+    householdTotal:Object.keys(world.housing||{}).length,
+    employedTotal:world.residents.filter(r=>r.employment).length,
+    businessTotal:Object.keys(world.businesses||{}).length,
+    observableSample:sample.length,
+    residents:sample,
+    housing:undefined,
+  };
+}
 export async function GET() {
   const user = await getChatGPTUser();
-  if (!user) return response({ error: '请登录后加载居民世界' }, 401);
   try {
-    return response({ world: await load(user.userId) });
+    if(!user)guestWorld??=createLifeWorld();
+    return response({ world: observable(user?await load(user.userId):guestWorld!) });
   } catch (error) {
     console.error('population load failed', error);
     return response({ error: '居民存档暂时无法加载，请稍后重试' }, 503);
@@ -47,7 +61,6 @@ export async function GET() {
 }
 export async function POST(request: Request) {
   const user = await getChatGPTUser();
-  if (!user) return response({ error: '请先登录' }, 401);
   const origin = request.headers.get('origin');
   if (origin && origin !== new URL(request.url).origin)
     return response({ error: '请求来源不匹配' }, 403);
@@ -71,17 +84,19 @@ export async function POST(request: Request) {
       body.operationId.length < 8
     )
       return response({ error: '无效的模拟请求' }, 400);
-    const current = await load(user.userId);
+    if(!user)guestWorld??=createLifeWorld();
+    const current = user?await load(user.userId):guestWorld!;
     if (current.lastOperation === body.operationId)
-      return response({ world: current });
+      return response({ world: observable(current) });
     if (current.revision !== body.revision)
       return response(
-        { world: current, error: '其他窗口已推进世界，已刷新' },
+        { world: observable(current), error: '其他窗口已推进世界，已刷新' },
         409,
       );
     if(body.llmResidentId!==undefined){if(typeof body.llmResidentId!=='string')return response({error:'居民编号无效'},400);try{await deliberate(current,body.llmResidentId,inferenceConfig());}catch(e){return response({error:e instanceof Error?e.message:'推理失败'},422);}}
     const next = eventText?applyWorldEvent(current,eventText):advanceLifeWorld(current, body.minutes);
     next.lastOperation = body.operationId;
+    if(!user){guestWorld=next;return response({world:observable(next)});}
     const update = await populationDB()
       .prepare(
         'UPDATE population_runs SET revision = ?, state_json = ?, updated_at = ? WHERE user_id = ? AND revision = ?',
@@ -96,10 +111,10 @@ export async function POST(request: Request) {
       .run();
     if (update.meta.changes !== 1)
       return response(
-        { world: await load(user.userId), error: '并发更新，已刷新' },
+        { world: observable(await load(user.userId)), error: '并发更新，已刷新' },
         409,
       );
-    return response({ world: next });
+    return response({ world: observable(next) });
   } catch (error) {
     console.error('population step failed', error);
     return response({ error: '本次推进未确认，请刷新存档后重试' }, 503);

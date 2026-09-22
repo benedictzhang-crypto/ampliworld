@@ -187,7 +187,7 @@ export function PopulationPanel({
   const [open, setOpen] = useState(true),
     [eventText,setEventText]=useState(''),
     [occupation, setOccupation] = useState('all'),
-    [tab, setTab] = useState<'society' | 'services' | 'resident'>('society'),
+    [tab, setTab] = useState<'society' | 'services' | 'resident' | 'event'>('society'),
     { world, error, busy, playing, setPlaying, advance, submitEvent, load } = controller;
   useEffect(() => {
     if (selected) setOpen(true);
@@ -240,7 +240,7 @@ export function PopulationPanel({
         WORLD LAB{' '}
         <span>
           {world
-            ? `${world.residents.length} 名居民 · ${timestamp(world.minute)}`
+            ? `${(world.populationTotal||world.residents.length).toLocaleString('en-US')} 名居民 · ${timestamp(world.minute)}`
             : '加载实验存档'}{' '}
           {open ? '−' : '＋'}
         </span>
@@ -250,13 +250,13 @@ export function PopulationPanel({
           <p className="population-note">
             企业观察实验室 · 同一居民身份、生活与财务存档 · 合成规则模型
           </p>
-          <form className="world-event-form" onSubmit={event=>{event.preventDefault();const value=eventText.trim();if(value){void submitEvent(value);setEventText('');}}}>
+          {tab==='event'&&<form className="world-event-form" onSubmit={event=>{event.preventDefault();const value=eventText.trim();if(value){void submitEvent(value);setEventText('');}}}>
             <label htmlFor="world-event">GOD VIEW · INJECT NEWS</label>
             <textarea id="world-event" maxLength={280} value={eventText} onChange={event=>setEventText(event.target.value)} placeholder="Example: Milk prices rise 20%" />
             <button disabled={!world||busy||!eventText.trim()}>Run population reaction</button>
-          </form>
-          {world?.worldEvents?.at(-1)&&(()=>{const item=world.worldEvents!.at(-1)!;return <section className="world-event-result" aria-live="polite">
-            <strong>{item.text}</strong><small>{item.subject} · {item.direction} {item.shockPct}% · {world.residents.length.toLocaleString('en-US')} residents</small>
+          </form>}
+          {tab==='event'&&world?.worldEvents?.at(-1)&&(()=>{const item=world.worldEvents!.at(-1)!;return <section className="world-event-result" aria-live="polite">
+            <strong>{item.text}</strong><small>{item.subject} · {item.direction} {item.shockPct}% · {(world.populationTotal||world.residents.length).toLocaleString('en-US')} residents</small>
             <div><span>REDUCE <b>{item.counts.reduce}</b></span><span>MAINTAIN <b>{item.counts.maintain}</b></span><span>INCREASE <b>{item.counts.increase}</b></span></div>
           </section>})()}
           {error && (
@@ -316,6 +316,7 @@ export function PopulationPanel({
                 ['society', '社会结构'],
                 ['services', '商业与服务'],
                 ['resident', '个体追踪'],
+                ['event', '事件实验'],
               ] as const
             ).map(([id, label]) => (
               <button
@@ -335,7 +336,7 @@ export function PopulationPanel({
               <p className="population-note">
                 每名居民是独立个体，同一家人各有个人账户。初始财富差异借用美国家庭统计作为情景参考，并非已校准的个人财富分布；旧存档保留既有财产。CBD 数万人是扩容目标，不是当前已运行人数。
               </p>
-              {world.housing&&<p>已入住 {Object.keys(world.housing).length} 户 · {new Set(Object.values(world.housing).map(h=>h.group)).size} 个住宅片区 · {Object.values(world.housing).filter(h=>h.tenure==='owner').length} 户自有住房 · {world.residents.filter(r=>r.employment).length} 名就业居民。覆盖 CBD 与周边社区，并非全部住在 CBD 核心地块。</p>}
+              <p>全城 {world.populationTotal||world.residents.length} 名居民 · {world.householdTotal||Object.keys(world.housing||{}).length} 个家庭 · {world.employedTotal||world.residents.filter(r=>r.employment).length} 名就业居民 · {world.businessTotal||Object.keys(world.businesses||{}).length} 个经营及公共主体。当前前端观察样本 {world.observableSample||world.residents.length} 人，完整人口在服务端持续模拟。</p>
               <p className="population-note">当前按个人净财富重新排序分组；人数占比和财富份额是不同指标。参考数据按家庭统计，仅作情景对照。</p>
               <div className="wealth-table">
                 {WEALTH_REFERENCE.groups.map((group, index) => {
