@@ -34,7 +34,7 @@ export const TRANSPORT_HUBS=[
   {id:'AIR-01',name:'AmpliWorld International Airport',mode:'airport',x:8800,z:11800,staff:1800},
   {id:'HSR-01',name:'Grand Central High-Speed Rail',mode:'high-speed-rail',x:900,z:500,staff:420},
   {id:'HSR-02',name:'East City High-Speed Rail',mode:'high-speed-rail',x:5900,z:3900,staff:280},
-  {id:'METRO-NETWORK',name:'Metropolitan Metro Network',mode:'metro',stations:14,staff:620},
+  {id:'METRO-NETWORK',name:'Metropolitan Metro Network',mode:'metro',stations:14,x:0,z:25,staff:620},
 ] as const;
 
 export const EMPLOYMENT_DISTRICTS=[

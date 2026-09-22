@@ -415,6 +415,8 @@ export function DistrictClient() {
   const controls = useRef<OrbitControlsImpl>(null);
   const cellX = Math.round(position[0] / 1000),
     cellZ = Math.round(position[1] / 1000);
+  const populationCellX=Math.round(position[0]/500),populationCellZ=Math.round(position[1]/500);
+  useEffect(()=>{void population.loadArea(populationCellX*500,populationCellZ*500);},[populationCellX,populationCellZ,population.loadArea]);
   const nearTiles = useMemo(
     () =>
       CITY.tiles.filter(

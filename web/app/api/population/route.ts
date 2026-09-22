@@ -37,8 +37,10 @@ async function load(userId: string) {
   return upgradeLifeWorld(await decodeSnapshot(row.state_json));
 }
 let guestWorld:LifeWorld|undefined;
-function observable(world:LifeWorld):LifeWorld{
-  const sample=world.residents.slice(0,1200);
+function observable(world:LifeWorld,center:[number,number]=[0,-68]):LifeWorld{
+  const sample=[...world.residents].sort((a,b)=>
+    Math.hypot(a.x-center[0],a.z-center[1])-Math.hypot(b.x-center[0],b.z-center[1])||a.id.localeCompare(b.id)
+  ).slice(0,1200);
   return {...world,
     populationTotal:world.residents.length,
     householdTotal:Object.keys(world.housing||{}).length,
@@ -49,11 +51,12 @@ function observable(world:LifeWorld):LifeWorld{
     housing:undefined,
   };
 }
-export async function GET() {
+export async function GET(request:Request) {
   const user = await getChatGPTUser();
   try {
     if(!user)guestWorld??=createLifeWorld();
-    return response({ world: observable(user?await load(user.userId):guestWorld!) });
+    const url=new URL(request.url),x=Number(url.searchParams.get('x')||0),z=Number(url.searchParams.get('z')||-68);
+    return response({ world: observable(user?await load(user.userId):guestWorld!,[Number.isFinite(x)?x:0,Number.isFinite(z)?z:-68]) });
   } catch (error) {
     console.error('population load failed', error);
     return response({ error: '居民存档暂时无法加载，请稍后重试' }, 503);
@@ -74,6 +77,7 @@ export async function POST(request: Request) {
       return response({ error: '请求不是有效 JSON' }, 400);
     }
     const eventText=typeof body?.eventText==='string'?body.eventText.trim():'';
+    const observe:[number,number]=[Number.isFinite(body?.observeX)?body.observeX:0,Number.isFinite(body?.observeZ)?body.observeZ:-68];
     if (
       !body ||
       (!eventText&&![15, 60, 1440].includes(body.minutes)) ||
@@ -87,16 +91,16 @@ export async function POST(request: Request) {
     if(!user)guestWorld??=createLifeWorld();
     const current = user?await load(user.userId):guestWorld!;
     if (current.lastOperation === body.operationId)
-      return response({ world: observable(current) });
+      return response({ world: observable(current,observe) });
     if (current.revision !== body.revision)
       return response(
-        { world: observable(current), error: '其他窗口已推进世界，已刷新' },
+        { world: observable(current,observe), error: '其他窗口已推进世界，已刷新' },
         409,
       );
     if(body.llmResidentId!==undefined){if(typeof body.llmResidentId!=='string')return response({error:'居民编号无效'},400);try{await deliberate(current,body.llmResidentId,inferenceConfig());}catch(e){return response({error:e instanceof Error?e.message:'推理失败'},422);}}
     const next = eventText?applyWorldEvent(current,eventText):advanceLifeWorld(current, body.minutes);
     next.lastOperation = body.operationId;
-    if(!user){guestWorld=next;return response({world:observable(next)});}
+    if(!user){guestWorld=next;return response({world:observable(next,observe)});}
     const update = await populationDB()
       .prepare(
         'UPDATE population_runs SET revision = ?, state_json = ?, updated_at = ? WHERE user_id = ? AND revision = ?',
@@ -111,10 +115,10 @@ export async function POST(request: Request) {
       .run();
     if (update.meta.changes !== 1)
       return response(
-        { world: observable(await load(user.userId)), error: '并发更新，已刷新' },
+        { world: observable(await load(user.userId),observe), error: '并发更新，已刷新' },
         409,
       );
-    return response({ world: observable(next) });
+    return response({ world: observable(next,observe) });
   } catch (error) {
     console.error('population step failed', error);
     return response({ error: '本次推进未确认，请刷新存档后重试' }, 503);

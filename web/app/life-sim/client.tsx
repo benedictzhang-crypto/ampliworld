@@ -21,7 +21,9 @@ export function usePopulation() {
     [busy, setBusy] = useState(false),
     [playing, setPlaying] = useState(false);
   const current = useRef(world),
-    locked = useRef(false);
+    locked = useRef(false),
+    observeAt=useRef<[number,number]>([0,-68]),
+    areaRequest=useRef(0);
   current.current = world;
   const load = useCallback(async () => {
     try {
@@ -35,6 +37,16 @@ export function usePopulation() {
       setError(error instanceof Error ? error.message : '存档加载失败');
     }
   }, []);
+  const loadArea=useCallback(async(x:number,z:number)=>{
+    observeAt.current=[x,z];
+    const request=++areaRequest.current;
+    try{
+      const response=await fetch(`/api/population?x=${Math.round(x)}&z=${Math.round(z)}`,{cache:'no-store'}),data=(await response.json()) as PopulationResponse;
+      if(request!==areaRequest.current)return;
+      if(!response.ok||!data.world)throw new Error(data.error||'Area stream failed');
+      current.current=data.world;setWorld(data.world);setError('');
+    }catch(error){if(request===areaRequest.current)setError(error instanceof Error?error.message:'Area stream failed');}
+  },[]);
   useEffect(() => {
     void load();
   }, [load]);
@@ -51,6 +63,7 @@ export function usePopulation() {
             ...(llmResidentId?{llmResidentId}:{}),
             revision: current.current.revision,
             operationId: crypto.randomUUID(),
+            observeX:observeAt.current[0],observeZ:observeAt.current[1],
           }),
         }),
         data = (await response.json()) as PopulationResponse;
@@ -74,7 +87,7 @@ export function usePopulation() {
     if(locked.current||!current.current||!eventText.trim())return;
     locked.current=true;setBusy(true);
     try{
-      const response=await fetch('/api/population',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({eventText:eventText.trim(),revision:current.current.revision,operationId:crypto.randomUUID()})});
+      const response=await fetch('/api/population',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({eventText:eventText.trim(),revision:current.current.revision,operationId:crypto.randomUUID(),observeX:observeAt.current[0],observeZ:observeAt.current[1]})});
       const data=(await response.json()) as PopulationResponse;
       if(data.world){current.current=data.world;setWorld(data.world);}
       if(!response.ok)throw new Error(data.error||'Event injection failed');
@@ -89,7 +102,7 @@ export function usePopulation() {
     }, 5000);
     return () => clearInterval(timer);
   }, [playing, advance]);
-  return { world, error, busy, playing, setPlaying, advance, submitEvent, load };
+  return { world, error, busy, playing, setPlaying, advance, submitEvent, load, loadArea };
 }
 export type PopulationController = ReturnType<typeof usePopulation>;
 

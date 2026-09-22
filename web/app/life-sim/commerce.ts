@@ -49,6 +49,8 @@ export function initializeCommerce(w:LifeWorld){
   if(type==='cafe')return i===0?'咖啡店经理':i%2?'咖啡师':'烘焙师';
   if(type==='fire')return i===0?'消防站主管':'消防员';
   if(type==='airport'||type==='high-speed-rail')return i===0?'交通枢纽主管':i%3===0?'运营调度员':i%3===1?'安检员':'旅客服务员';
+  if(type==='metro')return i===0?'地铁运营主管':i%3===0?'地铁运营员':i%3===1?'地铁安检员':'站务员';
+  if(type==='logistics')return i===0?'物流园主管':i%3===0?'货车司机':i%3===1?'仓库管理员':'配送员';
   return '';
  }
  // Services and individual shops get staffing first; office populations fill remaining capacity.
