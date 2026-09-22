@@ -16,8 +16,12 @@ import hsr1 from '../../public/assets/3d/ampliworld/GC-HSR-001/manifest.json';
 import hsr2 from '../../public/assets/3d/ampliworld/GC-HSR-002/manifest.json';
 import hospital from '../../public/assets/3d/ampliworld/GC-HOSPITAL-001/manifest.json';
 import school from '../../public/assets/3d/ampliworld/GC-SCHOOL-001/manifest.json';
+import cityHall from '../../public/assets/3d/ampliworld/GC-CITYHALL-001/manifest.json';
+import court from '../../public/assets/3d/ampliworld/GC-COURT-001/manifest.json';
 
 export const CIVIC_PLACES = [
+  {id:'GC-CITYHALL-001',name:'AmpliWorld City Hall and Civic Services',x:1250,z:520,file:'model.glb',manifest:cityHall},
+  {id:'GC-COURT-001',name:'Metropolitan Court and Justice Center',x:1450,z:520,file:'model.glb',manifest:court},
   {id:'GC-AIRPORT-001',name:'AmpliWorld International Airport',x:8800,z:11800,file:'model.glb',manifest:airport},
   {id:'GC-HSR-001',name:'Grand Central High-Speed Rail',x:1600,z:500,file:'model.glb',manifest:hsr1},
   {id:'GC-HSR-002',name:'East City High-Speed Rail',x:5900,z:3900,file:'model.glb',manifest:hsr2},

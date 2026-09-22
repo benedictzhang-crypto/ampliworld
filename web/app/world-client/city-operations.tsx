@@ -22,17 +22,6 @@ function Wastewater(){const s=operation('SEWAGE-01');return <group position={[s.
   {[[-65,-42],[0,-42],[65,-42],[-32,35],[32,35]].map(([x,z],i)=><group key={i} position={[x,0,z]}><mesh position={[0,2.4,0]}><cylinderGeometry args={[25,25,4.8,40]}/><meshStandardMaterial color="#9ba59d"/></mesh><mesh position={[0,4.85,0]}><cylinderGeometry args={[22,22,.16,40]}/><meshPhysicalMaterial color="#587970" transparent opacity={.7}/></mesh><mesh position={[0,5.15,0]}><boxGeometry args={[23,.22,.45]}/><meshStandardMaterial color="#c6c8c0"/></mesh></group>)}
   <mesh position={[93,14,38]} castShadow><boxGeometry args={[55,28,54]}/><meshStandardMaterial color="#aeb3aa"/></mesh><Text position={[0,8,96]} fontSize={3} color="#dce7df">WASTEWATER RECLAMATION</Text>
   </group>}
-function CityHall(){const s=operation('CITYHALL-01');return <group position={[s.x,0,s.z]}>
-  <mesh position={[0,.08,18]} receiveShadow><boxGeometry args={[150,.16,105]}/><meshStandardMaterial color="#c9c5b9"/></mesh>
-  <mesh position={[0,18,0]} castShadow><boxGeometry args={[104,36,54]}/><meshStandardMaterial color="#d9d5c9"/></mesh><mesh position={[0,51,-5]} castShadow><boxGeometry args={[46,66,42]}/><meshStandardMaterial color="#b9b8b0"/></mesh>
-  <mesh position={[0,16,27.1]}><boxGeometry args={[78,22,.2]}/><meshPhysicalMaterial color="#78969b" transparent opacity={.55}/></mesh>{[-42,-28,-14,0,14,28,42].map(x=><mesh key={x} position={[x,9,30]}><boxGeometry args={[1.4,18,1.4]}/><meshStandardMaterial color="#b79a63" metalness={.42}/></mesh>)}
-  <Text position={[0,31,27.5]} fontSize={2.8} color="#403b34">AMPLIWORLD CITY HALL</Text>
-  </group>}
-function Court(){const s=operation('COURT-01');return <group position={[s.x,0,s.z]}>
-  <mesh position={[0,.08,12]} receiveShadow><boxGeometry args={[140,.16,100]}/><meshStandardMaterial color="#b9b7ae"/></mesh><mesh position={[0,17,0]} castShadow><boxGeometry args={[106,34,60]}/><meshStandardMaterial color="#d2cec2"/></mesh>
-  {[-42,-28,-14,0,14,28,42].map(x=><mesh key={x} position={[x,13,31]} castShadow><cylinderGeometry args={[1.8,2.1,26,18]}/><meshStandardMaterial color="#ebe7dc"/></mesh>)}
-  {[0,1,2,3].map(i=><mesh key={i} position={[0,.45+i*.35,36+i*2]}><boxGeometry args={[118,.7,5]}/><meshStandardMaterial color="#b7b2a7"/></mesh>)}<Text position={[0,27,31.5]} fontSize={2.6} color="#454038">METROPOLITAN COURT</Text>
-  </group>}
 function Ambulance({x,z}:{x:number;z:number}){return <group position={[x,0,z]}><mesh position={[0,1.2,0]} castShadow><boxGeometry args={[6,2.4,2.4]}/><meshStandardMaterial color="#f0efe9"/></mesh><mesh position={[-1.1,1.2,1.22]}><boxGeometry args={[3,.45,.08]}/><meshStandardMaterial color="#c95454"/></mesh><mesh position={[1.9,1.5,0]}><boxGeometry args={[1.4,1.1,2.45]}/><meshStandardMaterial color="#72919a"/></mesh>{[-1.8,1.8].flatMap(wx=>[-1,1].map(wz=><Wheel key={`${wx}/${wz}`} x={wx} z={wz}/>))}</group>}
 function EmergencyCenter(){const s=operation('EMS-01');return <group position={[s.x,0,s.z]}>
   <mesh position={[0,.08,0]} receiveShadow><boxGeometry args={[150,.16,105]}/><meshStandardMaterial color="#777d79"/></mesh><mesh position={[0,10,-12]} castShadow><boxGeometry args={[112,20,54]}/><meshStandardMaterial color="#deddd5"/></mesh>
@@ -45,5 +34,5 @@ function TransportAuthority(){const s=operation('DOT-01');return <group position
   {[-42,0,42].map(x=><Truck key={x} x={x} z={65}/>)}<Text position={[0,20,11.5]} fontSize={2.5} color="#f2e4bd">ROADS + TRANSPORTATION</Text>
   </group>}
 const operationBounds:Record<string,[number,number,number]>= {'CONSTRUCTION-01':[90,65,48],'WASTE-01':[95,70,67],'POWER-01':[110,80,84],'TAX-01':[35,23,30],'MUSEUM-01':[46,29,27],'ART-01':[48,30,30],'WATER-01':[120,85,25],'SEWAGE-01':[130,95,28],'CITYHALL-01':[75,53,84],'COURT-01':[70,50,34],'EMS-01':[75,53,21],'DOT-01':[105,75,29]};
-export const CITY_OPERATION_COLLIDERS=CITY_OPERATION_SITES.map(s=>{const [x,z,h]=operationBounds[s.id]??[30,30,20];return {id:`${s.id}/campus`,min:[s.x-x,0,s.z-z] as [number,number,number],max:[s.x+x,h,s.z+z] as [number,number,number]};});
-export function CityOperations(){return <><Construction/><Waste/><Power/><Tax/><Museum/><ArtMuseum/><WaterWorks/><Wastewater/><CityHall/><Court/><EmergencyCenter/><TransportAuthority/></>}
+export const CITY_OPERATION_COLLIDERS=CITY_OPERATION_SITES.filter(s=>s.id!=='CITYHALL-01'&&s.id!=='COURT-01').map(s=>{const [x,z,h]=operationBounds[s.id]??[30,30,20];return {id:`${s.id}/campus`,min:[s.x-x,0,s.z-z] as [number,number,number],max:[s.x+x,h,s.z+z] as [number,number,number]};});
+export function CityOperations(){return <><Construction/><Waste/><Power/><Tax/><Museum/><ArtMuseum/><WaterWorks/><Wastewater/><EmergencyCenter/><TransportAuthority/></>}

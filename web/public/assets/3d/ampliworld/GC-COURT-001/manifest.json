@@ -1,0 +1,128 @@
+{
+  "id": "GC-COURT-001",
+  "name": "Metropolitan Court and Justice Center",
+  "file": "model.glb",
+  "units": "METERS",
+  "upAxis": "Y",
+  "bounds": {
+    "min": [
+      -69,
+      0,
+      -54
+    ],
+    "max": [
+      69,
+      35,
+      52
+    ]
+  },
+  "colliders": [
+    {
+      "id": "west-wing",
+      "min": [
+        -54,
+        0,
+        -34
+      ],
+      "max": [
+        -24,
+        26,
+        20
+      ]
+    },
+    {
+      "id": "east-wing",
+      "min": [
+        24,
+        0,
+        -34
+      ],
+      "max": [
+        54,
+        26,
+        20
+      ]
+    },
+    {
+      "id": "hearing-hall",
+      "min": [
+        -25,
+        0,
+        -34
+      ],
+      "max": [
+        25,
+        34,
+        -9
+      ]
+    },
+    {
+      "id": "front-glazing-west",
+      "min": [
+        -23,
+        0,
+        16
+      ],
+      "max": [
+        -4,
+        29,
+        17
+      ]
+    },
+    {
+      "id": "front-glazing-east",
+      "min": [
+        4,
+        0,
+        16
+      ],
+      "max": [
+        23,
+        29,
+        17
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "court-square",
+      "min": [
+        -69,
+        -52
+      ],
+      "max": [
+        69,
+        54
+      ],
+      "y": 0.18
+    },
+    {
+      "id": "court-plinth",
+      "min": [
+        -57,
+        -43
+      ],
+      "max": [
+        57,
+        29
+      ],
+      "y": 0.38
+    }
+  ],
+  "entrance": [
+    0,
+    0,
+    49
+  ],
+  "bytes": 661584,
+  "triangles": 8308,
+  "provenance": {
+    "type": "ORIGINAL_BLENDER_GEOMETRY",
+    "externalAssets": [],
+    "externalImages": [],
+    "license": "Project-original"
+  },
+  "limitations": [
+    "Upper interior rooms are visual shells; room-by-room interaction remains future work."
+  ]
+}

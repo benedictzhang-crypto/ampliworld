@@ -38,10 +38,10 @@ area.data.size = max(span.x, span.y) * 0.7
 
 bpy.ops.object.camera_add()
 camera = bpy.context.object
-camera.location = (center.x + span.x * 0.9, center.y - span.y * 1.2, maximum.z + max(span.x, span.y) * 0.55)
+camera.location = (center.x + span.x * 1.4, center.y - span.y * 1.9, maximum.z + max(span.x, span.y) * 0.8)
 direction = center - camera.location
 camera.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
-camera.data.lens = 52
+camera.data.lens = 42
 bpy.context.scene.camera = camera
 
 world = bpy.context.scene.world or bpy.data.worlds.new("World")

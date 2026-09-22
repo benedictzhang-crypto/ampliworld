@@ -1,0 +1,115 @@
+{
+  "id": "GC-CITYHALL-001",
+  "name": "AmpliWorld City Hall and Civic Services",
+  "file": "model.glb",
+  "units": "METERS",
+  "upAxis": "Y",
+  "bounds": {
+    "min": [
+      -72,
+      0,
+      -56
+    ],
+    "max": [
+      72,
+      79,
+      56
+    ]
+  },
+  "colliders": [
+    {
+      "id": "west-wing",
+      "min": [
+        -57,
+        0,
+        -30
+      ],
+      "max": [
+        -21,
+        20,
+        16
+      ]
+    },
+    {
+      "id": "east-wing",
+      "min": [
+        21,
+        0,
+        -30
+      ],
+      "max": [
+        57,
+        20,
+        16
+      ]
+    },
+    {
+      "id": "rear-chamber",
+      "min": [
+        -21,
+        0,
+        -36
+      ],
+      "max": [
+        21,
+        22,
+        -12
+      ]
+    },
+    {
+      "id": "tower",
+      "min": [
+        -21,
+        21,
+        -39
+      ],
+      "max": [
+        21,
+        78,
+        9
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "civic-square",
+      "min": [
+        -72,
+        -56
+      ],
+      "max": [
+        72,
+        56
+      ],
+      "y": 0.18
+    },
+    {
+      "id": "civic-plinth",
+      "min": [
+        -58,
+        -46
+      ],
+      "max": [
+        58,
+        30
+      ],
+      "y": 0.38
+    }
+  ],
+  "entrance": [
+    0,
+    0,
+    52
+  ],
+  "bytes": 1049180,
+  "triangles": 13648,
+  "provenance": {
+    "type": "ORIGINAL_BLENDER_GEOMETRY",
+    "externalAssets": [],
+    "externalImages": [],
+    "license": "Project-original"
+  },
+  "limitations": [
+    "Upper interior rooms are visual shells; room-by-room interaction remains future work."
+  ]
+}
