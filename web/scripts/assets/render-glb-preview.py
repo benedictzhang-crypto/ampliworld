@@ -26,15 +26,16 @@ ground_material = bpy.data.materials.new("Preview ground")
 ground_material.diffuse_color = (0.12, 0.15, 0.14, 1)
 ground.data.materials.append(ground_material)
 
-bpy.ops.object.light_add(type="SUN", location=(center.x - span.x, center.y - span.y, maximum.z * 2))
+bpy.ops.object.light_add(type="SUN", location=(center.x + span.x, center.y - span.y, maximum.z * 2))
 sun = bpy.context.object
-sun.data.energy = 3.0
-sun.rotation_euler = (math.radians(30), 0, math.radians(-35))
+sun.data.energy = 2.3
+sun.rotation_euler = (center - sun.location).to_track_quat("-Z", "Y").to_euler()
 bpy.ops.object.light_add(type="AREA", location=(center.x + span.x * 0.25, center.y - span.y, maximum.z * 1.4))
 area = bpy.context.object
-area.data.energy = 2400
+area.data.energy = 5200
 area.data.shape = "DISK"
 area.data.size = max(span.x, span.y) * 0.7
+area.rotation_euler = (center - area.location).to_track_quat("-Z", "Y").to_euler()
 
 bpy.ops.object.camera_add()
 camera = bpy.context.object
@@ -47,8 +48,8 @@ bpy.context.scene.camera = camera
 world = bpy.context.scene.world or bpy.data.worlds.new("World")
 bpy.context.scene.world = world
 world.use_nodes = True
-world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.055, 0.09, 0.14, 1)
-world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.55
+world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.18, 0.26, 0.34, 1)
+world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.8
 
 scene = bpy.context.scene
 scene.render.engine = "BLENDER_EEVEE_NEXT"

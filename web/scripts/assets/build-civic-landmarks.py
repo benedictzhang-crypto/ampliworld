@@ -112,6 +112,10 @@ def city_hall():
     for x in (-68, -57, 57, 68):
         for y in (-43, -27, -8, 14, 35):
             tree(x, y, 6.5 + abs(x) / 100)
+    for x in (-42, 42):
+        for y in (-43, -31):
+            box("Public stone bench", (x, y, .7), (9, 1.7, .55), "ivory stone", .24)
+            box("Bench recessed base", (x, y, .31), (6.5, 1.1, .4), "shadow stone", .15)
 
     rounded_plate("Broad plinth", 116, 76, 11, .2, .18, "warm limestone", (0, 8))
     # The wings and rear service core leave an actual public entry void.
@@ -135,7 +139,15 @@ def city_hall():
         box("Fluted stone pier", (x, -16.8, 10.5), (.8, .8, 15), "ivory stone", .13)
     for x in (-38, 38):
         for z in (6, 12, 18):
-            box("Wing ribbon window", (x, -16.32, z), (26, .1, 2.1), "smoked glass")
+            box("Deep window reveal", (x, -16.4, z), (28, .42, 3.05), "shadow stone", .12)
+            box("Wing ribbon glazing", (x, -16.65, z), (26.8, .13, 2.3), "smoked glass")
+            box("Stone projecting sill", (x, -17.2, z - 1.45), (29, 1.45, .32), "ivory stone", .12)
+        rounded_plate("Wing garden terrace", 31, 29, 5, 22.04, .25, "warm limestone", (x, 5))
+        for y in (-5, 12):
+            rounded_plate("Terrace planting bed", 22, 3.2, 1.4, 22.3, .32, "foliage", (x, y))
+        for off in (-11, 11):
+            box("Terrace pergola upright", (x + off, 4, 24.2), (.38, .5, 4), "bronze", .1)
+        box("Terrace pergola canopy", (x, 4, 26.3), (23, 12, .42), "champagne metal", .24)
 
     # Layered glass office tower, viewed through real facade depth and bronze fins.
     box("Tower occupied core", (0, 15, 50), (35, 38, 55), "shadow stone", 1.3)
@@ -150,6 +162,10 @@ def city_hall():
         box("Vertical bronze fin", (x, -10.1, 50.5), (.28, 1.2, 52), "bronze", .09)
     rounded_plate("Floating crown", 58, 62, 9, 76.1, 1.35, "champagne metal", (0, 15))
     rounded_plate("Crown shadow roof", 51, 55, 7, 77.5, .4, "shadow stone", (0, 15))
+    rounded_plate("Rooftop skylight bronze curb", 24, 15, 5, 77.94, .33, "bronze", (0, 15))
+    rounded_plate("Rooftop skylight glass", 22, 13, 4.6, 78.28, .12, "smoked glass", (0, 15))
+    for x in (-21, 21):
+        rounded_plate("Roof garden green", 5.3, 27, 2.5, 77.95, .22, "foliage", (x, 15))
     for x in (-45, 45):
         box("Illuminated wayfinding", (x, -24.5, 2.2), (5, .7, 3.5), "bronze", .15)
 
@@ -172,7 +188,11 @@ def court():
         box("Glazed court mullion", (x, -16.5, 15), (.38, .4, 28), "bronze", .07)
     for x in (-42, -31, 31, 42):
         for z in (7, 15, 23):
-            box("Recessed wing glazing", (x, -19.7, z), (8.5, .14, 2.1), "smoked glass")
+            box("Deep wing window reveal", (x, -19.78, z), (9.2, .42, 3.1), "shadow stone", .12)
+            box("Recessed wing glazing", (x, -20.02, z), (8.5, .14, 2.1), "smoked glass")
+            box("Stone light shelf", (x, -20.65, z - 1.52), (9.8, 1.2, .25), "ivory stone", .1)
+    for x in (-53, -24, 24, 53):
+        box("Layered courtroom wall blade", (x, -12, 14), (1.8, 44, 27), "ivory stone", .36)
     for x in (-36, -24, -12, 12, 24, 36):
         cylinder("Courthouse portico column", (x, -25, 14.8), 1.15, 28, "ivory stone", 24)
         cylinder("Bronze column base", (x, -25, 1.5), 1.5, 1.2, "bronze", 24)
@@ -180,11 +200,24 @@ def court():
     rounded_plate("Roof gold edge", 117, 81, 10, 30.55, .12, "champagne metal", (0, 4))
     rounded_plate("Raised roof lantern", 54, 37, 6, 31.2, 2.8, "bronze", (0, 11))
     rounded_plate("Lantern glazing", 49, 32, 5, 34, .17, "smoked glass", (0, 11))
+    for x in (-43, 43):
+        rounded_plate("Judicial roof garden", 15, 49, 5, 31.08, .26, "foliage", (x, 6))
+        for y in (-11, 2, 15):
+            box("Garden timber promenade", (x, y, 31.4), (9, 2.8, .16), "timber", .12)
+    for y in (-17, -7, 3, 13, 23):
+        box("Lantern roof light fin", (0, y, 34.6), (40, .5, .54), "champagne metal", .17)
     for x in (-32, -20, -8, 8, 20, 32):
         box("Downlit stone soffit", (x, -30, 28.9), (3, 4.2, .1), "warm light")
     for x in (-39, 39):
         box("Civic relief panel", (x, -20.1, 17), (14, .22, 8), "bronze", .24)
         box("Inset relief", (x, -20.3, 17), (12, .09, 5.8), "champagne metal", .2)
+    for x in (-55, 55):
+        box("Public art stone pedestal", (x, -39, .95), (5, 5, 1.5), "shadow stone", .3)
+        bpy.ops.mesh.primitive_torus_add(major_radius=2.3, minor_radius=.32, location=(x, -39, 4.9))
+        sculpture = bpy.context.object
+        sculpture.name = "Bronze civic ring sculpture"
+        sculpture.rotation_euler[0] = math.radians(90)
+        sculpture.data.materials.append(MATS["bronze"])
 
 
 JOBS = [
