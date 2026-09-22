@@ -1,0 +1,35 @@
+{
+  "id": "GC-AMUSEMENT-001",
+  "name": "Aureole Adventure Park",
+  "units": "meters",
+  "center": { "x": -7000, "z": 2000 },
+  "footprint": { "width": 1300, "depth": 900 },
+  "entrance": { "x": 0, "z": 432 },
+  "zones": [
+    { "id": "sky", "name": "Skyline Heights", "type": "thrill", "x": 400, "z": -35 },
+    { "id": "coasters", "name": "Five Worlds of Speed", "type": "coasters", "x": -260, "z": -45 },
+    { "id": "festival", "name": "Festival Court", "type": "family", "x": -15, "z": 330 },
+    { "id": "haunt", "name": "Halloween Quarter", "type": "haunted", "x": 375, "z": -280 }
+  ],
+  "attractions": [
+    { "id": "twin-blue", "name": "Skyfall Blue", "kind": "drop-tower", "x": 350, "z": -30, "height": 110 },
+    { "id": "twin-red", "name": "Skyfire Red", "kind": "launch-tower", "x": 430, "z": -30, "height": 105 },
+    { "id": "leviathan", "name": "Leviathan", "kind": "hyper-coaster", "x": -360, "z": -215, "height": 90 },
+    { "id": "wraith", "name": "Wraith", "kind": "inverted-coaster", "x": -370, "z": 120, "height": 65 },
+    { "id": "timberfall", "name": "Timberfall", "kind": "wooden-coaster", "x": -35, "z": 130, "height": 42 },
+    { "id": "eclipse", "name": "Eclipse", "kind": "indoor-dark-coaster", "x": 0, "z": -252, "height": 32 },
+    { "id": "comet", "name": "Little Comet", "kind": "family-coaster", "x": 265, "z": 190, "height": 21 },
+    { "id": "carousel", "name": "Aurora Carousel", "kind": "carousel", "x": 45, "z": 337, "height": 13 },
+    { "id": "teacups", "name": "Spinning Teacups", "kind": "teacups", "x": 160, "z": 337, "height": 8 },
+    { "id": "basketball", "name": "Basketball Challenge", "kind": "skill-game", "x": -140, "z": 345, "height": 6 },
+    { "id": "balance", "name": "Foam Walk", "kind": "balance-game", "x": -270, "z": 345, "height": 5 },
+    { "id": "haunt-manor", "name": "The Manor", "kind": "walkthrough-haunt", "x": 245, "z": -280, "height": 18 },
+    { "id": "haunt-lab", "name": "The Midnight Laboratory", "kind": "walkthrough-haunt", "x": 445, "z": -280, "height": 20 }
+  ],
+  "hauntRoutes": [
+    { "id": "haunt-manor", "stages": ["Foyer", "Portrait Hall", "Whisper Passage", "Mirror Room", "Attic", "Exit Garden"] },
+    { "id": "haunt-lab", "stages": ["Reception", "Specimen Bay", "Blackout Corridor", "Containment", "Final Reveal", "Exit Yard"] }
+  ],
+  "status": "PHYSICAL_SCENE_IN_PROGRESS",
+  "limitations": ["Coaster, carousel, teacup and tower vehicles are display models until boarding and ride motion are connected.", "Haunted-house scares and basketball are playable prototypes; AI residents are not yet scheduled as visitors.", "The park asset is a geometric prototype, not final art quality."]
+}

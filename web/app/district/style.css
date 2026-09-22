@@ -8,6 +8,61 @@
   position: absolute;
   inset: 0;
 }
+.district-haunt-route,
+.district-park-game {
+  position: absolute;
+  z-index: 8;
+  right: 22px;
+  width: min(320px, calc(100vw - 44px));
+  padding: 14px 16px;
+  border: 1px solid #b78b54;
+  border-radius: 12px;
+  color: #f6efe2;
+  background: #151923eb;
+  box-shadow: 0 12px 38px #0008;
+}
+.district-haunt-route {
+  top: 126px;
+  display: grid;
+  gap: 5px;
+}
+.district-haunt-route strong { color: #f4c688; letter-spacing: .13em; }
+.district-haunt-route span { font-size: 14px; }
+.district-haunt-route small { color: #d8c8b9; line-height: 1.35; }
+.district-park-game {
+  bottom: 75px;
+  display: grid;
+  gap: 9px;
+}
+.district-park-game label { display: grid; gap: 2px; font-size: 13px; }
+.district-park-game input { width: 100%; accent-color: #df995c; }
+.district-park-game > div { display: flex; gap: 7px; }
+.district-park-game small { line-height: 1.4; }
+.district-haunt-scare {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  pointer-events: none;
+  color: #fff7ee;
+  background: radial-gradient(circle, #36070e90 0%, #080507e8 75%);
+  text-align: center;
+  font-size: clamp(20px, 3vw, 42px);
+  text-shadow: 0 0 18px #e5263c;
+  animation: haunt-emergence .28s ease-out both;
+}
+.district-haunt-eyes { color: #ff344a; font-size: clamp(38px, 7vw, 86px); }
+@keyframes haunt-emergence {
+  from { opacity: 0; transform: scale(1.08); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .district-haunt-scare { animation: none; }
+}
 .district-startup {
   position: absolute;
   inset: 0;

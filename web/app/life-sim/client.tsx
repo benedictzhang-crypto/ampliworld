@@ -190,10 +190,12 @@ export function PopulationPanel({
   controller,
   selected,
   onSelect,
+  collapseForPlay = false,
 }: {
   controller: PopulationController;
   selected: string | null;
   onSelect: (id: string | null) => void;
+  collapseForPlay?: boolean;
 }) {
   const language=useLanguage();
   const displayName=(r:{id:string;name:string;englishName?:string})=>language==='en'?(r.englishName||englishNameFor(r.id)):r.name;
@@ -205,6 +207,9 @@ export function PopulationPanel({
   useEffect(() => {
     if (selected) setOpen(true);
   }, [selected]);
+  useEffect(() => {
+    if (collapseForPlay) setOpen(false);
+  }, [collapseForPlay]);
   useEffect(() => {
     if (selected) setTab('resident');
   }, [selected]);

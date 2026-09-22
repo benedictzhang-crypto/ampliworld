@@ -19,6 +19,7 @@ import {
 import { SPORTS_STREETS } from './civic-registry';
 import { DISTRICT } from '../district/registry';
 import { METRO_STATIONS, type MetroStation } from './metro-network';
+import amusementPlan from './amusement-park-plan.json';
 import { COMMUNITIES, COMMUNITY_SURFACES, HOMES } from './community-registry';
 import {
   HOUSING_PLAN,
@@ -71,17 +72,20 @@ export function CityPlan({
   onOpenChange,
   position,
   onTeleport,
+  onTeleportPoint,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   position: readonly number[];
   onTeleport: (station: MetroStation) => void;
+  onTeleportPoint: (x: number, z: number) => void;
 }) {
   const [view, setView] = useState({ x: 0, z: 0, span: 32000 });
   const [selected, setSelected] = useState<(typeof compounds)[number] | null>(
     null,
   );
   const [selectedStation, setSelectedStation] = useState<MetroStation | null>(null);
+  const [selectedPark, setSelectedPark] = useState(false);
   const [showHomes, setShowHomes] = useState(true),
     [showRoads, setShowRoads] = useState(true);
   const drag = useRef<{ x: number; y: number } | null>(null),
@@ -280,6 +284,28 @@ export function CityPlan({
               />
             ))}
             {showRoads && <path d={cityRoadPath} fill="#7e898b" pointerEvents="none" />}
+            <g
+              onClick={() => { setSelectedPark(true); setSelectedStation(null); setSelected(null); }}
+              style={{ cursor: 'pointer' }}
+              aria-label="Aureole Adventure Park"
+            >
+              <rect
+                x={amusementPlan.center.x - amusementPlan.footprint.width / 2}
+                y={amusementPlan.center.z - amusementPlan.footprint.depth / 2}
+                width={amusementPlan.footprint.width}
+                height={amusementPlan.footprint.depth}
+                rx={Math.max(14, view.span / 1000)}
+                fill="#865190"
+                fillOpacity={0.78}
+                stroke="#f4cf8a"
+                strokeWidth={Math.max(4, view.span / 2000)}
+              />
+              <text x={amusementPlan.center.x} y={amusementPlan.center.z}
+                textAnchor="middle" fill="#fff7e5" fontWeight="bold"
+                fontSize={Math.max(18, view.span / 270)}>
+                Adventure Park
+              </text>
+            </g>
             {showHomes &&
               visibleHousing.map((p) => (
                   <g
@@ -674,7 +700,18 @@ export function CityPlan({
               <br />
               橙点为当前人物位置
             </p>
-            {selectedStation ? (
+            {selectedPark ? (
+              <section>
+                <h3>{amusementPlan.name}</h3>
+                <p>1.3 × 0.9 km 游乐园 · 红蓝双塔、五条主题过山车、旋转木马、茶杯、投篮与平衡泡沫池</p>
+                <p>东北角两座万圣节主题鬼屋。路线、惊吓事件和投篮挑战已接入；过山车、塔楼等乘坐动画尚未开放。</p>
+                <Button onClick={() => setView({ x: amusementPlan.center.x, z: amusementPlan.center.z, span: 2200 })}>放大园区</Button>
+                <Button onClick={() => onTeleportPoint(
+                  amusementPlan.center.x + amusementPlan.entrance.x,
+                  amusementPlan.center.z + amusementPlan.entrance.z,
+                )}>传送到游乐园门口</Button>
+              </section>
+            ) : selectedStation ? (
               <section>
                 <h3>{selectedStation.id} · {selectedStation.name}</h3>
                 <p>{selectedStation.mode === 'UNDERGROUND' ? '地下站' : '高架站'} · {selectedStation.mode === 'ELEVATED' ? '站体外观试建' : '站址初步勘测'}</p>

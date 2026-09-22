@@ -124,6 +124,28 @@ try {
     assert.notEqual(after.box, before.box, 'Wheel changes the city map viewBox');
     assert.equal(after.scroll, before.scroll, 'Map wheel does not scroll the page');
     assert.equal(after.scale, before.scale, 'Map wheel does not zoom the browser page');
+    if (process.env.QA_PARK === '1') {
+      const selected = await evaluate("(()=>{const park=document.querySelector('svg.city-plan-map g[aria-label=\"Aureole Adventure Park\"]');park?.dispatchEvent(new MouseEvent('click',{bubbles:true}));return !!park})()");
+      assert.ok(selected, 'Adventure park is present on the city map');
+      await wait(120);
+      const teleportAvailable = await evaluate("Array.from(document.querySelectorAll('button')).some(b=>b.textContent?.includes('传送到游乐园门口'))");
+      assert.ok(teleportAvailable, 'Adventure park has an entrance teleport');
+      await evaluate("Array.from(document.querySelectorAll('button')).find(b=>b.textContent?.includes('传送到游乐园门口')).click()");
+      let player;
+      for (let i = 0; i < 80; i++) {
+        player = await evaluate("JSON.parse(document.querySelector('canvas')?.dataset.player||'{}')");
+        if (Math.abs(player?.x + 7000) < 2 && Math.abs(player?.z - 2432) < 2) break;
+        await wait(100);
+      }
+      assert.ok(Math.abs(player?.x + 7000) < 2 && Math.abs(player?.z - 2432) < 2,
+        `Park teleport missed the entrance: ${JSON.stringify(player)}`);
+      await wait(800);
+      const screenshot = await send('Page.captureScreenshot', { format: 'png' });
+      writeFileSync(join(temp, 'amusement-park-entrance.png'), Buffer.from(screenshot.data, 'base64'));
+      assert.equal(exceptions.length, 0, exceptions.join('\n'));
+      console.log(JSON.stringify({ status: 'passed', scenario: 'amusement-park-entrance', player, screenshots: temp }));
+      socket.close(); chrome.kill('SIGTERM'); clearTimeout(timeout); process.exit(0);
+    }
     if (process.env.QA_METRO === '1') {
       const markerClicked = await evaluate("(()=>{const label=Array.from(document.querySelectorAll('svg.city-plan-map g text')).find(t=>t.textContent==='M04');label?.parentElement?.dispatchEvent(new MouseEvent('click',{bubbles:true}));return !!label})()");
       await wait(100);

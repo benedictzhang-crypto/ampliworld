@@ -43,6 +43,8 @@ import { CityPlan } from '../world-client/city-plan';
 import type { MetroStation } from '../world-client/metro-network';
 import { MetroPlaces } from '../world-client/metro-places';
 import { METRO_PIER_COLLIDERS } from '../world-client/metro-surface';
+import { AMUSEMENT_COLLIDERS, AmusementPark, AMUSEMENT_PARK, type BasketballShot } from '../world-client/amusement-park';
+import { hauntStepAt, nearBasketballCourt, evaluateBasketballShot, type HauntStep } from '../world-client/amusement-experience';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls } from '@react-three/drei';
 import { useGLTF } from '@react-three/drei';
@@ -394,6 +396,43 @@ export function DistrictClient() {
   );
   const [minutes, setMinutes] = useState(480);
   const [position, setPosition] = useState<number[]>([0, -68]);
+  const insideAmusementPark = Math.abs(position[0] - AMUSEMENT_PARK.center.x) <= AMUSEMENT_PARK.footprint.width / 2 &&
+    Math.abs(position[1] - AMUSEMENT_PARK.center.z) <= AMUSEMENT_PARK.footprint.depth / 2;
+  const [hauntStep, setHauntStep] = useState<HauntStep | null>(null);
+  const [scare, setScare] = useState<HauntStep | null>(null);
+  const lastHauntStage = useRef('');
+  const scareTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [basketballOpen, setBasketballOpen] = useState(false);
+  const [basketballAngle, setBasketballAngle] = useState(50);
+  const [basketballSpeed, setBasketballSpeed] = useState(19.5);
+  const [basketballAttempts, setBasketballAttempts] = useState(0);
+  const [basketballMade, setBasketballMade] = useState(0);
+  const [basketballResult, setBasketballResult] = useState('');
+  const [basketballShot, setBasketballShot] = useState<BasketballShot | null>(null);
+  const shootBasketball = () => {
+    const result = evaluateBasketballShot(basketballSpeed, basketballAngle);
+    setBasketballAttempts((count) => count + 1);
+    if (result.hit) setBasketballMade((count) => count + 1);
+    setBasketballResult(result.hit
+      ? `命中！篮球经过篮圈时高度 ${result.height.toFixed(2)} 米。`
+      : `${result.height > 3.35 ? '投高了' : '投低了'}：过篮圈时高度 ${result.height.toFixed(2)} 米。`);
+    setBasketballShot({ id: Date.now(), speed: basketballSpeed, angle: basketballAngle });
+  };
+  useEffect(() => {
+    const step = walking ? hauntStepAt(position[0], position[1]) : null;
+    setHauntStep((before) => before?.house === step?.house && before?.stage === step?.stage ? before : step);
+    const key = step ? `${step.house}-${step.stage}` : '';
+    if (key === lastHauntStage.current) return;
+    lastHauntStage.current = key;
+    if (step && (step.stage === 2 || step.stage === 5)) {
+      setScare(step);
+      if (scareTimeout.current) clearTimeout(scareTimeout.current);
+      scareTimeout.current = setTimeout(() => setScare(null), 1500);
+    }
+  }, [walking, position]);
+  useEffect(() => () => {
+    if (scareTimeout.current) clearTimeout(scareTimeout.current);
+  }, []);
   const [openGates, setOpenGates] = useState<Set<string>>(() => new Set());
   const [visualAnchor, setVisualAnchor] = useState<[number, number]>([0, 0]);
   const housingX = walking
@@ -495,6 +534,7 @@ export function DistrictClient() {
         ...CITY_SERVICE_COLLIDERS,
         ...CITY_OPERATION_COLLIDERS,
         ...METRO_PIER_COLLIDERS,
+        ...AMUSEMENT_COLLIDERS,
       ].map(
         (c) =>
           new Box3(
@@ -694,6 +734,9 @@ export function DistrictClient() {
                 <Suspense fallback={null}>
                   <MetroPlaces x={housingX} z={housingZ} />
                 </Suspense>
+                <Suspense fallback={null}>
+                  <AmusementPark x={housingX} z={housingZ} scare={scare} shot={basketballShot} />
+                </Suspense>
                 <CityOperations />
                 <CityServiceBuildings />
                 <HousingWorld x={housingX} z={housingZ} open={openGates} />
@@ -791,6 +834,30 @@ export function DistrictClient() {
           )}
         </CanvasBoundary>
       </div>
+      {walking && hauntStep && <div className="district-haunt-route" aria-live="polite">
+        <strong>{hauntStep.house === 'haunt-manor' ? 'THE MANOR' : 'MIDNIGHT LABORATORY'}</strong>
+        <span>{hauntStep.stage + 1} / 6 · {hauntStep.title}</span>
+        <small>沿房间里的通道继续走，出口在建筑另一侧。</small>
+      </div>}
+      {scare && <div className="district-haunt-scare" role="status" aria-live="assertive">
+        <span className="district-haunt-eyes">◉　◉</span>
+        <strong>{scare.cue}</strong>
+      </div>}
+      {walking && nearBasketballCourt(position[0], position[1]) && <div className="district-park-game">
+        {!basketballOpen ? <Button onClick={() => setBasketballOpen(true)}>玩投篮挑战</Button> : <>
+          <strong>投篮挑战 · {basketballMade} / {basketballAttempts}</strong>
+          <label>出手角度 {basketballAngle}°
+            <input type="range" min="36" max="65" value={basketballAngle}
+              onChange={(event) => setBasketballAngle(Number(event.target.value))} />
+          </label>
+          <label>出手速度 {basketballSpeed.toFixed(1)} m/s
+            <input type="range" min="15" max="25" step="0.1" value={basketballSpeed}
+              onChange={(event) => setBasketballSpeed(Number(event.target.value))} />
+          </label>
+          <div><Button onClick={shootBasketball}>投篮</Button><Button onClick={() => setBasketballOpen(false)}>收起</Button></div>
+          <small aria-live="polite">{basketballResult || '调节角度和力量，让球穿过篮圈。'}</small>
+        </>}
+      </div>}
       <Localized><header className="district-hud">
         <div>
           <span>AMPLIWORLD · OBSERVABLE WORLD LAB</span>
@@ -1023,6 +1090,16 @@ export function DistrictClient() {
           setRelocation({ x: station.arrivalX, z: station.arrivalZ, y, nonce: Date.now() });
           setPlanOpen(false);
         }}
+        onTeleportPoint={(x, z) => {
+          const y = districtGroundHeight(x, z);
+          setDriving(false);
+          setWalking(true);
+          setWide(false);
+          setPosition([x, z]);
+          playerFloor.current = y;
+          setRelocation({ x, z, y, nonce: Date.now() });
+          setPlanOpen(false);
+        }}
       />
       <Localized><div className="district-status" aria-live="polite">
         {driving && walking
@@ -1040,7 +1117,8 @@ export function DistrictClient() {
               : '俯瞰不会改变角色位置 · 返回继续原地行走'}
         </small>
       </div></Localized>
-      <PopulationPanel controller={population} selected={selectedResident} onSelect={setSelectedResident}/>
+      <PopulationPanel controller={population} selected={selectedResident} onSelect={setSelectedResident}
+        collapseForPlay={walking && insideAmusementPark}/>
     </main>
   );
 }
