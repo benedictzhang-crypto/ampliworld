@@ -2,8 +2,8 @@ import catalog from './occupancy-catalog.json';
 import {monthlySalaryCents} from './housing-finance';
 import type {LifeWorld,Resident} from './engine';
 import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from '../world-client/retail-registry';
-import {SERVICE_SITES,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS} from './city-service-plan';
-export const COMMERCE_VERSION=3;
+import {SERVICE_SITES,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS,CITY_OPERATION_SITES} from './city-service-plan';
+export const COMMERCE_VERSION=4;
 export const HOSPITALITY=[
  {id:'GC-RESTAURANT-001',name:'Lotus Siam · 泰国菜',type:'restaurant',entry:[245,-68],price:2600,staff:12},
  {id:'GC-RESTAURANT-002',name:'Bronze Garden · 花园中餐',type:'restaurant',entry:[290,-68],price:2800,staff:9},
@@ -23,9 +23,10 @@ export function initializeCommerce(w:LifeWorld){
   ...RETAIL_CAMPUSES.map(s=>({id:s.id,name:s.name,type:'supermarket',entry:[s.x,s.z] as [number,number],price:s.kind==='premium-grocery'?5200:s.kind==='warehouse-club'?9800:3600,jobCapacity:s.staff})),
   ...CITY_CINEMAS.map(s=>({id:s.id,name:s.name,type:'cinema',entry:[s.x,s.z] as [number,number],price:2200,jobCapacity:s.staff})),
   ...FOOD_VENUES.map(s=>({id:s.id,name:s.name,type:s.type==='food-truck'?'restaurant':'restaurant',entry:[s.x,s.z] as [number,number],price:s.price,jobCapacity:s.staff})),
-  ...SERVICE_SITES.map(s=>({id:s.id,name:s.name,type:s.type,entry:[s.x,s.z] as [number,number],price:s.price,jobCapacity:s.staff})),
+  ...SERVICE_SITES.map(s=>({id:s.id,name:s.name,type:s.type.endsWith('restaurant')?'restaurant':s.type,entry:[s.x,s.z] as [number,number],price:s.price,jobCapacity:s.staff,...(s.placement==='mall'?{floor:s.floor}:{})})),
   ...TRANSPORT_HUBS.filter(h=>'x' in h).map(h=>({id:h.id,name:h.name,type:h.mode,entry:[h.x,h.z] as [number,number],price:0,jobCapacity:h.staff})),
   ...EMPLOYMENT_DISTRICTS.map(s=>({id:s.id,name:s.name,type:s.type,entry:[s.x,s.z] as [number,number],price:0,jobCapacity:s.staff})),
+  ...CITY_OPERATION_SITES.map(s=>({id:s.id,name:s.name,type:s.type,entry:[s.x,s.z] as [number,number],price:0,jobCapacity:s.staff})),
   ...catalog.employers,
  ];
  w.businesses??={};
@@ -47,10 +48,19 @@ export function initializeCommerce(w:LifeWorld){
   if(type==='convenience')return i===0?'便利店店长':i%2?'便利店员':'收银员';
   if(type==='florist')return i===0?'花店经营者':'花艺师';
   if(type==='cafe')return i===0?'咖啡店经理':i%2?'咖啡师':'烘焙师';
+  if(type==='milk-tea')return i===0?'奶茶店店长':i%2?'调饮师':'外卖打包员';
+  if(type==='bakery')return i===0?'烘焙店店长':i%2?'烘焙师':'店员';
+  if(type==='apple-store'||type==='samsung-store')return i===0?'手机店店长':i%3===0?'技术顾问':'销售顾问';
+  if(type==='electronics-repair')return i===0?'电子维修店经理':'电子产品维修技师';
+  if(type==='auto-repair')return i===0?'汽车维修店经理':i%3===0?'汽车维修技师':i%3===1?'钣金技师':'服务顾问';
   if(type==='fire')return i===0?'消防站主管':'消防员';
   if(type==='airport'||type==='high-speed-rail')return i===0?'交通枢纽主管':i%3===0?'运营调度员':i%3===1?'安检员':'旅客服务员';
   if(type==='metro')return i===0?'地铁运营主管':i%3===0?'地铁运营员':i%3===1?'地铁安检员':'站务员';
   if(type==='logistics')return i===0?'物流园主管':i%3===0?'货车司机':i%3===1?'仓库管理员':'配送员';
+  if(type==='construction')return i===0?'项目经理':i%5===0?'塔吊司机':i%5===1?'水泥搅拌车司机':i%5===2?'建筑工人':i%5===3?'电工':'安全员';
+  if(type==='waste')return i===0?'垃圾处理中心主管':i%3===0?'垃圾车司机':i%3===1?'焚烧炉操作员':'环卫工人';
+  if(type==='power')return i===0?'电厂运行主管':i%3===0?'电力运行员':i%3===1?'设备维修工程师':'电网调度员';
+  if(type==='tax')return i===0?'税务局主管':i%3===0?'税务审查员':i%3===1?'纳税服务专员':'政府会计';
   return '';
  }
  // Services and individual shops get staffing first; office populations fill remaining capacity.

@@ -3,7 +3,7 @@ import {createOpeningHousing,monthlySalaryCents,monthlyMortgagePaymentCents,type
 import type {LifeWorld,Resident} from './engine';
 import {VENUES} from './society';
 import type {HousingPaymentState} from './housing-payments';
-import {SERVICE_SITES,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS} from './city-service-plan';
+import {SERVICE_SITES,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS,CITY_OPERATION_SITES} from './city-service-plan';
 import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from '../world-client/retail-registry';
 export type Dwelling = HousingLedger & {buildingId:string;buildingName:string;group:string;tier:string;equityAccounting:'included-in-existing-net-assets';landlordId:string;payment?:HousingPaymentState};
 export type Employment = {placeId:string;name:string;entry:[number,number];monthlyGrossCents:number;floor?:string};
@@ -13,9 +13,10 @@ export function bindResidency(w:LifeWorld){
   const families=new Map<string,Resident[]>();
   for(const r of w.residents){const id=r.identity!.familyId;families.set(id,[...(families.get(id)||[]),r]);}
   const plannedJobs=[
-    ...SERVICE_SITES.map(s=>({id:s.id,name:s.name,type:s.type,entry:[s.x,s.z] as [number,number],jobCapacity:s.staff})),
+    ...SERVICE_SITES.map(s=>({id:s.id,name:s.name,type:s.type.endsWith('restaurant')?'restaurant':s.type,entry:[s.x,s.z] as [number,number],jobCapacity:s.staff,...(s.placement==='mall'?{floor:s.floor}:{})})),
     ...TRANSPORT_HUBS.filter(h=>'x' in h).map(h=>({id:h.id,name:h.name,type:h.mode,entry:[h.x,h.z] as [number,number],jobCapacity:h.staff})),
     ...EMPLOYMENT_DISTRICTS.map(s=>({id:s.id,name:s.name,type:s.type,entry:[s.x,s.z] as [number,number],jobCapacity:s.staff})),
+    ...CITY_OPERATION_SITES.map(s=>({id:s.id,name:s.name,type:s.type,entry:[s.x,s.z] as [number,number],jobCapacity:s.staff})),
     ...RETAIL_CAMPUSES.map(s=>({id:s.id,name:s.name,type:'supermarket',entry:[s.x,s.z] as [number,number],jobCapacity:s.staff})),
     ...CITY_CINEMAS.map(s=>({id:s.id,name:s.name,type:'cinema',entry:[s.x,s.z] as [number,number],jobCapacity:s.staff})),
     ...FOOD_VENUES.map(s=>({id:s.id,name:s.name,type:'restaurant',entry:[s.x,s.z] as [number,number],jobCapacity:s.staff})),

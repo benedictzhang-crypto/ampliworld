@@ -10,6 +10,8 @@ import {
 } from 'react';
 import { CITY, CityLayer } from '../world-client/city-layer';
 import {usePopulation,PopulationLayer,PopulationPanel} from '../life-sim/client';
+import {CityOperations} from '../world-client/city-operations';
+import {CityServiceBuildings,CITY_SERVICE_COLLIDERS} from '../world-client/city-service-buildings';
 import { CITY_INFRA } from '../world-client/city-surface';
 import {CoreSignals} from '../world-client/core-signals';
 import {escalatorVelocity} from '../world-client/mall-escalators.mjs';
@@ -487,6 +489,7 @@ export function DistrictClient() {
         ...COMMUNITY_COLLIDERS,
         ...housingColliders(cellX * 1000, cellZ * 1000, openGates),
         ...METROPOLITAN_COLLIDERS,
+        ...CITY_SERVICE_COLLIDERS,
       ].map(
         (c) =>
           new Box3(
@@ -683,6 +686,8 @@ export function DistrictClient() {
                 />
                 <Communities />
                 <MetropolitanPlaces />
+                <CityOperations />
+                <CityServiceBuildings />
                 <HousingWorld x={housingX} z={housingZ} open={openGates} />
                 <StreetTrees />
                 <CoreReady onReady={onCoreReady} />
