@@ -360,6 +360,7 @@ export function DistrictClient() {
   const [coreReady, setCoreReady] = useState(false);
   const onCoreReady = useCallback(() => setCoreReady(true), []);
   const [walking, setWalking] = useState(false);
+  const [legacyNavigationEnabled] = useState(false);
   const [wide, setWide] = useState(false);
   const [planOpen, setPlanOpen] = useState(false);
   const [garageLevel, setGarageLevel] = useState(0);
@@ -788,15 +789,18 @@ export function DistrictClient() {
       </header>
       <nav className="district-tools">
         <LanguageSwitch />
+        <Button onClick={()=>{setDriving(false);setWalking(true);setWide(false);setFocus('cbd');setRelocation({x:0,z:-68,y:0,nonce:Date.now()});(document.activeElement as HTMLElement)?.blur();}}>人物起点</Button>
+        <Button onClick={()=>{car.current={x:6,z:-68,yaw:0,speed:0};setCarReport({...car.current});setDriving(true);setWalking(true);setWide(false);setFocus('cbd');setPosition([6,-68]);(document.activeElement as HTMLElement)?.blur();}}>车辆起点</Button>
+        {legacyNavigationEnabled&&<>
         <Button onClick={()=>setSelectedResident(population.world?.residents[0]?.id||null)}>居民档案 · {population.world?.residents.length||0} 人</Button>
         <Button onClick={()=>{setFocus('marina');setWide(false);setWalking(false);}}>东湾游艇港 · 150 泊位</Button>
         <Button onClick={()=>{setWalking(false);setFocus('cbd');setWide(false)}}>实验室 · 街区观察</Button>
         <Button onClick={()=>{setWalking(true);setWide(false);(document.activeElement as HTMLElement)?.blur();}}>进入现场 · 步行 / 驾驶</Button>
         <Button onClick={()=>{setFocus('mall');setWide(false);setWalking(false)}}>商场楼层览景</Button>
         {!walking && focus==='mall' && MALL_LEVELS.map((l,i)=>l.y>=0&&<Button key={l.id} aria-pressed={i===mallLevel} onClick={()=>setMallLevel(i)}>{l.label}</Button>)}
-        {walking && !driving && nearbyLift && <Button onClick={()=>setLiftPanel(v=>!v)}>电梯 {nearbyLift.id} · {currentMallLevel.id}</Button>}
+        {walking && !driving && nearbyLift && <Button onClick={()=>setLiftPanel(v=>!v)}>电梯 {nearbyLift!.id} · {currentMallLevel.id}</Button>}
         {walking && !driving && liftPanel && nearbyLift && <section aria-label="商场电梯楼层" style={{background:'#152b32',padding:16,border:'1px solid #ba9d67',maxWidth:420,color:'#f4eedf'}}>
-          <strong>电梯 {nearbyLift.id} · {currentMallLevel.label}</strong>
+          <strong>电梯 {nearbyLift!.id} · {currentMallLevel.label}</strong>
           <p aria-live="polite">{liftNotice}</p>
           <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
             <Button onClick={()=>rideLift(currentMallLevel.y)}>呼梯到本层</Button>
@@ -931,17 +935,17 @@ export function DistrictClient() {
         ))}
         {walking && nearGate && (
           <Button
-            disabled={openGates.has(nearGate.id) && !gateCanClose}
+            disabled={openGates.has(nearGate!.id) && !gateCanClose}
             onClick={() =>
               setOpenGates((s) => {
-                if (s.has(nearGate.id) && !gateCanClose) return s;
+                if (s.has(nearGate!.id) && !gateCanClose) return s;
                 const n = new Set(s);
-                n.has(nearGate.id) ? n.delete(nearGate.id) : n.add(nearGate.id);
+                n.has(nearGate!.id) ? n.delete(nearGate!.id) : n.add(nearGate!.id);
                 return n;
               })
             }
           >
-            {openGates.has(nearGate.id)
+            {openGates.has(nearGate!.id)
               ? gateCanClose
                 ? '关闭小区门禁'
                 : '请先离开门口再关闭'
@@ -968,6 +972,7 @@ export function DistrictClient() {
             {label}
           </Button>
         ))}
+        </>}
       </nav></Localized>
       {walking && (
         <Localized><div className="district-look">

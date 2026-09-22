@@ -284,6 +284,11 @@
 .population-money {
   font-size: 14px;
 }
+.world-event-form{display:grid;gap:7px;padding:12px;margin:10px 0;border:1px solid #ba9d6766;background:#0c171bdd}
+.world-event-form label{font-size:11px;letter-spacing:.12em;color:#dbc594}
+.world-event-form textarea{min-height:58px;resize:vertical;padding:9px;color:#f4eedf;background:#071014;border:1px solid #75848188;border-radius:4px;font:inherit}
+.world-event-result{display:grid;gap:5px;padding:10px;border-left:3px solid #dbc594;background:#122127}
+.world-event-result small{color:#9dacb1}.world-event-result>div{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.world-event-result span{font-size:9px;color:#9dacb1}.world-event-result b{display:block;font-size:16px;color:#f4eedf}
 @media (max-width: 760px) {
   .district-hud p {
     display: none;

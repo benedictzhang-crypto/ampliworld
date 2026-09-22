@@ -6,8 +6,8 @@ import {
   createLifeWorld,
   advanceLifeWorld,
   upgradeLifeWorld,
-  type LifeWorld,
 } from '../../life-sim/engine';
+import {applyWorldEvent} from '../../life-sim/world-events';
 const response = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 async function load(userId: string) {
@@ -60,9 +60,11 @@ export async function POST(request: Request) {
     } catch {
       return response({ error: '请求不是有效 JSON' }, 400);
     }
+    const eventText=typeof body?.eventText==='string'?body.eventText.trim():'';
     if (
       !body ||
-      ![15, 60, 1440].includes(body.minutes) ||
+      (!eventText&&![15, 60, 1440].includes(body.minutes)) ||
+      eventText.length>280 ||
       !Number.isSafeInteger(body.revision) ||
       typeof body.operationId !== 'string' ||
       body.operationId.length > 80 ||
@@ -78,7 +80,7 @@ export async function POST(request: Request) {
         409,
       );
     if(body.llmResidentId!==undefined){if(typeof body.llmResidentId!=='string')return response({error:'居民编号无效'},400);try{await deliberate(current,body.llmResidentId,inferenceConfig());}catch(e){return response({error:e instanceof Error?e.message:'推理失败'},422);}}
-    const next = advanceLifeWorld(current, body.minutes);
+    const next = eventText?applyWorldEvent(current,eventText):advanceLifeWorld(current, body.minutes);
     next.lastOperation = body.operationId;
     const update = await populationDB()
       .prepare(

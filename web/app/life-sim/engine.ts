@@ -35,6 +35,7 @@ export const FACILITIES = [
   { id: 'trade', label: '虚拟证券服务点', x: 10, z: -10, color: '#86b2f0' },
 ] as const;
 export type Resident = {
+  lastEventReaction?:{eventId:string;reaction:'reduce'|'maintain'|'increase';reason:string};
   plannedDecision?:Decision;
   businessId?:string;
   diningOut?:boolean;
@@ -76,6 +77,7 @@ export type Resident = {
   memory: { minute: number; text: string; cashDelta: number }[];
 };
 export type LifeWorld = {
+  worldEvents?:WorldEvent[];
   housingFinanceVersion?:number;
   housingPaidThroughMonth?:number;
   liquidityVersion?: number;
@@ -105,6 +107,11 @@ export type LifeWorld = {
     clinicVisits: number;
     trades: number;
   }[];
+};
+export type WorldEvent={
+  id:string;text:string;subject:string;direction:'up'|'down'|'neutral';shockPct:number;minute:number;
+  counts:{reduce:number;maintain:number;increase:number};
+  examples:{residentId:string;reaction:'reduce'|'maintain'|'increase';reason:string}[];
 };
 const cap = (v: number) => Math.max(0, Math.min(100, v));
 export const paperPrice = (minute: number) =>

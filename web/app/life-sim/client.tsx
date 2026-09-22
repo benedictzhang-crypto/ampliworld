@@ -70,6 +70,18 @@ export function usePopulation() {
       setBusy(false);
     }
   }, []);
+  const submitEvent=useCallback(async(eventText:string)=>{
+    if(locked.current||!current.current||!eventText.trim())return;
+    locked.current=true;setBusy(true);
+    try{
+      const response=await fetch('/api/population',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({eventText:eventText.trim(),revision:current.current.revision,operationId:crypto.randomUUID()})});
+      const data=(await response.json()) as PopulationResponse;
+      if(data.world){current.current=data.world;setWorld(data.world);}
+      if(!response.ok)throw new Error(data.error||'Event injection failed');
+      setError('');
+    }catch(error){setError(error instanceof Error?error.message:'Event injection was not confirmed');}
+    finally{locked.current=false;setBusy(false);}
+  },[]);
   useEffect(() => {
     if (!playing) return;
     const timer = setInterval(() => {
@@ -77,7 +89,7 @@ export function usePopulation() {
     }, 5000);
     return () => clearInterval(timer);
   }, [playing, advance]);
-  return { world, error, busy, playing, setPlaying, advance, load };
+  return { world, error, busy, playing, setPlaying, advance, submitEvent, load };
 }
 export type PopulationController = ReturnType<typeof usePopulation>;
 
@@ -173,9 +185,10 @@ export function PopulationPanel({
   const language=useLanguage();
   const displayName=(r:{id:string;name:string;englishName?:string})=>language==='en'?(r.englishName||englishNameFor(r.id)):r.name;
   const [open, setOpen] = useState(true),
+    [eventText,setEventText]=useState(''),
     [occupation, setOccupation] = useState('all'),
     [tab, setTab] = useState<'society' | 'services' | 'resident'>('society'),
-    { world, error, busy, playing, setPlaying, advance, load } = controller;
+    { world, error, busy, playing, setPlaying, advance, submitEvent, load } = controller;
   useEffect(() => {
     if (selected) setOpen(true);
   }, [selected]);
@@ -237,6 +250,15 @@ export function PopulationPanel({
           <p className="population-note">
             企业观察实验室 · 同一居民身份、生活与财务存档 · 合成规则模型
           </p>
+          <form className="world-event-form" onSubmit={event=>{event.preventDefault();const value=eventText.trim();if(value){void submitEvent(value);setEventText('');}}}>
+            <label htmlFor="world-event">GOD VIEW · INJECT NEWS</label>
+            <textarea id="world-event" maxLength={280} value={eventText} onChange={event=>setEventText(event.target.value)} placeholder="Example: Milk prices rise 20%" />
+            <button disabled={!world||busy||!eventText.trim()}>Run population reaction</button>
+          </form>
+          {world?.worldEvents?.at(-1)&&(()=>{const item=world.worldEvents!.at(-1)!;return <section className="world-event-result" aria-live="polite">
+            <strong>{item.text}</strong><small>{item.subject} · {item.direction} {item.shockPct}% · {world.residents.length.toLocaleString('en-US')} residents</small>
+            <div><span>REDUCE <b>{item.counts.reduce}</b></span><span>MAINTAIN <b>{item.counts.maintain}</b></span><span>INCREASE <b>{item.counts.increase}</b></span></div>
+          </section>})()}
           {error && (
             <p role="alert" className="population-error">
               {error}{' '}
