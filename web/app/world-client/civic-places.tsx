@@ -1,9 +1,28 @@
 'use client';
-import { Clone, useGLTF } from '@react-three/drei';
+import { Clone, Text, useGLTF } from '@react-three/drei';
 import { CIVIC_PLACES } from './civic-registry';
 import { useMemo } from 'react';
 import { Mesh, Material } from 'three';
 import { MALL_GARAGE, garageLevelAt } from './mall-garage';
+import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from './retail-registry';
+
+function RetailCampus({site}:{site:(typeof RETAIL_CAMPUSES)[number]}){
+  const accent=site.kind==='premium-grocery'?'#5f8067':site.kind==='department-store'?'#a84b47':site.kind==='asian-grocery'?'#9a5548':'#536875';
+  return <group position={[site.x,0,site.z]}>
+    <mesh position={[0,.08,site.d*.72]} receiveShadow><boxGeometry args={[site.w*1.35,.16,site.d*.55]}/><meshStandardMaterial color="#777c78" roughness={.94}/></mesh>
+    {[-.34,-.11,.11,.34].map((n,i)=><mesh key={i} position={[site.w*n,.13,site.d*.72]} receiveShadow><boxGeometry args={[site.w*.18,.12,site.d*.48]}/><meshStandardMaterial color={i%2?'#8e918c':'#a8aaa2'} roughness={.9}/></mesh>)}
+    <mesh position={[0,4.8,0]} castShadow receiveShadow><boxGeometry args={[site.w,9.6,site.d]}/><meshStandardMaterial color="#b6b5ad" roughness={.78}/></mesh>
+    <mesh position={[0,4.4,site.d/2+.04]}><boxGeometry args={[site.w*.76,6.6,.16]}/><meshPhysicalMaterial color="#7f9b9c" transparent opacity={.52} roughness={.16}/></mesh>
+    <mesh position={[0,9.9,0]} castShadow><boxGeometry args={[site.w+2,.45,site.d+2]}/><meshStandardMaterial color={accent} roughness={.48}/></mesh>
+    <Text position={[0,7.4,site.d/2+.18]} fontSize={Math.min(3.2,site.w/15)} color="#f6f1df" anchorX="center" anchorY="middle">{site.name}</Text>
+    {[-1,1].map(s=><group key={s} position={[s*(site.w*.58),0,site.d*.67]}><mesh position={[0,.5,0]}><boxGeometry args={[2.4,1,2.4]}/><meshStandardMaterial color="#7d7468"/></mesh><mesh position={[0,1.7,0]}><sphereGeometry args={[1.6,12,8]}/><meshStandardMaterial color="#45694f" roughness={.96}/></mesh></group>)}
+  </group>;
+}
+function CinemaMarker({site}:{site:(typeof CITY_CINEMAS)[number]}){
+  return <group position={[site.x,1,site.z]}><mesh castShadow receiveShadow><boxGeometry args={[46,18,34]}/><meshStandardMaterial color="#34343b" roughness={.5}/></mesh><mesh position={[0,0,17.1]}><boxGeometry args={[34,10,.25]}/><meshStandardMaterial color="#876a45" metalness={.55}/></mesh><Text position={[0,2,17.3]} fontSize={2.5} color="#f2dfb7">{site.name}</Text></group>;
+}
+function HospitalityLandscape(){return <>{[[245,-82],[290,-82],[335,-82]].map(([x,z],i)=><group key={i}><mesh position={[x,.035,z+11]} receiveShadow><boxGeometry args={[25,.07,8]}/><meshStandardMaterial color={i===1?'#595b58':'#898c86'} roughness={.96}/></mesh>{[-1,1].map(s=><group key={s} position={[x+s*11,.1,z+12]}><mesh position={[0,.35,0]}><boxGeometry args={[2.2,.7,2.2]}/><meshStandardMaterial color="#817769"/></mesh><mesh position={[0,1.1,0]}><sphereGeometry args={[1.25,12,8]}/><meshStandardMaterial color="#48614b" roughness={1}/></mesh></group>)}</group>)}</>}
+function FoodTruck({site}:{site:(typeof FOOD_VENUES)[number]}){if(site.type!=='food-truck')return null;return <group position={[site.x,.7,site.z]}><mesh castShadow><boxGeometry args={[5.8,2.8,2.5]}/><meshStandardMaterial color="#ded8c7" roughness={.55}/></mesh><mesh position={[0,.25,1.27]}><boxGeometry args={[3.2,1.25,.08]}/><meshStandardMaterial color="#29383a"/></mesh>{[-2,2].map(x=><mesh key={x} position={[x,-1.22,0]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.52,.52,.3,16]}/><meshStandardMaterial color="#22252a"/></mesh>)}<Text position={[0,1.85,0]} fontSize={.48} color="#5d4533">{site.name}</Text></group>}
 function CivicAsset({
   id,
   assetId,
@@ -50,6 +69,10 @@ export function CivicPlaces({ garageY = 0 }: { garageY?: number }) {
       {CIVIC_PLACES.map((p) => (
         <CivicAsset key={`${p.id}/${p.x}/${p.z}`} {...p} />
       ))}
+      <HospitalityLandscape />
+      {RETAIL_CAMPUSES.map(site=><RetailCampus key={site.id} site={site}/>)}
+      {CITY_CINEMAS.filter(site=>site.id!=='CINEMA-CBD').map(site=><CinemaMarker key={site.id} site={site}/>)}
+      {FOOD_VENUES.map(site=><FoodTruck key={site.id} site={site}/>)}
       <CivicAsset id="GC-MALL-GARAGE-002" file="garage.glb" x={0} z={-188} />
       {[-70, 0, 75].flatMap((x) =>
         [-240, -150].map((z) => (

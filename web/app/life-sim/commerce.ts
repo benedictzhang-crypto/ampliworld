@@ -1,11 +1,12 @@
 import catalog from './occupancy-catalog.json';
 import {monthlySalaryCents} from './housing-finance';
 import type {LifeWorld,Resident} from './engine';
-export const COMMERCE_VERSION=1;
+import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from '../world-client/retail-registry';
+export const COMMERCE_VERSION=2;
 export const HOSPITALITY=[
- {id:'GC-RESTAURANT-001',name:'Olive Terrace · 地中海餐厅',type:'restaurant',entry:[245,-68],price:1600,staff:12},
+ {id:'GC-RESTAURANT-001',name:'Lotus Siam · 泰国菜',type:'restaurant',entry:[245,-68],price:2600,staff:12},
  {id:'GC-RESTAURANT-002',name:'Bronze Garden · 花园中餐',type:'restaurant',entry:[290,-68],price:2800,staff:9},
- {id:'GC-RESTAURANT-003',name:'Ember Grill · 炭烤餐厅',type:'restaurant',entry:[335,-68],price:950,staff:7},
+ {id:'GC-RESTAURANT-003',name:'Ember Prime · 高档牛排店',type:'restaurant',entry:[335,-68],price:12800,staff:14},
  {id:'GC-HOTEL-005',name:'Aurelia Grand · 五星酒店',type:'hotel',entry:[-150,-620],price:32000,staff:48},
  {id:'GC-HOTEL-004',name:'Meridian · 四星酒店',type:'hotel',entry:[150,-620],price:16000,staff:28},
 ] as const;
@@ -18,6 +19,9 @@ export function initializeCommerce(w:LifeWorld){
   {id:'SERVICE-precinct',name:'CBD 警务服务站',type:'police',entry:[10,28],jobCapacity:32},
   {id:'SERVICE-school',name:'社区学院',type:'school',entry:[-10,26],jobCapacity:62},
   ...HOSPITALITY.map(b=>({...b,jobCapacity:b.staff})),
+  ...RETAIL_CAMPUSES.map(s=>({id:s.id,name:s.name,type:'supermarket',entry:[s.x,s.z] as [number,number],price:s.kind==='premium-grocery'?5200:s.kind==='warehouse-club'?9800:3600,jobCapacity:s.staff})),
+  ...CITY_CINEMAS.map(s=>({id:s.id,name:s.name,type:'cinema',entry:[s.x,s.z] as [number,number],price:2200,jobCapacity:s.staff})),
+  ...FOOD_VENUES.map(s=>({id:s.id,name:s.name,type:s.type==='food-truck'?'restaurant':'restaurant',entry:[s.x,s.z] as [number,number],price:s.price,jobCapacity:s.staff})),
   ...catalog.employers,
  ];
  w.businesses??={};
@@ -34,6 +38,7 @@ export function initializeCommerce(w:LifeWorld){
   if(type==='guardhouse')return '保安';
   if(type==='management')return i===0?'物业经理':i%2?'物业管家':'园林养护员';
   if(type==='supermarket')return i===0?'超市店长':i%2?'超市理货员':'收银员';
+  if(type==='cinema')return i===0?'影院经理':i%3===0?'放映技术员':i%3===1?'影院服务员':'票务员';
   return '';
  }
  // Services and individual shops get staffing first; office populations fill remaining capacity.
@@ -41,7 +46,7 @@ export function initializeCommerce(w:LifeWorld){
  for(const d of ordered){
   const target=d.type==='retail-shop'?2+hash(d.id)%5:d.type==='restaurant'?12:d.type==='auto'?22:d.type==='office'?Math.min(d.jobCapacity,60+hash(d.id)%210):Math.min(d.jobCapacity,8+hash(d.id)%19);
   const requested=d.type==='office'?Math.min(target,Math.max(0,remaining.size-(ordered.length-ordered.indexOf(d)-1)*8)):['hospital','police','school','hotel'].includes(d.type)?d.jobCapacity:target;
-  const b:Business=w.businesses[d.id]??={id:d.id,name:d.name,type:d.type,entry:d.entry as [number,number],...('floor' in d&&d.floor?{floor:d.floor}:{}),staffIds:[],managerId:null,ownerId:null,price:'price' in d?d.price:d.type==='restaurant'?2600:d.type==='retail-shop'?2500+(hash(d.id)%12)*1500:d.type==='auto'?8500:d.type==='hospital'?1800:0,open:['hotel','hospital','police'].includes(d.type)?0:8,close:['hotel','hospital','police'].includes(d.type)?24:22,cash:0,visits:0,revenue:0,workedHours:0,day:Math.floor(w.minute/1440),todayVisits:0,todayRevenue:0,unpaidWages:0};
+  const b:Business=w.businesses[d.id]??={id:d.id,name:d.name,type:d.type,entry:d.entry as [number,number],...('floor' in d&&d.floor?{floor:d.floor}:{}),staffIds:[],managerId:null,ownerId:null,price:'price' in d?d.price:d.type==='restaurant'?2600:d.type==='retail-shop'?2500+(hash(d.id)%12)*1500:d.type==='auto'?8500:d.type==='hospital'?1800:0,open:['hotel','hospital','police'].includes(d.type)?0:d.type==='supermarket'?7:d.type==='cinema'?10:8,close:['hotel','hospital','police'].includes(d.type)?24:d.type==='cinema'?24:d.type==='supermarket'?23:22,cash:0,visits:0,revenue:0,workedHours:0,day:Math.floor(w.minute/1440),todayVisits:0,todayRevenue:0,unpaidWages:0};
   for(let i=0;i<requested&&remaining.size;i++){
    const wanted=role(d.type,i);
    const minimum=wanted==='医生'?26:wanted==='护士'?21:/经理|主管|店长|经营者/.test(wanted)?24:18;

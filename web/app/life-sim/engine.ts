@@ -268,7 +268,7 @@ function choose(w: LifeWorld, r: Resident): [Action, string] {
     return ['study', '前往学院学习，不把学生上课计作工资收入'];
   const employer=r.employment&&w.businesses?.[r.employment.placeId];
   const shiftStart=employer&&['hotel','hospital','police'].includes(employer.type)?(Number(r.id.slice(1))%3)*8:employer?.type==='restaurant'?11:9;
-  if (hour >= shiftStart && hour < shiftStart+8 && r.worked < 480 && (day % 7 < 5||employer&&['hotel','hospital','police','restaurant','retail-shop'].includes(employer.type)) && r.wage > 0)
+  if (hour >= shiftStart && hour < shiftStart+8 && r.worked < 480 && (day % 7 < 5||employer&&['hotel','hospital','police','restaurant','retail-shop','supermarket','cinema'].includes(employer.type)) && r.wage > 0)
     return ['work', `${r.job}：在岗位完成一小时服务，完成后领取工资`];
   if (r.cash > 65000) return ['bank', '保留生活费，把多余现金存入银行'];
   if (r.happiness < 48)
@@ -351,7 +351,7 @@ function start(w: LifeWorld, r: Resident) {
                     : '';
   }
   if(action==='hospital')r.businessId='SERVICE-clinic';
-  if(action==='leisure'&&reason.includes('逛店')){r.businessId=chooseBusiness(w,r,(r.consumerPersona?.personalCareInterest||0)>.65?['salon']:Number(r.id.slice(1))%8===0?['auto']:['retail-shop'],r.cash-6000)?.id;r.lastBrowseDay=Math.floor(w.minute/1440);}
+  if(action==='leisure'&&reason.includes('逛店')){const n=Number(r.id.slice(1));r.businessId=chooseBusiness(w,r,(r.consumerPersona?.personalCareInterest||0)>.65?['salon']:n%5===0?['cinema']:n%8===0?['auto']:['retail-shop','supermarket'],r.cash-6000)?.id;r.lastBrowseDay=Math.floor(w.minute/1440);}
   if(action==='travel')r.businessId=chooseBusiness(w,r,['hotel'],Math.max(0,r.cash-15000))?.id;
   if(plan?.businessId){r.businessId=plan.businessId;r.diningOut=action==='eat';}
   if (r.profile) r.profile.venueId = venueId;

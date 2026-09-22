@@ -21,9 +21,9 @@ export const CIVIC_PLACES = [
   {id:'GC-SC-DINE-02',assetId:'GC-RESTAURANT-002',name:'河西 Bronze Garden',x:-1300,z:8400,file:'model.glb',manifest:restaurant2},
   {id:'GC-HOTEL-005',name:'Aurelia Grand · 五星酒店',x:-150,z:-644.5,file:'model.glb',manifest:hotel5},
   {id:'GC-HOTEL-004',name:'Meridian · 四星酒店',x:150,z:-644.5,file:'model.glb',manifest:hotel4},
-  {id:'GC-RESTAURANT-001',name:'Olive Terrace · 地中海餐厅',x:245,z:-82,file:'model.glb',manifest:restaurant1},
+  {id:'GC-RESTAURANT-001',name:'Lotus Siam · 泰国菜',x:245,z:-82,file:'model.glb',manifest:restaurant1},
   {id:'GC-RESTAURANT-002',name:'Bronze Garden · 花园中餐',x:290,z:-82,file:'model.glb',manifest:restaurant2},
-  {id:'GC-RESTAURANT-003',name:'Ember Grill · 炭烤餐厅',x:335,z:-82,file:'model.glb',manifest:restaurant3},
+  {id:'GC-RESTAURANT-003',name:'Ember Prime · 高档牛排店',x:335,z:-82,file:'model.glb',manifest:restaurant3},
   {id:'GC-MARINA-001',name:'东湾游艇港酒店 · 150 泊位',x:6500,z:13200,file:'marina-yacht-hotel.glb',manifest:marina},
   {
     id: 'GC-STADIUM-001',
