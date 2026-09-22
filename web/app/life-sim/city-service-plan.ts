@@ -25,7 +25,10 @@ export const CITY_SERVICE_PLAN=[
   {kind:'school',label:'Primary or secondary school',count:12,staff:55,price:0},
   {kind:'pet',label:'Pet care and veterinary service',count:8,staff:8,price:4600},
   {kind:'repair',label:'Household repair service',count:8,staff:7,price:5500},
-  {kind:'fuel',label:'Fuel and EV charging station',count:8,staff:5,price:4800},
+  {kind:'gas-station',label:'Fuel station',count:6,staff:7,price:4800},
+  {kind:'ev-charging',label:'Public EV charging hub',count:12,staff:4,price:2600},
+  {kind:'ev-dealer',label:'Electric vehicle showroom',count:4,staff:18,price:12000},
+  {kind:'motorcycle-dealer',label:'Motorcycle showroom and service',count:4,staff:14,price:9000},
   {kind:'hotel',label:'Hotel',count:6,staff:35,price:14000},
   {kind:'community',label:'Community service center',count:10,staff:12,price:0},
   {kind:'police',label:'Police precinct',count:4,staff:36,price:0},
@@ -66,6 +69,8 @@ export const CITY_OPERATION_SITES=[
   {id:'WASTE-01',name:'West Circular Waste and Incineration Center',type:'waste',x:-4200,z:9800,staff:140},
   {id:'POWER-01',name:'AmpliWorld Combined Power Station',type:'power',x:-5400,z:11200,staff:165},
   {id:'TAX-01',name:'Metropolitan Revenue and Taxation Bureau',type:'tax',x:850,z:650,staff:210},
+  {id:'MUSEUM-01',name:'AmpliWorld Metropolitan Museum',type:'museum',x:820,z:820,staff:64},
+  {id:'ART-01',name:'AmpliWorld Contemporary Art Museum',type:'art-gallery',x:1040,z:820,staff:48},
 ] as const;
 
 export const CITY_CAPACITY_SUMMARY={population:30000,serviceSites:SERVICE_SITES.length,employmentDistricts:EMPLOYMENT_DISTRICTS.length,cityOperationSites:CITY_OPERATION_SITES.length,transportHubs:TRANSPORT_HUBS.length,metroStations:14};

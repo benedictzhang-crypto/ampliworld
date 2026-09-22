@@ -21,5 +21,14 @@ export function CityServiceBuildings(){
     <instancedMesh ref={bodies} args={[undefined,undefined,count]} castShadow receiveShadow><boxGeometry args={[16,5.6,12]}/><meshStandardMaterial roughness={.78}/></instancedMesh>
     <instancedMesh ref={glass} args={[undefined,undefined,count]}><boxGeometry args={[11,3.1,.12]}/><meshPhysicalMaterial color="#759093" transparent opacity={.58} roughness={.18}/></instancedMesh>
     <instancedMesh ref={roofs} args={[undefined,undefined,count]} castShadow><boxGeometry args={[17,.35,13]}/><meshStandardMaterial color="#605d57" metalness={.25}/></instancedMesh>
+    {STREET_SERVICE_SITES.filter(s=>s.type==='gas-station').map(s=><group key={s.id} position={[s.x,0,s.z+17]}>
+      <mesh position={[0,4,0]} castShadow><boxGeometry args={[22,.6,10]}/><meshStandardMaterial color="#e0ded4" metalness={.35}/></mesh>
+      {[-7,0,7].map(x=><group key={x} position={[x,0,0]}><mesh position={[0,1,0]}><boxGeometry args={[1.1,2,1.3]}/><meshStandardMaterial color="#4d5960"/></mesh><mesh position={[0,2.2,0]}><boxGeometry args={[1.3,.45,1.5]}/><meshStandardMaterial color="#d9a84a" emissive="#76551d" emissiveIntensity={.25}/></mesh></group>)}
+      {[-10,10].map(x=><mesh key={x} position={[x,2,0]}><boxGeometry args={[.45,4,.45]}/><meshStandardMaterial color="#777b79"/></mesh>)}
+    </group>)}
+    {STREET_SERVICE_SITES.filter(s=>s.type==='ev-charging').map(s=><group key={s.id} position={[s.x,0,s.z+16]}>
+      <mesh position={[0,.06,0]} receiveShadow><boxGeometry args={[24,.12,9]}/><meshStandardMaterial color="#555c5c"/></mesh>
+      {[-9,-3,3,9].map(x=><group key={x} position={[x,0,-1]}><mesh position={[0,1.25,0]}><boxGeometry args={[.65,2.5,.55]}/><meshStandardMaterial color="#d8e3df"/></mesh><mesh position={[0,1.45,.3]}><boxGeometry args={[.36,.7,.08]}/><meshStandardMaterial color="#48c996" emissive="#48c996" emissiveIntensity={.45}/></mesh></group>)}
+    </group>)}
   </group>;
 }

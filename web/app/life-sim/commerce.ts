@@ -53,6 +53,10 @@ export function initializeCommerce(w:LifeWorld){
   if(type==='apple-store'||type==='samsung-store')return i===0?'手机店店长':i%3===0?'技术顾问':'销售顾问';
   if(type==='electronics-repair')return i===0?'电子维修店经理':'电子产品维修技师';
   if(type==='auto-repair')return i===0?'汽车维修店经理':i%3===0?'汽车维修技师':i%3===1?'钣金技师':'服务顾问';
+  if(type==='gas-station')return i===0?'加油站经理':i%2?'加油站服务员':'便利店员';
+  if(type==='ev-charging')return i===0?'充电站主管':i%2?'充电运维技师':'充电服务员';
+  if(type==='ev-dealer')return i===0?'电动车店经理':i%3===0?'电动车维修技师':'电动车销售顾问';
+  if(type==='motorcycle-dealer')return i===0?'摩托车店经理':i%3===0?'摩托车维修技师':'摩托车销售顾问';
   if(type==='fire')return i===0?'消防站主管':'消防员';
   if(type==='airport'||type==='high-speed-rail')return i===0?'交通枢纽主管':i%3===0?'运营调度员':i%3===1?'安检员':'旅客服务员';
   if(type==='metro')return i===0?'地铁运营主管':i%3===0?'地铁运营员':i%3===1?'地铁安检员':'站务员';
@@ -61,6 +65,8 @@ export function initializeCommerce(w:LifeWorld){
   if(type==='waste')return i===0?'垃圾处理中心主管':i%3===0?'垃圾车司机':i%3===1?'焚烧炉操作员':'环卫工人';
   if(type==='power')return i===0?'电厂运行主管':i%3===0?'电力运行员':i%3===1?'设备维修工程师':'电网调度员';
   if(type==='tax')return i===0?'税务局主管':i%3===0?'税务审查员':i%3===1?'纳税服务专员':'政府会计';
+  if(type==='museum')return i===0?'博物馆馆长':i%4===0?'策展人':i%4===1?'藏品维护员':i%4===2?'博物馆讲解员':'公共教育专员';
+  if(type==='art-gallery')return i===0?'美术馆馆长':i%4===0?'当代艺术策展人':i%4===1?'艺术品维护员':i%4===2?'美术馆讲解员':'展览运营员';
   return '';
  }
  // Services and individual shops get staffing first; office populations fill remaining capacity.
