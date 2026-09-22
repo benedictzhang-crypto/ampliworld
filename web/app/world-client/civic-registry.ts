@@ -11,8 +11,14 @@ import restaurant2 from '../../public/assets/3d/ampliworld/GC-RESTAURANT-002/man
 import restaurant3 from '../../public/assets/3d/ampliworld/GC-RESTAURANT-003/manifest.json';
 import salon from '../../public/assets/3d/ampliworld/GC-SALON-001/manifest.json';
 import sculptedHomes from '../../public/assets/3d/ampliworld/GC-CBD-RESIDENCES-001/manifest.json';
+import airport from '../../public/assets/3d/ampliworld/GC-AIRPORT-001/manifest.json';
+import hsr1 from '../../public/assets/3d/ampliworld/GC-HSR-001/manifest.json';
+import hsr2 from '../../public/assets/3d/ampliworld/GC-HSR-002/manifest.json';
 
 export const CIVIC_PLACES = [
+  {id:'GC-AIRPORT-001',name:'AmpliWorld International Airport',x:8800,z:11800,file:'model.glb',manifest:airport},
+  {id:'GC-HSR-001',name:'Grand Central High-Speed Rail',x:1600,z:500,file:'model.glb',manifest:hsr1},
+  {id:'GC-HSR-002',name:'East City High-Speed Rail',x:5900,z:3900,file:'model.glb',manifest:hsr2},
   {id:'GC-CBD-RESIDENCES-001',name:'云庭曲廊 · 五栋露台公馆',x:535,z:-250,file:'residences.glb',manifest:sculptedHomes},
   {id:'GC-NAILS-01',assetId:'GC-SALON-001',name:'青庭 Nail Atelier',x:-1100,z:1000,file:'model.glb',manifest:salon},
   {id:'GC-NAILS-02',assetId:'GC-SALON-001',name:'东城 Luma Nails',x:5350,z:3350,file:'model.glb',manifest:salon},
