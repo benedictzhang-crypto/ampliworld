@@ -197,7 +197,7 @@ function attachIdentities(w:LifeWorld){
   w.censusVersion=CENSUS_VERSION;
 }
 export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
-  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===1&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housingFinanceVersion===HOUSING_FINANCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName)) return input;
+  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===2&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housingFinanceVersion===HOUSING_FINANCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName)) return input;
   const w = structuredClone(input),
     fresh = createLifeWorld();
   if(input.societyVersion!==1)for (let i = 0; i < w.residents.length; i++) {
@@ -436,7 +436,7 @@ function complete(w: LifeWorld, r: Resident) {
     case 'work': {
       if((r.identity?.age??18)<18)break;
       const employer=r.employment&&w.businesses?.[r.employment.placeId];
-      const publicEmployer=!!employer&&['hospital','police','school'].includes(employer.type);
+      const publicEmployer=!!employer&&['hospital','police','school','fire','community'].includes(employer.type);
       const wage = Math.min(employer&&!publicEmployer?employer.cash:w.treasury, r.wage);
       if(employer){if(publicEmployer)w.treasury-=wage;else employer.cash-=wage;employer.workedHours++;employer.unpaidWages+=r.wage-wage;}else w.treasury -= wage;
       r.cash += wage;

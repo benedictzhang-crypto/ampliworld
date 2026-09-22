@@ -3,14 +3,24 @@ import {createOpeningHousing,monthlySalaryCents,monthlyMortgagePaymentCents,type
 import type {LifeWorld,Resident} from './engine';
 import {VENUES} from './society';
 import type {HousingPaymentState} from './housing-payments';
+import {SERVICE_SITES,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS} from './city-service-plan';
+import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from '../world-client/retail-registry';
 export type Dwelling = HousingLedger & {buildingId:string;buildingName:string;group:string;tier:string;equityAccounting:'included-in-existing-net-assets';landlordId:string;payment?:HousingPaymentState};
 export type Employment = {placeId:string;name:string;entry:[number,number];monthlyGrossCents:number;floor?:string};
-export const RESIDENCY_VERSION=1;
+export const RESIDENCY_VERSION=2;
 export function bindResidency(w:LifeWorld){
   if(w.residencyVersion===RESIDENCY_VERSION&&w.housing)return;
   const families=new Map<string,Resident[]>();
   for(const r of w.residents){const id=r.identity!.familyId;families.set(id,[...(families.get(id)||[]),r]);}
-  const jobs=catalog.employers.map(e=>({...e,filled:0}));
+  const plannedJobs=[
+    ...SERVICE_SITES.map(s=>({id:s.id,name:s.name,type:s.type,entry:[s.x,s.z] as [number,number],jobCapacity:s.staff})),
+    ...TRANSPORT_HUBS.filter(h=>'x' in h).map(h=>({id:h.id,name:h.name,type:h.mode,entry:[h.x,h.z] as [number,number],jobCapacity:h.staff})),
+    ...EMPLOYMENT_DISTRICTS.map(s=>({id:s.id,name:s.name,type:s.type,entry:[s.x,s.z] as [number,number],jobCapacity:s.staff})),
+    ...RETAIL_CAMPUSES.map(s=>({id:s.id,name:s.name,type:'supermarket',entry:[s.x,s.z] as [number,number],jobCapacity:s.staff})),
+    ...CITY_CINEMAS.map(s=>({id:s.id,name:s.name,type:'cinema',entry:[s.x,s.z] as [number,number],jobCapacity:s.staff})),
+    ...FOOD_VENUES.map(s=>({id:s.id,name:s.name,type:'restaurant',entry:[s.x,s.z] as [number,number],jobCapacity:s.staff})),
+  ];
+  const jobs=[...plannedJobs,...catalog.employers].map(e=>({...e,filled:0}));
   for(const r of w.residents){
     const monthly=monthlySalaryCents(r.job,r.identity!.age,!!r.identity!.workplace);
     if(!monthly)continue;
@@ -27,7 +37,9 @@ export function bindResidency(w:LifeWorld){
     r.wage=Math.round(monthly/176);
     r.identity!.workplace=place.name;
   }
-  const slots=catalog.homes.flatMap(h=>Array.from({length:h.households},(_,i)=>({home:h,unit:i+1}))).sort((a,b)=>b.home.valueCents-a.home.valueCents||a.home.id.localeCompare(b.home.id)||a.unit-b.unit);
+  // At the 30k operating census use the declared physical unit capacity, not
+  // the earlier 3k pilot's sampled household count.
+  const slots=catalog.homes.flatMap(h=>Array.from({length:h.unitCapacity},(_,i)=>({home:h,unit:i+1}))).sort((a,b)=>b.home.valueCents-a.home.valueCents||a.home.id.localeCompare(b.home.id)||a.unit-b.unit);
   const wealth=(members:Resident[])=>Math.max(...members.filter(r=>r.identity!.age>=18).map(r=>Math.max(0,(r.profile?.nonCashAssets||0)-(r.profile?.debt||0))));
   const ordered=[...families.entries()].sort((a,b)=>wealth(b[1])-wealth(a[1])||a[0].localeCompare(b[0]));
   if(ordered.length>slots.length)throw new Error('Insufficient housing capacity');
