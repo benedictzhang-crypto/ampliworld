@@ -88,6 +88,12 @@ export const CITY_OPERATION_SITES=[
   {id:'TAX-01',name:'Metropolitan Revenue and Taxation Bureau',type:'tax',x:850,z:650,staff:210},
   {id:'MUSEUM-01',name:'AmpliWorld Metropolitan Museum',type:'museum',x:820,z:820,staff:64},
   {id:'ART-01',name:'AmpliWorld Contemporary Art Museum',type:'art-gallery',x:1040,z:820,staff:48},
+  {id:'WATER-01',name:'AmpliWorld Water Utility and Treatment Works',type:'water',x:-4700,z:7600,staff:145},
+  {id:'SEWAGE-01',name:'South Basin Wastewater Reclamation Plant',type:'wastewater',x:-6500,z:9800,staff:120},
+  {id:'CITYHALL-01',name:'AmpliWorld City Hall and Civic Services',type:'city-hall',x:1250,z:520,staff:260},
+  {id:'COURT-01',name:'Metropolitan Court and Justice Center',type:'court',x:1450,z:520,staff:190},
+  {id:'EMS-01',name:'Metropolitan Emergency Medical Service',type:'ems',x:3270,z:4400,staff:125},
+  {id:'DOT-01',name:'Department of Roads and Transportation',type:'transport-authority',x:2300,z:7200,staff:230},
 ] as const;
 
 export const CITY_CAPACITY_SUMMARY={population:30000,serviceSites:SERVICE_SITES.length,employmentDistricts:EMPLOYMENT_DISTRICTS.length,cityOperationSites:CITY_OPERATION_SITES.length,transportHubs:TRANSPORT_HUBS.length,metroStations:14};

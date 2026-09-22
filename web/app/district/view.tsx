@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { CITY, CityLayer } from '../world-client/city-layer';
 import {usePopulation,PopulationLayer,PopulationPanel} from '../life-sim/client';
-import {CityOperations} from '../world-client/city-operations';
+import {CityOperations,CITY_OPERATION_COLLIDERS} from '../world-client/city-operations';
 import {CityServiceBuildings,CITY_SERVICE_COLLIDERS} from '../world-client/city-service-buildings';
 import { CITY_INFRA } from '../world-client/city-surface';
 import {CoreSignals} from '../world-client/core-signals';
@@ -490,6 +490,7 @@ export function DistrictClient() {
         ...housingColliders(cellX * 1000, cellZ * 1000, openGates),
         ...METROPOLITAN_COLLIDERS,
         ...CITY_SERVICE_COLLIDERS,
+        ...CITY_OPERATION_COLLIDERS,
       ].map(
         (c) =>
           new Box3(

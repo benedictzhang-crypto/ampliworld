@@ -272,9 +272,9 @@ function choose(w: LifeWorld, r: Resident): [Action, string] {
   )
     return ['study', '前往学院学习，不把学生上课计作工资收入'];
   const employer=r.employment&&w.businesses?.[r.employment.placeId];
-  const shiftStart=employer&&['hotel','hospital','police'].includes(employer.type)?(Number(r.id.slice(1))%3)*8:employer?.type==='nightclub'?20:employer?.type==='bar'?17:employer?.type==='restaurant'?11:9;
+  const shiftStart=employer&&['hotel','hospital','police','water','wastewater','ems','transport-authority'].includes(employer.type)?(Number(r.id.slice(1))%3)*8:employer?.type==='nightclub'?20:employer?.type==='bar'?17:employer?.type==='restaurant'?11:9;
   const onShift=shiftStart+8<=24?hour>=shiftStart&&hour<shiftStart+8:hour>=shiftStart||hour<(shiftStart+8)%24;
-  if (onShift && r.worked < 480 && (day % 7 < 5||employer&&['hotel','hospital','police','restaurant','bar','nightclub','retail-shop','supermarket','cinema'].includes(employer.type)) && r.wage > 0)
+  if (onShift && r.worked < 480 && (day % 7 < 5||employer&&['hotel','hospital','police','water','wastewater','ems','transport-authority','restaurant','bar','nightclub','retail-shop','supermarket','cinema'].includes(employer.type)) && r.wage > 0)
     return ['work', `${r.job}：在岗位完成一小时服务，完成后领取工资`];
   if (r.cash > 65000) return ['bank', '保留生活费，把多余现金存入银行'];
   if (r.happiness < 48)
@@ -447,7 +447,7 @@ function complete(w: LifeWorld, r: Resident) {
     case 'work': {
       if((r.identity?.age??18)<18)break;
       const employer=r.employment&&w.businesses?.[r.employment.placeId];
-      const publicEmployer=!!employer&&['hospital','police','school','fire','community'].includes(employer.type);
+      const publicEmployer=!!employer&&['hospital','police','school','fire','community','water','wastewater','city-hall','court','ems','transport-authority'].includes(employer.type);
       const wage = Math.min(employer&&!publicEmployer?employer.cash:w.treasury, r.wage);
       if(employer){if(publicEmployer)w.treasury-=wage;else employer.cash-=wage;employer.workedHours++;employer.unpaidWages+=r.wage-wage;}else w.treasury -= wage;
       r.cash += wage;

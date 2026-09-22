@@ -3,7 +3,7 @@ import {monthlySalaryCents} from './housing-finance';
 import type {LifeWorld,Resident} from './engine';
 import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from '../world-client/retail-registry';
 import {SERVICE_SITES,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS,CITY_OPERATION_SITES} from './city-service-plan';
-export const COMMERCE_VERSION=7;
+export const COMMERCE_VERSION=8;
 export const HOSPITALITY=[
  {id:'GC-RESTAURANT-001',name:'Lotus Siam · 泰国菜',type:'restaurant',entry:[245,-68],price:2600,staff:12},
  {id:'GC-RESTAURANT-002',name:'Bronze Garden · 花园中餐',type:'restaurant',entry:[290,-68],price:2800,staff:9},
@@ -89,14 +89,22 @@ export function initializeCommerce(w:LifeWorld){
   if(type==='tax')return i===0?'税务局主管':i%3===0?'税务审查员':i%3===1?'纳税服务专员':'政府会计';
   if(type==='museum')return i===0?'博物馆馆长':i%4===0?'策展人':i%4===1?'藏品维护员':i%4===2?'博物馆讲解员':'公共教育专员';
   if(type==='art-gallery')return i===0?'美术馆馆长':i%4===0?'当代艺术策展人':i%4===1?'艺术品维护员':i%4===2?'美术馆讲解员':'展览运营员';
+  if(type==='water')return i===0?'水务公司主管':i%5===0?'水处理操作员':i%5===1?'水质检验员':i%5===2?'供水管网维修员':i%5===3?'水务工程师':'水务调度员';
+  if(type==='wastewater')return i===0?'污水处理厂主管':i%5===0?'污水处理操作员':i%5===1?'环境检验员':i%5===2?'排水管网维修员':i%5===3?'污泥处理员':'设备维修技师';
+  if(type==='city-hall')return i===0?'市政厅行政主管':i%6===0?'城市规划师':i%6===1?'行政审批员':i%6===2?'民政服务专员':i%6===3?'政府采购专员':i%6===4?'市政档案员':'政务服务人员';
+  if(type==='court')return i===0?'法院行政主管':i%7===0?'法官':i%7===1?'检察官':i%7===2?'公设辩护人':i%7===3?'法庭书记员':i%7===4?'法警':i%7===5?'法律援助专员':'法院档案员';
+  if(type==='ems')return i===0?'急救中心主管':i%5===0?'急救调度员':i%5<3?'急救员':i%5===3?'救护车司机':'救护车维修技师';
+  if(type==='transport-authority')return i===0?'道路交通管理局主管':i%7===0?'道路养护工':i%7===1?'交通信号技师':i%7===2?'停车执法员':i%7===3?'拖车司机':i%7===4?'交通规划师':i%7===5?'桥梁巡检员':'道路调度员';
   return '';
  }
  // Services and individual shops get staffing first; office populations fill remaining capacity.
  const ordered=definitions.sort((a,b)=>Number(a.type==='office')-Number(b.type==='office'));
  for(const d of ordered){
-  const target=d.type==='hospital'?Math.min(d.jobCapacity,900):d.type==='school'?Math.min(d.jobCapacity,220):d.type==='police'?d.jobCapacity:d.type==='restaurant'?d.jobCapacity:d.type==='bank'?d.jobCapacity:d.type==='bar'||d.type==='nightclub'||d.type==='dry-cleaning'||d.type==='laundromat'?d.jobCapacity:d.type==='retail-shop'?2+hash(d.id)%5:d.type==='auto'?22:d.type==='office'?Math.min(d.jobCapacity,60+hash(d.id)%210):Math.min(d.jobCapacity,8+hash(d.id)%19);
+  const fullStaff=['water','wastewater','city-hall','court','ems','transport-authority'];
+  const target=d.type==='hospital'?Math.min(d.jobCapacity,900):d.type==='school'?Math.min(d.jobCapacity,220):fullStaff.includes(d.type)?d.jobCapacity:d.type==='police'?d.jobCapacity:d.type==='restaurant'?d.jobCapacity:d.type==='bank'?d.jobCapacity:d.type==='bar'||d.type==='nightclub'||d.type==='dry-cleaning'||d.type==='laundromat'?d.jobCapacity:d.type==='retail-shop'?2+hash(d.id)%5:d.type==='auto'?22:d.type==='office'?Math.min(d.jobCapacity,60+hash(d.id)%210):Math.min(d.jobCapacity,8+hash(d.id)%19);
   const requested=d.type==='office'?Math.min(target,Math.max(0,remaining.size-(ordered.length-ordered.indexOf(d)-1)*8)):d.type==='retail-shop'?target:Math.min(d.jobCapacity,remaining.size);
-  const b:Business=w.businesses[d.id]??={id:d.id,name:d.name,type:d.type,entry:d.entry as [number,number],...('floor' in d&&d.floor?{floor:d.floor}:{}),staffIds:[],managerId:null,ownerId:null,price:'price' in d?d.price:d.type==='restaurant'?2600:d.type==='retail-shop'?2500+(hash(d.id)%12)*1500:d.type==='auto'?8500:d.type==='hospital'?1800:0,open:['hotel','hospital','police'].includes(d.type)?0:d.type==='nightclub'?20:d.type==='bar'?17:d.type==='supermarket'?7:d.type==='cinema'?10:8,close:['hotel','hospital','police'].includes(d.type)?24:d.type==='nightclub'?4:d.type==='bar'?2:d.type==='cinema'?24:d.type==='supermarket'?23:22,cash:0,visits:0,revenue:0,workedHours:0,day:Math.floor(w.minute/1440),todayVisits:0,todayRevenue:0,unpaidWages:0};
+  const alwaysOpen=['hotel','hospital','police','water','wastewater','ems','transport-authority'];
+  const b:Business=w.businesses[d.id]??={id:d.id,name:d.name,type:d.type,entry:d.entry as [number,number],...('floor' in d&&d.floor?{floor:d.floor}:{}),staffIds:[],managerId:null,ownerId:null,price:'price' in d?d.price:d.type==='restaurant'?2600:d.type==='retail-shop'?2500+(hash(d.id)%12)*1500:d.type==='auto'?8500:d.type==='hospital'?1800:0,open:alwaysOpen.includes(d.type)?0:d.type==='nightclub'?20:d.type==='bar'?17:d.type==='supermarket'?7:d.type==='cinema'?10:8,close:alwaysOpen.includes(d.type)?24:d.type==='nightclub'?4:d.type==='bar'?2:d.type==='cinema'?24:d.type==='supermarket'?23:22,cash:0,visits:0,revenue:0,workedHours:0,day:Math.floor(w.minute/1440),todayVisits:0,todayRevenue:0,unpaidWages:0};
   b.name=d.name;b.type=d.type;b.entry=d.entry as [number,number];if('floor' in d&&d.floor)b.floor=d.floor;
   for(let i=0;i<requested&&remaining.size;i++){
    const wanted=role(d.type,i);
@@ -113,7 +121,7 @@ export function initializeCommerce(w:LifeWorld){
   }
   b.managerId=b.staffIds[0]||null;
   if(d.type==='restaurant')b.ownerId=b.managerId;
-  const funding=['hospital','police','school'].includes(b.type)?0:Math.min(w.treasury,b.staffIds.reduce((n,id)=>n+(w.residents.find(r=>r.id===id)?.wage||0)*16,0));
+  const funding=['hospital','police','school','water','wastewater','city-hall','court','ems','transport-authority'].includes(b.type)?0:Math.min(w.treasury,b.staffIds.reduce((n,id)=>n+(w.residents.find(r=>r.id===id)?.wage||0)*16,0));
   b.cash+=funding;w.treasury-=funding;
  }
  // Remaining professionals retain differentiated roles in office jobs, with no duplicate employment.
