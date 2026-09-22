@@ -40,6 +40,7 @@ import {
   garageLevelAt,
 } from '../world-client/mall-garage';
 import { CityPlan } from '../world-client/city-plan';
+import type { MetroStation } from '../world-client/metro-network';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls } from '@react-three/drei';
 import { useGLTF } from '@react-three/drei';
@@ -1006,6 +1007,16 @@ export function DistrictClient() {
         open={planOpen}
         onOpenChange={setPlanOpen}
         position={position}
+        onTeleport={(station: MetroStation) => {
+          const y = districtGroundHeight(station.x, station.z);
+          setDriving(false);
+          setWalking(true);
+          setWide(false);
+          setPosition([station.x, station.z]);
+          playerFloor.current = y;
+          setRelocation({ x: station.x, z: station.z, y, nonce: Date.now() });
+          setPlanOpen(false);
+        }}
       />
       <Localized><div className="district-status" aria-live="polite">
         {driving && walking

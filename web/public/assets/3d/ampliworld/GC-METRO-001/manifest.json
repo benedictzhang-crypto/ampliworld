@@ -1,0 +1,98 @@
+{
+  "id": "GC-METRO-001",
+  "units": "METERS",
+  "upAxis": "Y",
+  "assets": [
+    {
+      "file": "elevated-station.glb",
+      "bounds": {
+        "min": [
+          -27,
+          0,
+          -15
+        ],
+        "max": [
+          27,
+          17,
+          15
+        ]
+      },
+      "entrance": [
+        0,
+        0,
+        -14
+      ]
+    },
+    {
+      "file": "underground-station.glb",
+      "bounds": {
+        "min": [
+          -32,
+          -65,
+          -17
+        ],
+        "max": [
+          32,
+          7,
+          17
+        ]
+      },
+      "entrance": [
+        0,
+        0,
+        -64
+      ]
+    },
+    {
+      "file": "train.glb",
+      "bounds": {
+        "min": [
+          -14.5,
+          0,
+          -1.75
+        ],
+        "max": [
+          14.5,
+          4.1,
+          1.75
+        ]
+      },
+      "entrance": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "file": "portal-transition.glb",
+      "bounds": {
+        "min": [
+          -90,
+          -5,
+          -8
+        ],
+        "max": [
+          90,
+          6,
+          8
+        ]
+      },
+      "entrance": [
+        -90,
+        0,
+        0
+      ]
+    }
+  ],
+  "headwaySeconds": 180,
+  "dwellSeconds": 25,
+  "provenance": {
+    "type": "ORIGINAL_BLENDER_GEOMETRY",
+    "externalAssets": [],
+    "externalImages": []
+  },
+  "limitations": [
+    "The city ground has not yet been cut for underground station access.",
+    "Tracks, moving trains, boarding and elevator gameplay are not yet connected."
+  ]
+}

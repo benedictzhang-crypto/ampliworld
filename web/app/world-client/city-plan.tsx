@@ -18,6 +18,7 @@ import {
 } from './metropolitan-registry';
 import { SPORTS_STREETS } from './civic-registry';
 import { DISTRICT } from '../district/registry';
+import { METRO_STATIONS, type MetroStation } from './metro-network';
 import { COMMUNITIES, COMMUNITY_SURFACES, HOMES } from './community-registry';
 import {
   HOUSING_PLAN,
@@ -69,15 +70,18 @@ export function CityPlan({
   open,
   onOpenChange,
   position,
+  onTeleport,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   position: readonly number[];
+  onTeleport: (station: MetroStation) => void;
 }) {
   const [view, setView] = useState({ x: 0, z: 0, span: 32000 });
   const [selected, setSelected] = useState<(typeof compounds)[number] | null>(
     null,
   );
+  const [selectedStation, setSelectedStation] = useState<MetroStation | null>(null);
   const [showHomes, setShowHomes] = useState(true),
     [showRoads, setShowRoads] = useState(true);
   const drag = useRef<{ x: number; y: number } | null>(null),
@@ -164,7 +168,7 @@ export function CityPlan({
       <DialogContent className="city-plan-dialog">
         <DialogTitle>金庭城市平面图 · 20 × 30 km</DialogTitle>
         <DialogDescription>
-          真实场景坐标：小区边界、大门、主路、河道与桥梁。拖动平移，滚轮缩放；地图不会传送人物。
+          真实场景坐标：小区边界、大门、主路、河道与桥梁。拖动平移，滚轮缩放；传送点可供玩家快速旅行，不代表居民已经乘坐地铁。
           金色虚线表示三中心布局关系，不是道路；浅金色标识高价值地段，尚未设置售价。
         </DialogDescription>
         <div className="plan-tools">
@@ -380,6 +384,20 @@ export function CityPlan({
                   )}
                 </g>
               ))}
+            {METRO_STATIONS.filter((station) =>
+              Math.abs(station.x - view.x) < w / 2 + 100 &&
+              Math.abs(station.z - view.z) < view.span / 2 + 100,
+            ).map((station) => (
+              <g key={station.id} onClick={() => { setSelectedStation(station); setSelected(null); }} style={{ cursor: 'pointer' }}>
+                <circle cx={station.x} cy={station.z} r={Math.max(16, view.span / 220)}
+                  fill={station.mode === 'ELEVATED' ? '#365f96' : '#7049a3'}
+                  stroke="white" strokeWidth={Math.max(3, view.span / 2000)} />
+                <text x={station.x} y={station.z + Math.max(5, view.span / 800)}
+                  textAnchor="middle" fill="white" fontWeight="bold" fontSize={Math.max(13, view.span / 270)}>
+                  {station.id}
+                </text>
+              </g>
+            ))}
             {showRoads &&
               [...cbd.surfaces, ...SPORTS_STREETS.surfaces]
                 .filter((s) => s.y < 0.08)
@@ -634,6 +652,14 @@ export function CityPlan({
               <i style={{ background: '#f8e7b2' }} />
               28 座桥梁
             </div>
+            <div>
+              <i style={{ background: '#7049a3' }} />
+              地下站规划点
+            </div>
+            <div>
+              <i style={{ background: '#365f96' }} />
+              高架站规划点
+            </div>
             <hr />
             <p>
               47 个分级住宅小区 + 4 个新别墅小区
@@ -648,7 +674,16 @@ export function CityPlan({
               <br />
               橙点为当前人物位置
             </p>
-            {selected ? (
+            {selectedStation ? (
+              <section>
+                <h3>{selectedStation.id} · {selectedStation.name}</h3>
+                <p>{selectedStation.mode === 'UNDERGROUND' ? '地下站' : '高架站'} · 站址初步勘测</p>
+                <p>X {selectedStation.x} / Z {selectedStation.z} m</p>
+                <p>玩家传送点已开放；站厅、轨道、列车和居民乘降尚未建成，地图传送不计入居民交通。</p>
+                <Button onClick={() => setView({ x: selectedStation.x, z: selectedStation.z, span: 1200 })}>查看站址</Button>
+                <Button onClick={() => onTeleport(selectedStation)}>传送至此</Button>
+              </section>
+            ) : selected ? (
               <section>
                 <h3>{categories[selected.type]?.[0]}</h3>
                 <p className="plan-id">{selected.id}</p>

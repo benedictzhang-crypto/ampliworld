@@ -21,6 +21,7 @@
     "check:civic-assets": "node scripts/assets/check-civic-landmarks.mjs",
     "check:architecture": "node scripts/check-architecture.mjs",
     "check:map": "QA_MAP=1 node scripts/check-architecture.mjs",
+    "check:metric-metro": "node --import tsx scripts/check-metric-metro.mjs",
     "assets:residence": "RESIDENCE_OUTPUT_DIR=public/assets/3d/ampliworld/GC-RES-001 node scripts/assets/build-residence.mjs",
     "db:generate": "drizzle-kit generate"
   },
