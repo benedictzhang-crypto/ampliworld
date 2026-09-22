@@ -28,7 +28,7 @@ export const FACILITIES = [
   { id: 'drink', label: '公共饮水点', x: -10, z: 10, color: '#53c4dc' },
   { id: 'eat', label: '商场餐饮服务', x: 0, z: -96, color: '#edb673' },
   { id: 'work', label: '社区工作中心', x: 10, z: -12, color: '#8cbcae' },
-  { id: 'hospital', label: '社区医疗服务点', x: -10, z: -12, color: '#ee9393' },
+  { id: 'hospital', label: 'Meridian University Medical Center', x: 3000, z: 4446, color: '#ee9393' },
   { id: 'leisure', label: '街心休闲区', x: 10, z: 12, color: '#d4a4de' },
   { id: 'travel', label: '体育公园出游点', x: 10, z: 100, color: '#87cba2' },
   { id: 'bank', label: '银行服务点', x: -10, z: 12, color: '#d8c989' },

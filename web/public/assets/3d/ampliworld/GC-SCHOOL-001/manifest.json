@@ -1,0 +1,214 @@
+{
+  "id": "GC-SCHOOL-001",
+  "name": "AmpliWorld Academy Campus",
+  "file": "model.glb",
+  "units": "METERS",
+  "upAxis": "Y",
+  "bounds": {
+    "min": [
+      -140,
+      -0.06000002101063728,
+      -112.62000274658203
+    ],
+    "max": [
+      140,
+      30.899999618530273,
+      112.62000274658203
+    ]
+  },
+  "colliders": [
+    {
+      "id": "gatehouse-0",
+      "min": [
+        -125,
+        0,
+        65.5
+      ],
+      "max": [
+        -107,
+        6.8,
+        78.5
+      ]
+    },
+    {
+      "id": "teaching-south-1",
+      "min": [
+        -96,
+        0,
+        17
+      ],
+      "max": [
+        20,
+        24,
+        51
+      ]
+    },
+    {
+      "id": "teaching-west-2",
+      "min": [
+        -96,
+        0,
+        -54
+      ],
+      "max": [
+        -64,
+        30,
+        18
+      ]
+    },
+    {
+      "id": "teaching-east-3",
+      "min": [
+        -12,
+        0,
+        -54
+      ],
+      "max": [
+        20,
+        30,
+        18
+      ]
+    },
+    {
+      "id": "library-4",
+      "min": [
+        -64,
+        12,
+        -62
+      ],
+      "max": [
+        -12,
+        24,
+        -42
+      ]
+    },
+    {
+      "id": "gymnasium-5",
+      "min": [
+        35,
+        0,
+        -66
+      ],
+      "max": [
+        121,
+        20,
+        -4
+      ]
+    },
+    {
+      "id": "school-service-6",
+      "min": [
+        97,
+        0,
+        -81
+      ],
+      "max": [
+        121,
+        14,
+        -63
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "academy-campus",
+      "min": [
+        -140,
+        -112.5
+      ],
+      "max": [
+        140,
+        112.5
+      ],
+      "y": 0.12
+    },
+    {
+      "id": "school-arrival",
+      "min": [
+        -127,
+        79
+      ],
+      "max": [
+        127,
+        105
+      ],
+      "y": 0.16
+    },
+    {
+      "id": "school-bus-loop",
+      "min": [
+        81,
+        24
+      ],
+      "max": [
+        115,
+        92
+      ],
+      "y": 0.16
+    },
+    {
+      "id": "academic-courtyard",
+      "min": [
+        -62,
+        -42
+      ],
+      "max": [
+        -14,
+        10
+      ],
+      "y": 0.18
+    },
+    {
+      "id": "athletics-field",
+      "min": [
+        -57,
+        -108
+      ],
+      "max": [
+        133,
+        -68
+      ],
+      "y": 0.4
+    }
+  ],
+  "triangles": 8696,
+  "bytes": 286664,
+  "provenance": {
+    "type": "ORIGINAL_PROCEDURAL_GEOMETRY",
+    "externalAssets": [],
+    "externalImages": [],
+    "license": "Project-original"
+  },
+  "category": "SCHOOL_CAMPUS",
+  "entrances": {
+    "main": [
+      -80,
+      0,
+      78
+    ],
+    "bus": [
+      98,
+      0,
+      78
+    ],
+    "service": [
+      109,
+      0,
+      -62
+    ]
+  },
+  "programme": {
+    "studentCapacity": 1800,
+    "classrooms": 54,
+    "library": true,
+    "gymnasium": true,
+    "performingArts": true,
+    "playingField": true,
+    "busBays": 6
+  },
+  "staffCapacity": 240,
+  "limitations": [
+    "Classrooms and specialist rooms are represented by the architectural shell; detailed interior furnishings are future assets.",
+    "School buses are static world props pending scheduled transport simulation."
+  ]
+}

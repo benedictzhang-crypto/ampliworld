@@ -1,0 +1,228 @@
+{
+  "id": "GC-HOSPITAL-001",
+  "name": "Meridian University Medical Center",
+  "file": "model.glb",
+  "units": "METERS",
+  "upAxis": "Y",
+  "bounds": {
+    "min": [
+      -130,
+      -0.08796539157629013,
+      -95
+    ],
+    "max": [
+      130,
+      88.05999755859375,
+      95
+    ]
+  },
+  "colliders": [
+    {
+      "id": "outpatient-podium-0",
+      "min": [
+        -93,
+        0,
+        -9
+      ],
+      "max": [
+        49,
+        22,
+        45
+      ]
+    },
+    {
+      "id": "lobby-door-1",
+      "min": [
+        -45.5,
+        0.3999999999999999,
+        45.05
+      ],
+      "max": [
+        -38.5,
+        7.4,
+        45.75
+      ]
+    },
+    {
+      "id": "lobby-door-2",
+      "min": [
+        -25.5,
+        0.3999999999999999,
+        45.05
+      ],
+      "max": [
+        -18.5,
+        7.4,
+        45.75
+      ]
+    },
+    {
+      "id": "lobby-door-3",
+      "min": [
+        -5.5,
+        0.3999999999999999,
+        45.05
+      ],
+      "max": [
+        1.5,
+        7.4,
+        45.75
+      ]
+    },
+    {
+      "id": "inpatient-west-4",
+      "min": [
+        -90,
+        0,
+        -46
+      ],
+      "max": [
+        -36,
+        84,
+        -2
+      ]
+    },
+    {
+      "id": "inpatient-east-5",
+      "min": [
+        -20,
+        0,
+        -48
+      ],
+      "max": [
+        38,
+        72,
+        -2
+      ]
+    },
+    {
+      "id": "emergency-wing-6",
+      "min": [
+        44,
+        0,
+        3
+      ],
+      "max": [
+        96,
+        14,
+        45
+      ]
+    },
+    {
+      "id": "parking-deck-7",
+      "min": [
+        45,
+        0,
+        -76
+      ],
+      "max": [
+        113,
+        20,
+        -22
+      ]
+    },
+    {
+      "id": "central-plant-8",
+      "min": [
+        97,
+        0,
+        -64
+      ],
+      "max": [
+        119,
+        14,
+        -44
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "medical-campus",
+      "min": [
+        -130,
+        -95
+      ],
+      "max": [
+        130,
+        95
+      ],
+      "y": 0.12
+    },
+    {
+      "id": "emergency-loop",
+      "min": [
+        -117,
+        -81.5
+      ],
+      "max": [
+        117,
+        -58.5
+      ],
+      "y": 0.16
+    },
+    {
+      "id": "service-road",
+      "min": [
+        94,
+        -73.5
+      ],
+      "max": [
+        116,
+        81.5
+      ],
+      "y": 0.16
+    },
+    {
+      "id": "healing-garden",
+      "min": [
+        -111,
+        56
+      ],
+      "max": [
+        -41,
+        82
+      ],
+      "y": 0.28
+    }
+  ],
+  "triangles": 9828,
+  "bytes": 462256,
+  "provenance": {
+    "type": "ORIGINAL_PROCEDURAL_GEOMETRY",
+    "externalAssets": [],
+    "externalImages": [],
+    "license": "Project-original"
+  },
+  "category": "HOSPITAL_CAMPUS",
+  "entrances": {
+    "main": [
+      -22,
+      0,
+      46
+    ],
+    "emergency": [
+      70,
+      0,
+      46
+    ],
+    "service": [
+      108,
+      0,
+      -42
+    ]
+  },
+  "programme": {
+    "outpatient": true,
+    "emergency": true,
+    "inpatientBeds": 520,
+    "operatingTheatres": 12,
+    "helipad": 1,
+    "ambulanceBays": 4,
+    "parkingSpaces": 460
+  },
+  "staffCapacity": 1250,
+  "limitations": [
+    "Clinical rooms are represented by a structural campus shell; department interiors and medical equipment are future assets.",
+    "Ambulances are static world props pending fleet simulation."
+  ]
+}

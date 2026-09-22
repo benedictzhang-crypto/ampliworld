@@ -3,7 +3,7 @@ import {monthlySalaryCents} from './housing-finance';
 import type {LifeWorld,Resident} from './engine';
 import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from '../world-client/retail-registry';
 import {SERVICE_SITES,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS,CITY_OPERATION_SITES} from './city-service-plan';
-export const COMMERCE_VERSION=5;
+export const COMMERCE_VERSION=6;
 export const HOSPITALITY=[
  {id:'GC-RESTAURANT-001',name:'Lotus Siam · 泰国菜',type:'restaurant',entry:[245,-68],price:2600,staff:12},
  {id:'GC-RESTAURANT-002',name:'Bronze Garden · 花园中餐',type:'restaurant',entry:[290,-68],price:2800,staff:9},
@@ -16,9 +16,9 @@ const hash=(s:string)=>[...s].reduce((n,c)=>(Math.imul(n,31)+c.charCodeAt(0))>>>
 export function initializeCommerce(w:LifeWorld){
  if(w.commerceVersion===COMMERCE_VERSION&&w.businesses)return;
  const definitions=[
-  {id:'SERVICE-clinic',name:'社区医院诊疗中心',type:'hospital',entry:[-10,-16],jobCapacity:54},
+  {id:'SERVICE-clinic',name:'Meridian University Medical Center',type:'hospital',entry:[3000,4446],jobCapacity:1250},
   {id:'SERVICE-precinct',name:'CBD 警务服务站',type:'police',entry:[10,28],jobCapacity:32},
-  {id:'SERVICE-school',name:'社区学院',type:'school',entry:[-10,26],jobCapacity:62},
+  {id:'SERVICE-school',name:'AmpliWorld Academy Campus',type:'school',entry:[3570,4678],jobCapacity:240},
   ...HOSPITALITY.map(b=>({...b,jobCapacity:b.staff})),
   ...RETAIL_CAMPUSES.map(s=>({id:s.id,name:s.name,type:'supermarket',entry:[s.x,s.z] as [number,number],price:s.kind==='premium-grocery'?5200:s.kind==='warehouse-club'?9800:3600,jobCapacity:s.staff})),
   ...CITY_CINEMAS.map(s=>({id:s.id,name:s.name,type:'cinema',entry:[s.x,s.z] as [number,number],price:2200,jobCapacity:s.staff})),
@@ -33,9 +33,15 @@ export function initializeCommerce(w:LifeWorld){
  const adults=w.residents.filter(r=>(r.identity?.age||0)>=18&&r.wage>0).sort((a,b)=>hash(a.id)-hash(b.id));
  const remaining=new Set(adults.map(r=>r.id));
  function role(type:string,i:number):string{
-  if(type==='hospital')return i===0?'医院行政主管':i<13?'医生':i<39?'护士':i<47?'药剂师':'医院前台';
+  if(type==='hospital'){
+   const n=i%100;
+   return i===0?'医院行政主管':n<22?'医生':n<64?'护士':n<72?'医学检验技师':n<78?'影像技师':n<83?'急救员':n<87?'药剂师':n<91?'康复治疗师':n<94?'医院前台':n<97?'医院后勤人员':'医院保安';
+  }
   if(type==='police')return i===0?'警务主管':i<25?'警员':'警务文员';
-  if(type==='school')return i<42?'教师':i<50?'图书管理员':'行政助理';
+  if(type==='school'){
+   const n=i%100;
+   return i===0?'校长':n<62?'教师':n<68?'教学助理':n<72?'学校心理辅导员':n<76?'图书管理员':n<82?'学校行政人员':n<88?'校园餐饮员工':n<94?'校园保洁员':'校园保安';
+  }
   if(type==='restaurant')return i===0?'餐厅经营者':i%3===0?'厨师':i%3===1?'服务员':'收银员';
   if(type==='hotel')return i===0?'酒店经理':i%4===0?'客房保洁员':i%4===1?'酒店前台':i%4===2?'礼宾员':'服务员';
   if(type==='auto')return i===0?'汽车中心经理':i%3===0?'维修技师':'汽车销售顾问';
@@ -72,7 +78,7 @@ export function initializeCommerce(w:LifeWorld){
  // Services and individual shops get staffing first; office populations fill remaining capacity.
  const ordered=definitions.sort((a,b)=>Number(a.type==='office')-Number(b.type==='office'));
  for(const d of ordered){
-  const target=d.type==='retail-shop'?2+hash(d.id)%5:d.type==='restaurant'?12:d.type==='auto'?22:d.type==='office'?Math.min(d.jobCapacity,60+hash(d.id)%210):Math.min(d.jobCapacity,8+hash(d.id)%19);
+  const target=d.type==='hospital'?Math.min(d.jobCapacity,900):d.type==='school'?Math.min(d.jobCapacity,220):d.type==='retail-shop'?2+hash(d.id)%5:d.type==='restaurant'?12:d.type==='auto'?22:d.type==='office'?Math.min(d.jobCapacity,60+hash(d.id)%210):Math.min(d.jobCapacity,8+hash(d.id)%19);
   const requested=d.type==='office'?Math.min(target,Math.max(0,remaining.size-(ordered.length-ordered.indexOf(d)-1)*8)):d.type==='retail-shop'?target:Math.min(d.jobCapacity,remaining.size);
   const b:Business=w.businesses[d.id]??={id:d.id,name:d.name,type:d.type,entry:d.entry as [number,number],...('floor' in d&&d.floor?{floor:d.floor}:{}),staffIds:[],managerId:null,ownerId:null,price:'price' in d?d.price:d.type==='restaurant'?2600:d.type==='retail-shop'?2500+(hash(d.id)%12)*1500:d.type==='auto'?8500:d.type==='hospital'?1800:0,open:['hotel','hospital','police'].includes(d.type)?0:d.type==='supermarket'?7:d.type==='cinema'?10:8,close:['hotel','hospital','police'].includes(d.type)?24:d.type==='cinema'?24:d.type==='supermarket'?23:22,cash:0,visits:0,revenue:0,workedHours:0,day:Math.floor(w.minute/1440),todayVisits:0,todayRevenue:0,unpaidWages:0};
   b.name=d.name;b.type=d.type;b.entry=d.entry as [number,number];if('floor' in d&&d.floor)b.floor=d.floor;

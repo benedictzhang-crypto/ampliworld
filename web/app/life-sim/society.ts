@@ -100,13 +100,13 @@ export const VENUES = [
   },
   {
     id: 'clinic',
-    name: '社区诊疗中心',
+    name: 'Meridian University Medical Center',
     kind: '医疗',
     price: 1800,
-    x: -10,
-    z: -16,
+    x: 3000,
+    z: 4446,
   },
-  { id: 'school', name: '学院服务点', kind: '教育', price: 0, x: -10, z: 26 },
+  { id: 'school', name: 'AmpliWorld Academy Campus', kind: '教育', price: 0, x: 3570, z: 4678 },
   {
     id: 'precinct',
     name: '警务服务点',

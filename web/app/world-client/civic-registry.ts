@@ -14,11 +14,15 @@ import sculptedHomes from '../../public/assets/3d/ampliworld/GC-CBD-RESIDENCES-0
 import airport from '../../public/assets/3d/ampliworld/GC-AIRPORT-001/manifest.json';
 import hsr1 from '../../public/assets/3d/ampliworld/GC-HSR-001/manifest.json';
 import hsr2 from '../../public/assets/3d/ampliworld/GC-HSR-002/manifest.json';
+import hospital from '../../public/assets/3d/ampliworld/GC-HOSPITAL-001/manifest.json';
+import school from '../../public/assets/3d/ampliworld/GC-SCHOOL-001/manifest.json';
 
 export const CIVIC_PLACES = [
   {id:'GC-AIRPORT-001',name:'AmpliWorld International Airport',x:8800,z:11800,file:'model.glb',manifest:airport},
   {id:'GC-HSR-001',name:'Grand Central High-Speed Rail',x:1600,z:500,file:'model.glb',manifest:hsr1},
   {id:'GC-HSR-002',name:'East City High-Speed Rail',x:5900,z:3900,file:'model.glb',manifest:hsr2},
+  {id:'GC-HOSPITAL-001',name:'Meridian University Medical Center',x:3000,z:4400,file:'model.glb',manifest:hospital},
+  {id:'GC-SCHOOL-001',name:'AmpliWorld Academy Campus',x:3650,z:4600,file:'model.glb',manifest:school},
   {id:'GC-CBD-RESIDENCES-001',name:'云庭曲廊 · 五栋露台公馆',x:535,z:-250,file:'residences.glb',manifest:sculptedHomes},
   {id:'GC-NAILS-01',assetId:'GC-SALON-001',name:'青庭 Nail Atelier',x:-1100,z:1000,file:'model.glb',manifest:salon},
   {id:'GC-NAILS-02',assetId:'GC-SALON-001',name:'东城 Luma Nails',x:5350,z:3350,file:'model.glb',manifest:salon},
