@@ -124,6 +124,28 @@ try {
     assert.notEqual(after.box, before.box, 'Wheel changes the city map viewBox');
     assert.equal(after.scroll, before.scroll, 'Map wheel does not scroll the page');
     assert.equal(after.scale, before.scale, 'Map wheel does not zoom the browser page');
+    if (process.env.QA_METRO === '1') {
+      const markerClicked = await evaluate("(()=>{const label=Array.from(document.querySelectorAll('svg.city-plan-map g text')).find(t=>t.textContent==='M04');label?.parentElement?.dispatchEvent(new MouseEvent('click',{bubbles:true}));return !!label})()");
+      await wait(100);
+      const stationSelected = markerClicked && await evaluate("Array.from(document.querySelectorAll('h3')).some(h=>h.textContent?.includes('M04'))");
+      assert.ok(stationSelected, 'M04 can be selected on the city map');
+      const teleported = await evaluate("(()=>{const button=Array.from(document.querySelectorAll('button')).find(b=>b.textContent?.includes('传送至此'));button?.click();return !!button})()");
+      assert.ok(teleported, 'Map offers a metro entrance teleport');
+      let player;
+      for (let i = 0; i < 100; i++) {
+        player = await evaluate("JSON.parse(document.querySelector('canvas')?.dataset.player||'{}')");
+        if (Math.abs(player?.x - 3380) < 2 && Math.abs(player?.z - 4418) < 2) break;
+        await wait(100);
+      }
+      assert.ok(Math.abs(player?.x - 3380) < 2 && Math.abs(player?.z - 4418) < 2,
+        `Metro teleport missed the M04 entrance: ${JSON.stringify(player)}`);
+      await wait(800);
+      const screenshot = await send('Page.captureScreenshot', { format: 'png' });
+      writeFileSync(join(temp, 'metro-M04-entrance.png'), Buffer.from(screenshot.data, 'base64'));
+      assert.equal(exceptions.length, 0, exceptions.join('\n'));
+      console.log(JSON.stringify({ status: 'passed', scenario: 'metro-entrance-teleport', player, screenshots: temp }));
+      socket.close(); chrome.kill('SIGTERM'); clearTimeout(timeout); process.exit(0);
+    }
     assert.equal(exceptions.length, 0, exceptions.join('\n'));
     console.log(JSON.stringify({ status: 'passed', scenario: 'active-city-map', before: before.box, after: after.box }));
     socket.close(); chrome.kill('SIGTERM'); clearTimeout(timeout); process.exit(0);

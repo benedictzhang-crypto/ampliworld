@@ -6,6 +6,7 @@ import { communityGroundHeight } from '../world-client/community-registry';
 import { metropolitanGroundHeight } from '../world-client/metropolitan-registry';
 import { garageGroundHeight } from '../world-client/mall-garage';
 import { housingGroundHeight } from '../world-client/housing-registry';
+import { metroGroundHeight } from '../world-client/metro-surface';
 import mallInterior from '../../public/assets/3d/ampliworld/GC-MALL-002/mall-manifest.json';
 import {escalatorHeight} from '../world-client/mall-escalators.mjs';
 // New metre-space block. City origin and asset transforms are data, not mesh JSX.
@@ -81,6 +82,8 @@ export const DISTRICT = {
 
 // Surface heights from the exported street kit, not a flat offset above every surface.
 export function districtGroundHeight(x: number, z: number, currentY = 0) {
+  const metroY = metroGroundHeight(x, z, currentY);
+  if (metroY !== undefined) return metroY;
   const movingFloor=escalatorHeight(x,z+188,currentY);
   if(movingFloor!==undefined)return movingFloor;
   if (currentY >= -.5 && Math.abs(x) <= 112.5 && Math.abs(z+188) <= 90) {

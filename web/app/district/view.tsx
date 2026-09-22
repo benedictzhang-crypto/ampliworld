@@ -41,6 +41,8 @@ import {
 } from '../world-client/mall-garage';
 import { CityPlan } from '../world-client/city-plan';
 import type { MetroStation } from '../world-client/metro-network';
+import { MetroPlaces } from '../world-client/metro-places';
+import { METRO_PIER_COLLIDERS } from '../world-client/metro-surface';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls } from '@react-three/drei';
 import { useGLTF } from '@react-three/drei';
@@ -492,6 +494,7 @@ export function DistrictClient() {
         ...METROPOLITAN_COLLIDERS,
         ...CITY_SERVICE_COLLIDERS,
         ...CITY_OPERATION_COLLIDERS,
+        ...METRO_PIER_COLLIDERS,
       ].map(
         (c) =>
           new Box3(
@@ -688,6 +691,9 @@ export function DistrictClient() {
                 />
                 <Communities />
                 <MetropolitanPlaces />
+                <Suspense fallback={null}>
+                  <MetroPlaces x={housingX} z={housingZ} />
+                </Suspense>
                 <CityOperations />
                 <CityServiceBuildings />
                 <HousingWorld x={housingX} z={housingZ} open={openGates} />
@@ -1008,13 +1014,13 @@ export function DistrictClient() {
         onOpenChange={setPlanOpen}
         position={position}
         onTeleport={(station: MetroStation) => {
-          const y = districtGroundHeight(station.x, station.z);
+          const y = districtGroundHeight(station.arrivalX, station.arrivalZ);
           setDriving(false);
           setWalking(true);
           setWide(false);
-          setPosition([station.x, station.z]);
+          setPosition([station.arrivalX, station.arrivalZ]);
           playerFloor.current = y;
-          setRelocation({ x: station.x, z: station.z, y, nonce: Date.now() });
+          setRelocation({ x: station.arrivalX, z: station.arrivalZ, y, nonce: Date.now() });
           setPlanOpen(false);
         }}
       />

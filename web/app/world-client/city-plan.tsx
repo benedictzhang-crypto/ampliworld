@@ -677,9 +677,9 @@ export function CityPlan({
             {selectedStation ? (
               <section>
                 <h3>{selectedStation.id} · {selectedStation.name}</h3>
-                <p>{selectedStation.mode === 'UNDERGROUND' ? '地下站' : '高架站'} · 站址初步勘测</p>
+                <p>{selectedStation.mode === 'UNDERGROUND' ? '地下站' : '高架站'} · {selectedStation.mode === 'ELEVATED' ? '站体外观试建' : '站址初步勘测'}</p>
                 <p>X {selectedStation.x} / Z {selectedStation.z} m</p>
-                <p>玩家传送点已开放；站厅、轨道、列车和居民乘降尚未建成，地图传送不计入居民交通。</p>
+                <p>玩家可传送至站门口。高架站体已加入城市；轨道贯通、列车运行和居民乘降尚未建成，地图传送不计入居民交通。</p>
                 <Button onClick={() => setView({ x: selectedStation.x, z: selectedStation.z, span: 1200 })}>查看站址</Button>
                 <Button onClick={() => onTeleport(selectedStation)}>传送至此</Button>
               </section>

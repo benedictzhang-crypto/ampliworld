@@ -121,7 +121,7 @@ def metro_sign(name, x, y, z):
 
 
 def elevated_station():
-    block("Station forecourt", (0, 0, .15), (54, 30, .3), "limestone", .22)
+    block("Station forecourt", (0, 0, .12), (54, 42, .24), "limestone", .10)
     for x in (-20, -7, 7, 20):
         for y in (-6, 6):
             cylinder("Concrete viaduct pier", (x, y, 5.6), .75, 11.2, "concrete")
@@ -140,8 +140,8 @@ def elevated_station():
     for x in range(-22, 23, 4):
         block("Linear canopy luminaire", (x, 0, 16.0), (2.4, 7.5, .08), "light", .04)
     elevator("Public glass elevator", 19, -11, 12.3)
-    escalator("Up escalator", -12, -13, .4, -2, 11.9)
-    escalator("Down escalator", -8, -13, .4, -2, 11.9)
+    escalator("Up escalator", -12, -17.5, .4, 2.5, 11.9)
+    escalator("Down escalator", -8, -17.5, .4, 2.5, 11.9)
     for x in (-22, 22):
         metro_sign("Elevated station identity", x, -7.8, 14.15)
     for x in (-5, -3, -1, 1, 3, 5):
@@ -256,7 +256,7 @@ def portal_transition():
 
 
 JOBS = [
-    ("elevated-station", elevated_station, [-27, 0, -15], [27, 17, 15], [0, 0, -14]),
+    ("elevated-station", elevated_station, [-27, 0, -21], [27, 17, 21], [0, 0, 18]),
     ("underground-station", underground_station, [-32, -65, -17], [32, 7, 17], [0, 0, -64]),
     ("train", train, [-14.5, 0, -1.75], [14.5, 4.1, 1.75], [0, 0, 0]),
     ("portal-transition", portal_transition, [-90, -5, -8], [90, 6, 8], [-90, 0, 0]),
