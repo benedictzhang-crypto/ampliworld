@@ -14,7 +14,10 @@ export type WellbeingScores={happiness:number;mood:number;stressManagement:numbe
 const cap=(value:number)=>Math.max(0,Math.min(100,value));
 // Internal synthetic neutral-day calibration, not population-survey estimates.
 const ROUTINE_MOOD_BUFFER=10;
-const ROUTINE_STRESS_LOAD=9;
+// Active city routines include obligations/commutes as well as restorative
+// actions. Isolated no-activity tests use zero load and return to the person's
+// setpoint; public shocks enter separately through eventPressure.
+export const ACTIVE_CITY_STRESS_LOAD=18;
 
 /** Individual setpoints create population stability without fixing the population mean. */
 export function wellbeingFor(resident:Resident):WellbeingState{
@@ -43,10 +46,10 @@ export function addMood(resident:Resident,change:number):void{
   state.mood=cap(state.mood+change);
 }
 /** Each five-minute step: temporary joy fades; persistent circumstances may shift the equilibrium. */
-export function updateWellbeing(resident:Resident):void{
+export function updateWellbeing(resident:Resident,routineStressLoad=0):void{
   const state=wellbeingFor(resident);
   const needPressure=Math.max(0,35-resident.water)*.09+Math.max(0,35-resident.nutrition)*.09+Math.max(0,30-resident.energy)*.06;
-  const stressTarget=cap(state.stressSetpoint+ROUTINE_STRESS_LOAD+state.eventPressure*.9+needPressure);
+  const stressTarget=cap(state.stressSetpoint+routineStressLoad+state.eventPressure*.9+needPressure);
   resident.stress=cap(resident.stress+(stressTarget-resident.stress)*.002);
   const happinessTarget=cap(state.happinessSetpoint-state.eventPressure-Math.max(0,resident.stress-state.stressSetpoint)*.2);
   resident.happiness=cap(resident.happiness+(happinessTarget-resident.happiness)*.002);

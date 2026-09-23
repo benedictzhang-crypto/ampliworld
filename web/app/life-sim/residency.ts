@@ -23,6 +23,9 @@ export function bindResidency(w:LifeWorld){
   ];
   const jobs=[...plannedJobs,...catalog.employers].map(e=>({...e,filled:0}));
   for(const r of w.residents){
+    // Fresh worlds staff their real business registry first. Do not replace
+    // those jobs with an unrelated provisional venue before housing is priced.
+    if(r.employment)continue;
     const monthly=monthlySalaryCents(r.job,r.identity!.age,!!r.identity!.workplace);
     if(!monthly)continue;
     const serviceId=/医生|护士|药剂|康复/.test(r.job)?'clinic':/教师|老师|图书|实验室/.test(r.job)?'school':/警员|消防员/.test(r.job)?'precinct':/银行/.test(r.job)?'bank':null;
@@ -41,15 +44,20 @@ export function bindResidency(w:LifeWorld){
   // At the 30k operating census use the declared physical unit capacity, not
   // the earlier 3k pilot's sampled household count.
   const slots=catalog.homes.flatMap(h=>Array.from({length:h.unitCapacity},(_,i)=>({home:h,unit:i+1}))).sort((a,b)=>b.home.valueCents-a.home.valueCents||a.home.id.localeCompare(b.home.id)||a.unit-b.unit);
-  const wealth=(members:Resident[])=>Math.max(...members.filter(r=>r.identity!.age>=18).map(r=>Math.max(0,(r.profile?.nonCashAssets||0)-(r.profile?.debt||0))));
+  const wealth=(members:Resident[])=>members.reduce((total,r)=>total+Math.max(0,r.cash+r.savings+(r.profile?.nonCashAssets||0)-(r.profile?.debt||0)),0);
   const ordered=[...families.entries()].sort((a,b)=>wealth(b[1])-wealth(a[1])||a[0].localeCompare(b[0]));
   if(ordered.length>slots.length)throw new Error('Insufficient housing capacity');
   w.housing??={};
   ordered.forEach(([familyId,members])=>{
     const candidate=members.filter(r=>r.identity!.age>=18).sort((a,b)=>(b.profile?.nonCashAssets||0)-(b.profile?.debt||0)-((a.profile?.nonCashAssets||0)-(a.profile?.debt||0))||a.id.localeCompare(b.id))[0];
     const income=members.reduce((n,r)=>n+(r.employment?.monthlyGrossCents||0),0),equity=Math.max(0,(candidate?.profile?.nonCashAssets||0)-(candidate?.profile?.debt||0));
-    const affordableIndex=slots.findIndex(s=>s.home.valueCents<=equity*5&&monthlyMortgagePaymentCents(Math.max(0,s.home.valueCents-equity))<=income*.35);
-    const {home,unit}=slots.splice(affordableIndex<0?0:affordableIndex,1)[0],unitId=home.id+'/unit-'+String(unit).padStart(3,'0');
+    const affordableOwner=slots.findIndex(s=>s.home.valueCents<=equity*5&&monthlyMortgagePaymentCents(Math.max(0,s.home.valueCents-equity))<=income*.35);
+    const affordableRenter=affordableOwner<0?slots.findIndex(s=>Math.round(s.home.valueCents*.003)<=income*.35):-1;
+    // If a household cannot afford any market unit, place it in the cheapest
+    // remaining home. The housing ledger then explicitly records capped rent;
+    // never hand an unaffordable household the most expensive vacant unit.
+    const slotIndex=affordableOwner>=0?affordableOwner:affordableRenter>=0?affordableRenter:slots.length-1;
+    const {home,unit}=slots.splice(slotIndex,1)[0],unitId=home.id+'/unit-'+String(unit).padStart(3,'0');
     // An owner's housing equity is a classification of existing wealth, never new cash/assets.
     const ledger=createOpeningHousing({familyId,unitId,members:members.map(r=>({id:r.id,age:r.identity!.age,monthlyGrossIncomeCents:r.employment?.monthlyGrossCents||0})),propertyValueCents:home.valueCents,startingHousingWealthCents:Math.max(0,(candidate?.profile?.nonCashAssets||0)-(candidate?.profile?.debt||0))});
     if(ledger.tenure==='owner')ledger.ownerResidentId=candidate.id;

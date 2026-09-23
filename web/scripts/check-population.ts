@@ -30,7 +30,7 @@ for (const group of WEALTH_REFERENCE.groups) {
   assert.equal(members.length, group.people*CENSUS_SIZE/100);
   assert.equal(
     members.reduce((n, r) => n + residentNetWorth(r, world.minute), 0),
-    (WEALTH_REFERENCE.scenarioTotalCents * group.share) / 100,
+    Math.round((WEALTH_REFERENCE.scenarioTotalCents * group.share) / 100),
   );
 }
 const legacy = structuredClone(world);

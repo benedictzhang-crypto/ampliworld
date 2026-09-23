@@ -15,7 +15,7 @@ import {MIN_HOURLY_WAGE_CENTS} from './housing-finance';
 import type {MarketState} from './market-feed';
 import {searchStockOpportunity} from './investor-policy';
 import {ageAdaptivePolicy,learnExperience,policyFor,type AdaptivePolicy} from './adaptive-policy';
-import {addMood,ageWellbeing,updateWellbeing,wellbeingFor,type WellbeingState} from './wellbeing';
+import {ACTIVE_CITY_STRESS_LOAD,addMood,ageWellbeing,updateWellbeing,wellbeingFor,type WellbeingState} from './wellbeing';
 import type {WellbeingScores} from './wellbeing';
 import {canOfferPaidHour,recordPayrollHour,settlePayrollArrears,type PayrollLedger} from './payroll';
 import {BASE_FOOD_PRICES,residentFoodBasket,type FoodPrices} from './food-choice';
@@ -218,8 +218,8 @@ export function createLifeWorld(): LifeWorld {
     w.treasury+=excess;
     r.profile=profileAt(i,r.cash+r.savings,CENSUS_SIZE);
   }
-  bindResidency(w);
   initializeCommerce(w);
+  bindResidency(w);
   expandRegionalServices(w);
   correctOpeningLiquidity(w);
   initializeHousingPayments(w);
@@ -719,7 +719,7 @@ export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
       r.water = cap(r.water - 0.32);
       r.nutrition = cap(r.nutrition - 0.48);
       r.energy = cap(r.energy - 0.13);
-      updateWellbeing(r);
+      updateWellbeing(r,ACTIVE_CITY_STRESS_LOAD);
       r.health=cap(r.health-.002);
       if (r.water < 12 || r.nutrition < 12) r.health = cap(r.health - 0.12);
       if (!r.remaining) start(w, r);

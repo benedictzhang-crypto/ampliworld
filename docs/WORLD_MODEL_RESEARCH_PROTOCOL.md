@@ -31,6 +31,16 @@ and report uncertainty rather than output a single persuasive story.
 
 - 30,000 persistent synthetic resident records. Client rendering shows a
   spatial sample; this does **not** mean 30,000 simultaneous LLM calls.
+- The revised opening seed now allocates socioeconomic cohorts by household,
+  uses a synthetic partial income/age association, and selects housing by
+  ownership or market-rent affordability. It preserves previously saved
+  worlds rather than silently rewriting their people, jobs or properties.
+  `npm run check:population-consistency` audits the bootstrap and role-to-firm
+  assignments. Its remaining subsidized placements and unmodeled transport
+  operators are explicit research gaps, not hidden successes.
+  A revised 30-day no-news test ends at happiness 60.25 (59.5 initially),
+  mood 68.66 (69.5), stress 32.58 (33.0) and mental health 62.02 (64.93).
+  The last measure still drifts down and should not be called calibrated.
 - Each resident now has a bounded stress state alongside health, hydration,
   nutrition, energy and happiness. Work and wages, rest, fruit, meal quality,
   household conflict/support, price shocks and held-stock gains/losses change
@@ -81,10 +91,10 @@ and report uncertainty rather than output a single persuasive story.
   maintenance employers still lack modeled customers/contracts; suppressing
   unfunded shifts is not evidence that their workers are productively employed.
   `npm run check:firm-funding` is the seven-day sector and conservation gate.
-  Its first run paid 97.72% of accrued wages but logged 37,007
+  Its revised-population run paid 97.64% of accrued wages but logged 36,261
   underemployed resident-days; office firms generated zero modeled sales.
   The reduced arrears must therefore be read alongside lost working time.
-  In the revised 30-day pair, the default accrued $33.78m, paid 98.02% and
+  In that same previous seed's 30-day pair, the default accrued $33.78m, paid 98.02% and
   owed $0.67m; the public-backstop world accrued $58.01m, paid 87.37%, owed
   $7.33m and used $20.78m in public support. Under the current simultaneous
   scheduling rule, a backstop invites more shifts than it can ultimately

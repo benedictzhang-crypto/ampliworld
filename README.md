@@ -22,13 +22,44 @@ world model are different achievements; the latter has not been demonstrated.
 ### From a playable city to a controlled social experiment
 
 The city can now run a persistent, self-updating **synthetic** society and expose
-an intervention against a no-news baseline. In a deterministic 30-day run of
-30,000 residents with no injected news, the citywide means stayed close to
-their starting levels: long-run happiness **59.5 → 60.1**, short-run mood
-**69.5 → 68.6**, and stress **33.0 → 33.0**. Mental-health score moved
-**64.9 → 61.7**. That decline remains an open calibration issue, potentially
+an intervention against a no-news baseline. In the revised deterministic 30-day
+bootstrap run of 30,000 residents with no injected news, citywide long-run
+happiness changed **59.5 → 60.25**, short-run mood **69.5 → 68.66**, and stress
+**33.0 → 32.58**. Mental-health score still declined **64.93 → 62.02**.
+That decline remains an open calibration issue, potentially
 involving wage settlement, household dynamics and financial buffers; the
 society is not yet fully balanced.
+
+### Population, housing and work consistency
+
+A full 30,000-resident bootstrap audit found three deterministic mistakes in
+the previous seed: **all 10,000 three-person households** mixed wealth
+cohorts; **297 households containing a top-1% resident** were allocated a
+low-tier unit; and **3,718 households** occupied homes whose uncapped rent
+exceeded the modeled affordability limit. The new seed assigns a cohort at
+household level, uses a bounded (not perfectly correlated) income/age/wealth
+association, and selects an affordable owned or rented unit before using the
+cheapest available subsidized fallback. The same audit now reports **0**
+mixed-cohort households, **0** top-wealth households in low-tier units and
+**47** explicitly subsidized placements. These are internal consistency
+checks, not proof of a realistic real-world housing distribution.
+
+The prior $100 million synthetic city endowment was incompatible with homes
+priced from $350,000 to $10 million. The new **$30 billion synthetic opening
+endowment** preserves the reference *shares* but is a scenario scale, not an
+observed estimate. Liquid savings remain separate from inherited or other
+non-cash wealth; a high net worth with low current wages can be legitimate,
+while an implausible bank balance is tested separately. Employer-specific
+roles now replace accidental assignments such as delivery drivers in clinics
+or waiters in professional offices. The registry has **275 distinct job
+titles**, but bus, taxi and ride-hail operating businesses and their demand
+flows are still missing. Existing saved worlds are not silently reallocated;
+these opening-policy changes apply to newly created worlds.
+
+For a real 300,000-person target in the 20 × 30 km city, see the
+[population scaling plan](docs/POPULATION_SCALE_300K.md). The current
+per-tick full-world copy and scan must be replaced before increasing the
+resident register tenfold.
 
 Employed residents now have a nominal pay floor of **$18 per hour**. Students,
 retirees and jobseekers may have no wages; a business short of operating cash
@@ -56,13 +87,15 @@ These figures are historical diagnostics, not the result of the new scheduling
 and grocery-payment rules. The new seven-day regression reports both payroll
 fulfillment and underemployment, so reducing arrears cannot be mistaken for
 creating enough real jobs.
-In the new seven-day synthetic run, **97.72%** of accrued wages were paid,
-while **37,007 resident-days** recorded at least one unfunded shift. Convenience
-stores received **$328,156** in modeled sales and had no outstanding payroll
-at day seven; the **33 office firms still had no modeled client revenue**.
+
+With the revised population seed, a seven-day synthetic run paid **97.64%**
+of accrued wages, while **36,261 resident-days** recorded at least one
+unfunded shift. Convenience stores received **$421,629** in modeled sales and
+had no outstanding payroll at day seven; the **33 office firms still had no
+modeled client revenue**.
 This is an accounting improvement, not a calibrated employment or GDP result.
-The new 30-day paired run paid **98.02%** of accrued wages in the default
-funded-shift case, but still ended with **$668,208** owed. Allowing private
+The same previous seed's 30-day paired run paid **98.02%** of accrued wages in
+the default funded-shift case, but still ended with **$668,208** owed. Allowing private
 shifts to draw on a finite public backstop increased activity and accrued
 wages; after **$20.78 million** of support, its paid share was only
 **87.37%**, with **$7.33 million** owed. This is not a policy-effect estimate:
