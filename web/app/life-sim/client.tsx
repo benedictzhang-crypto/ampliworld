@@ -568,6 +568,7 @@ export function PopulationPanel({
                 <div><dt>名义时薪</dt><dd>{resident.wage?`${usd(resident.wage)}/h`:'无有薪工作'}</dd></div>
                 <div><dt>应发 / 实发工资</dt><dd>{usd(resident.payroll?.earnedCents||0)} / {usd(resident.payroll?.paidCents||0)}</dd></div>
                 <div><dt>未付 / 已补发</dt><dd>{usd(resident.payroll?.outstandingCents||0)} / {usd(resident.payroll?.arrearsRepaidCents||0)}</dd></div>
+                <div><dt>未获付薪排班天数</dt><dd>{resident.underemployedDays||0}</dd></div>
                 <div>
                   <dt>虚拟持仓</dt>
                   <dd>
@@ -590,10 +591,10 @@ export function PopulationPanel({
                   <dt>家庭食品库存</dt>
                   <dd>{resident.profile?.pantry || 0} 份</dd>
                 </div>
-                {resident.profile?.lastFoodBasket&&<div><dt>最近食品篮子</dt><dd>面包 {resident.profile.lastFoodBasket.bread} · 蛋白食品 {resident.profile.lastFoodBasket.protein} · 甜食 {resident.profile.lastFoodBasket.sugar} · 水果 {resident.profile.lastFoodBasket.fruit} · {usd(resident.profile.lastFoodBasket.costCents)}</dd></div>}
+                {resident.profile?.lastFoodBasket&&<div><dt>最近食品篮子</dt><dd>面包 {resident.profile.lastFoodBasket.bread} · 蛋白食品 {resident.profile.lastFoodBasket.protein} · 甜食 {resident.profile.lastFoodBasket.sugar} · 水果 {resident.profile.lastFoodBasket.fruit} · {usd(resident.profile.lastFoodBasket.costCents)}{resident.profile.lastFoodStoreId&&world.businesses?.[resident.profile.lastFoodStoreId]?` · ${world.businesses[resident.profile.lastFoodStoreId].name}`:''}</dd></div>}
               </dl>
               <h4>最近记忆与收支</h4>
-              {resident.dwellingId&&world.housing?.[resident.dwellingId]&&(()=>{const h=world.housing![resident.dwellingId!],arrears=(h.payment?.rentArrearsCents||0)+(h.payment?.mortgageArrearsCents||0);return <><h4>住房产权与就业</h4><p>{h.buildingName}<br/>{h.unitId}</p><p>{h.tenure==='owner'?'家庭自有住房':'租住房屋'} · 产权人：{h.ownerResidentId||'城市住房信托'}<br/>住户：{h.residentIds.join(' / ')}</p><dl className="population-money"><div><dt>本人估算税前月薪</dt><dd>{usd(resident.employment?.monthlyGrossCents||0)}</dd></div><div><dt>房屋情景估值</dt><dd>{usd(h.propertyValueCents)}</dd></div><div><dt>家庭剩余房贷</dt><dd>{usd(h.loanBalanceCents)}</dd></div><div><dt>{h.tenure==='owner'?'每月房贷':'每月租金'}</dt><dd>{usd(h.monthlyMortgageCents||h.monthlyRentCents)}</dd></div><div><dt>上月实付</dt><dd>{usd(h.payment?.lastPaymentCents||0)}</dd></div><div><dt>住房欠款</dt><dd>{usd(arrears)}</dd></div></dl><p>{resident.employment?resident.employment.name+' · '+resident.employment.placeId:'非就业居民'}{resident.employment?.floor?' · '+resident.employment.floor:''}</p><p className="population-note">房价、工资与租金均为可调整的模拟假设。每30个模拟日按家庭账户实际扣取租金或房贷；现金不足时使用存款，仍不足的部分记为欠款。房贷利息进入公共金融账户，本金转为业主非现金资产；完整税费、处置和信用模型尚未接入。</p></>;})()}
+              {resident.dwellingId&&world.housing?.[resident.dwellingId]&&(()=>{const h=world.housing![resident.dwellingId!],arrears=(h.payment?.rentArrearsCents||0)+(h.payment?.mortgageArrearsCents||0);return <><h4>住房产权与就业</h4><p>{h.buildingName}<br/>{h.unitId}</p><p>{h.tenure==='owner'?'家庭自有住房':'租住房屋'} · 产权人：{h.ownerResidentId||'城市住房信托'}<br/>住户：{h.residentIds.join(' / ')}</p><dl className="population-money"><div><dt>满工时税前月薪（非实收）</dt><dd>{usd(resident.employment?.monthlyGrossCents||0)}</dd></div><div><dt>房屋情景估值</dt><dd>{usd(h.propertyValueCents)}</dd></div><div><dt>家庭剩余房贷</dt><dd>{usd(h.loanBalanceCents)}</dd></div><div><dt>{h.tenure==='owner'?'每月房贷':'每月租金'}</dt><dd>{usd(h.monthlyMortgageCents||h.monthlyRentCents)}</dd></div><div><dt>上月实付</dt><dd>{usd(h.payment?.lastPaymentCents||0)}</dd></div><div><dt>住房欠款</dt><dd>{usd(arrears)}</dd></div></dl><p>{resident.employment?resident.employment.name+' · '+resident.employment.placeId:'非就业居民'}{resident.employment?.floor?' · '+resident.employment.floor:''}</p><p className="population-note">房价、工资与租金均为可调整的模拟假设。每30个模拟日按家庭账户实际扣取租金或房贷；现金不足时使用存款，仍不足的部分记为欠款。房贷利息进入公共金融账户，本金转为业主非现金资产；完整税费、处置和信用模型尚未接入。</p></>;})()}
               <p className="population-note">账户为模拟居民账户。跨区通勤目前按距离估时，不代表已完成全城道路寻路。</p>
               <ol className="population-memory">
                 {resident.memory

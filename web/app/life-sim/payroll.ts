@@ -34,6 +34,19 @@ const PUBLIC_EMPLOYERS = new Set([
   'transport-authority',
 ]);
 
+/** A shift may be offered only when its next hour is financed at scheduling time.
+ * Completion still uses the wage ledger: intervening purchases or other wages
+ * can exhaust cash, and any resulting debt must remain visible.
+ */
+export function canOfferPaidHour(world: LifeWorld, resident: Resident): boolean {
+  const employer = payrollSource(world, resident);
+  if (!employer || resident.wage <= 0) return false;
+  if (PUBLIC_EMPLOYERS.has(employer.type)) return world.treasury >= resident.wage;
+  if (employer.cash >= resident.wage) return true;
+  return world.payrollPolicy === 'public-backstop' &&
+    employer.cash + world.treasury >= resident.wage;
+}
+
 function payrollSource(
   world: LifeWorld,
   resident: Resident,

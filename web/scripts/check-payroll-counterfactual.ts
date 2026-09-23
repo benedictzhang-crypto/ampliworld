@@ -35,6 +35,13 @@ function report(world: LifeWorld) {
     mentalHealth: round(wellbeing.mentalHealth),
     financialSecurity: round(wellbeing.financialSecurity),
     wages,
+    underemployedResidentDays: world.residents.reduce(
+      (total, resident) => total + (resident.underemployedDays || 0),
+      0,
+    ),
+    underemployedResidents: world.residents.filter(
+      (resident) => (resident.underemployedDays || 0) > 0,
+    ).length,
     payrollFulfillment: round(
       wages.earned ? (wages.paid / wages.earned) * 100 : 100,
     ),

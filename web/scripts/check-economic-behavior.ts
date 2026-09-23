@@ -6,6 +6,7 @@ import {
 } from '../app/life-sim/engine';
 import { BASE_FOOD_PRICES, planFoodBasket } from '../app/life-sim/food-choice';
 import {
+  canOfferPaidHour,
   recordPayrollHour,
   settlePayrollArrears,
 } from '../app/life-sim/payroll';
@@ -79,6 +80,12 @@ const worker = world.residents.find(
 const employer = world.businesses![worker.employment!.placeId];
 world.treasury += employer.cash;
 employer.cash = 0;
+assert.equal(canOfferPaidHour(world, worker), false);
+employer.cash = worker.wage;
+world.treasury -= worker.wage;
+assert.equal(canOfferPaidHour(world, worker), true);
+employer.cash = 0;
+world.treasury += worker.wage;
 const unpaid = recordPayrollHour(world, worker);
 assert.equal(unpaid.paid, 0);
 assert.equal(unpaid.outstanding, worker.wage);
@@ -140,6 +147,20 @@ const regularBasket = regularPurchase.residents.find((r) => r.id === groceryId)!
 const dearBreadBasket = dearBreadPurchase.residents.find(
   (r) => r.id === groceryId,
 )!.profile?.lastFoodBasket;
+const groceryStoreId = regularPurchase.residents.find(
+  (r) => r.id === groceryId,
+)!.profile?.lastFoodStoreId;
+assert(groceryStoreId, 'grocery shopping must resolve to a staffed store');
+assert(
+  ['supermarket', 'convenience', 'bakery'].includes(
+    regularPurchase.businesses![groceryStoreId].type,
+  ),
+);
+assert(
+  regularPurchase.businesses![groceryStoreId].revenue >=
+    regularBasket!.costCents,
+  'basket payment must enter the operating store ledger',
+);
 assert.equal(regularBasket?.bread, 2);
 assert.equal(regularBasket?.protein, 1);
 assert.equal(dearBreadBasket?.bread, 3);

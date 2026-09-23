@@ -58,19 +58,37 @@ and report uncertainty rather than output a single persuasive story.
   resident payroll ledger records earned, paid, outstanding and subsequently
   repaid cents; private payroll is constrained by business cash, public
   payroll by the public account. Day-boundary arrears settlement transfers
-  available money without minting it. This makes wage reliability testable.
+  available money without minting it. A new work hour is offered only when
+  the employer has cash (or a finite public backstop has been explicitly
+  selected); residents with an unfunded shift record an underemployed day.
+  Cash can still change between scheduling and completion, so arrears are
+  retained rather than erased. Grocery baskets now pay the operating store,
+  and the resident's last purchase records that store ID. This makes wage
+  reliability, demand flow and underemployment separately testable.
   `npm run check:payroll-counterfactual` compares that default with a finite
   public-account backstop on the same opening city for 30 days, recording
   wages paid, arrears, support costs and wellbeing. The backstop is an
   experimental fiscal intervention, not a free guarantee or policy proposal.
-  In the first paired run, the default paid 41.8% of accrued wages and ended
+  In the superseded, pre-demand-routing/pre-funded-shift paired run, the
+  default paid 41.8% of accrued wages and ended
   with roughly $45.0m owed; the finite backstop paid 74.5%, spent $24.0m of
   public funds and still owed roughly $19.8m. Mean mental health ended at
   61.73 versus 62.20 under the backstop, compared with 64.93 initially;
   stress did not consistently improve. These are synthetic accounting
   diagnostics, not empirical estimates. Employer revenue/productivity and
   cash-circulation closure remain a priority before using this world to
-  forecast economic outcomes.
+  forecast economic outcomes. In particular, office and some transport and
+  maintenance employers still lack modeled customers/contracts; suppressing
+  unfunded shifts is not evidence that their workers are productively employed.
+  `npm run check:firm-funding` is the seven-day sector and conservation gate.
+  Its first run paid 97.72% of accrued wages but logged 37,007
+  underemployed resident-days; office firms generated zero modeled sales.
+  The reduced arrears must therefore be read alongside lost working time.
+  In the revised 30-day pair, the default accrued $33.78m, paid 98.02% and
+  owed $0.67m; the public-backstop world accrued $58.01m, paid 87.37%, owed
+  $7.33m and used $20.78m in public support. Under the current simultaneous
+  scheduling rule, a backstop invites more shifts than it can ultimately
+  finance. The two scenarios therefore do not hold labor hours constant.
 - The food basket contains bread, protein foods, sweets and fruit. A
   subsistence constraint, daily budget and heterogeneous preference determine
   quantities. Bread demand can be locally Giffen-like when a price rise pushes

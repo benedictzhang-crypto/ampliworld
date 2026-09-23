@@ -136,6 +136,7 @@ export type CitizenProfile = {
   venueId: string;
   foodStock?: { bread: number; protein: number; sugar: number; fruit: number };
   lastFoodBasket?: { bread: number; protein: number; sugar: number; fruit: number; costCents: number };
+  lastFoodStoreId?: string;
 };
 export function profileAt(i: number, liquidCents: number, populationSize=100): CitizenProfile {
   const rank = (i * 37) % 100,

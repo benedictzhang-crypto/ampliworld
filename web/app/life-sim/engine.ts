@@ -17,7 +17,7 @@ import {searchStockOpportunity} from './investor-policy';
 import {ageAdaptivePolicy,learnExperience,policyFor,type AdaptivePolicy} from './adaptive-policy';
 import {addMood,ageWellbeing,updateWellbeing,wellbeingFor,type WellbeingState} from './wellbeing';
 import type {WellbeingScores} from './wellbeing';
-import {recordPayrollHour,settlePayrollArrears,type PayrollLedger} from './payroll';
+import {canOfferPaidHour,recordPayrollHour,settlePayrollArrears,type PayrollLedger} from './payroll';
 import {BASE_FOOD_PRICES,residentFoodBasket,type FoodPrices} from './food-choice';
 export type Action =
   | 'home'
@@ -53,6 +53,8 @@ export type Resident = {
   dwellingId?:string;
   employment?:Employment;
   payroll?:PayrollLedger;
+  underemployedDays?:number;
+  lastUnderemployedDay?:number;
   journey?:{destination:[number,number];minutes:number};
   consumerPersona?:ReturnType<typeof consumerPersona>;
   travelSeconds?:number;
@@ -354,8 +356,18 @@ function choose(w: LifeWorld, r: Resident): [Action, string] {
   const shiftStart=employer&&['hotel','hospital','police','water','wastewater','ems','transport-authority'].includes(employer.type)?(Number(r.id.slice(1))%3)*8:employer?.type==='nightclub'?20:employer?.type==='bar'?17:employer?.type==='restaurant'?11:9;
   const onShift=shiftStart+8<=24?hour>=shiftStart&&hour<shiftStart+8:hour>=shiftStart||hour<(shiftStart+8)%24;
   const willingMinutes=Math.max(420,Math.min(480,Math.round((480+adaptive.workReliability*80)/60)*60));
-  if (onShift && r.worked < willingMinutes && (day % 7 < 5||employer&&['hotel','hospital','police','water','wastewater','ems','transport-authority','restaurant','bar','nightclub','retail-shop','supermarket','cinema'].includes(employer.type)) && r.wage > 0)
-    return ['work', `${r.job}：在岗位完成一小时服务；工资兑现经历影响下一次排班意愿`];
+  if (onShift && r.worked < willingMinutes && (day % 7 < 5||employer&&['hotel','hospital','police','water','wastewater','ems','transport-authority','restaurant','bar','nightclub','retail-shop','supermarket','cinema'].includes(employer.type)) && r.wage > 0) {
+    if (canOfferPaidHour(w,r))
+      return ['work', `${r.job}：在岗位完成一小时服务；工资兑现经历影响下一次排班意愿`];
+    if(r.lastUnderemployedDay!==day){
+      r.underemployedDays=(r.underemployedDays||0)+1;
+      r.lastUnderemployedDay=day;
+      r.stress=cap(r.stress+.5);
+      remember(w,r,'雇主未能筹措下一小时工资，本次未排班');
+      learnExperience(r,w.minute,'work',-.3,'unfunded shift');
+    }
+    return ['home','岗位未筹资，本时段没有付薪排班'];
+  }
   if (r.cash > 65000) return ['bank', '保留生活费，把多余现金存入银行'];
   if(r.lastFruitDay!==day&&r.nutrition<72+adaptive.freshFoodAffinity*12&&r.cash>=900)
     return ['fruit','补充水果和新鲜食材，改善饮食'];
@@ -395,7 +407,8 @@ function routeTo(r: Resident, dest: [number, number]): [number, number][] {
   ];
 }
 function start(w: LifeWorld, r: Resident) {
-  const plan=r.plannedDecision&&r.plannedDecision.validUntil>=w.minute&&r.health>=40&&r.water>=38&&r.nutrition>=38?r.plannedDecision:undefined;
+  const candidate=r.plannedDecision&&r.plannedDecision.validUntil>=w.minute&&r.health>=40&&r.water>=38&&r.nutrition>=38?r.plannedDecision:undefined;
+  const plan=candidate?.action==='work'&&!canOfferPaidHour(w,r)?undefined:candidate;
   delete r.plannedDecision;
   if(w.deliberation?.residentId===r.id&&w.deliberation.status==='proposed')w.deliberation.status=plan?'executing':'overridden-by-needs';
   const [action, reason] = plan?[plan.action,'自主决策 · '+plan.reason]:choose(w, r),
@@ -418,8 +431,20 @@ function start(w: LifeWorld, r: Resident) {
           ]
       )?.id || '';
   }
-  if (action === 'shop')
+  if (action === 'shop') {
     venueId = r.frugality > 0.5 ? 'market' : 'premium-market';
+    // Groceries must pay the operating store, not disappear into the treasury.
+    // The household basket still sets the checkout price; the store's display
+    // price is for other services and must not override item-level food prices.
+    r.businessId = chooseBusiness(
+      w,
+      r,
+      r.frugality > 0.5
+        ? ['supermarket', 'convenience']
+        : ['supermarket', 'convenience', 'bakery'],
+      Number.MAX_SAFE_INTEGER,
+    )?.id;
+  }
   if(action==='fruit')venueId='market';
   if (action === 'study') venueId = 'school';
   if (action === 'hospital') venueId = 'clinic';
@@ -547,6 +572,7 @@ function complete(w: LifeWorld, r: Resident) {
           for(const good of ['bread','protein','sugar','fruit'] as const)stock[good]+=basket[good];
           r.profile.pantry+=basket.bread+basket.protein;
           r.profile.lastFoodBasket=basket;
+          r.profile.lastFoodStoreId=business?.id;
         }
         addMood(r,.3);
         r.stress=cap(r.stress-.5);

@@ -35,9 +35,14 @@ retirees and jobseekers may have no wages; a business short of operating cash
 can still accrue unpaid wages rather than creating money to meet payroll. A
 per-resident ledger distinguishes contracted earnings, actual payment,
 outstanding arrears and later repayment; daily settlement uses available
-business or public funds.
+business or public funds. New shifts now require enough cash for the next
+hour at scheduling time; a resident who cannot obtain a funded shift records
+an underemployed day. Cash may still change before the work finishes, so
+in-flight shortfalls remain visible as arrears. Grocery purchases now credit
+the staffed store that sold them, and the resident records that store ID.
 
-A paired 30-day payroll experiment exposes a material economic gap. In the
+A paired 30-day payroll experiment on the earlier, pre-funded-shift model
+exposed a material economic gap. In that
 default cash-constrained world, **41.8%** of accrued wages were paid and about
 **$45.0 million** remained outstanding. A finite public-account backstop raised
 payment to **74.5%**, but still left about **$19.8 million** outstanding after
@@ -47,6 +52,22 @@ score; stress did not uniformly improve. Wage reliability matters, but this
 does **not** solve the model's underfunded firms, missing productivity/revenue
 flows or other causes of wellbeing drift. The two worlds start from the same
 state and conserve cash; they diverge endogenously after the intervention.
+These figures are historical diagnostics, not the result of the new scheduling
+and grocery-payment rules. The new seven-day regression reports both payroll
+fulfillment and underemployment, so reducing arrears cannot be mistaken for
+creating enough real jobs.
+In the new seven-day synthetic run, **97.72%** of accrued wages were paid,
+while **37,007 resident-days** recorded at least one unfunded shift. Convenience
+stores received **$328,156** in modeled sales and had no outstanding payroll
+at day seven; the **33 office firms still had no modeled client revenue**.
+This is an accounting improvement, not a calibrated employment or GDP result.
+The new 30-day paired run paid **98.02%** of accrued wages in the default
+funded-shift case, but still ended with **$668,208** owed. Allowing private
+shifts to draw on a finite public backstop increased activity and accrued
+wages; after **$20.78 million** of support, its paid share was only
+**87.37%**, with **$7.33 million** owed. This is not a policy-effect estimate:
+both runs are synthetic, and the intervention changes how many hours are
+worked as well as how they are financed.
 
 The first budget-constrained grocery model also distinguishes bread, a generic
 protein-food category, sweets and fruit; beef and lamb are not yet separate
@@ -83,7 +104,8 @@ repriced. From `web/`, reproduce the baseline and event checks with
 `npm run check:economic-behavior`, and
 `npm run check:payroll-counterfactual`; see the
 [research protocol](docs/WORLD_MODEL_RESEARCH_PROTOCOL.md) for the remaining
-validation gates.
+validation gates. `npm run check:firm-funding` gives the sector-level
+seven-day funding and money-conservation check.
 
 ### Current quant implementation, without embellishment
 
