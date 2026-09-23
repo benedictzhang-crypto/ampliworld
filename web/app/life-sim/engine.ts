@@ -19,6 +19,7 @@ import {ACTIVE_CITY_STRESS_LOAD,addMood,ageWellbeing,updateWellbeing,wellbeingFo
 import type {WellbeingScores} from './wellbeing';
 import {canOfferPaidHour,recordPayrollHour,settlePayrollArrears,type PayrollLedger} from './payroll';
 import {BASE_FOOD_PRICES,residentFoodBasket,type FoodPrices} from './food-choice';
+import {SERVICE_SITES} from './city-service-plan';
 export type Action =
   | 'home'
   | 'drink'
@@ -113,6 +114,7 @@ export type LifeWorld = {
   regionalVersion?:number;
   deliberation?:{status:string;residentId?:string;model?:string;minute?:number};
   commerceVersion?:number;
+  serviceLayoutVersion?:1;
   businesses?:Record<string,Business>;
   residencyVersion?:number;
   housing?:Record<string,Dwelling>;
@@ -200,6 +202,7 @@ export function createLifeWorld(): LifeWorld {
     openingMoney: 0,
     lastOperation: '',
     source: 'synthetic-bootstrap',
+    serviceLayoutVersion:1,
     daily: [{ day: 0, consumption: 0, wages: 0, clinicVisits: 0, trades: 0 }],
   };
   w.societyVersion = 1;
@@ -248,7 +251,7 @@ function attachIdentities(w:LifeWorld){
   w.censusVersion=CENSUS_VERSION;
 }
 export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
-  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===2&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housingFinanceVersion===HOUSING_FINANCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName&&Number.isFinite(r.stress)&&r.holdings&&r.adaptivePolicy?.version===1&&r.wellbeing?.version===1&&Number.isFinite(r.wellbeing.mentalHealth)&&Number.isFinite(r.wellbeing.financialSecuritySetpoint)&&(r.wage===0||r.wage>=MIN_HOURLY_WAGE_CENTS)&&(!r.employment||r.employment.monthlyGrossCents===r.wage*176))) return input;
+  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===2&&input.commerceVersion===COMMERCE_VERSION&&input.serviceLayoutVersion===1&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housingFinanceVersion===HOUSING_FINANCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName&&Number.isFinite(r.stress)&&r.holdings&&r.adaptivePolicy?.version===1&&r.wellbeing?.version===1&&Number.isFinite(r.wellbeing.mentalHealth)&&Number.isFinite(r.wellbeing.financialSecuritySetpoint)&&(r.wage===0||r.wage>=MIN_HOURLY_WAGE_CENTS)&&(!r.employment||r.employment.monthlyGrossCents===r.wage*176))) return input;
   const w = structuredClone(input),
     fresh = createLifeWorld();
   if(input.societyVersion!==1)for (let i = 0; i < w.residents.length; i++) {
@@ -280,6 +283,17 @@ export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
   expandRegionalServices(w);
   correctOpeningLiquidity(w);
   initializeHousingPayments(w);
+  if(w.serviceLayoutVersion!==1){
+    // Move only the workplace entrance to the corrected physical parcel.
+    // Existing owners, staff, wages and financial ledgers stay untouched.
+    const entries=new Map(SERVICE_SITES.map(site=>[site.id,[site.x,site.z] as [number,number]]));
+    for(const [id,entry] of entries){const business=w.businesses?.[id];if(business)business.entry=[...entry];}
+    for(const resident of w.residents){
+      const entry=resident.employment&&entries.get(resident.employment.placeId);
+      if(entry)resident.employment!.entry=[...entry];
+    }
+    w.serviceLayoutVersion=1;
+  }
   for(const r of w.residents){policyFor(r);wellbeingFor(r);}
   return w;
 }

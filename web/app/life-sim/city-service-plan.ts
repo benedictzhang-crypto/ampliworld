@@ -1,4 +1,10 @@
 /** Needs-based operating plan for one 30,000-resident city, not a brand-request checklist. */
+import housingPlan from '../world-client/housing-parcels.json';
+import {CIVIC_PLACES} from '../world-client/civic-registry';
+import {METROPOLITAN_PLACES} from '../world-client/metropolitan-registry';
+import {riverCenterX,riverHalfWidth} from '../world-client/river-profile.mjs';
+import {WORLD_SOLID_FOOTPRINTS} from '../world-spatial-registry';
+
 export const CITY_SERVICE_PLAN=[
   {kind:'convenience',label:'7-Eleven convenience store',count:30,staff:7,price:1600},
   {kind:'pharmacy',label:'CVS Pharmacy',count:12,staff:11,price:2600},
@@ -48,16 +54,44 @@ const mallSlots:Record<string,{x:number;z:number;floor:string;shopId:string}>={
   'cafe:0':{x:88,z:-239,floor:'L5',shopId:'L5-shop-6'},'cafe:1':{x:46,z:-239,floor:'L6',shopId:'L6-shop-4'},
 };
 const occupiedStreetSites:{x:number;z:number}[]=[];
+// Reserve the whole storefront/forecourt, not just the central body collider.
+// Gas pumps, police parking and shop canopies project beyond the main walls.
+const SERVICE_HALF_WIDTH=18, SERVICE_BACK=13, SERVICE_FRONT=31, CLEARANCE=3;
+function streetParcelIsClear(x:number,z:number){
+  const left=x-SERVICE_HALF_WIDTH-CLEARANCE,right=x+SERVICE_HALF_WIDTH+CLEARANCE;
+  const back=z-SERVICE_BACK-CLEARANCE,front=z+SERVICE_FRONT+CLEARANCE;
+  if(occupiedStreetSites.some(site=>left<site.x+SERVICE_HALF_WIDTH+CLEARANCE&&right>site.x-SERVICE_HALF_WIDTH-CLEARANCE&&back<site.z+SERVICE_FRONT+CLEARANCE&&front>site.z-SERVICE_BACK-CLEARANCE))return false;
+  for(const parcel of housingPlan.placements){
+    const c=Math.cos(parcel.angle),s=Math.sin(parcel.angle);
+    const dx=x-parcel.x,dz=z+(SERVICE_FRONT-SERVICE_BACK)/2-parcel.z;
+    const lx=dx*c-dz*s,lz=dx*s+dz*c;
+    const hx=SERVICE_HALF_WIDTH+CLEARANCE,hz=(SERVICE_FRONT+SERVICE_BACK)/2+CLEARANCE;
+    if(Math.abs(lx)<parcel.width/2+hx*Math.abs(c)+hz*Math.abs(s)&&Math.abs(lz)<parcel.depth/2+hx*Math.abs(s)+hz*Math.abs(c))return false;
+  }
+  for(const place of [...CIVIC_PLACES,...METROPOLITAN_PLACES]){
+    const b=place.manifest.bounds;
+    if(left<place.x+b.max[0]&&right>place.x+b.min[0]&&back<place.z+b.max[2]&&front>place.z+b.min[2])return false;
+  }
+  for(const solid of WORLD_SOLID_FOOTPRINTS){
+    const angle=solid.rotationRadians||0,c=Math.cos(angle),s=Math.sin(angle);
+    const hx=solid.halfExtents[0]*Math.abs(c)+solid.halfExtents[1]*Math.abs(s);
+    const hz=solid.halfExtents[0]*Math.abs(s)+solid.halfExtents[1]*Math.abs(c);
+    if(left<solid.center[0]+hx&&right>solid.center[0]-hx&&back<solid.center[1]+hz&&front>solid.center[1]-hz)return false;
+  }
+  for(const sampleZ of [back,z,front])if(Math.abs(x-riverCenterX(sampleZ))<riverHalfWidth(sampleZ)+SERVICE_HALF_WIDTH+CLEARANCE)return false;
+  return true;
+}
 export const SERVICE_SITES=CITY_SERVICE_PLAN.flatMap((service,categoryIndex)=>Array.from({length:service.count},(_,i)=>{
   const center=centers[(i+categoryIndex)%centers.length],baseRing=180+Math.floor(i/centers.length)*135,baseAngle=(i*2.399+categoryIndex*.73);
   const slot=mallSlots[`${service.kind}:${i}`];
-  let x=slot?.x??0,z=slot?.z??0;
+  let x=slot?.x??0,z=slot?.z??0,found=!!slot;
   if(!slot){
-    for(let attempt=0;attempt<240;attempt++){
+    for(let attempt=0;attempt<720;attempt++){
       const ring=baseRing+Math.floor(attempt/12)*48,angle=baseAngle+attempt*.517;
       const candidate={x:Math.round(center[0]+Math.cos(angle)*ring),z:Math.round(center[1]+Math.sin(angle)*ring)};
-      if(occupiedStreetSites.every(other=>Math.hypot(candidate.x-other.x,candidate.z-other.z)>=38)){x=candidate.x;z=candidate.z;break;}
+      if(streetParcelIsClear(candidate.x,candidate.z)){x=candidate.x;z=candidate.z;found=true;break;}
     }
+    if(!found)throw new Error(`No collision-free parcel for ${service.kind} ${i+1}`);
     occupiedStreetSites.push({x,z});
   }
   const name=service.kind==='bank'

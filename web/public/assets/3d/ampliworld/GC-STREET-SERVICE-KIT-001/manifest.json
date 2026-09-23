@@ -1,0 +1,25 @@
+{
+  "id": "GC-STREET-SERVICE-KIT-001",
+  "units": "meters",
+  "file": "model.glb",
+  "bounds": {
+    "min": [
+      -8.6,
+      0,
+      -6.5
+    ],
+    "max": [
+      8.6,
+      7.7,
+      8.3
+    ]
+  },
+  "placementEnvelope": {
+    "halfWidth": 18,
+    "back": 13,
+    "front": 31
+  },
+  "source": "asset-library/blender/services/street-service-kit.blend",
+  "bytes": 454692,
+  "triangles": 8232
+}
