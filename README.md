@@ -10,7 +10,7 @@ synthetic inhabitants predict real people or that its signals make money**.
 | Layer | Implemented | Not established |
 |---|---|---|
 | Playable city | Metre-scale city plan, selected detailed districts, locomotion, vehicles, venues and prototype attractions | Uniformly polished city, complete interiors, citywide physically routed daily lives |
-| People and events | Persistent records for 3,000 residents; inspectable rules, memories and event inputs in limited slices | A validated autonomous model of 30,000 residents, much less 8.3 billion independent minds; measured real-world response accuracy |
+| People and events | Persistent records for 30,000 synthetic residents; inspectable needs, stress, household interactions, memories and event inputs | A validated autonomous model of those residents, much less 8.3 billion independent minds; measured real-world response accuracy |
 | Research pipeline | Deterministic event → cohort response → asset signal → portfolio proposal; reproducible example runs | A trained latent world model, learned transition dynamics, long-horizon planning or a demonstrated forecasting advantage |
 | Quant evaluation | Directional accuracy, MAE, rank IC and a simple gross portfolio-return calculation | Untouched point-in-time out-of-sample results, net-of-cost P&L, capacity or institutional risk validation |
 
@@ -65,10 +65,17 @@ then a clearly specified and tested behavioral transition model. The 3D city
 remains useful as an observable laboratory, but visual progress must not be
 presented as empirical prediction progress.
 
+The [world-model research protocol](docs/WORLD_MODEL_RESEARCH_PROTOCOL.md)
+defines the individual/world/latent state split, transition and decision
+models, uncertainty and long-horizon evaluation. The current rule-based
+implementation is a baseline for those experiments, not their result.
+
 ## Development checkpoints
 
 The dated notes below record construction slices; later checkpoints supersede
 earlier limits. They are not independent validation of forecasting ability.
+
+**Living-city and stock-input baseline — 23 September:** the current registry contains 30,000 persistent synthetic residents. Stress now interacts with physical needs, work, wages, meals, fruit, family support/conflict and held-stock gains/losses. A manual, source- and availability-timestamped multi-stock snapshot can be loaded into the world; residents scan available symbols and may trade or abstain. These decisions are transparent heuristics, not a trained world model or verified market edge. The older 3,000-person checkpoint below is historical.
 
 **Aureole Adventure Park — 23 September:** the active 20 × 30 km city includes a 1.3 × 0.9 km amusement-park geometry prototype with five coaster designs, red/blue twin towers, family rides, two walk-through Halloween houses and a playable basketball challenge. Map teleport reaches the physical gate; nine rides have first-pass boarding and motion without queues. NPC visits, final art quality, audio and safety details remain unfinished. See `docs/AMUSEMENT_PARK_2026_09_22.md`.
 

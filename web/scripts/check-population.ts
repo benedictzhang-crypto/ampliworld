@@ -46,10 +46,12 @@ for(const before of old.residents){const after=upgraded.residents.find(r=>r.id==
 assert.deepEqual(upgradeLifeWorld(upgraded),upgraded,'idempotent identity upgrade');
 assert.deepEqual(JSON.parse(JSON.stringify(upgraded)),upgraded,'all resident states survive JSON persistence');
 assert.equal(new Set(upgraded.residents.map(r=>r.id)).size,CENSUS_SIZE);
+const byIndex=new Map(world.residents.map(r=>[r.identity!.index,r]));
+const byId=new Map(world.residents.map(r=>[r.id,r]));
 for(const r of world.residents){
   assert.equal(r.id,r.identity!.id);
-  for(const link of r.identity!.relations){const other=world.residents.find(x=>x.identity!.index===link.index)!;assert(other);assert(other.identity!.relations.some(x=>x.index===r.identity!.index));}
-  if(r.identity!.age<18){assert.equal(r.wage,0);assert.equal(r.identity!.guardianIds.length,2);for(const id of r.identity!.guardianIds)assert(world.residents.find(x=>x.id===id)!.identity!.age>=18);}
+  for(const link of r.identity!.relations){const other=byIndex.get(link.index)!;assert(other);assert(other.identity!.relations.some(x=>x.index===r.identity!.index));}
+  if(r.identity!.age<18){assert.equal(r.wage,0);assert.equal(r.identity!.guardianIds.length,2);for(const id of r.identity!.guardianIds)assert(byId.get(id)!.identity!.age>=18);}
 }
 const student = world.residents.find(
   (r) => r.profile?.occupation === 'student',

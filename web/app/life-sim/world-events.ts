@@ -34,6 +34,12 @@ export function applyWorldEvent(input:LifeWorld,text:string):LifeWorld{
     const result=decide(resident,id,parsed.direction,parsed.shockPct);
     counts[result.reaction]++;
     resident.lastEventReaction={eventId:id,...result};
+    if(parsed.direction==='up'&&result.reaction==='reduce'){
+      resident.stress=clamp((resident.stress||0)+Math.min(8,parsed.shockPct*.12),0,100);
+      resident.happiness=clamp(resident.happiness-Math.min(4,parsed.shockPct*.06),0,100);
+    }else if(parsed.direction==='down'&&result.reaction==='increase'){
+      resident.stress=clamp((resident.stress||0)-Math.min(4,parsed.shockPct*.06),0,100);
+    }
     if(examples.length<12&&examples.filter(e=>e.reaction===result.reaction).length<4)examples.push({residentId:resident.id,...result});
   }
   const event:WorldEvent={id,text:text.trim(),minute:input.minute,...parsed,counts,examples};

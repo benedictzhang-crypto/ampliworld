@@ -8,6 +8,7 @@ import {
   upgradeLifeWorld,
 } from '../../life-sim/engine';
 import {applyWorldEvent} from '../../life-sim/world-events';
+import {ingestMarketSnapshot,validateMarketSnapshot} from '../../life-sim/market-feed';
 import type {LifeWorld} from '../../life-sim/engine';
 const response = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
@@ -77,10 +78,11 @@ export async function POST(request: Request) {
       return response({ error: '请求不是有效 JSON' }, 400);
     }
     const eventText=typeof body?.eventText==='string'?body.eventText.trim():'';
+    const hasMarketSnapshot=body?.marketSnapshot!==undefined;
     const observe:[number,number]=[Number.isFinite(body?.observeX)?body.observeX:0,Number.isFinite(body?.observeZ)?body.observeZ:-68];
     if (
       !body ||
-      (!eventText&&![15, 60, 1440].includes(body.minutes)) ||
+      Number(Boolean(eventText))+Number([15,60,1440].includes(body.minutes))+Number(hasMarketSnapshot)!==1 ||
       eventText.length>280 ||
       !Number.isSafeInteger(body.revision) ||
       typeof body.operationId !== 'string' ||
@@ -88,6 +90,7 @@ export async function POST(request: Request) {
       body.operationId.length < 8
     )
       return response({ error: '无效的模拟请求' }, 400);
+    if(hasMarketSnapshot)try{validateMarketSnapshot(body.marketSnapshot);}catch(error){return response({error:error instanceof Error?error.message:'Invalid market snapshot'},400);}
     if(!user)guestWorld??=createLifeWorld();
     const current = user?await load(user.userId):guestWorld!;
     if (current.lastOperation === body.operationId)
@@ -98,7 +101,9 @@ export async function POST(request: Request) {
         409,
       );
     if(body.llmResidentId!==undefined){if(typeof body.llmResidentId!=='string')return response({error:'居民编号无效'},400);try{await deliberate(current,body.llmResidentId,inferenceConfig());}catch(e){return response({error:e instanceof Error?e.message:'推理失败'},422);}}
-    const next = eventText?applyWorldEvent(current,eventText):advanceLifeWorld(current, body.minutes);
+    let next:LifeWorld;
+    try{next=eventText?applyWorldEvent(current,eventText):hasMarketSnapshot?ingestMarketSnapshot(current,body.marketSnapshot):advanceLifeWorld(current, body.minutes);}
+    catch(error){if(hasMarketSnapshot)return response({error:error instanceof Error?error.message:'Invalid market transition'},422);throw error;}
     next.lastOperation = body.operationId;
     if(!user){guestWorld=next;return response({world:observable(next,observe)});}
     const update = await populationDB()

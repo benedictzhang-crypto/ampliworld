@@ -95,6 +95,20 @@ export function usePopulation() {
     }catch(error){setError(error instanceof Error?error.message:'Event injection was not confirmed');}
     finally{locked.current=false;setBusy(false);}
   },[]);
+  const submitMarket=useCallback(async(raw:string)=>{
+    if(locked.current||!current.current)return;
+    let marketSnapshot:unknown;
+    try{marketSnapshot=JSON.parse(raw);}catch{setError('Market snapshot must be valid JSON');return;}
+    locked.current=true;setBusy(true);
+    try{
+      const response=await fetch('/api/population',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({marketSnapshot,revision:current.current.revision,operationId:crypto.randomUUID(),observeX:observeAt.current[0],observeZ:observeAt.current[1]})});
+      const data=(await response.json()) as PopulationResponse;
+      if(data.world){current.current=data.world;setWorld(data.world);}
+      if(!response.ok)throw Error(data.error||'Market ingestion failed');
+      setError('');
+    }catch(error){setError(error instanceof Error?error.message:'Market ingestion failed');}
+    finally{locked.current=false;setBusy(false);}
+  },[]);
   useEffect(() => {
     if (!playing) return;
     const timer = setInterval(() => {
@@ -102,7 +116,7 @@ export function usePopulation() {
     }, 5000);
     return () => clearInterval(timer);
   }, [playing, advance]);
-  return { world, error, busy, playing, setPlaying, advance, submitEvent, load, loadArea };
+  return { world, error, busy, playing, setPlaying, advance, submitEvent, submitMarket, load, loadArea };
 }
 export type PopulationController = ReturnType<typeof usePopulation>;
 
@@ -201,9 +215,10 @@ export function PopulationPanel({
   const displayName=(r:{id:string;name:string;englishName?:string})=>language==='en'?(r.englishName||englishNameFor(r.id)):r.name;
   const [open, setOpen] = useState(true),
     [eventText,setEventText]=useState(''),
+    [marketText,setMarketText]=useState(''),
     [occupation, setOccupation] = useState('all'),
     [tab, setTab] = useState<'society' | 'services' | 'resident' | 'event'>('society'),
-    { world, error, busy, playing, setPlaying, advance, submitEvent, load } = controller;
+    { world, error, busy, playing, setPlaying, advance, submitEvent, submitMarket, load } = controller;
   useEffect(() => {
     if (selected) setOpen(true);
   }, [selected]);
@@ -231,11 +246,11 @@ export function PopulationPanel({
     ) || [];
   const netWorth =
     world?.residents.reduce(
-      (n, r) => n + residentNetWorth(r, world.minute),
+      (n, r) => n + residentNetWorth(r, world.minute,world.market),
       0,
     ) ?? 0;
   const occupations=Array.from(new Map((world?.residents||[]).map(r=>[r.profile?.occupation||r.job,{id:r.profile?.occupation||r.job,label:r.job}])).values());
-  const rankedResidents=[...(world?.residents||[])].sort((a,b)=>residentNetWorth(a,world!.minute)-residentNetWorth(b,world!.minute)||a.id.localeCompare(b.id));
+  const rankedResidents=[...(world?.residents||[])].sort((a,b)=>residentNetWorth(a,world!.minute,world!.market)-residentNetWorth(b,world!.minute,world!.market)||a.id.localeCompare(b.id));
   const memoryText=(item:{minute:number;text:string})=>{
     if(language!=='en')return item.text;
     const match=item.text.match(/^与(.+?)交谈：([\s\S]*)$/);
@@ -273,6 +288,13 @@ export function PopulationPanel({
             <textarea id="world-event" maxLength={280} value={eventText} onChange={event=>setEventText(event.target.value)} placeholder="Example: Milk prices rise 20%" />
             <button disabled={!world||busy||!eventText.trim()}>Run population reaction</button>
           </form>}
+          {tab==='event'&&<form className="world-event-form" onSubmit={event=>{event.preventDefault();if(marketText.trim())void submitMarket(marketText);}}>
+            <label htmlFor="market-snapshot">TIMESTAMPED MARKET SNAPSHOT · PROVENANCE UNVERIFIED</label>
+            <textarea id="market-snapshot" maxLength={1700} value={marketText} onChange={event=>setMarketText(event.target.value)} placeholder={'{"asOf":"2026-09-22T20:00:00Z","availableAt":"2026-09-22T20:01:00Z","source":"licensed-feed-id","quotes":{"AAPL":22535,"MSFT":51240}}'} />
+            <small>Prices are integer cents. Include the actual source and when each quote became available; this interface does not certify vendor provenance.</small>
+            <button disabled={!world||busy||!marketText.trim()}>Load quotes for resident decisions</button>
+          </form>}
+          {tab==='event'&&world?.market&&<p className="population-note">Market: {world.market.latest.asOf} · available {world.market.latest.availableAt} · {Object.keys(world.market.latest.quotes).length} symbols · {world.market.latest.source}</p>}
           {tab==='event'&&world?.worldEvents?.at(-1)&&(()=>{const item=world.worldEvents!.at(-1)!;return <section className="world-event-result" aria-live="polite">
             <strong>{item.text}</strong><small>{item.subject} · {item.direction} {item.shockPct}% · {(world.populationTotal||world.residents.length).toLocaleString('en-US')} residents</small>
             <div><span>REDUCE <b>{item.counts.reduce}</b></span><span>MAINTAIN <b>{item.counts.maintain}</b></span><span>INCREASE <b>{item.counts.increase}</b></span></div>
@@ -352,7 +374,7 @@ export function PopulationPanel({
                 居民财富分布 <small>实验情景</small>
               </h3>
               <p className="population-note">
-                每名居民是独立个体，同一家人各有个人账户。初始财富差异借用美国家庭统计作为情景参考，并非已校准的个人财富分布；旧存档保留既有财产。CBD 数万人是扩容目标，不是当前已运行人数。
+                每名居民是独立个体，同一家人各有个人账户。初始财富差异借用美国家庭统计作为情景参考，并非已校准的个人财富分布；旧存档保留既有财产。当前全城有 30,000 条持久居民记录，不代表 30,000 个大模型同时推理。
               </p>
               <p>全城 {world.populationTotal||world.residents.length} 名居民 · {world.householdTotal||Object.keys(world.housing||{}).length} 个家庭 · {world.employedTotal||world.residents.filter(r=>r.employment).length} 名就业居民 · {world.businessTotal||Object.keys(world.businesses||{}).length} 个经营及公共主体。当前前端观察样本 {world.observableSample||world.residents.length} 人，完整人口在服务端持续模拟。</p>
               <p className="population-note">当前按个人净财富重新排序分组；人数占比和财富份额是不同指标。参考数据按家庭统计，仅作情景对照。</p>
@@ -362,7 +384,7 @@ export function PopulationPanel({
                   const members = rankedResidents.slice(Math.floor(rankedResidents.length*boundaries[index]),Math.floor(rankedResidents.length*boundaries[index+1])),
                     share =
                       (members.reduce(
-                        (n, r) => n + residentNetWorth(r, world.minute),
+                        (n, r) => n + residentNetWorth(r, world.minute,world.market),
                         0,
                       ) /
                         (netWorth || 1)) *
@@ -511,6 +533,7 @@ export function PopulationPanel({
                     ['健康', resident.health],
                     ['精力', resident.energy],
                     ['幸福', resident.happiness],
+                    ['压力（越低越好）', resident.stress],
                   ] as const
                 ).map(([label, value]) => (
                   <label key={label}>
@@ -521,7 +544,7 @@ export function PopulationPanel({
                       min={0}
                       max={100}
                       low={30}
-                      optimum={90}
+                      optimum={label.startsWith('压力')?0:90}
                       value={value}
                     />
                   </label>
@@ -541,6 +564,7 @@ export function PopulationPanel({
                   <dd>
                     {resident.shares} 份 /{' '}
                     {usd(resident.shares * paperPrice(world.minute))}
+                    {Object.entries(resident.holdings||{}).map(([symbol,milliShares])=><span key={symbol}><br/>{symbol}: {(milliShares/1000).toFixed(3)} 股 / {usd(Math.floor(milliShares*(world.market?.latest.quotes[symbol]||0)/1000))}</span>)}
                   </dd>
                 </div>
               </dl>
@@ -551,7 +575,7 @@ export function PopulationPanel({
                   <dd>{usd(resident.profile?.nonCashAssets || 0)}</dd>
                 </div>
                 <div><dt>贷款余额</dt><dd>{usd(resident.profile?.debt||0)}</dd></div>
-                <div><dt>个人净资产</dt><dd>{usd(residentNetWorth(resident,world.minute))}</dd></div>
+                <div><dt>个人净资产</dt><dd>{usd(residentNetWorth(resident,world.minute,world.market))}</dd></div>
                 <div>
                   <dt>家庭食品库存</dt>
                   <dd>{resident.profile?.pantry || 0} 份</dd>
