@@ -569,6 +569,7 @@ export function PopulationPanel({
                 </div>
               </dl>
               <p className="population-note">存款是可用资金，非现金资产不是存款。开局流动资金按年龄和工资分层；旧存档仅调整原开局额度，后续收入保留。完整税费、生活账单尚未校准。</p>
+              {resident.adaptivePolicy&&<><h4>Adaptive memory · 动态决策</h4><p className="population-note">交易倾向 {resident.adaptivePolicy.trendPreference>.18?'Momentum':resident.adaptivePolicy.trendPreference<-.18?'Contrarian':'Deliberative'} · 风险预算倍率 {resident.adaptivePolicy.riskMultiplier.toFixed(2)} · 已观察行情结果 {resident.adaptivePolicy.marketObservations} 次。消费和家庭经历会逐步改变偏好；此处是可审计的在线规则，不是训练过的自主心智。</p><ol className="population-memory">{resident.adaptivePolicy.experiences.slice(-4).reverse().map((experience,index)=><li key={`${experience.minute}-${index}`}><time>{timestamp(experience.minute)}</time>{experience.kind}: {experience.detail} · {experience.outcome>=0?'+':''}{experience.outcome.toFixed(2)}</li>)}</ol></>}
               <dl className="population-money">
                 <div>
                   <dt>非现金资产（情景值）</dt>
@@ -604,7 +605,7 @@ export function PopulationPanel({
             </>
           )}
           <p className="population-note">
-            城市显示位置快照；模拟时钟独立于视觉昼夜。银行、医疗为基础规则；股票采用合成指数，不连接真实市场。
+            城市显示位置快照；模拟时钟独立于视觉昼夜。银行、医疗为基础规则；未加载行情时采用合成指数，手工加载的行情未核验数据来源或真实交易可执行性。
           </p>
         </div>
       )}

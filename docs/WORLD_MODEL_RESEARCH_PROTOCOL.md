@@ -35,6 +35,13 @@ and report uncertainty rather than output a single persuasive story.
   nutrition, energy and happiness. Work and wages, rest, fruit, meal quality,
   household conflict/support, price shocks and held-stock gains/losses change
   these states with inspectable rules and individual memory.
+- A versioned, per-resident adaptive policy now stores a bounded experience
+  trace and slowly updates food/leisure preference, perceived family support,
+  work reliability, market style and risk budget from observed outcomes.
+  Repeated adverse returns on a newly entered position can change the next
+  market-search style and reduce its position budget. Daily drift prevents
+  permanently frozen preferences. This is deterministic online heuristic
+  adaptation, not a trained autonomous agent or evidence of predictive edge.
 - A market snapshot supplies 1–50 symbols with cent prices, source, `asOf`
   and `availableAt`. The API rejects future or backwards observations and
   requires explicit zero-value delisting rather than silently dropping a

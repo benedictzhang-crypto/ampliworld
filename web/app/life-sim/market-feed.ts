@@ -1,4 +1,5 @@
 import type {LifeWorld} from './engine';
+import {learnMarketOutcome} from './adaptive-policy';
 
 /** A quote is usable only after its recorded availability time. Prices are cents. */
 export type MarketSnapshot={
@@ -47,7 +48,10 @@ export function ingestMarketSnapshot(input:LifeWorld,value:unknown,now?:string):
     let exposure=0;
     for(const [symbol,milliShares] of Object.entries(resident.holdings||{})){
       const old=prior.quotes[symbol],price=snapshot.quotes[symbol];
-      if(old>0&&price!==undefined)exposure+=milliShares*(price-old)/1000;
+      if(old>0&&price!==undefined){
+        exposure+=milliShares*(price-old)/1000;
+        if(milliShares>0)learnMarketOutcome(resident,next.minute,symbol,price/old-1);
+      }
     }
     if(exposure){
       const swing=Math.min(12,Math.abs(exposure)/Math.max(10000,resident.cash+resident.savings)*100);

@@ -79,6 +79,9 @@ for (let day = 0; day < 30; day++) {
       );
     assert(r.worked <= 480);
     assert(r.memory.length <= 32);
+    assert(r.adaptivePolicy);
+    assert(r.adaptivePolicy.experiences.length<=8);
+    assert(r.adaptivePolicy.riskMultiplier>=.4&&r.adaptivePolicy.riskMultiplier<=1.1);
     if(r.identity!.age<18){assert.equal(r.shares,0);assert(!r.memory.some(m=>m.text.includes('工资到账')||m.text.includes('买入虚拟')));}
     assert(Number.isFinite(r.x) && Number.isFinite(r.z));
     maxShares = Math.max(maxShares, r.shares);

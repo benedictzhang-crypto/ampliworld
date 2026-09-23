@@ -13,6 +13,7 @@ import {correctOpeningLiquidity} from './liquidity';
 import {HOUSING_FINANCE_VERSION,initializeHousingPayments,settleHousingThrough} from './housing-payments';
 import type {MarketState} from './market-feed';
 import {searchStockOpportunity} from './investor-policy';
+import {ageAdaptivePolicy,learnExperience,policyFor,type AdaptivePolicy} from './adaptive-policy';
 export type Action =
   | 'home'
   | 'drink'
@@ -61,6 +62,7 @@ export type Resident = {
   savings: number;
   shares: number;
   holdings?:Record<string,number>; // integer milli-shares (1/1000 share)
+  adaptivePolicy?:AdaptivePolicy;
   wage: number;
   risk: number;
   frugality: number;
@@ -188,6 +190,7 @@ export function createLifeWorld(): LifeWorld {
   w.serviceHours = {};
   w.openingMoney = moneyTotal(w);
   attachIdentities(w);
+  for(const r of w.residents)policyFor(r);
   // The old broad cash seed could exceed the lower wealth-cohort target.
   // Correct only a NEW world before housing assignment; never rewrite saves.
   for(let i=0;i<w.residents.length;i++){
@@ -226,7 +229,7 @@ function attachIdentities(w:LifeWorld){
   w.censusVersion=CENSUS_VERSION;
 }
 export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
-  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===2&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housingFinanceVersion===HOUSING_FINANCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName&&Number.isFinite(r.stress)&&r.holdings)) return input;
+  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===2&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housingFinanceVersion===HOUSING_FINANCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName&&Number.isFinite(r.stress)&&r.holdings&&r.adaptivePolicy?.version===1)) return input;
   const w = structuredClone(input),
     fresh = createLifeWorld();
   if(input.societyVersion!==1)for (let i = 0; i < w.residents.length; i++) {
@@ -252,7 +255,7 @@ export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
   w.venueStats ??= {};
   w.serviceHours ??= {};
   attachIdentities(w);
-  for(const r of w.residents){r.stress??=30;r.lastFruitDay??=-1;r.holdings??={};}
+  for(const r of w.residents){r.stress??=30;r.lastFruitDay??=-1;r.holdings??={};policyFor(r);}
   bindResidency(w);
   initializeCommerce(w);
   expandRegionalServices(w);
@@ -286,18 +289,21 @@ function householdDay(w:LifeWorld,day:number){
       r.stress=cap(r.stress+(conflict?8:-5));
       r.happiness=cap(r.happiness+(conflict?-7:5));
       remember(w,r,conflict?'家庭争执，压力上升':'家人交流与支持，心情改善');
+      learnExperience(r,w.minute,'family',conflict?-.8:.65,conflict?'household conflict':'household support');
     }
     const third=w.residents[i+2];
     if(third?.identity?.familyId===a.identity?.familyId){
       third.stress=cap(third.stress+(conflict?4:-2));
       third.happiness=cap(third.happiness+(conflict?-4:3));
       remember(w,third,conflict?'家中争执影响心情':'感受到家庭支持');
+      learnExperience(third,w.minute,'family',conflict?-.5:.45,conflict?'family conflict nearby':'family support nearby');
     }
     encounters.push({minute:w.minute,a:a.id,b:b.id,text:conflict?'家庭争执':'家人互相支持',topic:'家庭关系',kind});
   }
   w.socialEncounters=encounters.slice(-50);
 }
 function choose(w: LifeWorld, r: Resident): [Action, string] {
+  const adaptive=policyFor(r);
   const hour = (w.minute % 1440) / 60,
     day = Math.floor(w.minute / 1440);
   if (r.water < 38) return ['drink', '口渴，寻找免费饮水点'];
@@ -326,12 +332,13 @@ function choose(w: LifeWorld, r: Resident): [Action, string] {
   const employer=r.employment&&w.businesses?.[r.employment.placeId];
   const shiftStart=employer&&['hotel','hospital','police','water','wastewater','ems','transport-authority'].includes(employer.type)?(Number(r.id.slice(1))%3)*8:employer?.type==='nightclub'?20:employer?.type==='bar'?17:employer?.type==='restaurant'?11:9;
   const onShift=shiftStart+8<=24?hour>=shiftStart&&hour<shiftStart+8:hour>=shiftStart||hour<(shiftStart+8)%24;
-  if (onShift && r.worked < 480 && (day % 7 < 5||employer&&['hotel','hospital','police','water','wastewater','ems','transport-authority','restaurant','bar','nightclub','retail-shop','supermarket','cinema'].includes(employer.type)) && r.wage > 0)
-    return ['work', `${r.job}：在岗位完成一小时服务，完成后领取工资`];
+  const willingMinutes=Math.max(420,Math.min(480,Math.round((480+adaptive.workReliability*80)/60)*60));
+  if (onShift && r.worked < willingMinutes && (day % 7 < 5||employer&&['hotel','hospital','police','water','wastewater','ems','transport-authority','restaurant','bar','nightclub','retail-shop','supermarket','cinema'].includes(employer.type)) && r.wage > 0)
+    return ['work', `${r.job}：在岗位完成一小时服务；工资兑现经历影响下一次排班意愿`];
   if (r.cash > 65000) return ['bank', '保留生活费，把多余现金存入银行'];
-  if(r.lastFruitDay!==day&&r.nutrition<72&&r.cash>=900)
+  if(r.lastFruitDay!==day&&r.nutrition<72+adaptive.freshFoodAffinity*12&&r.cash>=900)
     return ['fruit','补充水果和新鲜食材，改善饮食'];
-  if (r.happiness < 48)
+  if (r.happiness < 48+adaptive.outingsAffinity*7-adaptive.familySupport*5)
     return [
       'leisure',
       r.cash >= 600 ? '需要放松，选择付费娱乐' : '选择免费的街心公园活动',
@@ -343,7 +350,7 @@ function choose(w: LifeWorld, r: Resident): [Action, string] {
     r.profile.pantry < 2
   )
     return ['shop', '检查家庭食品库存，根据预算采购生活必需品'];
-  if ((r.identity?.age??18)>=18 && r.risk > 0.55 && r.cash+r.savings > 50000 && r.stress<78 &&
+  if ((r.identity?.age??18)>=18 && r.risk*adaptive.riskMultiplier > 0.55 && r.cash+r.savings > 50000 && r.stress<78 &&
     (w.market?r.lastTradeAsOf!==w.market.latest.asOf:r.lastTradeDay!==day))
     return ['trade', w.market?'研究已发布的股票行情与个人风险预算':'演示模式：虚拟指数交易'];
   if (day % 7 >= 5 && r.cash > 25000 && r.lastTripDay !== day)
@@ -374,7 +381,7 @@ function start(w: LifeWorld, r: Resident) {
   let venueId = '';
   r.businessId=undefined;r.diningOut=false;
   const hour=(w.minute%1440)/60;
-  if (action === 'eat' && (!r.profile?.pantry||((Number(r.id.slice(1))+Math.floor(w.minute/1440))%10)<(r.frugality>.5?3:6))) {
+  if (action === 'eat' && (!r.profile?.pantry||((Number(r.id.slice(1))+Math.floor(w.minute/1440))%10)<(r.frugality>.5?3:6)+Math.round(policyFor(r).outingsAffinity*2))) {
     const restaurant=chooseBusiness(w,r,['restaurant'],Math.max(0,Math.min(r.cash-1500,r.cash*.35)));
     if(restaurant){r.businessId=restaurant.id;r.diningOut=true;}
     const restaurants = VENUES.filter(
@@ -475,6 +482,8 @@ function complete(w: LifeWorld, r: Resident) {
       remember(w, r, '完成饮水（免费）');
       break;
     case 'eat':
+      const happinessBeforeMeal=r.happiness;
+      const cashBeforeMeal=r.cash;
       if (r.profile && r.profile.pantry > 0&&!r.diningOut) {
         r.profile.pantry--;
         remember(w, r, '在家使用已购食材做饭');
@@ -490,10 +499,11 @@ function complete(w: LifeWorld, r: Resident) {
       const mealPrice=business?.price||venue?.price||0;
       r.happiness = cap(r.happiness + (100-r.happiness)*(mealPrice>=5000?.08:mealPrice>=2500?.06:.04));
       r.stress=cap(r.stress-(mealPrice>=2500?2:1));
+      learnExperience(r,w.minute,'food',Math.max(-1,Math.min(1,(r.happiness-happinessBeforeMeal)/8-(cashBeforeMeal-r.cash)/Math.max(5000,cashBeforeMeal))),r.diningOut?'restaurant meal':'home meal');
       break;
     case 'fruit': {
       const cost=business?.price&&business.price<1800?business.price:900;
-      if(r.cash>=cost){recordVisit(pay(cost,'购买水果与新鲜食材'));r.nutrition=cap(r.nutrition+12);r.health=cap(r.health+(100-r.health)*.02);r.happiness=cap(r.happiness+(100-r.happiness)*.025);r.stress=cap(r.stress-1);}
+      if(r.cash>=cost){recordVisit(pay(cost,'购买水果与新鲜食材'));r.nutrition=cap(r.nutrition+12);r.health=cap(r.health+(100-r.health)*.02);r.happiness=cap(r.happiness+(100-r.happiness)*.025);r.stress=cap(r.stress-1);learnExperience(r,w.minute,'food',.45-cost/Math.max(5000,r.cash+cost),'fruit purchase');}
       r.lastFruitDay=Math.floor(w.minute/1440);
       break;
     }
@@ -529,6 +539,8 @@ function complete(w: LifeWorld, r: Resident) {
       const role = r.profile?.occupation || 'worker';
       w.serviceHours[role] = (w.serviceHours[role] || 0) + 1;
       remember(w, r, `${r.job}完成一小时工作，工资到账`, wage);
+      if(wage<r.wage)learnExperience(r,w.minute,'work',-.8,'unpaid wage');
+      else if(wage>0&&r.worked===60)learnExperience(r,w.minute,'work',.35,'wage received');
       break;
     }
     case 'rest':
@@ -548,9 +560,12 @@ function complete(w: LifeWorld, r: Resident) {
       log.clinicVisits++;
       break;
     case 'leisure':
+      const happinessBeforeLeisure=r.happiness;
+      const cashBeforeLeisure=r.cash;
       recordVisit(pay(business?.price||(r.cash >= 600 ? 600 : 0), business?`${business.name}完成消费或服务`:'完成休闲活动'));
       r.happiness = cap(r.happiness + (100-r.happiness)*.30);
       r.stress=cap(r.stress-7);
+      learnExperience(r,w.minute,'leisure',Math.max(-1,Math.min(1,(r.happiness-happinessBeforeLeisure)/18-(cashBeforeLeisure-r.cash)/Math.max(6000,cashBeforeLeisure))),business?.name||'leisure');
       break;
     case 'travel':
       recordVisit(pay(business?.price||2200, business?`${business.name}完成短住体验`:'完成短途公园出游（含交通）'));
@@ -579,12 +594,12 @@ function complete(w: LifeWorld, r: Resident) {
         const held=r.holdings?.[symbol]||0;
         if(search.side==='sell'&&held>0&&price>0){
           const proceeds=Math.floor(held*price/1000);
-          if(w.treasury>=proceeds){w.treasury-=proceeds;r.cash+=proceeds;delete r.holdings![symbol];log.trades++;remember(w,r,`卖出 ${symbol} ${(held/1000).toFixed(3)} 股；${search.reason}`,proceeds);}
+          if(w.treasury>=proceeds){w.treasury-=proceeds;r.cash+=proceeds;delete r.holdings![symbol];delete policyFor(r).entryStyle?.[symbol];log.trades++;remember(w,r,`卖出 ${symbol} ${(held/1000).toFixed(3)} 股；${search.reason}`,proceeds);}
         }else if(search.side==='buy'&&r.stress<70&&price>0){
-          const budget=Math.floor(Math.max(0,r.cash+r.savings-25000)*Math.min(.12,r.risk*.15));
+          const budget=Math.floor(Math.max(0,r.cash+r.savings-25000)*Math.min(.12,r.risk*.15)*policyFor(r).riskMultiplier);
           const quantity=Math.floor(budget*1000/price);
           const cost=Math.ceil(quantity*price/1000);
-          if(quantity>0&&cost<=budget){const transfer=Math.max(0,cost-r.cash);r.savings-=transfer;r.cash+=transfer;r.cash-=cost;w.treasury+=cost;r.holdings??={};r.holdings[symbol]=(r.holdings[symbol]||0)+quantity;log.trades++;remember(w,r,`买入 ${symbol} ${(quantity/1000).toFixed(3)} 股；${search.reason}`,-cost);}
+          if(quantity>0&&cost<=budget){const transfer=Math.max(0,cost-r.cash);r.savings-=transfer;r.cash+=transfer;r.cash-=cost;w.treasury+=cost;r.holdings??={};r.holdings[symbol]=(r.holdings[symbol]||0)+quantity;const policy=policyFor(r);policy.entryStyle??={};policy.entryStyle[symbol]=search.style||'deliberative';log.trades++;remember(w,r,`买入 ${symbol} ${(quantity/1000).toFixed(3)} 股；${search.reason}`,-cost);}
         }else remember(w,r,`${symbol||'市场'}：${search.reason}；保持观望`);
         r.lastTradeAsOf=w.market.latest.asOf;
         r.lastTradeDay=Math.floor(w.minute/1440);
@@ -627,7 +642,7 @@ export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
     if (Math.floor(w.minute / 1440) !== previousDay) {
       settleHousingThrough(w,Math.floor(w.minute/(30*1440)));
       for(const b of Object.values(w.businesses||{})){b.day=previousDay+1;b.todayVisits=0;b.todayRevenue=0;}
-      w.residents.forEach((r) => (r.worked = 0));
+      w.residents.forEach((r) => {r.worked=0;ageAdaptivePolicy(r);});
       w.daily.push({
         day: previousDay + 1,
         consumption: 0,
