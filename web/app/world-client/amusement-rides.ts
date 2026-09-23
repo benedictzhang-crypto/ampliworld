@@ -1,6 +1,7 @@
 import plan from './amusement-park-plan.json';
 
 type Track = { x: number; z: number; rx: number; rz: number; peak: number; phase: number; wooden?: boolean; inverted?: boolean };
+type Point3 = { x: number; y: number; z: number };
 type Coaster = { id: string; label: string; kind: 'coaster'; station: [number, number]; track: Track; speed: number; color: string };
 type Tower = { id: string; label: string; kind: 'tower'; station: [number, number]; x: number; z: number; height: number; color: string; duration: number };
 export type ParkRide = Coaster | Tower;
@@ -24,7 +25,30 @@ export function rideAtStation(worldX: number, worldZ: number) {
 }
 
 export function rideDuration(ride: ParkRide) {
-  return ride.kind === 'coaster' ? 8 + 2 * Math.PI / ride.speed : ride.duration;
+  return ride.kind === 'coaster' ? 12.8 + 2 * Math.PI / ride.speed : ride.duration;
+}
+
+const SPUR_SECONDS = 4;
+const LAP_RAMP_SECONDS = 4;
+const SWITCH_SECONDS = .8;
+const smooth = (t: number) => t * t * (3 - 2 * t);
+const spurCache = new Map<string, readonly [Point3, Point3, Point3, Point3]>();
+
+function lapAngle(ride: Coaster, elapsed: number) {
+  const cruise = 2 * Math.PI / ride.speed - LAP_RAMP_SECONDS;
+  const total = cruise + 2 * LAP_RAMP_SECONDS;
+  const t = Math.max(0, Math.min(total, elapsed));
+  const ramp = LAP_RAMP_SECONDS;
+  // Integral of smoothstep: the train accelerates and brakes without a
+  // position or velocity jump at either end of the running circuit.
+  if (t < ramp) {
+    const s = t / ramp;
+    return ride.speed * ramp * (s ** 3 - .5 * s ** 4);
+  }
+  if (t < ramp + cruise)
+    return ride.speed * (ramp / 2 + t - ramp);
+  const s = (t - ramp - cruise) / ramp;
+  return ride.speed * (ramp / 2 + cruise + ramp * (s - s ** 3 + .5 * s ** 4));
 }
 
 export function coasterPoint(ride: Coaster, t: number) {
@@ -38,13 +62,21 @@ export function coasterPoint(ride: Coaster, t: number) {
 }
 
 export function coasterSpurControls(ride: Coaster) {
+  const cached = spurCache.get(ride.id);
+  if (cached) return cached;
   const rail = coasterPoint(ride, Math.PI / 2);
-  return [
+  const nearby = coasterPoint(ride, Math.PI / 2 + .001);
+  const approach = 4 * ride.speed / (3 * .001);
+  const controls = [
     { x: ride.station[0], y: 2.5, z: ride.station[1] },
     { x: ride.station[0] + 10, y: 5, z: ride.station[1] - 12 },
-    { x: rail.x + 30, y: Math.max(6, rail.y - 5), z: rail.z + 8 },
+    { x: rail.x - (nearby.x - rail.x) * approach,
+      y: rail.y - (nearby.y - rail.y) * approach,
+      z: rail.z - (nearby.z - rail.z) * approach },
     rail,
   ] as const;
+  spurCache.set(ride.id, controls);
+  return controls;
 }
 
 export function coasterSpurPoint(ride: Coaster, progress: number) {
@@ -80,19 +112,21 @@ export function ridePose(ride: ParkRide, elapsed: number) {
     // Seat-eye remains just outside the safety ring, so the rail does not fill the view.
     return { x: ride.x + 10.8, y, z: ride.z, aheadX: ride.x + 30, aheadY: y + 1, aheadZ: ride.z, done: elapsed >= ride.duration };
   }
-  const lap = 2 * Math.PI / ride.speed;
+  const lap = 2 * Math.PI / ride.speed + LAP_RAMP_SECONDS;
+  const lapEnd = SPUR_SECONDS + lap;
   let p;
   let ahead;
-  if (time < 4) {
-    const u = time / 4;
+  if (time < SPUR_SECONDS) {
+    const u = smooth(time / SPUR_SECONDS);
     p = coasterSpurPoint(ride, u);
     ahead = coasterSpurPoint(ride, Math.min(1, u + .03));
-  } else if (time < 4 + lap) {
-    const t = Math.PI / 2 + (time - 4) * ride.speed;
+  } else if (time < lapEnd) {
+    const t = Math.PI / 2 + lapAngle(ride, time - SPUR_SECONDS);
     p = coasterPoint(ride, t);
     ahead = coasterPoint(ride, t + .035);
   } else {
-    const u = 1 - (time - 4 - lap) / 4;
+    const waiting = Math.max(0, time - lapEnd - SWITCH_SECONDS);
+    const u = 1 - smooth(waiting / SPUR_SECONDS);
     p = coasterSpurPoint(ride, u);
     ahead = coasterSpurPoint(ride, Math.max(0, u - .03));
   }

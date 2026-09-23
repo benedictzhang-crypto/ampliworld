@@ -28,11 +28,11 @@ for (const ride of PARK_RIDES) {
   assert.ok(end.done && Number.isFinite(start.x) && Number.isFinite(start.y) && Number.isFinite(start.z));
   assert.ok(Math.hypot(end.x - start.x, end.z - start.z) < .001, `${ride.id} does not end at its starting position`);
   if (ride.kind === 'coaster') {
-    const lapEnds = 4 + 2 * Math.PI / ride.speed;
-    for (const boundary of [4, lapEnds]) {
+    const lapEnds = 8 + 2 * Math.PI / ride.speed;
+    for (const boundary of [4, lapEnds, lapEnds + .8]) {
       const before = ridePose(ride, boundary - .001);
       const after = ridePose(ride, boundary + .001);
-      assert.ok(Math.hypot(after.x - before.x, after.y - before.y, after.z - before.z) < 1,
+      assert.ok(Math.hypot(after.x - before.x, after.y - before.y, after.z - before.z) < .05,
         `${ride.id} jumps at the station-to-track junction`);
     }
   }
