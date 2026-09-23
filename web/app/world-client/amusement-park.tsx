@@ -52,7 +52,9 @@ function Apparition({ scare }: { scare: HauntStep }) {
     if (t < 1.5) invalidate();
   });
   const house = plan.attractions.find((a) => a.id === scare.house)!;
-  const side = scare.stage % 2 === 0 ? 44 : -44;
+  // Odd rooms are entered through the right gap, even rooms through the left.
+  // Keep the actor in the same room as the player, rather than behind a wall.
+  const side = scare.stage % 2 === 1 ? 50 : -50;
   const isLab = scare.house === 'haunt-lab';
   const isFinale = scare.stage >= 4;
   return <group ref={actor} position={[house.x + side, 2.7, house.z + 62 - scare.stage * 25]}>

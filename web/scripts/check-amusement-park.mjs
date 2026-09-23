@@ -10,7 +10,7 @@ import { CITY_INFRA, cityGroundHeight } from '../app/world-client/city-surface.t
 import { CITY_SERVICE_COLLIDERS } from '../app/world-client/city-service-buildings.tsx';
 import { CITY_OPERATION_COLLIDERS } from '../app/world-client/city-operations.tsx';
 import { HOUSING_PLAN } from '../app/world-client/housing-registry.ts';
-import { hauntStepAt, nearBasketballCourt, evaluateBasketballShot } from '../app/world-client/amusement-experience.ts';
+import { hauntStepAt, hauntNextDoor, nearBasketballCourt, evaluateBasketballShot } from '../app/world-client/amusement-experience.ts';
 
 assert.equal(plan.attractions.filter(a => a.kind.includes('coaster')).length, 5);
 assert.equal(plan.attractions.filter(a => a.kind === 'walkthrough-haunt').length, 2);
@@ -24,6 +24,15 @@ const x1 = plan.center.x + plan.footprint.width / 2;
 const z0 = plan.center.z - plan.footprint.depth / 2;
 const z1 = plan.center.z + plan.footprint.depth / 2;
 assert.ok(cityGroundHeight(plan.center.x, plan.center.z) >= 0, 'Park plot is wet');
+for (const [label, x, z] of [
+  ['main park gate', plan.entrance.x, plan.entrance.z],
+  ['manor gate', 245, -280 + 84],
+  ['laboratory gate', 445, -280 + 84],
+]) {
+  const hit = [...manifest.structuralColliders, ...manifest.hauntWallColliders].find(c =>
+    x >= c.min[0] && x <= c.max[0] && z >= c.min[2] && z <= c.max[2] && c.max[1] > 0);
+  assert.ok(!hit, `${label} teleport lands inside ${hit?.id}`);
+}
 for (const p of HOUSING_PLAN.placements)
   assert.ok(!(p.x + p.width / 2 > x0 && p.x - p.width / 2 < x1 &&
     p.z + p.depth / 2 > z0 && p.z - p.depth / 2 < z1),
@@ -53,6 +62,35 @@ for (const route of plan.hauntRoutes) {
     const openX = attraction.x + (index % 2 === 0 ? 63 : -63);
     assert.ok(!wallAt(openX, attraction.z + dz), `${route.id} stage ${index + 1} turn is sealed`);
   });
+  for (let stage = 0; stage < 6; stage++) {
+    const step = hauntStepAt(plan.center.x + attraction.x,
+      plan.center.z + attraction.z + 62 - stage * 25);
+    const door = hauntNextDoor(step);
+    assert.ok(!wallAt(door.x - plan.center.x, door.z - plan.center.z),
+      `${route.id} stage ${stage + 1} HUD leads into a wall`);
+    if (stage > 0) {
+      const ghostX = attraction.x + (stage % 2 === 1 ? 50 : -50);
+      const ghostZ = attraction.z + 62 - stage * 25;
+      assert.ok(!wallAt(ghostX, ghostZ), `${route.id} stage ${stage + 1} scare is behind a wall`);
+    }
+  }
+  const walk = [[attraction.x, attraction.z + 76]];
+  [51, 26, 1, -24, -49].forEach((dz, stage) => {
+    const sideX = attraction.x + (stage % 2 === 0 ? 63 : -63);
+    walk.push([sideX, attraction.z + 62 - stage * 25]);
+    walk.push([sideX, attraction.z + dz]);
+    walk.push([sideX, attraction.z + 37 - stage * 25]);
+  });
+  walk.push([attraction.x, attraction.z - 63], [attraction.x, attraction.z - 76]);
+  for (let i = 1; i < walk.length; i++) {
+    const [ax, az] = walk[i - 1];
+    const [bx, bz] = walk[i];
+    for (let k = 0; k <= 32; k++) {
+      const t = k / 32;
+      assert.ok(!wallAt(ax + (bx - ax) * t, az + (bz - az) * t),
+        `${route.id} playable walking route intersects a wall near segment ${i}`);
+    }
+  }
 }
 assert.ok(nearBasketballCourt(plan.center.x - 140, plan.center.z + 345));
 assert.ok(evaluateBasketballShot(18.7, 50).hit);

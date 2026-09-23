@@ -44,7 +44,7 @@ import type { MetroStation } from '../world-client/metro-network';
 import { MetroPlaces } from '../world-client/metro-places';
 import { METRO_PIER_COLLIDERS } from '../world-client/metro-surface';
 import { AMUSEMENT_COLLIDERS, AmusementPark, AMUSEMENT_PARK, type BasketballShot } from '../world-client/amusement-park';
-import { hauntStepAt, nearBasketballCourt, evaluateBasketballShot, type HauntStep } from '../world-client/amusement-experience';
+import { hauntStepAt, hauntNextDoor, nearBasketballCourt, evaluateBasketballShot, type HauntStep } from '../world-client/amusement-experience';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls } from '@react-three/drei';
 import { useGLTF } from '@react-three/drei';
@@ -681,6 +681,20 @@ export function DistrictClient() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [walking, driving, nearCar, position, solids]);
+  const teleportTo = (x: number, z: number) => {
+    const y = districtGroundHeight(x, z);
+    setDriving(false);
+    setWalking(true);
+    setWide(false);
+    setFocus('cbd');
+    setPosition([x, z]);
+    playerFloor.current = y;
+    setRelocation({ x, z, y, nonce: Date.now() });
+    setPlanOpen(false);
+    setScare(null);
+    (document.activeElement as HTMLElement)?.blur();
+  };
+  const nextHauntDoor = hauntStep ? hauntNextDoor(hauntStep) : null;
   return (
     <main className="district">
       <div className="district-canvas">
@@ -834,11 +848,12 @@ export function DistrictClient() {
           )}
         </CanvasBoundary>
       </div>
-      {walking && hauntStep && <div className="district-haunt-route" aria-live="polite">
+      {walking && hauntStep && <Localized><div className="district-haunt-route" aria-live="polite">
         <strong>{hauntStep.house === 'haunt-manor' ? 'THE MANOR' : 'MIDNIGHT LABORATORY'}</strong>
         <span>{hauntStep.stage + 1} / 6 · {hauntStep.title}</span>
-        <small>沿房间里的通道继续走，出口在建筑另一侧。</small>
-      </div>}
+        {nextHauntDoor && <small>{nextHauntDoor.side === 'exit' ? '出口在前方' : `下一道门在${nextHauntDoor.side === 'right' ? '右' : '左'}侧`}
+          {' · '}{Math.round(Math.hypot(nextHauntDoor.x - position[0], nextHauntDoor.z - position[1]))} 米</small>}
+      </div></Localized>}
       {scare && <div className="district-haunt-scare" role="status" aria-live="assertive">
         <span className="district-haunt-eyes">◉　◉</span>
         <strong>{scare.cue}</strong>
@@ -874,6 +889,14 @@ export function DistrictClient() {
         <Button onClick={()=>{setDriving(false);setWalking(true);setWide(false);setFocus('cbd');setRelocation({x:0,z:-68,y:0,nonce:Date.now()});(document.activeElement as HTMLElement)?.blur();}}>人物起点</Button>
         <Button onClick={()=>{car.current={x:6,z:-68,yaw:0,speed:0};setCarReport({...car.current});setDriving(true);setWalking(true);setWide(false);setFocus('cbd');setPosition([6,-68]);(document.activeElement as HTMLElement)?.blur();}}>车辆起点</Button>
         <Button onClick={() => setPlanOpen(true)}>城市平面图</Button>
+        <Button onClick={() => teleportTo(
+          AMUSEMENT_PARK.center.x + AMUSEMENT_PARK.entrance.x,
+          AMUSEMENT_PARK.center.z + AMUSEMENT_PARK.entrance.z,
+        )}>传送到游乐园</Button>
+        {walking && insideAmusementPark && <>
+          <Button onClick={() => teleportTo(AMUSEMENT_PARK.center.x + 245, AMUSEMENT_PARK.center.z - 280 + 84)}>古宅鬼屋入口</Button>
+          <Button onClick={() => teleportTo(AMUSEMENT_PARK.center.x + 445, AMUSEMENT_PARK.center.z - 280 + 84)}>实验室鬼屋入口</Button>
+        </>}
         <Button onClick={() => { setWide(true); setWalking(false); }}>全城总览</Button>
         {legacyNavigationEnabled&&<>
         <Button onClick={()=>setSelectedResident(population.world?.residents[0]?.id||null)}>居民档案 · {population.world?.residents.length||0} 人</Button>
@@ -1081,24 +1104,10 @@ export function DistrictClient() {
         onOpenChange={setPlanOpen}
         position={position}
         onTeleport={(station: MetroStation) => {
-          const y = districtGroundHeight(station.arrivalX, station.arrivalZ);
-          setDriving(false);
-          setWalking(true);
-          setWide(false);
-          setPosition([station.arrivalX, station.arrivalZ]);
-          playerFloor.current = y;
-          setRelocation({ x: station.arrivalX, z: station.arrivalZ, y, nonce: Date.now() });
-          setPlanOpen(false);
+          teleportTo(station.arrivalX, station.arrivalZ);
         }}
         onTeleportPoint={(x, z) => {
-          const y = districtGroundHeight(x, z);
-          setDriving(false);
-          setWalking(true);
-          setWide(false);
-          setPosition([x, z]);
-          playerFloor.current = y;
-          setRelocation({ x, z, y, nonce: Date.now() });
-          setPlanOpen(false);
+          teleportTo(x, z);
         }}
       />
       <Localized><div className="district-status" aria-live="polite">

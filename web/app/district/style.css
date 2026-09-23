@@ -23,6 +23,8 @@
 }
 .district-haunt-route {
   top: 126px;
+  left: 22px;
+  right: auto;
   display: grid;
   gap: 5px;
 }

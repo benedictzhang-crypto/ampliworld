@@ -89,6 +89,8 @@ const dictionary:Record<string,string>={
  '关闭':'Close','搜索':'Search','姓名':'Name','年龄':'Age','职业':'Occupation','位置':'Location','选择居民':'Select resident','选择职业':'Filter occupation',
  '全部':'All','地图':'Map','缩放':'Zoom','图例':'Legend','当前位置':'Your location','主中心':'Main center','副中心':'Secondary center',
  '地铁':'Metro','住宅':'Housing','医院':'Hospital','学校':'School','警察局':'Police station','商业':'Commerce','公园':'Park','滨海':'Waterfront',
+ '传送到游乐园':'Teleport to amusement park','古宅鬼屋入口':'The Manor entrance','实验室鬼屋入口':'Midnight Laboratory entrance',
+ '下一道门在右侧':'Next doorway on the right','下一道门在左侧':'Next doorway on the left','出口在前方':'Exit ahead',' 米':' m',
  '商场':'Mall','屋顶':'Rooftop','观景台':'Observation deck','奢侈品':'Luxury','科技':'Technology','餐饮':'Dining','停车':'Parking',
 };
 const phrases=Object.keys(dictionary).sort((a,b)=>b.length-a.length);

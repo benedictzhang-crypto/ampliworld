@@ -46,6 +46,23 @@ export function hauntStepAt(x: number, z: number): HauntStep | null {
   return null;
 }
 
+/** The actual open gap in the next physical partition, not a UI-only marker. */
+export function hauntNextDoor(step: HauntStep) {
+  const house = plan.attractions.find((a) => a.id === step.house)!;
+  if (step.stage === 5) return {
+    x: plan.center.x + house.x,
+    z: plan.center.z + house.z - 76,
+    side: 'exit' as const,
+  };
+  const offsets = [51, 26, 1, -24, -49];
+  const right = step.stage % 2 === 0;
+  return {
+    x: plan.center.x + house.x + (right ? 63 : -63),
+    z: plan.center.z + house.z + offsets[step.stage],
+    side: right ? 'right' as const : 'left' as const,
+  };
+}
+
 export function nearBasketballCourt(x: number, z: number) {
   const localX = x - plan.center.x;
   const localZ = z - plan.center.z;
