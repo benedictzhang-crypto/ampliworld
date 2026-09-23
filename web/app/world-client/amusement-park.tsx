@@ -100,14 +100,27 @@ function CoasterMotion({ ride: boarded }: { ride: RideSession | null }) {
         }
         car.position.set(p.x, p.y + (ride.track.inverted ? -1.2 : .85), p.z);
         car.rotation.y = -Math.atan2(ahead.z - p.z, ahead.x - p.x);
+        car.rotation.z = Math.atan2(ahead.y - p.y, Math.hypot(ahead.x - p.x, ahead.z - p.z));
       }
     });
   });
   return <group name="moving-coaster-trains">
     {COASTERS.flatMap((ride, rideIndex) => Array.from({ length: 4 }, (_, carIndex) =>
       <group key={`${ride.id}-${carIndex}`} ref={(node) => { cars.current[rideIndex * 4 + carIndex] = node; }}>
-        <mesh castShadow><boxGeometry args={[3.7, 1.5, 2.3]} /><meshStandardMaterial color={ride.color} metalness={.38} roughness={.32} /></mesh>
-        <mesh position={[0, .85, 0]} castShadow><boxGeometry args={[2.8, .42, 1.8]} /><meshStandardMaterial color="#17242d" metalness={.35} roughness={.45} /></mesh>
+        <mesh castShadow><boxGeometry args={[3.6, .65, 2.35]} /><meshStandardMaterial color={ride.color} metalness={.48} roughness={.27} /></mesh>
+        <mesh position={[1.38, .12, 0]} rotation={[0, 0, -Math.PI / 2]} castShadow>
+          <coneGeometry args={[1.12, 1.25, 8]} /><meshStandardMaterial color={ride.color} metalness={.48} roughness={.27} />
+        </mesh>
+        {[-.59, .59].map((side) => <group key={side} position={[-.38, .46, side]}>
+          <mesh castShadow><boxGeometry args={[1.35, .28, .85]} /><meshStandardMaterial color="#17242d" metalness={.22} roughness={.57} /></mesh>
+          <mesh position={[-.47, .58, 0]} castShadow><boxGeometry args={[.26, 1.02, .86]} /><meshStandardMaterial color="#243947" metalness={.28} roughness={.48} /></mesh>
+          <mesh position={[.27, .61, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+            <cylinderGeometry args={[.09, .09, .75, 8]} /><meshStandardMaterial color="#d3dce1" metalness={.72} roughness={.23} />
+          </mesh>
+        </group>)}
+        {[-.74, .74].map((side) => <mesh key={`skirt-${side}`} position={[0, .03, side]} castShadow>
+          <boxGeometry args={[2.55, .66, .13]} /><meshStandardMaterial color={ride.color} metalness={.5} roughness={.28} />
+        </mesh>)}
       </group>))}
   </group>;
 }
@@ -148,9 +161,10 @@ function TowerMotion({ boarded }: { boarded: RideSession | null }) {
       <mesh position={[0, 1.9, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[10.2, .38, 8, 28]} /><meshStandardMaterial color="#899aa4" metalness={.72} roughness={.24} /></mesh>
       {Array.from({ length: 12 }, (_, seat) => {
         const angle = seat * Math.PI / 6;
-        return <mesh key={seat} position={[8.6 * Math.cos(angle), .3, 8.6 * Math.sin(angle)]} rotation={[0, -angle, 0]} castShadow>
-          <boxGeometry args={[1.25, 1.8, 1.15]} /><meshStandardMaterial color="#192734" roughness={.53} />
-        </mesh>;
+        return <group key={seat} position={[8.6 * Math.cos(angle), .3, 8.6 * Math.sin(angle)]} rotation={[0, -angle, 0]}>
+          <mesh castShadow><boxGeometry args={[1.25, 1.8, 1.15]} /><meshStandardMaterial color="#192734" roughness={.53} /></mesh>
+          <mesh position={[.58, .27, 0]} castShadow><boxGeometry args={[.13, .35, 1.04]} /><meshStandardMaterial color="#e7e8de" metalness={.66} roughness={.25} /></mesh>
+        </group>;
       })}
     </group>)}
   </group>;
