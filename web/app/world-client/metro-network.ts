@@ -33,6 +33,17 @@ export const METRO_ALIGNMENT = [
 
 export const METRO_PORTAL = { x: 3350, z: 3310, y: 0, headingRadians: -Math.PI / 2 } as const;
 
+/** Buildable M04–M05 elevated pilot alignment. The northern dogleg clears the
+ * existing residential envelope while leaving horizontal station approaches. */
+export const METRO_ELEVATED_PILOT = [
+  { x: 3380, z: 4400 },
+  { x: 3550, z: 4400 },
+  { x: 4100, z: 4300 },
+  { x: 4900, z: 3100 },
+  { x: 5150, z: 3000 },
+  { x: 5300, z: 3000 },
+] as const;
+
 export function maximumAlignmentGrade() {
   return Math.max(...METRO_ALIGNMENT.slice(1).map((point, index) => {
     const previous = METRO_ALIGNMENT[index];

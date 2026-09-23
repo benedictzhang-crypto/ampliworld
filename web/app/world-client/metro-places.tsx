@@ -3,6 +3,7 @@
 import { Clone, useGLTF } from '@react-three/drei';
 import { METRO_PORTAL, METRO_STATIONS } from './metro-network';
 import { cityGroundHeight } from './city-surface';
+import { MetroViaduct } from './metro-viaduct';
 
 const METRO_ASSETS = '/assets/3d/ampliworld/GC-METRO-001';
 
@@ -33,6 +34,7 @@ function PortalTransition() {
 export function MetroPlaces({ x, z }: { x: number; z: number }) {
   return (
     <group name="metro-pilot-visible-structures">
+      <MetroViaduct x={x} z={z} />
       {METRO_STATIONS.filter((station) =>
         station.mode === 'ELEVATED' && Math.hypot(station.x - x, station.z - z) < 2200,
       ).map((station) => (

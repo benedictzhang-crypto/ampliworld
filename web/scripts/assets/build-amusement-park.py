@@ -289,18 +289,7 @@ def track(name, cx, cz, rx, rz, peak, material, phase, inverted=False, wooden=Fa
                 solid(name+" track pier",x+dx,z,1.4,1.4,y)
             tube(name+" paired pier diagonal",[(x-1.5,z,1),(x+1.5,z,y-1)],.22,"steel")
             block(name+" pier head beam",x,z,y-.58,4.4,.9,.8,"steel",.2)
-    # Four original sculptural vehicles make every track visually legible.
-    for car in range(4):
-        i=13+car*3
-        x,z,y=points[i]
-        nx,nz,_=points[i+1]
-        body=block(name+" four-seat train car",x,z,y-1.2 if inverted else y+.85,
-                   3.7,2.3,1.5,"dark",.45)
-        body.rotation_euler[2]=math.atan2(-(nz-z),nx-x)
-        body.data.materials.clear()
-        body.data.materials.append(M[material])
-        for side in (-.72,.72):
-            ball(name+" car headrest",x,z+side,y-1.7 if inverted else y+1.73,.38,"dark",8)
+    # Trains are now animated in the client along this exact centreline.
     return points
 
 
