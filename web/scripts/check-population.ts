@@ -10,6 +10,12 @@ import { WEALTH_REFERENCE } from '../app/life-sim/society';
 import {CENSUS_SIZE} from '../app/life-sim/census';
 let world = createLifeWorld();
 assert.equal(world.residents.length, CENSUS_SIZE);
+const initialWellbeing={
+  happiness:world.residents.reduce((sum,r)=>sum+r.happiness,0)/CENSUS_SIZE,
+  mood:world.residents.reduce((sum,r)=>sum+r.wellbeing!.mood,0)/CENSUS_SIZE,
+  stress:world.residents.reduce((sum,r)=>sum+r.stress,0)/CENSUS_SIZE,
+  mental:world.residents.reduce((sum,r)=>sum+r.wellbeing!.mentalHealth,0)/CENSUS_SIZE,
+};
 assert.equal(
   world.residents.reduce((n, r) => n + residentNetWorth(r, world.minute), 0),
   WEALTH_REFERENCE.scenarioTotalCents,
@@ -82,12 +88,21 @@ for (let day = 0; day < 30; day++) {
     assert(r.adaptivePolicy);
     assert(r.adaptivePolicy.experiences.length<=8);
     assert(r.adaptivePolicy.riskMultiplier>=.4&&r.adaptivePolicy.riskMultiplier<=1.1);
+    assert(r.wellbeing);
+    for(const value of [r.wellbeing.mood,r.wellbeing.mentalHealth,r.wellbeing.eventPressure])assert(Number.isFinite(value)&&value>=0&&value<=100);
     if(r.identity!.age<18){assert.equal(r.shares,0);assert(!r.memory.some(m=>m.text.includes('工资到账')||m.text.includes('买入虚拟')));}
     assert(Number.isFinite(r.x) && Number.isFinite(r.z));
     maxShares = Math.max(maxShares, r.shares);
   }
   executions = world.daily.reduce((n, d) => n + d.trades, 0);
 }
+const finalWellbeing={
+  happiness:world.residents.reduce((sum,r)=>sum+r.happiness,0)/CENSUS_SIZE,
+  mood:world.residents.reduce((sum,r)=>sum+r.wellbeing!.mood,0)/CENSUS_SIZE,
+  stress:world.residents.reduce((sum,r)=>sum+r.stress,0)/CENSUS_SIZE,
+  mental:world.residents.reduce((sum,r)=>sum+r.wellbeing!.mentalHealth,0)/CENSUS_SIZE,
+};
+for(const key of ['happiness','mood','stress','mental'] as const)assert(Math.abs(finalWellbeing[key]-initialWellbeing[key])<5,`${key} should not drift without an external event`);
 assert(
   executions > 0 && maxShares > 0,
   'trades must execute, not just count visits',

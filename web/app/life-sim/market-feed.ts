@@ -1,5 +1,6 @@
 import type {LifeWorld} from './engine';
 import {learnMarketOutcome} from './adaptive-policy';
+import {addMood} from './wellbeing';
 
 /** A quote is usable only after its recorded availability time. Prices are cents. */
 export type MarketSnapshot={
@@ -56,7 +57,8 @@ export function ingestMarketSnapshot(input:LifeWorld,value:unknown,now?:string):
     if(exposure){
       const swing=Math.min(12,Math.abs(exposure)/Math.max(10000,resident.cash+resident.savings)*100);
       resident.stress=Math.max(0,Math.min(100,resident.stress+(exposure<0?swing:-swing*.4)));
-      resident.happiness=Math.max(0,Math.min(100,resident.happiness+(exposure>0?swing*.5:-swing*.6)));
+      resident.happiness=Math.max(0,Math.min(100,resident.happiness+(exposure>0?swing*.1:-swing*.15)));
+      addMood(resident,exposure>0?swing*.5:-swing*.6);
     }
   }
   next.revision++;

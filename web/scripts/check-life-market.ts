@@ -3,6 +3,7 @@ import {advanceLifeWorld,createLifeWorld,moneyTotal,residentNetWorth,upgradeLife
 import {ingestMarketSnapshot,quoteReturn,validateMarketSnapshot} from '../app/life-sim/market-feed';
 import {applyWorldEvent} from '../app/life-sim/world-events';
 import {learnExperience,learnMarketOutcome,learnedMarketStyle,policyFor} from '../app/life-sim/adaptive-policy';
+import {ageWellbeing,applyPublicShock,populationWellbeingScores,updateWellbeing,wellbeingFor} from '../app/life-sim/wellbeing';
 
 const market=(asOf:string,availableAt:string,aapl:number,msft:number)=>({asOf,availableAt,source:'test-fixture-not-live-data',quotes:{AAPL:aapl,MSFT:msft}});
 const now='2026-09-23T12:00:00Z';
@@ -12,6 +13,19 @@ assert.throws(()=>validateMarketSnapshot(market('2026-09-20T20:00:00Z','2026-09-
 let world=createLifeWorld();
 assert.equal(world.residents.length,30000);
 assert(world.residents.every(r=>Number.isFinite(r.stress)&&r.stress>=0&&r.stress<=100));
+const steady=structuredClone(world.residents[0]);
+steady.water=90;steady.nutrition=90;steady.energy=90;
+const steadyHappiness=steady.happiness,steadyStress=steady.stress;
+for(let day=0;day<30;day++){for(let tick=0;tick<288;tick++)updateWellbeing(steady);ageWellbeing(steady);}
+assert(Math.abs(steady.happiness-steadyHappiness)<3&&steady.stress>=steadyStress&&steady.stress<steadyStress+10,'isolated no-event wellbeing should remain bounded');
+applyPublicShock(steady,'negative',20,1);
+assert(steady.happiness<steadyHappiness&&steady.stress>steadyStress&&wellbeingFor(steady).eventPressure>0);
+for(let tick=0;tick<288;tick++)updateWellbeing(steady);
+assert(steady.happiness<steadyHappiness,'a public shock should continue to weigh on wellbeing after a day');
+const depressedHappiness=steady.happiness;
+applyPublicShock(steady,'positive',20,1);
+for(let tick=0;tick<288;tick++)updateWellbeing(steady);
+assert(steady.happiness>depressedHappiness,'positive news should offset perceived pressure');
 const learner=structuredClone(world.residents.find(r=>r.frugality<=.6&&r.risk>.55)!);
 assert.equal(learnedMarketStyle(learner),'momentum');
 policyFor(learner).entryStyle={AAPL:'momentum'};
@@ -25,8 +39,19 @@ assert(policyFor(learner).freshFoodAffinity>priorFood,'food outcomes must change
 learnExperience(learner,1001,'family',-.9,'family argument');
 assert(policyFor(learner).familySupport<0,'family memory must affect social context');
 assert(policyFor(learner).riskMultiplier>=.4,'losses cannot create an unbounded policy');
+const populationHappinessBefore=populationWellbeingScores(world.residents);
 world=applyWorldEvent(world,'Milk prices rise 20%');
 assert.equal(Object.values(world.worldEvents!.at(-1)!.counts).reduce((sum,count)=>sum+count,0),30000);
+const populationAfter=populationWellbeingScores(world.residents);
+assert(populationAfter.happiness<populationHappinessBefore.happiness&&populationAfter.mood<populationHappinessBefore.mood&&populationAfter.stressManagement<populationHappinessBefore.stressManagement,'price news may visibly change the full-city hexagon');
+assert(world.residents.some(r=>(r.wellbeing?.eventPressure||0)>0),'news pressure is held per resident');
+const oneResident={...world,residents:[structuredClone(world.residents[0])]},beforeWar=oneResident.residents[0].wellbeing!.mood;
+const afterWar=applyWorldEvent(oneResident,'War breaks out');
+assert(afterWar.residents[0].wellbeing!.mood<beforeWar,'non-financial negative news must affect wellbeing');
+const afterPeace=applyWorldEvent(afterWar,'Peace treaty signed');
+assert(afterPeace.residents[0].wellbeing!.eventPressure<afterWar.residents[0].wellbeing!.eventPressure,'positive news should offset accumulated pressure');
+const wageNews=applyWorldEvent(afterWar,'Wages increase 20%');
+assert(wageNews.worldEvents!.at(-1)!.tone==='positive'&&wageNews.residents[0].wellbeing!.eventPressure<afterWar.residents[0].wellbeing!.eventPressure,'income growth must not be confused with a price rise');
 const veteran=world.residents.find(r=>(r.identity?.age||0)>=65&&r.risk>.55&&r.frugality<=.6);
 assert(veteran);
 const topUp=50000-veteran.cash;

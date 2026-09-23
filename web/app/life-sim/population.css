@@ -106,6 +106,21 @@
   gap: 8px 14px;
   margin: 12px 0;
 }
+.wellbeing-hexagon {
+  margin: 16px 0 8px;
+  padding: 8px 6px 10px;
+  border: 1px solid #75848155;
+  border-radius: 12px;
+  background: linear-gradient(150deg, #1c3033, #172126);
+}
+.wellbeing-hexagon svg { display: block; width: 100%; height: auto; }
+.wellbeing-grid { fill: none; stroke: #88a5a34d; stroke-width: 1; }
+.wellbeing-axis { stroke: #88a5a345; stroke-width: 1; }
+.wellbeing-shape { fill: #7dcdbb55; stroke: #a6ead5; stroke-width: 2; }
+.wellbeing-point { fill: #f4d79c; stroke: #1c3033; stroke-width: 1; }
+.wellbeing-label { fill: #d7e7e5; font-size: 11px; font-weight: 600; }
+.wellbeing-number { fill: #f4d79c; font-size: 12px; }
+.wellbeing-hexagon figcaption { color: #adbfbd; font-size: 10px; line-height: 1.45; padding: 0 8px; }
 .population-needs label {
   display: flex;
   flex-direction: column;

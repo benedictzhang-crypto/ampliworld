@@ -10,6 +10,7 @@ import {
 import {applyWorldEvent} from '../../life-sim/world-events';
 import {ingestMarketSnapshot,validateMarketSnapshot} from '../../life-sim/market-feed';
 import type {LifeWorld} from '../../life-sim/engine';
+import {populationWellbeingScores} from '../../life-sim/wellbeing';
 const response = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 async function load(userId: string) {
@@ -43,6 +44,7 @@ function observable(world:LifeWorld,center:[number,number]=[0,-68]):LifeWorld{
     Math.hypot(a.x-center[0],a.z-center[1])-Math.hypot(b.x-center[0],b.z-center[1])||a.id.localeCompare(b.id)
   ).slice(0,1200);
   return {...world,
+    cityWellbeing:populationWellbeingScores(world.residents),
     populationTotal:world.residents.length,
     householdTotal:Object.keys(world.housing||{}).length,
     employedTotal:world.residents.filter(r=>r.employment).length,

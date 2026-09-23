@@ -1,6 +1,6 @@
 import type {Resident} from './engine';
 
-export type ExperienceKind='market'|'family'|'food'|'leisure'|'work';
+export type ExperienceKind='market'|'family'|'food'|'leisure'|'work'|'news';
 export type Experience={minute:number;kind:ExperienceKind;outcome:number;detail:string};
 export type AdaptivePolicy={
   version:1;

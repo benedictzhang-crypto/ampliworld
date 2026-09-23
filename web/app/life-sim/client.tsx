@@ -12,6 +12,7 @@ import {
 } from './engine';
 import { OCCUPATIONS, VENUES, WEALTH_REFERENCE } from './society';
 import {CENSUS_SIZE} from './census';
+import {WellbeingHexagon} from './wellbeing-hexagon';
 import './population.css';
 type PopulationResponse = { world?: LifeWorld; error?: string };
 
@@ -377,6 +378,7 @@ export function PopulationPanel({
                 每名居民是独立个体，同一家人各有个人账户。初始财富差异借用美国家庭统计作为情景参考，并非已校准的个人财富分布；旧存档保留既有财产。当前全城有 30,000 条持久居民记录，不代表 30,000 个大模型同时推理。
               </p>
               <p>全城 {world.populationTotal||world.residents.length} 名居民 · {world.householdTotal||Object.keys(world.housing||{}).length} 个家庭 · {world.employedTotal||world.residents.filter(r=>r.employment).length} 名就业居民 · {world.businessTotal||Object.keys(world.businesses||{}).length} 个经营及公共主体。当前前端观察样本 {world.observableSample||world.residents.length} 人，完整人口在服务端持续模拟。</p>
+              {world.cityWellbeing&&<WellbeingHexagon scores={world.cityWellbeing} />}
               <p className="population-note">当前按个人净财富重新排序分组；人数占比和财富份额是不同指标。参考数据按家庭统计，仅作情景对照。</p>
               <div className="wealth-table">
                 {WEALTH_REFERENCE.groups.map((group, index) => {
@@ -525,6 +527,7 @@ export function PopulationPanel({
               <p className="population-note">累计出行 {((resident.travelSeconds||0)/60).toFixed(1)} 分钟 · 其中等灯 {((resident.crossingWaitSeconds||0)/60).toFixed(1)} 分钟</p>
               <p>{resident.id} · {resident.identity?.age} 岁<br/>模拟银行账户：{resident.bankAccountId}</p>
               {resident.identity&&<><p>{resident.identity.home}<br/><small>{resident.identity.homeStatus}</small></p><p>兴趣：{resident.identity.preference} · 工作单位：{resident.identity.workplace||'家庭 / 学校 / 社区'}</p><h4>家庭、邻居与同事</h4><div className="occupation-grid">{resident.identity.relations.map(link=>{const other=world.residents.find(r=>r.id===`R${String(link.index+1).padStart(3,'0')}`);return other?<button key={other.id} onClick={()=>onSelect(other.id)}>{link.type} · {displayName(other)}</button>:null;})}{world.residents.filter(r=>r.id!==resident.id&&!!resident.identity?.workplace&&r.identity?.workplace===resident.identity.workplace).slice(0,4).map(r=><button key={`coworker-${r.id}`} onClick={()=>onSelect(r.id)}>同事 · {displayName(r)}</button>)}</div><h4>人格参数（合成，非大模型）</h4>{Object.entries(resident.identity.personality).map(([key,value],i)=><p className="service-hours" key={key}><span>{['开放性','尽责性','外向性','亲和性','情绪稳定性'][i]}</span><b>{value}</b></p>)}</>}
+              <WellbeingHexagon resident={resident} />
               <div className="population-needs">
                 {(
                   [
@@ -533,6 +536,7 @@ export function PopulationPanel({
                     ['健康', resident.health],
                     ['精力', resident.energy],
                     ['幸福', resident.happiness],
+                    ['当前心情', resident.wellbeing?.mood??resident.happiness],
                     ['压力（越低越好）', resident.stress],
                   ] as const
                 ).map(([label, value]) => (

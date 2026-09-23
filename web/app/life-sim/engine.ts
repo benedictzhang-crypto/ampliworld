@@ -14,6 +14,8 @@ import {HOUSING_FINANCE_VERSION,initializeHousingPayments,settleHousingThrough} 
 import type {MarketState} from './market-feed';
 import {searchStockOpportunity} from './investor-policy';
 import {ageAdaptivePolicy,learnExperience,policyFor,type AdaptivePolicy} from './adaptive-policy';
+import {addMood,ageWellbeing,updateWellbeing,wellbeingFor,type WellbeingState} from './wellbeing';
+import type {WellbeingScores} from './wellbeing';
 export type Action =
   | 'home'
   | 'drink'
@@ -63,6 +65,7 @@ export type Resident = {
   shares: number;
   holdings?:Record<string,number>; // integer milli-shares (1/1000 share)
   adaptivePolicy?:AdaptivePolicy;
+  wellbeing?:WellbeingState;
   wage: number;
   risk: number;
   frugality: number;
@@ -87,6 +90,7 @@ export type Resident = {
   memory: { minute: number; text: string; cashDelta: number }[];
 };
 export type LifeWorld = {
+  cityWellbeing?:WellbeingScores; // projected from the full population for the client, not stored as a second ledger
   populationTotal?:number;
   householdTotal?:number;
   employedTotal?:number;
@@ -125,7 +129,7 @@ export type LifeWorld = {
   }[];
 };
 export type WorldEvent={
-  id:string;text:string;subject:string;direction:'up'|'down'|'neutral';shockPct:number;minute:number;
+  id:string;text:string;subject:string;direction:'up'|'down'|'neutral';tone?:'negative'|'positive'|'neutral';shockPct:number;minute:number;
   counts:{reduce:number;maintain:number;increase:number};
   examples:{residentId:string;reaction:'reduce'|'maintain'|'increase';reason:string}[];
 };
@@ -190,7 +194,6 @@ export function createLifeWorld(): LifeWorld {
   w.serviceHours = {};
   w.openingMoney = moneyTotal(w);
   attachIdentities(w);
-  for(const r of w.residents)policyFor(r);
   // The old broad cash seed could exceed the lower wealth-cohort target.
   // Correct only a NEW world before housing assignment; never rewrite saves.
   for(let i=0;i<w.residents.length;i++){
@@ -207,7 +210,7 @@ export function createLifeWorld(): LifeWorld {
   expandRegionalServices(w);
   correctOpeningLiquidity(w);
   initializeHousingPayments(w);
-  for(const r of w.residents){r.x=r.home[0];r.z=r.home[1];}
+  for(const r of w.residents){r.x=r.home[0];r.z=r.home[1];policyFor(r);wellbeingFor(r);}
   return w;
 }
 function attachIdentities(w:LifeWorld){
@@ -229,7 +232,7 @@ function attachIdentities(w:LifeWorld){
   w.censusVersion=CENSUS_VERSION;
 }
 export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
-  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===2&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housingFinanceVersion===HOUSING_FINANCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName&&Number.isFinite(r.stress)&&r.holdings&&r.adaptivePolicy?.version===1)) return input;
+  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===2&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housingFinanceVersion===HOUSING_FINANCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName&&Number.isFinite(r.stress)&&r.holdings&&r.adaptivePolicy?.version===1&&r.wellbeing?.version===1&&Number.isFinite(r.wellbeing.mentalHealth)&&Number.isFinite(r.wellbeing.financialSecuritySetpoint))) return input;
   const w = structuredClone(input),
     fresh = createLifeWorld();
   if(input.societyVersion!==1)for (let i = 0; i < w.residents.length; i++) {
@@ -255,12 +258,13 @@ export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
   w.venueStats ??= {};
   w.serviceHours ??= {};
   attachIdentities(w);
-  for(const r of w.residents){r.stress??=30;r.lastFruitDay??=-1;r.holdings??={};policyFor(r);}
+  for(const r of w.residents){r.stress??=30;r.lastFruitDay??=-1;r.holdings??={};}
   bindResidency(w);
   initializeCommerce(w);
   expandRegionalServices(w);
   correctOpeningLiquidity(w);
   initializeHousingPayments(w);
+  for(const r of w.residents){policyFor(r);wellbeingFor(r);}
   return w;
 }
 export const residentNetWorth = (r: Resident, minute: number, market?:MarketState) =>
@@ -287,14 +291,16 @@ function householdDay(w:LifeWorld,day:number){
     const conflict=kind==='household-conflict';
     for(const r of [a,b]){
       r.stress=cap(r.stress+(conflict?8:-5));
-      r.happiness=cap(r.happiness+(conflict?-7:5));
+      r.happiness=cap(r.happiness+(conflict?-1.5:1));
+      addMood(r,conflict?-6:5);
       remember(w,r,conflict?'家庭争执，压力上升':'家人交流与支持，心情改善');
       learnExperience(r,w.minute,'family',conflict?-.8:.65,conflict?'household conflict':'household support');
     }
     const third=w.residents[i+2];
     if(third?.identity?.familyId===a.identity?.familyId){
       third.stress=cap(third.stress+(conflict?4:-2));
-      third.happiness=cap(third.happiness+(conflict?-4:3));
+      third.happiness=cap(third.happiness+(conflict?-1:.7));
+      addMood(third,conflict?-4:3);
       remember(w,third,conflict?'家中争执影响心情':'感受到家庭支持');
       learnExperience(third,w.minute,'family',conflict?-.5:.45,conflict?'family conflict nearby':'family support nearby');
     }
@@ -304,6 +310,7 @@ function householdDay(w:LifeWorld,day:number){
 }
 function choose(w: LifeWorld, r: Resident): [Action, string] {
   const adaptive=policyFor(r);
+  const pricePressure=wellbeingFor(r).eventPressure;
   const hour = (w.minute % 1440) / 60,
     day = Math.floor(w.minute / 1440);
   if (r.water < 38) return ['drink', '口渴，寻找免费饮水点'];
@@ -353,7 +360,7 @@ function choose(w: LifeWorld, r: Resident): [Action, string] {
   if ((r.identity?.age??18)>=18 && r.risk*adaptive.riskMultiplier > 0.55 && r.cash+r.savings > 50000 && r.stress<78 &&
     (w.market?r.lastTradeAsOf!==w.market.latest.asOf:r.lastTradeDay!==day))
     return ['trade', w.market?'研究已发布的股票行情与个人风险预算':'演示模式：虚拟指数交易'];
-  if (day % 7 >= 5 && r.cash > 25000 && r.lastTripDay !== day)
+  if (day % 7 >= 5 && r.cash > 25000+pricePressure*1200 && r.lastTripDay !== day)
     return ['travel', '休息日有预算，安排一次短途出游'];
   if((r.identity?.age||0)>=18&&r.cash>12000&&r.lastBrowseDay!==day&&hour>=10&&hour<21&&Number(r.id.slice(1))%4===day%4)return ['leisure','有可支配预算，逛店或安排车辆服务'];
   return ['home', '回家补充精力，保留消费预算'];
@@ -381,7 +388,7 @@ function start(w: LifeWorld, r: Resident) {
   let venueId = '';
   r.businessId=undefined;r.diningOut=false;
   const hour=(w.minute%1440)/60;
-  if (action === 'eat' && (!r.profile?.pantry||((Number(r.id.slice(1))+Math.floor(w.minute/1440))%10)<(r.frugality>.5?3:6)+Math.round(policyFor(r).outingsAffinity*2))) {
+  if (action === 'eat' && (!r.profile?.pantry||((Number(r.id.slice(1))+Math.floor(w.minute/1440))%10)<(r.frugality>.5?3:6)+Math.round(policyFor(r).outingsAffinity*2)-Math.round(wellbeingFor(r).eventPressure/2))) {
     const restaurant=chooseBusiness(w,r,['restaurant'],Math.max(0,Math.min(r.cash-1500,r.cash*.35)));
     if(restaurant){r.businessId=restaurant.id;r.diningOut=true;}
     const restaurants = VENUES.filter(
@@ -477,12 +484,12 @@ function complete(w: LifeWorld, r: Resident) {
   switch (r.action) {
     case 'drink':
       r.water = 95;
-      r.stress=cap(r.stress-1);
-      r.happiness=cap(r.happiness+(100-r.happiness)*.005);
+      r.stress=cap(r.stress-.5);
+      addMood(r,.2);
       remember(w, r, '完成饮水（免费）');
       break;
     case 'eat':
-      const happinessBeforeMeal=r.happiness;
+      const moodBeforeMeal=wellbeingFor(r).mood;
       const cashBeforeMeal=r.cash;
       if (r.profile && r.profile.pantry > 0&&!r.diningOut) {
         r.profile.pantry--;
@@ -497,13 +504,15 @@ function complete(w: LifeWorld, r: Resident) {
       }
       r.nutrition = 90;
       const mealPrice=business?.price||venue?.price||0;
-      r.happiness = cap(r.happiness + (100-r.happiness)*(mealPrice>=5000?.08:mealPrice>=2500?.06:.04));
-      r.stress=cap(r.stress-(mealPrice>=2500?2:1));
-      learnExperience(r,w.minute,'food',Math.max(-1,Math.min(1,(r.happiness-happinessBeforeMeal)/8-(cashBeforeMeal-r.cash)/Math.max(5000,cashBeforeMeal))),r.diningOut?'restaurant meal':'home meal');
+      const mealEnjoyment=(100-r.happiness)*(mealPrice>=5000?.08:mealPrice>=2500?.06:.04);
+      r.happiness=cap(r.happiness+mealEnjoyment*.15);
+      addMood(r,mealEnjoyment*.3);
+      r.stress=cap(r.stress-(mealPrice>=2500?.9:.5));
+      learnExperience(r,w.minute,'food',Math.max(-1,Math.min(1,(wellbeingFor(r).mood-moodBeforeMeal)/8-(cashBeforeMeal-r.cash)/Math.max(5000,cashBeforeMeal))),r.diningOut?'restaurant meal':'home meal');
       break;
     case 'fruit': {
       const cost=business?.price&&business.price<1800?business.price:900;
-      if(r.cash>=cost){recordVisit(pay(cost,'购买水果与新鲜食材'));r.nutrition=cap(r.nutrition+12);r.health=cap(r.health+(100-r.health)*.02);r.happiness=cap(r.happiness+(100-r.happiness)*.025);r.stress=cap(r.stress-1);learnExperience(r,w.minute,'food',.45-cost/Math.max(5000,r.cash+cost),'fruit purchase');}
+      if(r.cash>=cost){recordVisit(pay(cost,'购买水果与新鲜食材'));r.nutrition=cap(r.nutrition+12);r.health=cap(r.health+(100-r.health)*.02);r.happiness=cap(r.happiness+(100-r.happiness)*.004);addMood(r,.7);r.stress=cap(r.stress-.5);learnExperience(r,w.minute,'food',.45-cost/Math.max(5000,r.cash+cost),'fruit purchase');}
       r.lastFruitDay=Math.floor(w.minute/1440);
       break;
     }
@@ -512,8 +521,8 @@ function complete(w: LifeWorld, r: Resident) {
       if (r.cash >= cost) {
         recordVisit(pay(cost, '采购三份家庭餐食食材'));
         if (r.profile) r.profile.pantry += 3;
-        r.happiness=cap(r.happiness+(100-r.happiness)*.015);
-        r.stress=cap(r.stress-1);
+        addMood(r,.3);
+        r.stress=cap(r.stress-.5);
       }
       if (r.profile) r.profile.lastShopDay = Math.floor(w.minute / 1440);
       break;
@@ -534,7 +543,7 @@ function complete(w: LifeWorld, r: Resident) {
       log.wages += wage;
       r.energy = cap(r.energy - 5);
       r.stress=cap(r.stress+3-(wage>0?2:0));
-      if(wage>0)r.happiness=cap(r.happiness+(100-r.happiness)*.002);
+      if(wage>0)addMood(r,.2);
       w.serviceHours ??= {};
       const role = r.profile?.occupation || 'worker';
       w.serviceHours[role] = (w.serviceHours[role] || 0) + 1;
@@ -546,31 +555,35 @@ function complete(w: LifeWorld, r: Resident) {
     case 'rest':
       r.energy = cap(r.energy + 60);
       r.health = cap(r.health + (100-r.health)*.005);
-      r.stress=cap(r.stress-2);
+      r.stress=cap(r.stress-1);
+      addMood(r,.3);
       remember(w, r, '睡眠恢复精力');
       break;
     case 'home':
       r.energy = cap(r.energy + 1);
-      r.happiness = cap(r.happiness + (100-r.happiness)*.001);
       break;
     case 'hospital':
       recordVisit(pay(r.cash >= 1800 ? 1800 : 0, '完成基础诊疗'));
       r.health = cap(r.health + (100-r.health)*.65);
-      r.stress=cap(r.stress-5);
+      r.stress=cap(r.stress-4);
       log.clinicVisits++;
       break;
     case 'leisure':
-      const happinessBeforeLeisure=r.happiness;
+      const moodBeforeLeisure=wellbeingFor(r).mood;
       const cashBeforeLeisure=r.cash;
       recordVisit(pay(business?.price||(r.cash >= 600 ? 600 : 0), business?`${business.name}完成消费或服务`:'完成休闲活动'));
-      r.happiness = cap(r.happiness + (100-r.happiness)*.30);
-      r.stress=cap(r.stress-7);
-      learnExperience(r,w.minute,'leisure',Math.max(-1,Math.min(1,(r.happiness-happinessBeforeLeisure)/18-(cashBeforeLeisure-r.cash)/Math.max(6000,cashBeforeLeisure))),business?.name||'leisure');
+      const leisureJoy=(100-wellbeingFor(r).mood)*.10;
+      addMood(r,leisureJoy);
+      r.happiness=cap(r.happiness+leisureJoy*.08);
+      r.stress=cap(r.stress-3);
+      learnExperience(r,w.minute,'leisure',Math.max(-1,Math.min(1,(wellbeingFor(r).mood-moodBeforeLeisure)/18-(cashBeforeLeisure-r.cash)/Math.max(6000,cashBeforeLeisure))),business?.name||'leisure');
       break;
     case 'travel':
       recordVisit(pay(business?.price||2200, business?`${business.name}完成短住体验`:'完成短途公园出游（含交通）'));
-      r.happiness = cap(r.happiness + (100-r.happiness)*.40);
-      r.stress=cap(r.stress-10);
+      const travelJoy=(100-wellbeingFor(r).mood)*.15;
+      addMood(r,travelJoy);
+      r.happiness=cap(r.happiness+travelJoy*.12);
+      r.stress=cap(r.stress-4);
       r.energy = cap(r.energy - 10);
       r.lastTripDay = Math.floor(w.minute / 1440);
       break;
@@ -642,7 +655,7 @@ export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
     if (Math.floor(w.minute / 1440) !== previousDay) {
       settleHousingThrough(w,Math.floor(w.minute/(30*1440)));
       for(const b of Object.values(w.businesses||{})){b.day=previousDay+1;b.todayVisits=0;b.todayRevenue=0;}
-      w.residents.forEach((r) => {r.worked=0;ageAdaptivePolicy(r);});
+      w.residents.forEach((r) => {r.worked=0;ageAdaptivePolicy(r);ageWellbeing(r);});
       w.daily.push({
         day: previousDay + 1,
         consumption: 0,
@@ -657,9 +670,7 @@ export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
       r.water = cap(r.water - 0.32);
       r.nutrition = cap(r.nutrition - 0.48);
       r.energy = cap(r.energy - 0.13);
-      r.happiness = cap(r.happiness - 0.03);
-      r.stress=cap(r.stress+.02+(r.water<25?.08:0)+(r.nutrition<25?.09:0)+(r.energy<25?.05:0));
-      if(r.stress>75)r.happiness=cap(r.happiness-.03);
+      updateWellbeing(r);
       r.health=cap(r.health-.002);
       if (r.water < 12 || r.nutrition < 12) r.health = cap(r.health - 0.12);
       if (!r.remaining) start(w, r);
@@ -692,6 +703,8 @@ export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
   const a=w.residents[Math.floor(w.minute/15)%w.residents.length];
   const b=w.residents.find(r=>r.id!==a.id&&Math.hypot(r.x-a.x,r.z-a.z)<3);
   if(b){const text=(a.identity?.age??18)<18||(b.identity?.age??18)<18?'今天学校和生活过得怎么样？':'今天过得怎么样？一起聊聊附近的生活。';
+    const moodDifference=(wellbeingFor(b).mood-wellbeingFor(a).mood)*.03;
+    addMood(a,moodDifference);addMood(b,-moodDifference);
     w.socialEncounters=[...(w.socialEncounters||[]),{minute:w.minute,a:a.id,b:b.id,text,topic:'附近居民交流',kind:'规则模板交谈'}].slice(-50);
     remember(w,a,`与${b.name}交谈：${text}`);remember(w,b,`与${a.name}交谈：${text}`);}
   w.revision++;

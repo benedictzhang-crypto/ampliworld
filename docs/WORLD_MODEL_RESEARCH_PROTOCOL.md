@@ -42,6 +42,17 @@ and report uncertainty rather than output a single persuasive story.
   market-search style and reduce its position budget. Daily drift prevents
   permanently frozen preferences. This is deterministic online heuristic
   adaptation, not a trained autonomous agent or evidence of predictive edge.
+- Wellbeing has separate individual happiness and stress setpoints, a faster
+  transient mood state, and a slower simulated mental-health state. Routine
+  rewards fade rather than compounding forever. Public-news shocks are held
+  per resident as pressure that decays gradually; negative news can shift the
+  city mean without any aggregate clamp. The six-axis view is available for
+  an individual and for the full 30,000-person city, calculated before the
+  client receives its 1,200-person spatial sample. It adds physical health
+  and a cash-buffer-based financial-security estimate. These
+  are synthetic research scores, not clinical assessments or empirically
+  calibrated population norms. Price headlines currently affect perceived
+  affordability and discretionary choices; store-level repricing is pending.
 - A market snapshot supplies 1–50 symbols with cent prices, source, `asOf`
   and `availableAt`. The API rejects future or backwards observations and
   requires explicit zero-value delisting rather than silently dropping a
@@ -52,6 +63,18 @@ and report uncertainty rather than output a single persuasive story.
 - Existing index trading remains as a clearly synthetic fallback when no
   market snapshot is loaded. The market form is manual; vendor licensing,
   point-in-time corporate actions and historical replay are not established.
+
+### Synthetic equilibrium check (30,000 residents)
+
+In a deterministic 30-day run with no injected news, city-mean happiness was
+59.5 → 60.0, transient mood 69.5 → 68.5, and stress 33.0 → 33.1. Simulated
+mental health moved 64.9 → 61.7; wage reliability and household/economic
+dynamics still require separate calibration. A 20% milk-price headline moved
+the immediate means to happiness 58.3, mood 66.1 and stress 34.9. One day
+later, the treated city remained below a no-news control by about 2.1
+happiness points and 1.1 mood points. These are **unit/scenario results from
+our own synthetic rules**, not measurements of real human responses. The
+headline changes perceived pressure; it does not yet reprice merchant stock.
 
 ## Training and experimental design
 

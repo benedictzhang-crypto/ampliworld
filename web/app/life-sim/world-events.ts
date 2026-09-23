@@ -1,14 +1,22 @@
 import type {LifeWorld,Resident,WorldEvent} from './engine';
+import {applyPublicShock} from './wellbeing';
+import {learnExperience} from './adaptive-policy';
 
 const hash=(value:string)=>{let h=2166136261;for(let i=0;i<value.length;i++)h=Math.imul(h^value.charCodeAt(i),16777619);return (h>>>0)/4294967296;};
 const clamp=(n:number,a=0,b=1)=>Math.max(a,Math.min(b,n));
 
 function interpret(text:string){
   const pct=Math.min(100,Math.max(1,Number(text.match(/(\d+(?:\.\d+)?)\s*%/)?.[1]||10)));
-  const down=/(降价|下跌|减少|便宜|price cut|falls?|drops?|decrease)/i.test(text);
+  const down=/(降价|下跌|减少|便宜|降薪|裁员|price cut|falls?|drops?|decrease|wage cut|job cuts?)/i.test(text);
   const up=/(涨价|上涨|增加|昂贵|price hike|rises?|jumps?|increase)/i.test(text);
-  const subject=/(牛奶|milk)/i.test(text)?'milk':/(汽油|燃油|gasoline|fuel)/i.test(text)?'fuel':/(房租|rent)/i.test(text)?'rent':'daily goods';
-  return {subject,shockPct:pct,direction:down?'down':up?'up':'neutral'} as const;
+  const householdCost=/(牛奶|汽油|燃油|房租|物价|食品|日用品|milk|gasoline|fuel|rent|inflation|cost of living|food prices?|consumer prices?)/i.test(text);
+  const householdIncome=/(工资|薪水|收入|就业|失业|wages?|salar(?:y|ies)|income|jobs?|employment)/i.test(text);
+  const subject=/(牛奶|milk)/i.test(text)?'milk':/(汽油|燃油|gasoline|fuel)/i.test(text)?'fuel':/(房租|rent)/i.test(text)?'rent':householdIncome?'income':householdCost?'daily goods':'society';
+  const negative=/(战争|灾害|裁员|失业|疫情|停电|污染|war|disaster|layoffs?|unemployment|outbreak|power outage|pollution)/i.test(text);
+  const positive=/(和平|就业增加|复苏|peace|new jobs|recovery)/i.test(text);
+  const tone=negative||(householdCost&&up)||(householdIncome&&down)?'negative':positive||(householdCost&&down)||(householdIncome&&up)?'positive':'neutral';
+  const direction=householdCost?(down?'down':up?'up':'neutral'):'neutral';
+  return {subject,shockPct:pct,direction,tone} as const;
 }
 
 function decide(r:Resident,eventId:string,direction:'up'|'down'|'neutral',shock:number){
@@ -34,12 +42,12 @@ export function applyWorldEvent(input:LifeWorld,text:string):LifeWorld{
     const result=decide(resident,id,parsed.direction,parsed.shockPct);
     counts[result.reaction]++;
     resident.lastEventReaction={eventId:id,...result};
-    if(parsed.direction==='up'&&result.reaction==='reduce'){
-      resident.stress=clamp((resident.stress||0)+Math.min(8,parsed.shockPct*.12),0,100);
-      resident.happiness=clamp(resident.happiness-Math.min(4,parsed.shockPct*.06),0,100);
-    }else if(parsed.direction==='down'&&result.reaction==='increase'){
-      resident.stress=clamp((resident.stress||0)-Math.min(4,parsed.shockPct*.06),0,100);
-    }
+    const liquid=resident.cash+resident.savings;
+    const sensitivity=.55+resident.frugality*.35+(liquid<Math.max(1,resident.wage)*30?.35:0)+(result.reaction==='reduce'?.15:0);
+    applyPublicShock(resident,parsed.tone,parsed.shockPct,sensitivity);
+    learnExperience(resident,input.minute,'news',parsed.tone==='negative'?-parsed.shockPct/100:parsed.tone==='positive'?parsed.shockPct/100:0,`${text.trim().slice(0,70)}; reaction ${result.reaction}`);
+    resident.memory.push({minute:input.minute,text:`新闻：${text.trim().slice(0,90)}；反应：${result.reaction}`,cashDelta:0});
+    if(resident.memory.length>32)resident.memory.shift();
     if(examples.length<12&&examples.filter(e=>e.reaction===result.reaction).length<4)examples.push({residentId:resident.id,...result});
   }
   const event:WorldEvent={id,text:text.trim(),minute:input.minute,...parsed,counts,examples};
