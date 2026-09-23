@@ -1,22 +1,32 @@
 'use client';
 import {Suspense,useEffect,useMemo,useRef} from 'react';
-import {Text,useGLTF} from '@react-three/drei';
+import {Clone,Text,useGLTF} from '@react-three/drei';
 import {Color,InstancedMesh,Matrix4,Mesh,Object3D} from 'three';
 import {SERVICE_SITES} from '../life-sim/city-service-plan';
 
 export const STREET_SERVICE_SITES=SERVICE_SITES.filter(s=>s.placement==='street');
-const MODELED_STOREFRONT_TYPES=new Set(['convenience','pharmacy','florist','signature-restaurant','premium-restaurant','upper-restaurant','mid-restaurant','value-restaurant','milk-tea','cafe','bakery','electronics-repair','dry-cleaning','laundromat','salon','gym','clinic','dentist','pet','repair','post']);
+const MODELED_STOREFRONT_TYPES=new Set(['convenience','pharmacy','florist','signature-restaurant','premium-restaurant','upper-restaurant','mid-restaurant','value-restaurant','milk-tea','cafe','bakery','electronics-repair','dry-cleaning','laundromat','salon','clinic','dentist','pet','repair','post']);
 export const MODELED_STOREFRONT_SITES=STREET_SERVICE_SITES.filter(s=>MODELED_STOREFRONT_TYPES.has(s.type));
+export const SPECIAL_SERVICE_SITES=STREET_SERVICE_SITES.filter(s=>s.type==='gym'||s.type==='arcade');
+export function venueVariant(id:string,type:string){
+  if(type==='arcade')return 'arcade';
+  if(type==='gym')return id.endsWith('002')||id.endsWith('003')?'aquatic':id.endsWith('004')||id.endsWith('005')||id.endsWith('006')?'studio':'iron';
+  return null;
+}
 export const CITY_SERVICE_COLLIDERS=STREET_SERVICE_SITES.flatMap(s=>{
-  if(MODELED_STOREFRONT_TYPES.has(s.type))return [
-    {id:`${s.id}/rear-wall`,min:[s.x-8,0,s.z-6] as [number,number,number],max:[s.x+8,6.4,s.z-5.65] as [number,number,number]},
-    {id:`${s.id}/left-wall`,min:[s.x-8,0,s.z-5.9] as [number,number,number],max:[s.x-7.65,6.4,s.z+6] as [number,number,number]},
-    {id:`${s.id}/right-wall`,min:[s.x+7.65,0,s.z-5.9] as [number,number,number],max:[s.x+8,6.4,s.z+6] as [number,number,number]},
-    {id:`${s.id}/left-glazing`,min:[s.x-7.3,0,s.z+5.8] as [number,number,number],max:[s.x-1.9,4.1,s.z+6.15] as [number,number,number]},
-    {id:`${s.id}/right-glazing`,min:[s.x+1.9,0,s.z+5.8] as [number,number,number],max:[s.x+7.3,4.1,s.z+6.15] as [number,number,number]},
-    {id:`${s.id}/entry-left`,min:[s.x-1.9,0,s.z+5.6] as [number,number,number],max:[s.x-1.45,4.6,s.z+6.2] as [number,number,number]},
-    {id:`${s.id}/entry-right`,min:[s.x+1.45,0,s.z+5.6] as [number,number,number],max:[s.x+1.9,4.6,s.z+6.2] as [number,number,number]},
-  ];
+  if(MODELED_STOREFRONT_TYPES.has(s.type)||s.type==='gym'||s.type==='arcade'){
+    const aquatic=venueVariant(s.id,s.type)==='aquatic';
+    const halfWidth=aquatic?15:8,halfDepth=aquatic?10:6,height=aquatic?11.8:6.4;
+    return [
+      {id:`${s.id}/rear-wall`,min:[s.x-halfWidth,0,s.z-halfDepth] as [number,number,number],max:[s.x+halfWidth,height,s.z-halfDepth+.35] as [number,number,number]},
+      {id:`${s.id}/left-wall`,min:[s.x-halfWidth,0,s.z-halfDepth] as [number,number,number],max:[s.x-halfWidth+.35,height,s.z+halfDepth] as [number,number,number]},
+      {id:`${s.id}/right-wall`,min:[s.x+halfWidth-.35,0,s.z-halfDepth] as [number,number,number],max:[s.x+halfWidth,height,s.z+halfDepth] as [number,number,number]},
+      {id:`${s.id}/left-glazing`,min:[s.x-halfWidth+.6,0,s.z+halfDepth-.2] as [number,number,number],max:[s.x-1.9,4.2,s.z+halfDepth+.2] as [number,number,number]},
+      {id:`${s.id}/right-glazing`,min:[s.x+1.9,0,s.z+halfDepth-.2] as [number,number,number],max:[s.x+halfWidth-.6,4.2,s.z+halfDepth+.2] as [number,number,number]},
+      {id:`${s.id}/entry-left`,min:[s.x-1.9,0,s.z+halfDepth-.2] as [number,number,number],max:[s.x-1.55,4.6,s.z+halfDepth+.2] as [number,number,number]},
+      {id:`${s.id}/entry-right`,min:[s.x+1.55,0,s.z+halfDepth-.2] as [number,number,number],max:[s.x+1.9,4.6,s.z+halfDepth+.2] as [number,number,number]},
+    ];
+  }
   const halfWidth=s.type==='police'?15:s.type==='bank'||s.type==='nightclub'?12:8;
   const height=['school','hotel','community','police','fire'].includes(s.type)?11:6;
   return [{id:`${s.id}/building`,min:[s.x-halfWidth,0,s.z-6] as [number,number,number],max:[s.x+halfWidth,height,s.z+6] as [number,number,number]}];
@@ -46,11 +56,19 @@ function ModeledStorefronts(){
   return <group name="Blender-authored street storefronts">{meshes.map(mesh=><StorefrontBatch key={mesh.uuid} mesh={mesh}/>)}</group>;
 }
 
+function SpecialVenue({variant}:{variant:'aquatic'|'studio'|'iron'|'arcade'}){
+  const {scene}=useGLTF(`/assets/3d/ampliworld/GC-FITNESS-ARCADE-001/${variant}.glb`);
+  return <group name={`Blender ${variant} venues`}>{SPECIAL_SERVICE_SITES.filter(s=>venueVariant(s.id,s.type)===variant).map(s=><group key={s.id} position={[s.x,0,s.z]}>
+    <Clone object={scene} castShadow receiveShadow/>
+    <Text position={[0,5.65,variant==='aquatic'?13.1:8.6]} fontSize={variant==='aquatic'?.86:.52} color="#e9dfc7" anchorX="center" maxWidth={variant==='aquatic'?26:13}>{s.name}</Text>
+  </group>)}</group>;
+}
+
 export function CityServiceBuildings(){
   const bodies=useRef<InstancedMesh>(null),glass=useRef<InstancedMesh>(null),roofs=useRef<InstancedMesh>(null),paving=useRef<InstancedMesh>(null);
   useEffect(()=>{const o=new Object3D(),c=new Color();STREET_SERVICE_SITES.forEach((s,i)=>{
     const tall=['school','hotel','community','police','fire'].includes(s.type),sides=s.type==='police'?1.8:s.type==='bank'||s.type==='nightclub'?1.45:['auto-repair','fuel'].includes(s.type)?1.5:1;
-    const shellScale=MODELED_STOREFRONT_TYPES.has(s.type)?0:1;
+    const shellScale=MODELED_STOREFRONT_TYPES.has(s.type)||s.type==='gym'||s.type==='arcade'?0:1;
     o.position.set(s.x,tall?5:2.8,s.z);o.scale.set(sides*shellScale,(tall?1.8:1)*shellScale,shellScale);o.updateMatrix();bodies.current!.setMatrixAt(i,o.matrix);bodies.current!.setColorAt(i,c.setHSL((i*.097)%1,.16,.58));
     o.position.set(s.x,tall?4.2:2.4,s.z+6.04);o.scale.set(sides*shellScale,.75*shellScale,shellScale);o.updateMatrix();glass.current!.setMatrixAt(i,o.matrix);
     o.position.set(s.x,tall?10.2:5.8,s.z);o.scale.set(sides*shellScale,shellScale,shellScale);o.updateMatrix();roofs.current!.setMatrixAt(i,o.matrix);
@@ -59,6 +77,7 @@ export function CityServiceBuildings(){
   const count=STREET_SERVICE_SITES.length;
   return <group name="Physical street services">
     <Suspense fallback={null}><ModeledStorefronts/></Suspense>
+    <Suspense fallback={null}><SpecialVenue variant="aquatic"/><SpecialVenue variant="studio"/><SpecialVenue variant="iron"/><SpecialVenue variant="arcade"/></Suspense>
     <instancedMesh ref={paving} args={[undefined,undefined,count]} receiveShadow><boxGeometry args={[22,.08,9]}/><meshStandardMaterial color="#858983" roughness={.96}/></instancedMesh>
     <instancedMesh ref={bodies} args={[undefined,undefined,count]} castShadow receiveShadow><boxGeometry args={[16,5.6,12]}/><meshStandardMaterial roughness={.78}/></instancedMesh>
     <instancedMesh ref={glass} args={[undefined,undefined,count]}><boxGeometry args={[11,3.1,.12]}/><meshPhysicalMaterial color="#759093" transparent opacity={.58} roughness={.18}/></instancedMesh>

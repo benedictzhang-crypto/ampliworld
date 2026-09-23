@@ -1,0 +1,70 @@
+{
+  "id": "GC-FITNESS-ARCADE-001",
+  "units": "metres",
+  "provenance": "Original Blender geometry; no imported meshes, advertisements or copyrighted logos.",
+  "venues": {
+    "aquatic": {
+      "footprint": [
+        30,
+        20
+      ],
+      "floors": 2,
+      "poolMeters": [
+        11.8,
+        5.7
+      ],
+      "equipment": [
+        "treadmills",
+        "squat racks",
+        "benches"
+      ],
+      "file": "aquatic.glb",
+      "bytes": 877432,
+      "triangles": 15976
+    },
+    "studio": {
+      "footprint": [
+        16,
+        12
+      ],
+      "floors": 1,
+      "equipment": [
+        "treadmills",
+        "benches",
+        "mirror"
+      ],
+      "file": "studio.glb",
+      "bytes": 383528,
+      "triangles": 7140
+    },
+    "iron": {
+      "footprint": [
+        16,
+        12
+      ],
+      "floors": 1,
+      "equipment": [
+        "squat racks",
+        "free weights",
+        "benches"
+      ],
+      "file": "iron.glb",
+      "bytes": 325852,
+      "triangles": 6040
+    },
+    "arcade": {
+      "footprint": [
+        16,
+        12
+      ],
+      "floors": 1,
+      "equipment": [
+        "six physical game cabinets",
+        "ticket counter"
+      ],
+      "file": "arcade.glb",
+      "bytes": 416044,
+      "triangles": 7572
+    }
+  }
+}

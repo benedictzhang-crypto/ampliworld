@@ -88,9 +88,9 @@ const brands=[
  ['Dior','Louis Vuitton','Prada','Hermes','Gucci','Tumi','Coach','Chanel','Rolex','Richard Mille','Sephora','Uniqlo','MUJI','Apple'],
  ['CELINE','Loewe','Bottega Veneta','Cartier','Tiffany','Bvlgari','Burberry','Moncler','Fendi','Chopard','Valentino','Loro Piana','Aurea Atelier','Gallery Editions'],
  ['Garmin',"Arc'teryx",'Apple','Samsung','Sony','DJI','Bose','HUAWEI','LEGO','Uniqlo','MUJI','COS','H&M','Outdoor Studio'],
- ['Patagonia','The North Face','Salomon','New Balance','Nike','Adidas','Decathlon','On','Outdoor Lab','Urban Fashion','Travel Gear','Camera Studio','Tech Workshop','Active Life'],
- ['Aurea Tea','Lotus Dining','Garden Table','Cedar Kitchen','Cloud Patisserie','Bamboo Tea','Gallery Cafe','Fine Dining','Tea Collection','Aurea Cinema','Supper Club','Sky Kitchen','Arcade Lounge','Dessert Atelier'],
- ['Roofside Tea','Sunset Dining','Orchid Table','Stone & Fire','Cloud Cafe','Cinema Lounge','Arcade Studio','Tea Pavilion','Garden Dining','Aurea Cinema','Play Lounge','Private Dining','Art Kitchen','Evening Bar'],
+ ['Patagonia','The North Face','Salomon','New Balance','Nike','Adidas','Decathlon','On','Outdoor Lab','Urban Fashion','Travel Gear','Camera Studio','Tech Workshop','Aurea Fitness Studio'],
+ ['Aurea Tea','Lotus Dining','Garden Table','Cedar Kitchen','Cloud Patisserie','Bamboo Tea','Gallery Cafe','Fine Dining','Tea Collection','Aurea Cinema','Supper Club','Sky Kitchen','Tea Workshop','Dessert Atelier'],
+ ['Roofside Tea','Sunset Dining','Orchid Table','Stone & Fire','Cloud Cafe','Cinema Lounge','Arcade Studio','Tea Pavilion','Garden Dining','Aurea Cinema','Sky Bistro','Private Dining','Art Kitchen','Evening Bar'],
 ];
 function room(label,x,z,ry,f,index){
  const y=FLOOR_Y[f],c=Math.cos(ry),s=Math.sin(ry),w=16,depth=23,h=3.9,id=`L${f+1}-shop-${index}`;
@@ -101,12 +101,19 @@ function room(label,x,z,ry,f,index){
  for(const side of [-1,1]){b('window'+side,'glass',side*4.85,1.6,0,6.3,3.2,.10);b('jamb'+side,'gold',side*1.74,1.65,.04,.10,3.3,.15);}
  b('header','ivory',0,3.6,0,w,.7,.25);b('sign-light','light',0,3.25,-.2,12,.04,.25,false);
  text3d(label,x+.19*s,y+3.45,z+.19*c,Math.min(.58,9/Math.max(1,label.length)*1.28),ry);
- b('display','stone',-4,.65,-7,4,1.1,2);b('desk','wood',4,.72,-16,4,1.3,1.4);
- if(f<2){const p=pt(-4,-7);merchandise(T,add,box,['handbag','shoe-pair','coat','necklace','watch','ring'][index%6],p[0],y+1.22,p[1],ry);}
+ if(!/Fitness|Arcade/.test(label)){b('display','stone',-4,.65,-7,4,1.1,2);b('desk','wood',4,.72,-16,4,1.3,1.4);}
+ if(/Fitness/.test(label)){
+  b('mirror','glass',-7.83,2,-12,.06,3.5,15,false);
+  for(const u of [-4,0,4]){b('treadmill-'+u,'dark',u,.34,-8,1.1,.22,2.2);b('screen-'+u,'glass',u,1.3,-8.9,.85,.65,.08,false);}
+  for(const u of [-4,0,4]){for(const side of [-.8,.8])b('rack-upright-'+u+'-'+side,'gold',u+side,1.25,-17,.12,2.5,.12);b('bar-'+u,'stone',u,1.4,-16.8,2.1,.1,.1);}
+ } else if(/Arcade/.test(label)){
+  for(const u of [-5,-3,-1,1,3,5]){const v=u%2===0?-15:-8;b('cabinet-'+u,'dark',u,1.2,v,1.35,2.2,1.2);b('arcade-screen-'+u,'light',u,1.6,v+.64,1,.9,.05,false);b('arcade-control-'+u,'gold',u,.91,v+.89,.92,.16,.5);}
+  b('ticket-desk','wood',0,.73,-20,5,1.25,1.2);
+ } else if(f<2){const p=pt(-4,-7);merchandise(T,add,box,['handbag','shoe-pair','coat','necklace','watch','ring'][index%6],p[0],y+1.22,p[1],ry);}
  else if(f<4){for(const u of [-5,-3]){b('device-'+u,'dark',u,1.5,-7,.75,.45,.10,false);b('devicebase-'+u,'gold',u,1.23,-7,.7,.06,.5,false);}b('rack','gold',-4,1.7,-16,5,.07,.07,false);for(const u of [-6,-2])b('rackleg'+u,'gold',u,.9,-16,.07,1.7,.07,false);}
  else {
   for(const u of [-4,4])for(const v of [-6,-12]){b(`table-${u}-${v}`,'wood',u,.8,v,2,.12,2);b(`leg-${u}-${v}`,'gold',u,.4,v,.18,.8,.18);for(const du of [-1.5,1.5]){b(`seat-${u}-${v}-${du}`,'leather',u+du,.47,v,.65,.16,.7);b(`seatback-${u}-${v}-${du}`,'leather',u+du,.84,v+.3,.65,.65,.14);}}
-  if(/Cinema|Arcade|Play/.test(label)){b('screen','dark',0,2.05,-depth+.14,10,2.7,.10,false);b('screenlight','light',0,2.05,-depth+.21,8.7,1.9,.035,false);}
+  if(/Cinema/.test(label)){b('screen','dark',0,2.05,-depth+.14,10,2.7,.10,false);b('screenlight','light',0,2.05,-depth+.21,8.7,1.9,.035,false);}
  }
  shops.push({id,label,level:'L'+(f+1),floorY:y,position:[x,y,z],rotationY:ry,doorWidth:3.4,door:[x,y,z],open:true,interior:'walk-in furnished room',commercialStatus:'Illustrative name text only; no affiliation or live tenancy claimed'});
 }

@@ -24,7 +24,8 @@ export const CITY_SERVICE_PLAN=[
   {kind:'dry-cleaning',label:'Full-service dry cleaner',count:8,staff:6,price:3800},
   {kind:'laundromat',label:'Self-service laundromat',count:10,staff:3,price:1400},
   {kind:'salon',label:'Hair, nail and personal care',count:24,staff:6,price:4800},
-  {kind:'gym',label:'Gym and fitness studio',count:12,staff:9,price:6500},
+  {kind:'gym',label:'Fitness club',count:10,staff:8,price:6500},
+  {kind:'arcade',label:'Arcade and games hall',count:2,staff:10,price:2400},
   {kind:'bank',label:'Bank branch',count:10,staff:12,price:0},
   {kind:'bar',label:'Neighborhood bar',count:18,staff:8,price:3200},
   {kind:'nightclub',label:'Nightclub',count:5,staff:22,price:8500},
@@ -52,6 +53,8 @@ const mallSlots:Record<string,{x:number;z:number;floor:string;shopId:string}>={
   'signature-restaurant:0':{x:46,z:-137,floor:'L6',shopId:'L6-shop-11'},'signature-restaurant:1':{x:70,z:-208,floor:'L6',shopId:'L6-shop-14'},
   'premium-restaurant:0':{x:-96,z:-137,floor:'L5',shopId:'L5-shop-7'},'premium-restaurant:1':{x:-54,z:-239,floor:'L6',shopId:'L6-shop-1'},'premium-restaurant:2':{x:-54,z:-137,floor:'L6',shopId:'L6-shop-8'},'premium-restaurant:3':{x:70,z:-208,floor:'L6',shopId:'L6-shop-16'},'premium-restaurant:4':{x:70,z:-168,floor:'L6',shopId:'L6-shop-17'},
   'cafe:0':{x:88,z:-239,floor:'L5',shopId:'L5-shop-6'},'cafe:1':{x:46,z:-239,floor:'L6',shopId:'L6-shop-4'},
+  'gym:0':{x:88,z:-137,floor:'L4',shopId:'L4-shop-13'},
+  'arcade:0':{x:88,z:-239,floor:'L6',shopId:'L6-shop-6'},
 };
 const occupiedStreetSites:{x:number;z:number}[]=[];
 // Reserve the whole storefront/forecourt, not just the central body collider.
@@ -98,8 +101,12 @@ export const SERVICE_SITES=CITY_SERVICE_PLAN.flatMap((service,categoryIndex)=>Ar
     ? `${i<5?'AmpliTrust Bank':'Worldline Bank'} · ${['Central','East Arc','Riverfront','Southgate','Marina'][i%5]} Branch`
     : service.kind==='police'
       ? `Metropolitan Police Precinct ${i+1}`
-      : `${service.label} ${i+1}`;
-  return {id:`CITY-${service.kind.toUpperCase()}-${String(i+1).padStart(3,'0')}`,name,type:service.kind,x,z,staff:service.staff,price:service.price,...(slot?{placement:'mall' as const,floor:slot.floor,shopId:slot.shopId}:{placement:'street' as const})};
+      : service.kind==='gym'
+        ? `${i===0?'Aurea Galleria Fitness':i<=2?'Aurea Aquatic Club':i<=5?'Ampli Fitness Studio':'Iron District Gym'} ${i+1}`
+        : `${service.label} ${i+1}`;
+  const staff=service.kind==='gym'?(i<=2?16:i<=5?10:6):service.staff;
+  const price=service.kind==='gym'?(i<=2?12000:i<=5?6500:2800):service.price;
+  return {id:`CITY-${service.kind.toUpperCase()}-${String(i+1).padStart(3,'0')}`,name,type:service.kind,x,z,staff,price,...(slot?{placement:'mall' as const,floor:slot.floor,shopId:slot.shopId}:{placement:'street' as const})};
 }));
 
 export const TRANSPORT_HUBS=[

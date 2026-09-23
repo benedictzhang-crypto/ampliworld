@@ -51,10 +51,26 @@ observed estimate. Liquid savings remain separate from inherited or other
 non-cash wealth; a high net worth with low current wages can be legitimate,
 while an implausible bank balance is tested separately. Employer-specific
 roles now replace accidental assignments such as delivery drivers in clinics
-or waiters in professional offices. The registry has **275 distinct job
-titles**, but bus, taxi and ride-hail operating businesses and their demand
-flows are still missing. Existing saved worlds are not silently reallocated;
+or waiters in professional offices. The fresh-world registry has **282 distinct
+job titles** after adding pool safety and amusement-venue work, but bus, taxi
+and ride-hail operating businesses and their demand flows are still missing.
+Existing saved worlds are not silently reallocated;
 these opening-policy changes apply to newly created worlds.
+
+**Fitness and recreation pass — 23 September:** the 30,000-resident scenario
+now has exactly ten gyms (one walk-in L4 mall studio, two standalone aquatic
+clubs with modeled pools, three neighborhood studios and four low-cost iron
+gyms) and two arcades (one furnished L6 mall room, one street venue). Four
+different Blender-authored venue models replace the generic street shop for
+these sites; shell/wall colliders preserve an open doorway. The venue roster
+accounts for **102 gym jobs and 20 arcade jobs** without changing the 30,000
+resident register. The school staffing cycle was corrected: the prior
+100-person cycle placed almost every employee of a 55-person school in a
+teaching role. This is a deterministic internal correction, **not** a claim
+that occupational shares or patronage match observed cities. Airport and
+logistics staffing in particular serve a hypothetical wider region, yet the
+current resident-only employer assignment has no cross-city commuters; that
+is an explicit research limitation before any 300,000-person scale-up.
 
 For a real 300,000-person target in the 20 × 30 km city, see the
 [population scaling plan](docs/POPULATION_SCALE_300K.md). The current

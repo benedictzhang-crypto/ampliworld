@@ -487,7 +487,7 @@ function start(w: LifeWorld, r: Resident) {
   if(action==='leisure'&&(r.identity?.age||0)>=21&&hour>=18){
     r.businessId=chooseBusiness(w,r,hour>=20?['nightclub','bar']:['bar'],Math.max(0,r.cash-6000))?.id;
   }
-  if(action==='leisure'&&reason.includes('逛店')){const n=Number(r.id.slice(1));r.businessId=chooseBusiness(w,r,(r.consumerPersona?.personalCareInterest||0)>.65?['salon']:n%5===0?['cinema']:n%8===0?['auto']:['retail-shop','supermarket'],r.cash-6000)?.id;r.lastBrowseDay=Math.floor(w.minute/1440);}
+  if(action==='leisure'&&reason.includes('逛店')){const n=Number(r.id.slice(1));r.businessId=chooseBusiness(w,r,(r.consumerPersona?.personalCareInterest||0)>.65?['salon']:n%11===0?['gym']:n%9===0?['arcade']:n%5===0?['cinema']:n%8===0?['auto']:['retail-shop','supermarket'],r.cash-6000)?.id;r.lastBrowseDay=Math.floor(w.minute/1440);}
   if(action==='travel')r.businessId=chooseBusiness(w,r,['hotel'],Math.max(0,r.cash-15000))?.id;
   if(plan?.businessId){r.businessId=plan.businessId;r.diningOut=action==='eat';}
   if (r.profile) r.profile.venueId = venueId;
@@ -638,6 +638,10 @@ function complete(w: LifeWorld, r: Resident) {
       addMood(r,leisureJoy);
       r.happiness=cap(r.happiness+leisureJoy*.08);
       r.stress=cap(r.stress-3);
+      if(business?.type==='gym'){
+        r.health=cap(r.health+(100-r.health)*.025);
+        r.energy=cap(r.energy-4);
+      }
       learnExperience(r,w.minute,'leisure',Math.max(-1,Math.min(1,(wellbeingFor(r).mood-moodBeforeLeisure)/18-(cashBeforeLeisure-r.cash)/Math.max(6000,cashBeforeLeisure))),business?.name||'leisure');
       break;
     case 'travel':

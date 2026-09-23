@@ -3,7 +3,7 @@ import {hourlyWageCents,monthlySalaryCents} from './housing-finance';
 import type {LifeWorld,Resident} from './engine';
 import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from '../world-client/retail-registry';
 import {SERVICE_SITES,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS,CITY_OPERATION_SITES} from './city-service-plan';
-export const COMMERCE_VERSION=10;
+export const COMMERCE_VERSION=11;
 export const HOSPITALITY=[
  {id:'GC-RESTAURANT-001',name:'Lotus Siam · 泰国菜',type:'restaurant',entry:[245,-68],price:2600,staff:12},
  {id:'GC-RESTAURANT-002',name:'Bronze Garden · 花园中餐',type:'restaurant',entry:[290,-68],price:2800,staff:9},
@@ -37,7 +37,7 @@ export function initializeCommerce(w:LifeWorld){
  }
  const adults=w.residents.filter(r=>(r.identity?.age||0)>=18&&r.wage>0).sort((a,b)=>hash(a.id)-hash(b.id));
  const remaining=new Set(adults.map(r=>r.id));
- function role(type:string,i:number):string{
+ function role(type:string,i:number,placeId=''):string{
   if(type==='hospital'){
    const n=i%100;
    return i===0?'医院行政主管':n<22?'医生':n<64?'护士':n<72?'医学检验技师':n<78?'影像技师':n<83?'急救员':n<87?'药剂师':n<91?'康复治疗师':n<94?'医院前台':n<97?'医院后勤人员':'医院保安';
@@ -47,8 +47,10 @@ export function initializeCommerce(w:LifeWorld){
    return i===0?'警务主管':n<15?'巡逻警员':n<22?'交通警员':n<27?'刑事调查员':n<31?'警务调度员':n<34?'警务档案员':'警局保洁员';
   }
   if(type==='school'){
-   const n=i%100;
-   return i===0?'校长':n<56?'教师':n<60?'音乐教师':n<64?'教学助理':n<68?'学校心理辅导员':n<74?'图书管理员':n<80?'学校行政人员':n<86?'校园餐饮员工':n<94?'校园保洁员':'校园保安';
+   // Most schools in this 30k-resident scenario have 55 places; percentages
+   // must therefore repeat within each school rather than over a 100-person cycle.
+   const n=i%20;
+   return i===0?'校长':n<9?'教师':n===9?'音乐教师':n===10?'教学助理':n===11?'学校心理辅导员':n===12?'图书管理员':n<15?'学校行政人员':n<17?'校园餐饮员工':n<19?'校园保洁员':'校园保安';
   }
   if(type==='restaurant'){
    const n=i%12;
@@ -96,7 +98,14 @@ export function initializeCommerce(w:LifeWorld){
   if(type==='pet')return i===0?'宠物医院院长':i%5<2?'兽医':i%5===2?'宠物护理员':i%5===3?'宠物美容师':'宠物医院前台';
   if(type==='repair')return i===0?'维修店经理':i%4<3?'维修技师':'维修店前台';
   if(type==='salon')return i===0?'美容店经理':i%5<2?'美甲师':i%5<4?'理发师':'美容店前台';
-  if(type==='gym')return i===0?'健身房经理':i%5<3?'健身教练':i%5===3?'健身房前台':'健身房保洁员';
+  if(type==='gym'){
+   if(i===0)return '健身房经理';
+   if(/00[2-3]$/.test(placeId))return i<3?'救生员':i<8?'健身教练':i<10?'健身房前台':i<12?'游泳教练':i<15?'健身房保洁员':'健身器材维护技师';
+   if(/001$/.test(placeId))return i<8?'健身教练':i<11?'健身房前台':i<14?'健身房保洁员':'健身器材维护技师';
+   if(/00[4-6]$/.test(placeId))return i<6?'健身教练':i<8?'健身房前台':i===8?'健身房保洁员':'健身器材维护技师';
+   return i<3?'健身教练':i===3?'健身房前台':i===4?'健身房保洁员':'健身器材维护技师';
+  }
+  if(type==='arcade')return i===0?'电玩城经理':i%5<3?'游戏厅服务员':i%5===3?'游戏设备维修技师':'电玩城保洁员';
   if(type==='community')return i===0?'社区服务主管':i%5<2?'社工':i%5===2?'照护员':i%5===3?'社区活动协调员':'社区保洁员';
   if(type==='post')return i===0?'邮政网点主管':i%5<2?'邮件分拣员':i%5<4?'邮递员':'邮政柜员';
   if(type==='clubhouse')return i===0?'会所经理':i%4===0?'会所礼宾员':i%4===1?'健身教练':i%4===2?'会所服务员':'会所保洁员';
@@ -122,7 +131,7 @@ export function initializeCommerce(w:LifeWorld){
   const b:Business=w.businesses[d.id]??={id:d.id,name:d.name,type:d.type,entry:d.entry as [number,number],...('floor' in d&&d.floor?{floor:d.floor}:{}),staffIds:[],managerId:null,ownerId:null,price:'price' in d?d.price:d.type==='restaurant'?2600:d.type==='retail-shop'?2500+(hash(d.id)%12)*1500:d.type==='auto'?8500:d.type==='hospital'?1800:0,open:alwaysOpen.includes(d.type)?0:d.type==='nightclub'?20:d.type==='bar'?17:d.type==='supermarket'?7:d.type==='cinema'?10:8,close:alwaysOpen.includes(d.type)?24:d.type==='nightclub'?4:d.type==='bar'?2:d.type==='cinema'?24:d.type==='supermarket'?23:22,cash:0,visits:0,revenue:0,workedHours:0,day:Math.floor(w.minute/1440),todayVisits:0,todayRevenue:0,unpaidWages:0};
   b.name=d.name;b.type=d.type;b.entry=d.entry as [number,number];if('floor' in d&&d.floor)b.floor=d.floor;
   for(let i=0;i<requested&&remaining.size;i++){
-   const wanted=d.type==='restaurant'&&'price' in d&&typeof d.price==='number'&&d.price<=4200&&i===requested-1&&i>3?'外卖员':role(d.type,i);
+   const wanted=d.type==='restaurant'&&'price' in d&&typeof d.price==='number'&&d.price<=4200&&i===requested-1&&i>3?'外卖员':role(d.type,i,d.id);
    const minimum=/医生|牙医|兽医/.test(wanted)?26:wanted==='护士'?21:/经理|主管|店长|经营者|主任|院长/.test(wanted)?24:18;
    const person=adults.find(r=>remaining.has(r.id)&&r.identity!.age>=minimum&&wanted&&r.job===wanted)||adults.find(r=>remaining.has(r.id)&&r.identity!.age>=minimum);
    if(!person)break;

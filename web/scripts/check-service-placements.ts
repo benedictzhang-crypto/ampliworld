@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import {statSync} from 'node:fs';
-import {CITY_SERVICE_COLLIDERS,MODELED_STOREFRONT_SITES,STREET_SERVICE_SITES} from '../app/world-client/city-service-buildings';
+import {CITY_SERVICE_COLLIDERS,MODELED_STOREFRONT_SITES,SPECIAL_SERVICE_SITES,STREET_SERVICE_SITES,venueVariant} from '../app/world-client/city-service-buildings';
 import housing from '../app/world-client/housing-parcels.json';
 import {CIVIC_PLACES} from '../app/world-client/civic-registry';
 import {METROPOLITAN_PLACES} from '../app/world-client/metropolitan-registry';
 import {riverCenterX,riverHalfWidth} from '../app/world-client/river-profile.mjs';
 import {WORLD_SOLID_FOOTPRINTS} from '../app/world-spatial-registry';
 import kit from '../public/assets/3d/ampliworld/GC-STREET-SERVICE-KIT-001/manifest.json';
+import specialKit from '../public/assets/3d/ampliworld/GC-FITNESS-ARCADE-001/manifest.json';
+import mall from '../public/assets/3d/ampliworld/GC-MALL-002/mall-manifest.json';
+import {SERVICE_SITES} from '../app/life-sim/city-service-plan';
 import {createLifeWorld,moneyTotal,upgradeLifeWorld} from '../app/life-sim/engine';
 
 type Box={left:number;right:number;back:number;front:number};
@@ -44,7 +47,29 @@ for(const site of MODELED_STOREFRONT_SITES){
   assert(CITY_SERVICE_COLLIDERS.some(c=>c.id===`${site.id}/entry-left`));
 }
 assert.equal(statSync(new URL('../public/assets/3d/ampliworld/GC-STREET-SERVICE-KIT-001/model.glb',import.meta.url)).size,kit.bytes);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='gym').length,10);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='arcade').length,2);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='gym'&&s.placement==='mall').length,1);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='arcade'&&s.placement==='mall').length,1);
+assert.equal(SPECIAL_SERVICE_SITES.length,10);
+for(const site of SPECIAL_SERVICE_SITES){
+  const variant=venueVariant(site.id,site.type)!;
+  const asset=specialKit.venues[variant];
+  assert(asset,`${site.id}: no venue asset`);
+  const path=new URL(`../public/assets/3d/ampliworld/GC-FITNESS-ARCADE-001/${variant}.glb`,import.meta.url);
+  assert.equal(statSync(path).size,asset.bytes,`${site.id}: stale asset manifest`);
+  assert(CITY_SERVICE_COLLIDERS.some(c=>c.id===`${site.id}/entry-left`));
+  assert(!CITY_SERVICE_COLLIDERS.some(c=>c.id===`${site.id}/building`),`${site.id}: solid box blocks venue`);
+}
+for(const site of SERVICE_SITES){
+  if(!('shopId' in site)||!(site.type==='gym'||site.type==='arcade'))continue;
+  const shop=mall.shops.find(shop=>shop.id===site.shopId);
+  assert(shop&&shop.level===site.floor,`${site.id}: unmatched mall floor/room`);
+  assert(site.type==='gym'?shop.label.includes('Fitness'):shop.label.includes('Arcade'),`${site.id}: mall room does not match venue`);
+}
 const world=createLifeWorld();
+assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='gym').length,10);
+assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='arcade').length,2);
 const movedSite=STREET_SERVICE_SITES[0],old=structuredClone(world);
 delete old.serviceLayoutVersion;
 old.businesses![movedSite.id].entry=[0,0];
