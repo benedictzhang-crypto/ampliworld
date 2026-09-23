@@ -93,4 +93,4 @@ world=advanceLifeWorld(world,1440);
 assert(world.socialEncounters?.some(item=>item.kind==='household-conflict'||item.kind==='household-support'),'household relationships should produce lived events');
 assert(world.residents.every(r=>Number.isFinite(r.stress)&&r.stress>=0&&r.stress<=100),'stress must remain bounded for all residents');
 assert.equal(moneyTotal(world),cashBefore);
-console.log(JSON.stringify({passed:true,residents:world.residents.length,trader:trader.id,holdings:trader.holdings,householdEvents:world.socialEncounters?.length,conservedCents:moneyTotal(world)}));
+console.log(JSON.stringify({passed:true,residents:world.residents.length,trader:trader.id,holdings:trader.holdings,householdEvents:world.socialEncounters?.length,conservedCents:moneyTotal(world),beforeMilkNews:{happiness:Number(populationHappinessBefore.happiness.toFixed(2)),mood:Number(populationHappinessBefore.mood.toFixed(2)),stress:Number((100-populationHappinessBefore.stressManagement).toFixed(2))},afterMilkNews:{happiness:Number(populationAfter.happiness.toFixed(2)),mood:Number(populationAfter.mood.toFixed(2)),stress:Number((100-populationAfter.stressManagement).toFixed(2))}}));

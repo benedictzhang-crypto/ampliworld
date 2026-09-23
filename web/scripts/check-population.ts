@@ -116,5 +116,7 @@ console.log(
     executions,
     maxShares,
     conservedCents: moneyTotal(world),
+    initialWellbeing:Object.fromEntries(Object.entries(initialWellbeing).map(([key,value])=>[key,Number(value.toFixed(2))])),
+    finalWellbeing:Object.fromEntries(Object.entries(finalWellbeing).map(([key,value])=>[key,Number(value.toFixed(2))])),
   }),
 );

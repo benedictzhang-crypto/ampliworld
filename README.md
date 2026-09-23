@@ -10,7 +10,7 @@ synthetic inhabitants predict real people or that its signals make money**.
 | Layer | Implemented | Not established |
 |---|---|---|
 | Playable city | Metre-scale city plan, selected detailed districts, locomotion, vehicles, venues and prototype attractions | Uniformly polished city, complete interiors, citywide physically routed daily lives |
-| People and events | Persistent records for 30,000 synthetic residents; inspectable needs, stress, household interactions, memories and event inputs | A validated autonomous model of those residents, much less 8.3 billion independent minds; measured real-world response accuracy |
+| People and events | Persistent records for 30,000 synthetic residents; inspectable needs, six-dimensional wellbeing, household interactions, adaptive memories and event inputs | A validated autonomous model of those residents, much less 8.3 billion independent minds; measured real-world response accuracy |
 | Research pipeline | Deterministic event → cohort response → asset signal → portfolio proposal; reproducible example runs | A trained latent world model, learned transition dynamics, long-horizon planning or a demonstrated forecasting advantage |
 | Quant evaluation | Directional accuracy, MAE, rank IC and a simple gross portfolio-return calculation | Untouched point-in-time out-of-sample results, net-of-cost P&L, capacity or institutional risk validation |
 
@@ -18,6 +18,36 @@ The upstream 8.3-billion-persona frame is a population concept, **not 8.3
 billion agents running in this city**. The current financial behavior layer is
 mostly hand-specified. A convincing animated world and a profitable, calibrated
 world model are different achievements; the latter has not been demonstrated.
+
+### From a playable city to a controlled social experiment
+
+The city can now run a persistent, self-updating **synthetic** society and expose
+an intervention against a no-news baseline. In a deterministic 30-day run of
+30,000 residents with no injected news, the citywide means stayed close to
+their starting levels: long-run happiness **59.5 → 60.0**, short-run mood
+**69.5 → 68.5**, and stress **33.0 → 33.1**. Mental-health score moved
+**64.9 → 61.7**. That decline remains an open calibration issue, potentially
+involving wage settlement, household dynamics and financial buffers; the
+society is not yet fully balanced.
+
+Injecting a **20% milk-price headline** moved the immediate means to happiness
+**58.3**, mood **66.1**, and stress **34.9**. After one simulated day, the
+treated world was still about **2.1 happiness points** and **1.1 mood points**
+below an otherwise identical no-news run, with **1.0 more stress point**. The
+six-axis views show both the full-population response and an individual
+resident's path; the full-city figure is computed before the client selects
+its 1,200 nearby residents.
+
+This is a meaningful research-platform milestone: a reproducible baseline,
+stateful intervention, measurable counterfactual difference, and an inspectable
+failure mode now coexist in one running world. It is **not** evidence that the
+synthetic agents forecast real people or stock prices. The headline currently
+changes perceived affordability and choices; merchant inventory is not yet
+repriced. From `web/`, reproduce the baseline and event checks with
+`node --import tsx scripts/check-population.ts` and
+`npm run check:life-market` and `npm run check:news-counterfactual`; see the
+[research protocol](docs/WORLD_MODEL_RESEARCH_PROTOCOL.md) for the remaining
+validation gates.
 
 ### Current quant implementation, without embellishment
 
