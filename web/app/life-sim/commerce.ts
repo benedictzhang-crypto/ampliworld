@@ -1,5 +1,5 @@
 import catalog from './occupancy-catalog.json';
-import {monthlySalaryCents} from './housing-finance';
+import {hourlyWageCents,monthlySalaryCents} from './housing-finance';
 import type {LifeWorld,Resident} from './engine';
 import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from '../world-client/retail-registry';
 import {SERVICE_SITES,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS,CITY_OPERATION_SITES} from './city-service-plan';
@@ -115,7 +115,7 @@ export function initializeCommerce(w:LifeWorld){
    if(wanted)person.job=wanted;
    person.identity!.occupation=person.job;person.identity!.workplace=d.name;
    const varied=.85+(hash(person.id+'salary')%36)/100;
-   person.wage=Math.round(monthlySalaryCents(person.job,person.identity!.age,true)*varied/176);
+   person.wage=hourlyWageCents(monthlySalaryCents(person.job,person.identity!.age,true),varied);
    person.employment={placeId:d.id,name:d.name,entry:b.entry,monthlyGrossCents:person.wage*176,...(b.floor?{floor:b.floor}:{})};
    if(person.profile){person.profile.occupation=person.job;person.profile.sector=d.type;}
   }

@@ -11,6 +11,7 @@ import {expandRegionalServices} from './regional-services';
 import {englishNameFor} from './english-names';
 import {correctOpeningLiquidity} from './liquidity';
 import {HOUSING_FINANCE_VERSION,initializeHousingPayments,settleHousingThrough} from './housing-payments';
+import {MIN_HOURLY_WAGE_CENTS} from './housing-finance';
 import type {MarketState} from './market-feed';
 import {searchStockOpportunity} from './investor-policy';
 import {ageAdaptivePolicy,learnExperience,policyFor,type AdaptivePolicy} from './adaptive-policy';
@@ -225,14 +226,17 @@ function attachIdentities(w:LifeWorld){
     r.englishName=englishNameFor(r.id);
     const employed=!!r.identity.workplace;
     if(!employed){r.wage=0;if(r.action==='work'){r.action='home';r.remaining=0;r.route=[];}}
-    else if(!r.wage)r.wage=2400;
+    else {
+      r.wage=Math.max(r.wage||2400,MIN_HOURLY_WAGE_CENTS);
+      if(r.employment)r.employment.monthlyGrossCents=r.wage*176;
+    }
     if(r.profile&&w.commerceVersion!==COMMERCE_VERSION){const known=OCCUPATIONS.find(o=>o.label===r.job);r.profile.occupation=r.identity.age<18||r.job==='大学生'?'student':known?.id||r.job;r.profile.sector=known?.sector||(employed?'社会职业':'非就业');}
     if(r.identity.age<18&&r.action==='trade'){r.action='home';r.remaining=0;r.route=[];}
   });
   w.censusVersion=CENSUS_VERSION;
 }
 export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
-  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===2&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housingFinanceVersion===HOUSING_FINANCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName&&Number.isFinite(r.stress)&&r.holdings&&r.adaptivePolicy?.version===1&&r.wellbeing?.version===1&&Number.isFinite(r.wellbeing.mentalHealth)&&Number.isFinite(r.wellbeing.financialSecuritySetpoint))) return input;
+  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===2&&input.commerceVersion===COMMERCE_VERSION&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housingFinanceVersion===HOUSING_FINANCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName&&Number.isFinite(r.stress)&&r.holdings&&r.adaptivePolicy?.version===1&&r.wellbeing?.version===1&&Number.isFinite(r.wellbeing.mentalHealth)&&Number.isFinite(r.wellbeing.financialSecuritySetpoint)&&(r.wage===0||r.wage>=MIN_HOURLY_WAGE_CENTS)&&(!r.employment||r.employment.monthlyGrossCents===r.wage*176))) return input;
   const w = structuredClone(input),
     fresh = createLifeWorld();
   if(input.societyVersion!==1)for (let i = 0; i < w.residents.length; i++) {

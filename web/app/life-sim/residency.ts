@@ -1,5 +1,5 @@
 import catalog from './occupancy-catalog.json';
-import {createOpeningHousing,monthlySalaryCents,monthlyMortgagePaymentCents,type HousingLedger} from './housing-finance';
+import {createOpeningHousing,hourlyWageCents,monthlySalaryCents,monthlyMortgagePaymentCents,type HousingLedger} from './housing-finance';
 import type {LifeWorld,Resident} from './engine';
 import {VENUES} from './society';
 import type {HousingPaymentState} from './housing-payments';
@@ -27,15 +27,15 @@ export function bindResidency(w:LifeWorld){
     if(!monthly)continue;
     const serviceId=/医生|护士|药剂|康复/.test(r.job)?'clinic':/教师|老师|图书|实验室/.test(r.job)?'school':/警员|消防员/.test(r.job)?'precinct':/银行/.test(r.job)?'bank':null;
     const service=VENUES.find(v=>v.id===serviceId);
-    if(service){r.wage=Math.round(monthly/176);r.employment={placeId:'SERVICE-'+service.id,name:service.name+'（现有服务点）',entry:[service.x,service.z],monthlyGrossCents:r.wage*176};r.identity!.workplace=r.employment.name;continue;}
+    if(service){r.wage=hourlyWageCents(monthly);r.employment={placeId:'SERVICE-'+service.id,name:service.name+'（现有服务点）',entry:[service.x,service.z],monthlyGrossCents:r.wage*176};r.identity!.workplace=r.employment.name;continue;}
     const kind=/保安|警员|消防员/.test(r.job)?['guardhouse','management']:/园林|物业|保洁|水管|电工|维修/.test(r.job)?['management','clubhouse']:/前台|照护|健身/.test(r.job)?['hotel','clubhouse']:/销售|店长|理货|收银|厨师|服务员|咖啡|烘焙|理发/.test(r.job)?['retail-shop','retail','restaurant','dealership']:['office'];
     const available=jobs.filter(j=>j.filled<j.jobCapacity);
     const compatible=available.filter(j=>kind.includes(j.type));
     const place=(compatible.length?compatible:available).sort((a,b)=>a.filled/a.jobCapacity-b.filled/b.jobCapacity||a.id.localeCompare(b.id))[0];
     if(!place)throw new Error('Insufficient job capacity');
     place.filled++;
-    r.employment={placeId:place.id,name:place.name,entry:place.entry as [number,number],monthlyGrossCents:Math.round(monthly/176)*176,...('floor' in place&&place.floor?{floor:place.floor}:{})};
-    r.wage=Math.round(monthly/176);
+    r.wage=hourlyWageCents(monthly);
+    r.employment={placeId:place.id,name:place.name,entry:place.entry as [number,number],monthlyGrossCents:r.wage*176,...('floor' in place&&place.floor?{floor:place.floor}:{})};
     r.identity!.workplace=place.name;
   }
   // At the 30k operating census use the declared physical unit capacity, not
@@ -45,7 +45,7 @@ export function bindResidency(w:LifeWorld){
   const ordered=[...families.entries()].sort((a,b)=>wealth(b[1])-wealth(a[1])||a[0].localeCompare(b[0]));
   if(ordered.length>slots.length)throw new Error('Insufficient housing capacity');
   w.housing??={};
-  ordered.forEach(([familyId,members],i)=>{
+  ordered.forEach(([familyId,members])=>{
     const candidate=members.filter(r=>r.identity!.age>=18).sort((a,b)=>(b.profile?.nonCashAssets||0)-(b.profile?.debt||0)-((a.profile?.nonCashAssets||0)-(a.profile?.debt||0))||a.id.localeCompare(b.id))[0];
     const income=members.reduce((n,r)=>n+(r.employment?.monthlyGrossCents||0),0),equity=Math.max(0,(candidate?.profile?.nonCashAssets||0)-(candidate?.profile?.debt||0));
     const affordableIndex=slots.findIndex(s=>s.home.valueCents<=equity*5&&monthlyMortgagePaymentCents(Math.max(0,s.home.valueCents-equity))<=income*.35);

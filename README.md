@@ -30,6 +30,10 @@ their starting levels: long-run happiness **59.5 → 60.0**, short-run mood
 involving wage settlement, household dynamics and financial buffers; the
 society is not yet fully balanced.
 
+Employed residents now have a nominal pay floor of **$18 per hour**. Students,
+retirees and jobseekers may have no wages; a business short of operating cash
+can still accrue unpaid wages rather than creating money to meet payroll.
+
 Injecting a **20% milk-price headline** moved the immediate means to happiness
 **58.3**, mood **66.1**, and stress **34.9**. After one simulated day, the
 treated world was still about **2.1 happiness points** and **1.1 mood points**

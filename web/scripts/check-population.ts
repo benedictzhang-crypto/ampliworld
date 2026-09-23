@@ -8,8 +8,13 @@ import {
 } from '../app/life-sim/engine';
 import { WEALTH_REFERENCE } from '../app/life-sim/society';
 import {CENSUS_SIZE} from '../app/life-sim/census';
+import {MIN_HOURLY_WAGE_CENTS,hourlyWageCents} from '../app/life-sim/housing-finance';
 let world = createLifeWorld();
 assert.equal(world.residents.length, CENSUS_SIZE);
+assert.equal(hourlyWageCents(300_000,.85),MIN_HOURLY_WAGE_CENTS);
+assert.equal(hourlyWageCents(0),0);
+assert(world.residents.every(r=>r.wage===0||r.wage>=MIN_HOURLY_WAGE_CENTS));
+assert(world.residents.every(r=>!r.employment||r.employment.monthlyGrossCents===r.wage*176));
 const initialWellbeing={
   happiness:world.residents.reduce((sum,r)=>sum+r.happiness,0)/CENSUS_SIZE,
   mood:world.residents.reduce((sum,r)=>sum+r.wellbeing!.mood,0)/CENSUS_SIZE,
@@ -42,8 +47,13 @@ const old=structuredClone(world);
 old.residents=old.residents.slice(0,100).reverse();
 delete old.censusVersion;
 for(const r of old.residents){delete r.identity;delete r.bankAccountId;}
+const underpaid=old.residents.find(r=>r.wage>0)!;
+underpaid.wage=1_700;
+underpaid.employment!.monthlyGrossCents=underpaid.wage*176;
 old.residents[0].profile!.debt=123456;
 const upgraded=upgradeLifeWorld(old);
+assert.equal(upgraded.residents.find(r=>r.id===underpaid.id)!.wage,MIN_HOURLY_WAGE_CENTS);
+assert.equal(upgraded.residents.find(r=>r.id===underpaid.id)!.employment!.monthlyGrossCents,MIN_HOURLY_WAGE_CENTS*176);
 for(const before of old.residents){const after=upgraded.residents.find(r=>r.id===before.id)!;
   assert.equal(after.identity?.id,before.id);
   for(const key of ['cash','savings','shares'] as const)assert.equal(after[key],before[key]);

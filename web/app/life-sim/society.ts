@@ -46,7 +46,7 @@ export const OCCUPATIONS = [
   { id: 'teacher', label: '教师', sector: '教育', wage: 3100 },
   { id: 'grocer', label: '超市员工', sector: '消费服务', wage: 1900 },
   { id: 'courier', label: '配送员', sector: '物流', wage: 2000 },
-  { id: 'cleaner', label: '保洁员', sector: '公共环境', wage: 1700 },
+  { id: 'cleaner', label: '保洁员', sector: '公共环境', wage: 1800 },
   { id: 'engineer', label: '工程师', sector: '专业服务', wage: 5500 },
   { id: 'office', label: '办公室职员', sector: '专业服务', wage: 3000 },
   { id: 'owner', label: '小企业经营者', sector: '企业经营', wage: 4500 },

@@ -3,6 +3,12 @@
  * ledger: never rewrite cash/savings/profile.nonCashAssets/profile.debt from it.
  */
 export const HOUSING_POLICY = 'fictional-opening-housing-v1' as const;
+/** Nominal hourly pay floor for employed residents; all money is integer cents. */
+export const MIN_HOURLY_WAGE_CENTS = 1_800;
+export const hourlyWageCents = (monthlyGrossCents: number, multiplier = 1) =>
+  monthlyGrossCents > 0
+    ? Math.max(MIN_HOURLY_WAGE_CENTS, Math.round(monthlyGrossCents * multiplier / 176))
+    : 0;
 const money = (value: number) => {
   if (!Number.isSafeInteger(value) || value < 0) throw new Error('Expected nonnegative integer cents');
   return value;
