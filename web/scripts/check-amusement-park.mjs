@@ -16,7 +16,8 @@ import { PARK_RIDES, rideAtStation, ridePose, rideDuration } from '../app/world-
 assert.equal(plan.attractions.filter(a => a.kind.includes('coaster')).length, 5);
 assert.equal(plan.attractions.filter(a => a.kind === 'walkthrough-haunt').length, 2);
 assert.equal(plan.attractions.filter(a => a.kind.includes('tower')).length, 2);
-assert.equal(PARK_RIDES.length, 7);
+assert.equal(PARK_RIDES.length, 9);
+assert.equal(PARK_RIDES.filter(ride => ride.kind === 'carousel' || ride.kind === 'teacups').length, 2);
 for (const ride of PARK_RIDES) {
   assert.equal(rideAtStation(plan.center.x + ride.station[0], plan.center.z + ride.station[1])?.id, ride.id);
   const stationBlock = [...manifest.structuralColliders, ...manifest.hauntWallColliders].find(c =>

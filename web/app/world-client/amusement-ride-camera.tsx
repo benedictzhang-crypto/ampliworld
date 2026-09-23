@@ -34,11 +34,18 @@ export function AmusementRideCamera({ session, controls, onComplete }: {
         base + pose.y + (ride.track.inverted ? -.2 : 2.3),
         plan.center.z + pose.z);
       target.copy(camera.position).addScaledVector(forward, 12);
-    } else {
+    } else if (ride.kind === 'tower') {
       // A clear exterior chase view keeps the full gondola and height change
       // visible; the circular safety cage obscures a seat-level camera.
       camera.position.set(plan.center.x + ride.x + 28, base + pose.y + 13, plan.center.z + ride.z + 22);
       target.set(plan.center.x + ride.x, base + pose.y + 2, plan.center.z + ride.z);
+    } else {
+      const outwardX = (pose.x - ride.x) / ride.radius;
+      const outwardZ = (pose.z - ride.z) / ride.radius;
+      const setback = ride.kind === 'carousel' ? 16 : 8;
+      camera.position.set(plan.center.x + pose.x + outwardX * setback,
+        base + pose.y + (ride.kind === 'carousel' ? 7.5 : 5), plan.center.z + pose.z + outwardZ * setback);
+      target.set(plan.center.x + pose.x, base + pose.y + 1, plan.center.z + pose.z);
     }
     controls.current.target.copy(target);
     camera.lookAt(target);

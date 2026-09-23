@@ -170,6 +170,51 @@ function TowerMotion({ boarded }: { boarded: RideSession | null }) {
   </group>;
 }
 
+function FamilyRideMotion({ boarded }: { boarded: RideSession | null }) {
+  const carousel = useRef<Group>(null);
+  const cups = useRef<Group>(null);
+  const horses = useRef<Array<Group | null>>([]);
+  const cupBodies = useRef<Array<Group | null>>([]);
+  useFrame(({ clock }) => {
+    const idle = clock.getElapsedTime();
+    const elapsed = boarded ? Math.max(0, (performance.now() - boarded.startedAt) / 1000) : 0;
+    const carouselAngle = boarded?.id === 'carousel' ? 4 * Math.PI * Math.min(1, elapsed / 18) : idle * .45;
+    const cupAngle = boarded?.id === 'teacups' ? 6 * Math.PI * Math.min(1, elapsed / 18) : idle * .62;
+    if (carousel.current) carousel.current.rotation.y = -carouselAngle;
+    if (cups.current) cups.current.rotation.y = -cupAngle;
+    horses.current.forEach((horse, i) => {
+      if (horse) horse.position.y = 2.3 + .4 * Math.sin(carouselAngle * 4 + i * Math.PI / 2);
+    });
+    cupBodies.current.forEach((cup, i) => {
+      if (cup) cup.rotation.y = cupAngle * (i % 2 ? 1.35 : -.85);
+    });
+  });
+  return <group name="moving-family-rides">
+    <group ref={carousel} position={[45, 0, 337]}>
+      {Array.from({ length: 16 }, (_, i) => {
+        const a = -Math.PI / 2 + i * 2 * Math.PI / 16;
+        return <group key={i} ref={(node) => { horses.current[i] = node; }} position={[20 * Math.cos(a), 2.3, 20 * Math.sin(a)]} rotation={[0, -a, 0]}>
+          <mesh position={[0, 3.85, 0]} castShadow><cylinderGeometry args={[.12, .12, 8.3, 8]} /><meshStandardMaterial color="#cfae5e" metalness={.8} roughness={.22} /></mesh>
+          <mesh scale={[1.65, .9, .65]} castShadow><sphereGeometry args={[1, 12, 8]} /><meshStandardMaterial color="#f1eee4" roughness={.58} /></mesh>
+          <mesh position={[1.02, .68, 0]} rotation={[0, 0, -.4]} castShadow><cylinderGeometry args={[.4, .53, 1.35, 10]} /><meshStandardMaterial color="#f1eee4" roughness={.58} /></mesh>
+          <mesh position={[1.5, 1.28, 0]} scale={[.64, .5, .5]} castShadow><sphereGeometry args={[1, 10, 8]} /><meshStandardMaterial color="#fffaf0" roughness={.55} /></mesh>
+        </group>;
+      })}
+    </group>
+    <group ref={cups} position={[160, 0, 337]}>
+      {Array.from({ length: 9 }, (_, i) => {
+        const a = -Math.PI / 2 + i * 2 * Math.PI / 9;
+        return <group key={i} position={[18 * Math.cos(a), 0, 18 * Math.sin(a)]} ref={(node) => { cupBodies.current[i] = node; }}>
+          <mesh position={[0, .33, 0]} castShadow><cylinderGeometry args={[2.26, 2.26, .18, 20]} /><meshStandardMaterial color="#eee7d7" roughness={.62} /></mesh>
+          <mesh position={[0, 1.05, 0]} castShadow><cylinderGeometry args={[2.7, 2.25, 1.65, 20, 1, true]} /><meshStandardMaterial color={i % 3 === 0 ? '#c94d64' : i % 3 === 1 ? '#5a88b2' : '#f1e6d1'} metalness={.32} roughness={.38} side={2} /></mesh>
+          <mesh position={[0, 1.9, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[2.68, .17, 8, 20]} /><meshStandardMaterial color="#d8ba70" metalness={.75} roughness={.28} /></mesh>
+          <mesh position={[0, 1.55, 0]} castShadow><cylinderGeometry args={[.45, .45, .65, 12]} /><meshStandardMaterial color="#d8ba70" metalness={.7} roughness={.3} /></mesh>
+        </group>;
+      })}
+    </group>
+  </group>;
+}
+
 function AmusementParkModel({ scare, shot, ride, animateTrains }: { scare: HauntStep | null; shot: BasketballShot | null; ride: RideSession | null; animateTrains: boolean }) {
   const { scene } = useGLTF(`/assets/3d/ampliworld/${manifest.id}/${manifest.file}`);
   const { x, z } = plan.center;
@@ -177,7 +222,7 @@ function AmusementParkModel({ scare, shot, ride, animateTrains }: { scare: Haunt
     <group name="aureole-adventure-park" position={[x, cityGroundHeight(x, z), z]}>
       <Clone object={scene} castShadow receiveShadow />
       <CoasterStationSpurs />
-      {animateTrains && <><CoasterMotion ride={ride} /><TowerMotion boarded={ride} /></>}
+      {animateTrains && <><CoasterMotion ride={ride} /><TowerMotion boarded={ride} /><FamilyRideMotion boarded={ride} /></>}
       {scare && <Apparition key={`${scare.house}-${scare.stage}`} scare={scare} />}
       {shot && <BasketballFlight key={shot.id} shot={shot} />}
     </group>

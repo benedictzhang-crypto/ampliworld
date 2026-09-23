@@ -705,7 +705,7 @@ export function CityPlan({
               <section>
                 <h3>{amusementPlan.name}</h3>
                 <p>1.3 × 0.9 km 游乐园 · 红蓝双塔、五条主题过山车、旋转木马、茶杯、投篮与平衡泡沫池</p>
-                <p>东北角有两座可探索鬼屋。五条过山车和红蓝双塔可在站台按 E 乘坐；目前是随车镜头的乘坐原型。</p>
+                <p>东北角有两座可探索鬼屋。五条过山车、红蓝双塔、旋转木马和茶杯均可在站台按 E 直接乘坐；目前是随车镜头的乘坐原型。</p>
                 <Button onClick={() => setView({ x: amusementPlan.center.x, z: amusementPlan.center.z, span: 2200 })}>放大园区</Button>
                 <Button onClick={() => onTeleportPoint(
                   amusementPlan.center.x + amusementPlan.entrance.x,

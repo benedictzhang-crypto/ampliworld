@@ -4,7 +4,8 @@ type Track = { x: number; z: number; rx: number; rz: number; peak: number; phase
 type Point3 = { x: number; y: number; z: number };
 type Coaster = { id: string; label: string; kind: 'coaster'; station: [number, number]; track: Track; speed: number; color: string };
 type Tower = { id: string; label: string; kind: 'tower'; station: [number, number]; x: number; z: number; height: number; color: string; duration: number };
-export type ParkRide = Coaster | Tower;
+type FamilyRide = { id: string; label: string; station: [number, number]; x: number; z: number; radius: number; duration: number; laps: number } & ({ kind: 'carousel' } | { kind: 'teacups' });
+export type ParkRide = Coaster | Tower | FamilyRide;
 export type RideSession = { id: string; startedAt: number };
 
 // Station positions and track equations match the editable Blender source.
@@ -16,6 +17,8 @@ export const PARK_RIDES: ParkRide[] = [
   { id: 'comet', label: 'Little Comet', kind: 'coaster', station: [263, 291], track: { x: 261, z: 185, rx: 103, rz: 79, peak: 21, phase: .4 }, speed: .12, color: '#e49b3c' },
   { id: 'twin-blue', label: 'Skyfall Blue', kind: 'tower', station: [350, 6], x: 350, z: -30, height: 110, color: '#2496f1', duration: 17 },
   { id: 'twin-red', label: 'Skyfire Red', kind: 'tower', station: [430, 6], x: 430, z: -30, height: 105, color: '#e84459', duration: 16 },
+  { id: 'carousel', label: 'Aurora Carousel', kind: 'carousel', station: [45, 306], x: 45, z: 337, radius: 20, duration: 18, laps: 2 },
+  { id: 'teacups', label: 'Spinning Teacups', kind: 'teacups', station: [160, 306], x: 160, z: 337, radius: 18, duration: 18, laps: 3 },
 ];
 
 export function rideAtStation(worldX: number, worldZ: number) {
@@ -111,6 +114,14 @@ export function ridePose(ride: ParkRide, elapsed: number) {
     const y = towerHeight(ride, time);
     // Seat-eye remains just outside the safety ring, so the rail does not fill the view.
     return { x: ride.x + 10.8, y, z: ride.z, aheadX: ride.x + 30, aheadY: y + 1, aheadZ: ride.z, done: elapsed >= ride.duration };
+  }
+  if (ride.kind === 'carousel' || ride.kind === 'teacups') {
+    const angle = 2 * Math.PI * ride.laps * time / ride.duration;
+    const ahead = angle + .08;
+    const y = ride.kind === 'carousel' ? 2.3 + .4 * Math.sin(angle * 4) : 2.1;
+    return { x: ride.x + ride.radius * Math.sin(angle), y, z: ride.z - ride.radius * Math.cos(angle),
+      aheadX: ride.x + ride.radius * Math.sin(ahead), aheadY: y, aheadZ: ride.z - ride.radius * Math.cos(ahead),
+      done: elapsed >= ride.duration };
   }
   const lap = 2 * Math.PI / ride.speed + LAP_RAMP_SECONDS;
   const lapEnd = SPUR_SECONDS + lap;

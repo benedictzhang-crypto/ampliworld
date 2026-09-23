@@ -914,7 +914,7 @@ export function DistrictClient() {
           {' · '}{Math.round(Math.hypot(nextHauntDoor.x - position[0], nextHauntDoor.z - position[1]))} 米</small>}
       </div></Localized>}
       {walking && !ride && !driving && (nearRide || nearCar) && <Localized><div className="district-ride-prompt">
-        {nearRide ? <><strong>{nearRide.label}</strong><Button onClick={beginRide}>{nearRide.kind === 'tower' ? '按 E 登上跳楼机' : '按 E 登上过山车'}</Button></>
+        {nearRide ? <><strong>{nearRide.label}</strong><Button onClick={beginRide}>{nearRide.kind === 'tower' ? '按 E 登上跳楼机' : nearRide.kind === 'coaster' ? '按 E 登上过山车' : '按 E 乘坐游乐设施'}</Button></>
           : <><strong>{insideAmusementPark ? '园区车' : '汽车'}</strong><Button onClick={toggleCar}>按 E 上车驾驶</Button></>}
       </div></Localized>}
       {ride && <Localized><div className="district-ride-prompt" aria-live="polite">

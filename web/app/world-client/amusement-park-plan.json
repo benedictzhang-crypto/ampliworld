@@ -31,5 +31,5 @@
     { "id": "haunt-lab", "stages": ["Reception", "Specimen Bay", "Blackout Corridor", "Containment", "Final Reveal", "Exit Yard"] }
   ],
   "status": "PHYSICAL_SCENE_IN_PROGRESS",
-  "limitations": ["Coasters and twin towers have playable first-person ride prototypes; carousel and teacups are not yet boardable.", "Haunted-house scares and basketball are playable prototypes; AI residents are not yet scheduled as visitors.", "The park asset is a geometric prototype, not final art quality."]
+  "limitations": ["Nine attractions now have direct boarding and follow-camera ride prototypes; seat restraint and audio effects are not final.", "Haunted-house scares and basketball are playable prototypes; AI residents are not yet scheduled as visitors.", "The park asset is a geometric prototype, not final art quality."]
 }

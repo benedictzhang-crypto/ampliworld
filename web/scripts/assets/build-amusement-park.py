@@ -376,21 +376,10 @@ def family_and_games():
     cylinder("Carousel central mast", 45, 337, 7, 1.2, 11, "gold", 20)
     solid("Carousel centre",45,337,2.4,2.4,13)
     cylinder("Carousel tent roof", 45, 337, 12.0, 29, 5, "red", 48, top=1.5)
-    for i in range(16):
-        a=i*2*math.pi/16
-        x,z=45+20*math.cos(a),337+20*math.sin(a)
-        cylinder("Carousel gilded pole",x,z,6.3,.11,9.4,"gold",8)
-        ball("Carousel sculpted horse body",x,z,2.3,1.5,"white")
-        cylinder("Carousel horse neck",x+.7,z,3.0,.38,1.5,"white",10)
-        ball("Carousel horse head",x+1.2,z,3.6,.54,"cream")
+    # Moving horses and cups are separate client meshes; exporting fixed copies
+    # would make the attraction appear doubled when the ride starts.
     cylinder("Teacup turntable",160,337,.48,28,.7,"purple",48)
     cylinder("Teacup central urn",160,337,2.2,2,4,"gold",24)
-    for i in range(9):
-        a=i*2*math.pi/9
-        x,z=160+18*math.cos(a),337+18*math.sin(a)
-        cylinder("Spinning cup shell",x,z,1.0,3,1.5,"red" if i%3==0 else "blue" if i%3==1 else "cream",20,top=3.4)
-        cylinder("Cup seating ring",x,z,1.8,2.5,.28,"gold",20)
-        cylinder("Cup central wheel",x,z,1.9,.52,.55,"steel",12)
     block("Basketball skill court",-140,345,.12,64,36,.18,"asphalt",.4)
     for dx in (-19,0,19):
         block("Basketball backboard",-140+dx,329,4.1,5,.25,3.2,"white",.2)
