@@ -45,6 +45,8 @@ import { MetroPlaces } from '../world-client/metro-places';
 import { METRO_PIER_COLLIDERS } from '../world-client/metro-surface';
 import { AMUSEMENT_COLLIDERS, AmusementPark, AMUSEMENT_PARK, type BasketballShot } from '../world-client/amusement-park';
 import { hauntStepAt, hauntNextDoor, nearBasketballCourt, evaluateBasketballShot, type HauntStep } from '../world-client/amusement-experience';
+import { PARK_RIDES, rideAtStation, type RideSession } from '../world-client/amusement-rides';
+import { AmusementRideCamera } from '../world-client/amusement-ride-camera';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls } from '@react-three/drei';
 import { useGLTF } from '@react-three/drei';
@@ -72,6 +74,13 @@ import officeOne from '../../public/assets/3d/ampliworld/GC-OFFICE-001/tower-man
 import officeTwo from '../../public/assets/3d/ampliworld/GC-OFFICE-002/tower-manifest.json';
 import officeThree from '../../public/assets/3d/ampliworld/GC-OFFICE-003/tower-manifest.json';
 const officeManifests = [officeOne, officeTwo, officeThree];
+function vehicleBodyCollider(s: CarState) {
+  const dx = Math.abs(Math.cos(s.yaw)) * 1.05 + Math.abs(Math.sin(s.yaw)) * 2.5;
+  const dz = Math.abs(Math.sin(s.yaw)) * 1.05 + Math.abs(Math.cos(s.yaw)) * 2.5;
+  const floor = districtGroundHeight(s.x, s.z, s.y);
+  return new Box3(new Vector3(s.x - dx, floor - .1, s.z - dz),
+    new Vector3(s.x + dx, floor + 1.7, s.z + dz));
+}
 function CoreReady({ onReady }: { onReady: () => void }) {
   useEffect(onReady, [onReady]);
   return null;
@@ -409,6 +418,7 @@ export function DistrictClient() {
   const [basketballMade, setBasketballMade] = useState(0);
   const [basketballResult, setBasketballResult] = useState('');
   const [basketballShot, setBasketballShot] = useState<BasketballShot | null>(null);
+  const [ride, setRide] = useState<RideSession | null>(null);
   const shootBasketball = () => {
     const result = evaluateBasketballShot(basketballSpeed, basketballAngle);
     setBasketballAttempts((count) => count + 1);
@@ -471,6 +481,13 @@ export function DistrictClient() {
     [cellX, cellZ],
   );
   const car = useRef<CarState>({ x: 6, z: -68, yaw: 0, speed: 0 });
+  const parkCar = useRef<CarState>({
+    x: AMUSEMENT_PARK.center.x + 6,
+    z: AMUSEMENT_PARK.center.z + AMUSEMENT_PARK.entrance.z - 4,
+    y: districtGroundHeight(AMUSEMENT_PARK.center.x + 6, AMUSEMENT_PARK.center.z + AMUSEMENT_PARK.entrance.z - 4),
+    yaw: 0,
+    speed: 0,
+  });
   const playerFloor = useRef(0);
   const liftCars = useMemo(createMallLifts, []);
   const liftCarrier = useRef<LiftCarrier>({active:false,y:0,carId:null});
@@ -496,7 +513,10 @@ export function DistrictClient() {
     return cab && Math.abs(cab.y-y)<1 ? cab.y : districtGroundHeight(x,z,y);
   },[liftCars]);
   const [driving, setDriving] = useState(false),
-    [carReport, setCarReport] = useState<CarState>({ ...car.current });
+    [activeCar, setActiveCar] = useState<'city' | 'park' | null>(null),
+    [carReport, setCarReport] = useState<CarState>({ ...car.current }),
+    [parkCarReport, setParkCarReport] = useState<CarState>({ ...parkCar.current });
+  const activeReport = activeCar === 'park' ? parkCarReport : carReport;
   const gateCanClose =
     !!nearGate &&
     canCloseHousingGate(nearGate.id, position[0], position[1], 1) &&
@@ -617,47 +637,49 @@ export function DistrictClient() {
   const walkerSolids = useMemo(
     () => [
       ...solids,
-      new Box3(
-        new Vector3(
-          carReport.x -
-            (Math.abs(Math.cos(carReport.yaw)) * 1.05 +
-              Math.abs(Math.sin(carReport.yaw)) * 2.5),
-          districtGroundHeight(carReport.x, carReport.z, carReport.y) - 0.1,
-          carReport.z -
-            (Math.abs(Math.sin(carReport.yaw)) * 1.05 +
-              Math.abs(Math.cos(carReport.yaw)) * 2.5),
-        ),
-        new Vector3(
-          carReport.x +
-            (Math.abs(Math.cos(carReport.yaw)) * 1.05 +
-              Math.abs(Math.sin(carReport.yaw)) * 2.5),
-          districtGroundHeight(carReport.x, carReport.z, carReport.y) + 1.7,
-          carReport.z +
-            (Math.abs(Math.sin(carReport.yaw)) * 1.05 +
-              Math.abs(Math.cos(carReport.yaw)) * 2.5),
-        ),
-      ),
+      vehicleBodyCollider(carReport),
+      vehicleBodyCollider(parkCarReport),
     ],
-    [solids, carReport.x, carReport.z, carReport.y, carReport.yaw],
+    [solids, carReport, parkCarReport],
   );
-  const nearCar =
+  const nearCityCar =
     Math.hypot(position[0] - car.current.x, position[1] - car.current.z) < 8 &&
     Math.abs(playerFloor.current - (car.current.y ?? 0)) < 2;
+  const nearParkCar =
+    Math.hypot(position[0] - parkCar.current.x, position[1] - parkCar.current.z) < 8 &&
+    Math.abs(playerFloor.current - (parkCar.current.y ?? 0)) < 2;
+  const nearCar = nearCityCar || nearParkCar;
+  const nearRide = walking && !driving && !ride ? rideAtStation(position[0], position[1]) : null;
+  const beginRide = () => {
+    if (!nearRide || !walking || driving || ride) return;
+    setScare(null);
+    setBasketballOpen(false);
+    setPlanOpen(false);
+    setRide({ id: nearRide.id, startedAt: performance.now() });
+    (document.activeElement as HTMLElement)?.blur();
+  };
   const toggleCar = () => {
     if (!walking) return;
     if (!driving) {
       if (!nearCar) return;
-      car.current.speed = 0;
+      const pickPark = nearParkCar && (!nearCityCar ||
+        Math.hypot(position[0] - parkCar.current.x, position[1] - parkCar.current.z) <
+        Math.hypot(position[0] - car.current.x, position[1] - car.current.z));
+      const selected = pickPark ? parkCar.current : car.current;
+      selected.speed = 0;
+      setActiveCar(pickPark ? 'park' : 'city');
       setDriving(true);
       setVehicleMessage('W/S 加速与倒车 · A/D 转向 · 空格刹车');
     } else {
-      car.current.speed = 0;
-      const exit = findVehicleExit(car.current, solids, districtGroundHeight);
+      const selected = activeCar === 'park' ? parkCar.current : car.current;
+      selected.speed = 0;
+      const exit = findVehicleExit(selected, solids, districtGroundHeight);
       if (exit) {
         setRelocation({ ...exit, nonce: Date.now() });
         setPosition([exit.x, exit.z]);
         playerFloor.current = exit.y;
         setDriving(false);
+        setActiveCar(null);
         setVehicleMessage('已下车 · 靠近车辆可再次驾驶');
         return;
       }
@@ -675,15 +697,27 @@ export function DistrictClient() {
         )
       ) {
         e.preventDefault();
-        toggleCar();
+        if (ride) return;
+        if (nearRide) beginRide();
+        else toggleCar();
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [walking, driving, nearCar, position, solids]);
+  }, [walking, driving, activeCar, nearCar, nearCityCar, nearParkCar, position, solids, ride, nearRide]);
   const teleportTo = (x: number, z: number) => {
     const y = districtGroundHeight(x, z);
+    const parkGateX = AMUSEMENT_PARK.center.x + AMUSEMENT_PARK.entrance.x;
+    const parkGateZ = AMUSEMENT_PARK.center.z + AMUSEMENT_PARK.entrance.z;
+    if (Math.abs(x - parkGateX) < 1 && Math.abs(z - parkGateZ) < 1) {
+      const vehicle = { x: parkGateX + 6, z: parkGateZ - 4, y: districtGroundHeight(parkGateX + 6, parkGateZ - 4), yaw: 0, speed: 0 };
+      parkCar.current = vehicle;
+      setParkCarReport(vehicle);
+      setVehicleMessage('游乐园入口旁已备好园区车 · 靠近按 E 上车');
+    }
+    setRide(null);
     setDriving(false);
+    setActiveCar(null);
     setWalking(true);
     setWide(false);
     setFocus('cbd');
@@ -739,7 +773,7 @@ export function DistrictClient() {
                     !walking && focus === 'garage'
                       ? MALL_GARAGE.levels[garageLevel].floorY
                       : driving
-                        ? (carReport.y ?? 0)
+                        ? (activeReport.y ?? 0)
                         : playerFloor.current
                   }
                 />
@@ -749,8 +783,19 @@ export function DistrictClient() {
                   <MetroPlaces x={housingX} z={housingZ} />
                 </Suspense>
                 <Suspense fallback={null}>
-                  <AmusementPark x={housingX} z={housingZ} scare={scare} shot={basketballShot} />
+                  <AmusementPark x={housingX} z={housingZ} scare={scare} shot={basketballShot} ride={ride} />
                 </Suspense>
+                {ride && <AmusementRideCamera key={ride.startedAt} session={ride} controls={controls} onComplete={(id) => {
+                  const finished = PARK_RIDES.find((entry) => entry.id === id);
+                  if (!finished) return;
+                  const x = AMUSEMENT_PARK.center.x + finished.station[0];
+                  const z = AMUSEMENT_PARK.center.z + finished.station[1];
+                  const y = districtGroundHeight(x, z);
+                  setRide(null);
+                  setPosition([x, z]);
+                  playerFloor.current = y;
+                  setRelocation({ x, z, y, nonce: Date.now() });
+                }} />}
                 <CityOperations />
                 <CityServiceBuildings />
                 <HousingWorld x={housingX} z={housingZ} open={openGates} />
@@ -758,14 +803,28 @@ export function DistrictClient() {
                 <CoreReady onReady={onCoreReady} />
                 <DriveableCar
                   state={car}
-                  active={coreReady && walking && driving && !planOpen}
+                  debugId="city"
+                  active={coreReady && walking && driving && activeCar === 'city' && !ride && !planOpen}
                   look={look}
                   controls={controls}
                   obstacles={solids}
                   groundHeight={districtGroundHeight}
                   onReport={(s) => {
                     setCarReport(s);
-                    if (driving) setPosition([s.x, s.z]);
+                    if (driving && activeCar === 'city') setPosition([s.x, s.z]);
+                  }}
+                />
+                <DriveableCar
+                  state={parkCar}
+                  debugId="park"
+                  active={coreReady && walking && driving && activeCar === 'park' && !ride && !planOpen}
+                  look={look}
+                  controls={controls}
+                  obstacles={solids}
+                  groundHeight={districtGroundHeight}
+                  onReport={(s) => {
+                    setParkCarReport(s);
+                    if (driving && activeCar === 'park') setPosition([s.x, s.z]);
                   }}
                 />
                 {DISTRICT.offices.map((b) => (
@@ -828,7 +887,7 @@ export function DistrictClient() {
                 mallLevel={mallLevel}
               />
               <Walker
-                active={coreReady && walking && !driving && !planOpen}
+                active={coreReady && walking && !driving && !ride && !planOpen}
                 look={look}
                 relocation={relocation}
                 carrier={liftCarrier}
@@ -853,6 +912,14 @@ export function DistrictClient() {
         <span>{hauntStep.stage + 1} / 6 · {hauntStep.title}</span>
         {nextHauntDoor && <small>{nextHauntDoor.side === 'exit' ? '出口在前方' : `下一道门在${nextHauntDoor.side === 'right' ? '右' : '左'}侧`}
           {' · '}{Math.round(Math.hypot(nextHauntDoor.x - position[0], nextHauntDoor.z - position[1]))} 米</small>}
+      </div></Localized>}
+      {walking && !ride && !driving && (nearRide || nearCar) && <Localized><div className="district-ride-prompt">
+        {nearRide ? <><strong>{nearRide.label}</strong><Button onClick={beginRide}>{nearRide.kind === 'tower' ? '按 E 登上跳楼机' : '按 E 登上过山车'}</Button></>
+          : <><strong>{insideAmusementPark ? '园区车' : '汽车'}</strong><Button onClick={toggleCar}>按 E 上车驾驶</Button></>}
+      </div></Localized>}
+      {ride && <Localized><div className="district-ride-prompt" aria-live="polite">
+        <strong>{PARK_RIDES.find((entry) => entry.id === ride.id)?.label}</strong>
+        <small>乘坐中 · 结束后自动返回站台</small>
       </div></Localized>}
       {scare && <div className="district-haunt-scare" role="status" aria-live="assertive">
         <span className="district-haunt-eyes">◉　◉</span>
@@ -886,8 +953,8 @@ export function DistrictClient() {
       </header>
       <nav className="district-tools">
         <LanguageSwitch />
-        <Button onClick={()=>{setDriving(false);setWalking(true);setWide(false);setFocus('cbd');setRelocation({x:0,z:-68,y:0,nonce:Date.now()});(document.activeElement as HTMLElement)?.blur();}}>人物起点</Button>
-        <Button onClick={()=>{car.current={x:6,z:-68,yaw:0,speed:0};setCarReport({...car.current});setDriving(true);setWalking(true);setWide(false);setFocus('cbd');setPosition([6,-68]);(document.activeElement as HTMLElement)?.blur();}}>车辆起点</Button>
+        <Button onClick={()=>{setDriving(false);setActiveCar(null);setRide(null);setWalking(true);setWide(false);setFocus('cbd');setRelocation({x:0,z:-68,y:0,nonce:Date.now()});(document.activeElement as HTMLElement)?.blur();}}>人物起点</Button>
+        <Button onClick={()=>{car.current={x:6,z:-68,yaw:0,speed:0};setCarReport({...car.current});setRide(null);setActiveCar('city');setDriving(true);setWalking(true);setWide(false);setFocus('cbd');setPosition([6,-68]);(document.activeElement as HTMLElement)?.blur();}}>车辆起点</Button>
         <Button onClick={() => setPlanOpen(true)}>城市平面图</Button>
         <Button onClick={() => teleportTo(
           AMUSEMENT_PARK.center.x + AMUSEMENT_PARK.entrance.x,
@@ -1111,15 +1178,17 @@ export function DistrictClient() {
         }}
       />
       <Localized><div className="district-status" aria-live="polite">
-        {driving && walking
-          ? `驾驶 · ${Math.abs(carReport.speed * 3.6).toFixed(0)} km/h · WASD / 空格刹车 · E 下车`
+        {ride
+          ? `乘坐中 · ${PARK_RIDES.find((entry) => entry.id === ride.id)?.label ?? 'Ride'} · 结束后自动返回站台`
+          : driving && walking
+          ? `驾驶 · ${Math.abs(activeReport.speed * 3.6).toFixed(0)} km/h · WASD / 空格刹车 · E 下车`
           : walking
             ? `WASD 行走 · 空格跳跃 · 鼠标拖动看四周 · X ${position[0].toFixed(1)} m / Z ${position[1].toFixed(1)} m`
             : '拖动俯瞰 · 滚轮缩放 · 点击「控制小人」回到街道'}
         <small>
           {driving
-            ? parkedGarageBay(carReport)
-              ? `已停入 ${parkedGarageBay(carReport)!.id} · E 下车`
+            ? parkedGarageBay(activeReport)
+              ? `已停入 ${parkedGarageBay(activeReport)!.id} · E 下车`
               : vehicleMessage
             : walking
               ? districtLocation(position[0], position[1])

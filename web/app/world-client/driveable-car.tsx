@@ -16,6 +16,7 @@ import {
 export function DriveableCar({
   state,
   active,
+  debugId,
   controls,
   obstacles,
   groundHeight,
@@ -24,6 +25,7 @@ export function DriveableCar({
 }: {
   state: React.RefObject<CarState>;
   active: boolean;
+  debugId: string;
   controls: React.RefObject<OrbitControls | null>;
   obstacles: readonly Box3[];
   groundHeight: (x: number, z: number, y?: number) => number;
@@ -238,14 +240,17 @@ export function DriveableCar({
       0,
       'YXZ',
     );
-    gl.domElement.dataset.car = JSON.stringify({
-      ...s,
-      driving: active,
-      lookPitch: look?.current.pitch ?? 0,
-      viewYaw: scratch.yawOffset,
-      gazeY: camera.getWorldDirection(scratch.direction).y,
-      cameraY: camera.position.y,
-    });
+    if (active || gl.domElement.dataset.carOwner === debugId) {
+      gl.domElement.dataset.carOwner = debugId;
+      gl.domElement.dataset.car = JSON.stringify({
+        ...s,
+        driving: active,
+        lookPitch: look?.current.pitch ?? 0,
+        viewYaw: scratch.yawOffset,
+        gazeY: camera.getWorldDirection(scratch.direction).y,
+        cameraY: camera.position.y,
+      });
+    }
     if (clock.elapsedTime - scratch.report > 0.12) {
       scratch.report = clock.elapsedTime;
       onReport({ ...s });

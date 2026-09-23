@@ -20,6 +20,7 @@ import { SPORTS_STREETS } from './civic-registry';
 import { DISTRICT } from '../district/registry';
 import { METRO_STATIONS, type MetroStation } from './metro-network';
 import amusementPlan from './amusement-park-plan.json';
+import { PARK_RIDES } from './amusement-rides';
 import { COMMUNITIES, COMMUNITY_SURFACES, HOMES } from './community-registry';
 import {
   HOUSING_PLAN,
@@ -704,12 +705,17 @@ export function CityPlan({
               <section>
                 <h3>{amusementPlan.name}</h3>
                 <p>1.3 × 0.9 km 游乐园 · 红蓝双塔、五条主题过山车、旋转木马、茶杯、投篮与平衡泡沫池</p>
-                <p>东北角两座万圣节主题鬼屋。路线、惊吓事件和投篮挑战已接入；过山车、塔楼等乘坐动画尚未开放。</p>
+                <p>东北角有两座可探索鬼屋。五条过山车和红蓝双塔可在站台按 E 乘坐；目前是随车镜头的乘坐原型。</p>
                 <Button onClick={() => setView({ x: amusementPlan.center.x, z: amusementPlan.center.z, span: 2200 })}>放大园区</Button>
                 <Button onClick={() => onTeleportPoint(
                   amusementPlan.center.x + amusementPlan.entrance.x,
                   amusementPlan.center.z + amusementPlan.entrance.z,
                 )}>传送到游乐园门口</Button>
+                <p>也可直接前往各设施站台；到站后按 E 登上。</p>
+                {PARK_RIDES.map((ride) => <Button key={ride.id} onClick={() => onTeleportPoint(
+                  amusementPlan.center.x + ride.station[0],
+                  amusementPlan.center.z + ride.station[1],
+                )}>{ride.label} 站台</Button>)}
               </section>
             ) : selectedStation ? (
               <section>

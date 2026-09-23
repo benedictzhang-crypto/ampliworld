@@ -89,7 +89,11 @@ const dictionary:Record<string,string>={
  '关闭':'Close','搜索':'Search','姓名':'Name','年龄':'Age','职业':'Occupation','位置':'Location','选择居民':'Select resident','选择职业':'Filter occupation',
  '全部':'All','地图':'Map','缩放':'Zoom','图例':'Legend','当前位置':'Your location','主中心':'Main center','副中心':'Secondary center',
  '地铁':'Metro','住宅':'Housing','医院':'Hospital','学校':'School','警察局':'Police station','商业':'Commerce','公园':'Park','滨海':'Waterfront',
- '传送到游乐园':'Teleport to amusement park','古宅鬼屋入口':'The Manor entrance','实验室鬼屋入口':'Midnight Laboratory entrance',
+ '传送到游乐园门口':'Teleport to park entrance','传送到游乐园':'Teleport to amusement park','古宅鬼屋入口':'The Manor entrance','实验室鬼屋入口':'Midnight Laboratory entrance',
+ '园区车':'Park car','按 E 上车驾驶':'Press E to drive','按 E 登上过山车':'Press E to board coaster','按 E 登上跳楼机':'Press E to board drop tower',
+ '乘坐中':'Riding','结束后自动返回站台':'Returns to the station when finished',
+ ' 站台':' station','也可直接前往各设施站台；到站后按 E 登上。':'You can also go directly to each ride station, then press E to board.',
+ '东北角有两座可探索鬼屋。五条过山车和红蓝双塔可在站台按 E 乘坐；目前是随车镜头的乘坐原型。':'Two walk-through haunted houses are in the northeast corner. Press E at the stations to ride five coasters or the twin drop towers. This is a follow-camera ride prototype.',
  '下一道门在右侧':'Next doorway on the right','下一道门在左侧':'Next doorway on the left','出口在前方':'Exit ahead',' 米':' m',
  '商场':'Mall','屋顶':'Rooftop','观景台':'Observation deck','奢侈品':'Luxury','科技':'Technology','餐饮':'Dining','停车':'Parking',
 };

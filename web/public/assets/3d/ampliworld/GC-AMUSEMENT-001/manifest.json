@@ -2938,7 +2938,7 @@
     "externalImages": []
   },
   "limitations": [
-    "Coaster, carousel, teacup and tower vehicles are display models until boarding and ride motion are connected.",
+    "Coasters and twin towers have playable first-person ride prototypes; carousel and teacups are not yet boardable.",
     "Haunted-house scares and basketball are playable prototypes; AI residents are not yet scheduled as visitors.",
     "The park asset is a geometric prototype, not final art quality."
   ]

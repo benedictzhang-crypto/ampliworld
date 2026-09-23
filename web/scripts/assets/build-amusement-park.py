@@ -300,7 +300,8 @@ def coaster_station(name, x, z, material):
             cylinder(name + " canopy support", x+dx, z+dz, 4.8, .22, 9.3, "steel", 10)
     block(name + " floating station canopy", x, z, 9.65, 52, 29, .8, material, 1.8)
     for dz in (-11,11):
-        block(name+" boarding windscreen",x,z+dz,4.7,45,.12,7.6,"glass",.35)
+        for dx in (-15,15):
+            block(name+" boarding windscreen wing",x+dx,z+dz,4.7,15,.12,7.6,"glass",.35)
     block(name + " ticket fascia", x, z+10.2, 3.4, 29, .4, 3, "dark", .3)
     label(name + " luminous marquee", name.upper(), x-13, z+10.5, 2.7, 1.65)
     for dx in (-12, -8, -4, 0, 4, 8, 12):
@@ -361,14 +362,7 @@ def towers():
         for side in (-1,1):
             block(name + " vertical colour fin", x+side*3.7, -30, height/2+4,
                   .45, 1.2, height-9, hue, .14)
-        cylinder(name + " moving gondola display", x, -30, 26 if hue == "blue" else 42,
-                 10, 3.6, hue, 28)
-        cylinder(name + " gondola safety cage",x,-30,29 if hue=="blue" else 45,
-                 10.4,1.0,"steel",28)
-        for i in range(12):
-            t = i*math.pi/6
-            cylinder(name + " passenger seat", x+8.7*math.cos(t), -30+8.7*math.sin(t),
-                     24 if hue == "blue" else 40, .6, 2, "dark", 8)
+        # The gondola is a moving client object, not a duplicate fixed halfway up.
         cylinder(name + " illuminated crown", x, -30, height+3.8, 6, 4.5, hue, 24, top=2)
         block(name + " queue terrace", x, 6, .25, 39, 19, .4, "paving", .4)
         label(name + " illuminated destination", name.upper(), x-16, 19, 4.2, 1.85)

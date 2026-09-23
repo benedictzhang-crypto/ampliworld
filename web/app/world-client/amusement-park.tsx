@@ -3,9 +3,10 @@
 import { Clone, useGLTF } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
-import type { Group, Mesh } from 'three';
+import { CubicBezierCurve3, Vector3, type Group, type Mesh } from 'three';
 import { cityGroundHeight } from './city-surface';
 import type { HauntStep } from './amusement-experience';
+import { PARK_RIDES, coasterPoint, coasterSpurControls, coasterSpurPoint, ridePose, type RideSession } from './amusement-rides';
 import plan from './amusement-park-plan.json';
 import manifest from '../../public/assets/3d/ampliworld/GC-AMUSEMENT-001/manifest.json';
 
@@ -13,20 +14,21 @@ export const AMUSEMENT_PARK = plan;
 
 export type BasketballShot = { id: number; speed: number; angle: number };
 
-export function AmusementPark({ x, z, scare, shot }: { x: number; z: number; scare: HauntStep | null; shot: BasketballShot | null }) {
+export function AmusementPark({ x, z, scare, shot, ride }: { x: number; z: number; scare: HauntStep | null; shot: BasketballShot | null; ride: RideSession | null }) {
   const cx = plan.center.x;
   const cz = plan.center.z;
   const distance = Math.hypot(x - cx, z - cz);
   if (distance > 2400) return null;
-  return <AmusementParkModel scare={scare} shot={shot} animateTrains={distance <= 1400} />;
+  return <AmusementParkModel scare={scare} shot={shot} ride={ride} animateTrains={distance <= 1400} />;
 }
 
 function BasketballFlight({ shot }: { shot: BasketballShot }) {
   const mesh = useRef<Mesh>(null);
   const { invalidate } = useThree();
-  const born = useRef(performance.now());
+  const born = useRef<number | null>(null);
   useFrame(() => {
     if (!mesh.current) return;
+    if (born.current === null) born.current = performance.now();
     const t = Math.min(3.4, (performance.now() - born.current) / 1000);
     const angle = shot.angle * Math.PI / 180;
     mesh.current.position.set(-140, 1.8 + shot.speed * Math.sin(angle) * t - 4.905 * t * t,
@@ -43,9 +45,10 @@ function BasketballFlight({ shot }: { shot: BasketballShot }) {
 function Apparition({ scare }: { scare: HauntStep }) {
   const actor = useRef<Group>(null);
   const { invalidate } = useThree();
-  const born = useRef(performance.now());
+  const born = useRef<number | null>(null);
   useFrame(() => {
     if (!actor.current) return;
+    if (born.current === null) born.current = performance.now();
     const t = (performance.now() - born.current) / 1000;
     actor.current.scale.setScalar(Math.min(1, .12 + t * 5));
     actor.current.position.y = 2.7 + Math.sin(t * 14) * .18;
@@ -65,26 +68,11 @@ function Apparition({ scare }: { scare: HauntStep }) {
   </group>;
 }
 
-// The five cars follow the actual centreline used by build-amusement-park.py.
-// One frame callback updates every train; the rest of the city stays on-demand.
-const COASTERS = [
-  { id: 'Leviathan', x: -362, z: -219, rx: 220, rz: 145, peak: 90, phase: 0, speed: .16, color: '#209bc6' },
-  { id: 'Wraith', x: -370, z: 149, rx: 186, rz: 127, peak: 65, phase: 1.3, speed: .2, color: '#8451bc', inverted: true },
-  { id: 'Timberfall', x: -20, z: 148, rx: 146, rz: 102, peak: 42, phase: .7, speed: .14, color: '#a0784a', wooden: true },
-  { id: 'Eclipse', x: 0, z: -255, rx: 94, rz: 66, peak: 27, phase: 1.8, speed: .22, color: '#ca4a4a' },
-  { id: 'Little Comet', x: 261, z: 185, rx: 103, rz: 79, peak: 21, phase: .4, speed: .12, color: '#e49b3c' },
-] as const;
+// One frame callback updates all trains; the rest of the city stays on-demand.
+const COASTERS = PARK_RIDES.filter((entry) => entry.kind === 'coaster');
+const TOWERS = PARK_RIDES.filter((entry) => entry.kind === 'tower');
 
-function coasterPoint(ride: typeof COASTERS[number], t: number) {
-  const wave = Math.max(0, Math.cos(t + ride.phase)) ** 9;
-  const hill = Math.max(0, Math.sin(3 * t - ride.phase)) ** 6;
-  let y = 10 + (ride.peak - 10) * wave + ride.peak * .26 * hill;
-  if ('inverted' in ride) y += 8 * Math.sin(2 * t) ** 2;
-  if ('wooden' in ride) y = 9 + (ride.peak - 9) * Math.max(0, Math.sin(2 * t + ride.phase)) ** 4 + 5 * Math.sin(7 * t) ** 2;
-  return { x: ride.x + ride.rx * Math.cos(t), y, z: ride.z + ride.rz * Math.sin(t) };
-}
-
-function CoasterMotion() {
+function CoasterMotion({ ride: boarded }: { ride: RideSession | null }) {
   const cars = useRef<Array<Group | null>>([]);
   const { invalidate } = useThree();
   useEffect(() => {
@@ -97,10 +85,20 @@ function CoasterMotion() {
       for (let carIndex = 0; carIndex < 4; carIndex++) {
         const car = cars.current[rideIndex * 4 + carIndex];
         if (!car) continue;
-        const t = elapsed * ride.speed + 13 * Math.PI / 66 - carIndex * .065;
-        const p = coasterPoint(ride, t);
-        const ahead = coasterPoint(ride, t + .01);
-        car.position.set(p.x, p.y + ('inverted' in ride ? -1.2 : .85), p.z);
+        let p;
+        let ahead;
+        if (boarded?.id === ride.id) {
+          const sinceBoarding = Math.max(0, (performance.now() - boarded.startedAt) / 1000);
+          const offset = carIndex * .25;
+          const pose = ridePose(ride, Math.max(0, sinceBoarding - offset));
+          p = { x: pose.x, y: pose.y, z: pose.z + (sinceBoarding < offset ? carIndex * 3.2 : 0) };
+          ahead = { x: pose.aheadX, y: pose.aheadY, z: pose.aheadZ };
+        } else {
+          const t = elapsed * ride.speed + 13 * Math.PI / 66 - carIndex * .065;
+          p = coasterPoint(ride, t);
+          ahead = coasterPoint(ride, t + .01);
+        }
+        car.position.set(p.x, p.y + (ride.track.inverted ? -1.2 : .85), p.z);
         car.rotation.y = -Math.atan2(ahead.z - p.z, ahead.x - p.x);
       }
     });
@@ -114,13 +112,58 @@ function CoasterMotion() {
   </group>;
 }
 
-function AmusementParkModel({ scare, shot, animateTrains }: { scare: HauntStep | null; shot: BasketballShot | null; animateTrains: boolean }) {
+function CoasterStationSpurs() {
+  return <group name="station-to-running-track-spurs">
+    {COASTERS.flatMap((ride) => {
+      const points = coasterSpurControls(ride);
+      return [-.65, .65].map((side) => {
+        const curve = new CubicBezierCurve3(...points.map((p) => new Vector3(p.x + side, p.y, p.z)) as [Vector3, Vector3, Vector3, Vector3]);
+        return <mesh key={`${ride.id}-${side}`} castShadow><tubeGeometry args={[curve, 40, .16, 8, false]} />
+          <meshStandardMaterial color={ride.color} metalness={.6} roughness={.34} /></mesh>;
+      });
+    })}
+    {COASTERS.flatMap((ride) => [.2, .4, .6, .8].map((u) => {
+      const p = coasterSpurPoint(ride, u);
+      return <mesh key={`${ride.id}-spur-support-${u}`} position={[p.x, p.y / 2, p.z]} castShadow>
+        <cylinderGeometry args={[.35, .48, p.y, 8]} /><meshStandardMaterial color="#687a84" metalness={.43} roughness={.5} />
+      </mesh>;
+    }))}
+  </group>;
+}
+
+function TowerMotion({ boarded }: { boarded: RideSession | null }) {
+  const gondolas = useRef<Array<Group | null>>([]);
+  useFrame(() => {
+    for (let i = 0; i < TOWERS.length; i++) {
+      const group = gondolas.current[i];
+      if (!group) continue;
+      const tower = TOWERS[i];
+      const elapsed = boarded?.id === tower.id ? (performance.now() - boarded.startedAt) / 1000 : 0;
+      group.position.y = boarded?.id === tower.id ? ridePose(tower, elapsed).y : 4;
+    }
+  });
+  return <group name="rideable-drop-tower-gondolas">
+    {TOWERS.map((tower, i) => <group key={tower.id} ref={(node) => { gondolas.current[i] = node; }} position={[tower.x, 4, tower.z]}>
+      <mesh castShadow><cylinderGeometry args={[10, 10, 3.2, 28]} /><meshStandardMaterial color={tower.color} metalness={.55} roughness={.3} /></mesh>
+      <mesh position={[0, 1.9, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[10.2, .38, 8, 28]} /><meshStandardMaterial color="#899aa4" metalness={.72} roughness={.24} /></mesh>
+      {Array.from({ length: 12 }, (_, seat) => {
+        const angle = seat * Math.PI / 6;
+        return <mesh key={seat} position={[8.6 * Math.cos(angle), .3, 8.6 * Math.sin(angle)]} rotation={[0, -angle, 0]} castShadow>
+          <boxGeometry args={[1.25, 1.8, 1.15]} /><meshStandardMaterial color="#192734" roughness={.53} />
+        </mesh>;
+      })}
+    </group>)}
+  </group>;
+}
+
+function AmusementParkModel({ scare, shot, ride, animateTrains }: { scare: HauntStep | null; shot: BasketballShot | null; ride: RideSession | null; animateTrains: boolean }) {
   const { scene } = useGLTF(`/assets/3d/ampliworld/${manifest.id}/${manifest.file}`);
   const { x, z } = plan.center;
   return (
     <group name="aureole-adventure-park" position={[x, cityGroundHeight(x, z), z]}>
       <Clone object={scene} castShadow receiveShadow />
-      {animateTrains && <CoasterMotion />}
+      <CoasterStationSpurs />
+      {animateTrains && <><CoasterMotion ride={ride} /><TowerMotion boarded={ride} /></>}
       {scare && <Apparition key={`${scare.house}-${scare.stage}`} scare={scare} />}
       {shot && <BasketballFlight key={shot.id} shot={shot} />}
     </group>

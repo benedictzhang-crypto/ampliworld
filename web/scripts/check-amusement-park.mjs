@@ -11,10 +11,37 @@ import { CITY_SERVICE_COLLIDERS } from '../app/world-client/city-service-buildin
 import { CITY_OPERATION_COLLIDERS } from '../app/world-client/city-operations.tsx';
 import { HOUSING_PLAN } from '../app/world-client/housing-registry.ts';
 import { hauntStepAt, hauntNextDoor, nearBasketballCourt, evaluateBasketballShot } from '../app/world-client/amusement-experience.ts';
+import { PARK_RIDES, rideAtStation, ridePose, rideDuration } from '../app/world-client/amusement-rides.ts';
 
 assert.equal(plan.attractions.filter(a => a.kind.includes('coaster')).length, 5);
 assert.equal(plan.attractions.filter(a => a.kind === 'walkthrough-haunt').length, 2);
 assert.equal(plan.attractions.filter(a => a.kind.includes('tower')).length, 2);
+assert.equal(PARK_RIDES.length, 7);
+for (const ride of PARK_RIDES) {
+  assert.equal(rideAtStation(plan.center.x + ride.station[0], plan.center.z + ride.station[1])?.id, ride.id);
+  const stationBlock = [...manifest.structuralColliders, ...manifest.hauntWallColliders].find(c =>
+    ride.station[0] >= c.min[0] && ride.station[0] <= c.max[0] &&
+    ride.station[1] >= c.min[2] && ride.station[1] <= c.max[2] && c.max[1] > 1);
+  assert.ok(!stationBlock, `${ride.id} boarding point is blocked by ${stationBlock?.id}`);
+  const start = ridePose(ride, 0);
+  const end = ridePose(ride, rideDuration(ride));
+  assert.ok(end.done && Number.isFinite(start.x) && Number.isFinite(start.y) && Number.isFinite(start.z));
+  assert.ok(Math.hypot(end.x - start.x, end.z - start.z) < .001, `${ride.id} does not end at its starting position`);
+  if (ride.kind === 'coaster') {
+    const lapEnds = 4 + 2 * Math.PI / ride.speed;
+    for (const boundary of [4, lapEnds]) {
+      const before = ridePose(ride, boundary - .001);
+      const after = ridePose(ride, boundary + .001);
+      assert.ok(Math.hypot(after.x - before.x, after.y - before.y, after.z - before.z) < 1,
+        `${ride.id} jumps at the station-to-track junction`);
+    }
+  }
+  for (let i = 1; i <= 64; i++) {
+    const p = ridePose(ride, rideDuration(ride) * i / 64);
+    assert.ok([p.x, p.y, p.z, p.aheadX, p.aheadY, p.aheadZ].every(Number.isFinite), `${ride.id} invalid ride pose`);
+    assert.ok(p.y > 0 && p.y < 130, `${ride.id} leaves safe vertical bounds`);
+  }
+}
 assert.equal(manifest.attractions.length, plan.attractions.length);
 assert.ok(manifest.hauntWallColliders.length >= 22);
 assert.ok(manifest.structuralColliders.length >= 100);
@@ -28,6 +55,7 @@ for (const [label, x, z] of [
   ['main park gate', plan.entrance.x, plan.entrance.z],
   ['manor gate', 245, -280 + 84],
   ['laboratory gate', 445, -280 + 84],
+  ['park car', 6, 428],
 ]) {
   const hit = [...manifest.structuralColliders, ...manifest.hauntWallColliders].find(c =>
     x >= c.min[0] && x <= c.max[0] && z >= c.min[2] && z <= c.max[2] && c.max[1] > 0);
