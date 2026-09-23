@@ -13,7 +13,7 @@ export function bindResidency(w:LifeWorld){
   const families=new Map<string,Resident[]>();
   for(const r of w.residents){const id=r.identity!.familyId;families.set(id,[...(families.get(id)||[]),r]);}
   const plannedJobs=[
-    ...SERVICE_SITES.map(s=>({id:s.id,name:s.name,type:s.type.endsWith('restaurant')?'restaurant':s.type,entry:[s.x,s.z] as [number,number],jobCapacity:s.staff,...(s.placement==='mall'?{floor:s.floor}:{})})),
+    ...SERVICE_SITES.map(s=>({id:s.id,name:s.name,type:s.type.endsWith('restaurant')?'restaurant':s.type==='budget-hotel'?'hotel':s.type,entry:[s.x,s.z] as [number,number],jobCapacity:s.staff,...(s.placement==='mall'?{floor:s.floor}:{})})),
     ...TRANSPORT_HUBS.filter(h=>'x' in h).map(h=>({id:h.id,name:h.name,type:h.mode,entry:[h.x,h.z] as [number,number],jobCapacity:h.staff})),
     ...EMPLOYMENT_DISTRICTS.map(s=>({id:s.id,name:s.name,type:s.type,entry:[s.x,s.z] as [number,number],jobCapacity:s.staff})),
     ...CITY_OPERATION_SITES.map(s=>({id:s.id,name:s.name,type:s.type,entry:('entry' in s?[...s.entry]:[s.x,s.z]) as [number,number],jobCapacity:s.staff})),

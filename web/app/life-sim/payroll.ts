@@ -25,6 +25,8 @@ const PUBLIC_EMPLOYERS = new Set([
   'police',
   'school',
   'fire',
+  'detention',
+  'prison',
   'community',
   'water',
   'wastewater',

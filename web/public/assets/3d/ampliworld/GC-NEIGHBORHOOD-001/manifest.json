@@ -1,0 +1,92 @@
+{
+  "id": "GC-NEIGHBORHOOD-001",
+  "units": "METERS",
+  "upAxis": "Y",
+  "provenance": "Original editable Blender meshes; no external photos, meshes or brands.",
+  "variants": {
+    "mixed-1": {
+      "footprint": [
+        16,
+        12
+      ],
+      "floors": 5,
+      "groundFloor": "independent restaurant with physical furniture",
+      "upperFloors": "exterior only; occupancy not assigned",
+      "file": "mixed-1.glb",
+      "bytes": 729644,
+      "triangles": 13164
+    },
+    "mixed-2": {
+      "footprint": [
+        16,
+        12
+      ],
+      "floors": 6,
+      "groundFloor": "independent restaurant with physical furniture",
+      "upperFloors": "exterior only; occupancy not assigned",
+      "file": "mixed-2.glb",
+      "bytes": 1068976,
+      "triangles": 19180
+    },
+    "mixed-3": {
+      "footprint": [
+        16,
+        12
+      ],
+      "floors": 7,
+      "groundFloor": "independent restaurant with physical furniture",
+      "upperFloors": "exterior only; occupancy not assigned",
+      "file": "mixed-3.glb",
+      "bytes": 1101604,
+      "triangles": 19932
+    },
+    "express-hotel": {
+      "footprint": [
+        28,
+        18
+      ],
+      "floors": 5,
+      "type": "small express hotel",
+      "interiors": "ground-floor lobby only",
+      "file": "express-hotel.glb",
+      "bytes": 924832,
+      "triangles": 19552
+    },
+    "fire-station": {
+      "footprint": [
+        30,
+        20
+      ],
+      "responseBays": 3,
+      "floors": 2,
+      "vehicles": 3,
+      "file": "fire-station.glb",
+      "bytes": 304008,
+      "triangles": 5608
+    },
+    "detention": {
+      "footprint": [
+        30,
+        20
+      ],
+      "floors": 2,
+      "role": "court-linked detention intake",
+      "interior": "not enterable; secured exterior and gate only",
+      "file": "detention.glb",
+      "bytes": 951404,
+      "triangles": 17860
+    },
+    "prison": {
+      "footprint": [
+        36,
+        26
+      ],
+      "floors": 3,
+      "role": "regional prison",
+      "interior": "not enterable; secured exterior and gate only",
+      "file": "prison.glb",
+      "bytes": 1583452,
+      "triangles": 29892
+    }
+  }
+}

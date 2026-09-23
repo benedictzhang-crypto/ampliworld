@@ -1,0 +1,38 @@
+{
+  "id": "GC-YACHT-FLEET-001",
+  "units": "METERS",
+  "upAxis": "Y",
+  "provenance": "Project-original editable Blender meshes. No third-party boat assets.",
+  "variants": {
+    "14": {
+      "lengthMeters": 14,
+      "beamMeters": 3.4299999999999997,
+      "class": "sport",
+      "origin": "waterline center",
+      "upAxis": "Y",
+      "file": "14m.glb",
+      "bytes": 405028,
+      "triangles": 7080
+    },
+    "18": {
+      "lengthMeters": 18,
+      "beamMeters": 4.41,
+      "class": "flybridge",
+      "origin": "waterline center",
+      "upAxis": "Y",
+      "file": "18m.glb",
+      "bytes": 471336,
+      "triangles": 8208
+    },
+    "22": {
+      "lengthMeters": 22,
+      "beamMeters": 5.61,
+      "class": "expedition",
+      "origin": "waterline center",
+      "upAxis": "Y",
+      "file": "22m.glb",
+      "bytes": 509772,
+      "triangles": 8772
+    }
+  }
+}

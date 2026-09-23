@@ -367,10 +367,10 @@ function choose(w: LifeWorld, r: Resident): [Action, string] {
   )
     return ['study', '前往学院学习，不把学生上课计作工资收入'];
   const employer=r.employment&&w.businesses?.[r.employment.placeId];
-  const shiftStart=employer&&['hotel','hospital','police','water','wastewater','ems','transport-authority'].includes(employer.type)?(Number(r.id.slice(1))%3)*8:employer?.type==='nightclub'?20:employer?.type==='bar'?17:employer?.type==='restaurant'?11:9;
+  const shiftStart=employer&&['hotel','hospital','police','fire','detention','prison','water','wastewater','ems','transport-authority'].includes(employer.type)?(Number(r.id.slice(1))%3)*8:employer?.type==='nightclub'?20:employer?.type==='bar'?17:employer?.type==='restaurant'?11:9;
   const onShift=shiftStart+8<=24?hour>=shiftStart&&hour<shiftStart+8:hour>=shiftStart||hour<(shiftStart+8)%24;
   const willingMinutes=Math.max(420,Math.min(480,Math.round((480+adaptive.workReliability*80)/60)*60));
-  if (onShift && r.worked < willingMinutes && (day % 7 < 5||employer&&['hotel','hospital','police','water','wastewater','ems','transport-authority','restaurant','bar','nightclub','retail-shop','supermarket','cinema'].includes(employer.type)) && r.wage > 0) {
+  if (onShift && r.worked < willingMinutes && (day % 7 < 5||employer&&['hotel','hospital','police','fire','detention','prison','water','wastewater','ems','transport-authority','restaurant','bar','nightclub','retail-shop','supermarket','cinema'].includes(employer.type)) && r.wage > 0) {
     if (canOfferPaidHour(w,r))
       return ['work', `${r.job}：在岗位完成一小时服务；工资兑现经历影响下一次排班意愿`];
     if(r.lastUnderemployedDay!==day){

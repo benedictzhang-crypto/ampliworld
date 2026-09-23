@@ -3,7 +3,7 @@ import {hourlyWageCents,monthlySalaryCents} from './housing-finance';
 import type {LifeWorld,Resident} from './engine';
 import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from '../world-client/retail-registry';
 import {SERVICE_SITES,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS,CITY_OPERATION_SITES} from './city-service-plan';
-export const COMMERCE_VERSION=11;
+export const COMMERCE_VERSION=12;
 export const HOSPITALITY=[
  {id:'GC-RESTAURANT-001',name:'Lotus Siam · 泰国菜',type:'restaurant',entry:[245,-68],price:2600,staff:12},
  {id:'GC-RESTAURANT-002',name:'Bronze Garden · 花园中餐',type:'restaurant',entry:[290,-68],price:2800,staff:9},
@@ -23,7 +23,7 @@ export function initializeCommerce(w:LifeWorld){
   ...RETAIL_CAMPUSES.map(s=>({id:s.id,name:s.name,type:'supermarket',entry:[s.x,s.z] as [number,number],price:s.kind==='premium-grocery'?5200:s.kind==='warehouse-club'?9800:3600,jobCapacity:s.staff})),
   ...CITY_CINEMAS.map(s=>({id:s.id,name:s.name,type:'cinema',entry:[s.x,s.z] as [number,number],price:2200,jobCapacity:s.staff})),
   ...FOOD_VENUES.map(s=>({id:s.id,name:s.name,type:s.type==='food-truck'?'restaurant':'restaurant',entry:[s.x,s.z] as [number,number],price:s.price,jobCapacity:s.staff})),
-  ...SERVICE_SITES.map(s=>({id:s.id,name:s.name,type:s.type.endsWith('restaurant')?'restaurant':s.type,entry:[s.x,s.z] as [number,number],price:s.price,jobCapacity:s.staff,...(s.placement==='mall'?{floor:s.floor}:{})})),
+  ...SERVICE_SITES.map(s=>({id:s.id,name:s.name,type:s.type.endsWith('restaurant')?'restaurant':s.type==='budget-hotel'?'hotel':s.type,entry:[s.x,s.z] as [number,number],price:s.price,jobCapacity:s.staff,...(s.placement==='mall'?{floor:s.floor}:{})})),
   ...TRANSPORT_HUBS.filter(h=>'x' in h).map(h=>({id:h.id,name:h.name,type:h.mode,entry:[h.x,h.z] as [number,number],price:0,jobCapacity:h.staff})),
   ...EMPLOYMENT_DISTRICTS.map(s=>({id:s.id,name:s.name,type:s.type,entry:[s.x,s.z] as [number,number],price:0,jobCapacity:s.staff})),
   ...CITY_OPERATION_SITES.map(s=>({id:s.id,name:s.name,type:s.type,entry:('entry' in s?[...s.entry]:[s.x,s.z]) as [number,number],price:0,jobCapacity:s.staff})),
@@ -82,6 +82,8 @@ export function initializeCommerce(w:LifeWorld){
   if(type==='ev-dealer')return i===0?'电动车店经理':i%3===0?'电动车维修技师':'电动车销售顾问';
   if(type==='motorcycle-dealer')return i===0?'摩托车店经理':i%3===0?'摩托车维修技师':'摩托车销售顾问';
   if(type==='fire')return i===0?'消防站主管':'消防员';
+  if(type==='detention')return i===0?'拘留中心主任':i%10<5?'拘留所警员':i%10<7?'羁押医疗人员':i%10===7?'值班登记员':i%10===8?'设施维修员':'拘留所后勤人员';
+  if(type==='prison')return i===0?'监狱长':i%12<6?'监狱警员':i%12<8?'矫正教育员':i%12===8?'监狱医护人员':i%12===9?'厨房工作人员':i%12===10?'设施维修员':'行政档案员';
   if(type==='airport')return i===0?'机场运营主管':i%4===0?'运营调度员':i%4===1?'机场安检员':i%4===2?'机场地勤':'旅客服务员';
   if(type==='high-speed-rail')return i===0?'高铁站运营主管':i%3===0?'运营调度员':i%3===1?'高铁安检员':'旅客服务员';
   if(type==='metro')return i===0?'地铁运营主管':i%3===0?'地铁运营员':i%3===1?'地铁安检员':'站务员';
@@ -124,10 +126,10 @@ export function initializeCommerce(w:LifeWorld){
  // Services and individual shops get staffing first; office populations fill remaining capacity.
  const ordered=definitions.sort((a,b)=>Number(a.type==='office')-Number(b.type==='office'));
  for(const d of ordered){
-  const fullStaff=['water','wastewater','city-hall','court','ems','transport-authority'];
+  const fullStaff=['water','wastewater','city-hall','court','ems','transport-authority','fire','detention','prison'];
   const target=d.type==='hospital'?Math.min(d.jobCapacity,900):d.type==='school'?Math.min(d.jobCapacity,220):fullStaff.includes(d.type)?d.jobCapacity:d.type==='police'?d.jobCapacity:d.type==='restaurant'?d.jobCapacity:d.type==='bank'?d.jobCapacity:d.type==='bar'||d.type==='nightclub'||d.type==='dry-cleaning'||d.type==='laundromat'?d.jobCapacity:d.type==='retail-shop'?2+hash(d.id)%5:d.type==='auto'?22:d.type==='office'?Math.min(d.jobCapacity,60+hash(d.id)%210):Math.min(d.jobCapacity,8+hash(d.id)%19);
   const requested=d.type==='office'?Math.min(target,Math.max(0,remaining.size-(ordered.length-ordered.indexOf(d)-1)*8)):d.type==='retail-shop'?target:Math.min(d.jobCapacity,remaining.size);
-  const alwaysOpen=['hotel','hospital','police','water','wastewater','ems','transport-authority'];
+  const alwaysOpen=['hotel','hospital','police','fire','detention','prison','water','wastewater','ems','transport-authority'];
   const b:Business=w.businesses[d.id]??={id:d.id,name:d.name,type:d.type,entry:d.entry as [number,number],...('floor' in d&&d.floor?{floor:d.floor}:{}),staffIds:[],managerId:null,ownerId:null,price:'price' in d?d.price:d.type==='restaurant'?2600:d.type==='retail-shop'?2500+(hash(d.id)%12)*1500:d.type==='auto'?8500:d.type==='hospital'?1800:0,open:alwaysOpen.includes(d.type)?0:d.type==='nightclub'?20:d.type==='bar'?17:d.type==='supermarket'?7:d.type==='cinema'?10:8,close:alwaysOpen.includes(d.type)?24:d.type==='nightclub'?4:d.type==='bar'?2:d.type==='cinema'?24:d.type==='supermarket'?23:22,cash:0,visits:0,revenue:0,workedHours:0,day:Math.floor(w.minute/1440),todayVisits:0,todayRevenue:0,unpaidWages:0};
   b.name=d.name;b.type=d.type;b.entry=d.entry as [number,number];if('floor' in d&&d.floor)b.floor=d.floor;
   for(let i=0;i<requested&&remaining.size;i++){
@@ -145,7 +147,7 @@ export function initializeCommerce(w:LifeWorld){
   }
   b.managerId=b.staffIds[0]||null;
   if(d.type==='restaurant')b.ownerId=b.managerId;
-  const funding=['hospital','police','school','water','wastewater','city-hall','court','ems','transport-authority'].includes(b.type)?0:Math.min(w.treasury,b.staffIds.reduce((n,id)=>n+(w.residents.find(r=>r.id===id)?.wage||0)*16,0));
+  const funding=['hospital','police','fire','detention','prison','school','water','wastewater','city-hall','court','ems','transport-authority'].includes(b.type)?0:Math.min(w.treasury,b.staffIds.reduce((n,id)=>n+(w.residents.find(r=>r.id===id)?.wage||0)*16,0));
   b.cash+=funding;w.treasury-=funding;
  }
  // Remaining professionals retain differentiated roles in office jobs, with no duplicate employment.

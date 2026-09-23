@@ -1,10 +1,36 @@
 'use client';
 import { Clone, Text, useGLTF } from '@react-three/drei';
 import { CIVIC_PLACES } from './civic-registry';
-import { useMemo } from 'react';
-import { Mesh, Material } from 'three';
+import { useEffect,useMemo,useRef } from 'react';
+import { Mesh, Material, InstancedMesh, Matrix4, Object3D } from 'three';
 import { MALL_GARAGE, garageLevelAt } from './mall-garage';
 import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from './retail-registry';
+import marina from '../../public/assets/3d/ampliworld/GC-MARINA-001/marina-manifest.json';
+
+type MooredYacht=typeof marina.berths[number];
+function MarinaFleetMesh({mesh,berths}:{mesh:Mesh;berths:MooredYacht[]}){
+  const ref=useRef<InstancedMesh>(null);
+  useEffect(()=>{
+    const instances=ref.current;if(!instances)return;
+    const placement=new Object3D(),matrix=new Matrix4();
+    mesh.updateWorldMatrix(true,false);
+    berths.forEach((berth,index)=>{
+      placement.position.set(berth.center[0],berth.center[1],berth.center[2]);
+      placement.rotation.set(0,berth.side==='west'?Math.PI:0,0);
+      placement.updateMatrix();matrix.multiplyMatrices(placement.matrix,mesh.matrixWorld);
+      instances.setMatrixAt(index,matrix);
+    });
+    instances.instanceMatrix.needsUpdate=true;instances.computeBoundingSphere();
+  },[mesh,berths]);
+  return <instancedMesh ref={ref} args={[mesh.geometry,mesh.material,berths.length]} castShadow receiveShadow frustumCulled={false}/>;
+}
+function MarinaFleetVariant({length}:{length:14|18|22}){
+  const {scene}=useGLTF(`/assets/3d/ampliworld/GC-YACHT-FLEET-001/${length}m.glb`);
+  const meshes=useMemo(()=>{const result:Mesh[]=[];scene.traverse(object=>{if((object as Mesh).isMesh)result.push(object as Mesh);});return result;},[scene]);
+  const berths=useMemo(()=>marina.berths.filter(b=>b.occupied&&b.yachtLength===length),[length]);
+  return <group name={`${length}m Blender marina fleet`}>{meshes.map(mesh=><MarinaFleetMesh key={mesh.uuid} mesh={mesh} berths={berths}/>)}</group>;
+}
+function MarinaFleet(){return <group name="Blender-authored marina yachts"><MarinaFleetVariant length={14}/><MarinaFleetVariant length={18}/><MarinaFleetVariant length={22}/></group>}
 
 function RetailCampus({site}:{site:(typeof RETAIL_CAMPUSES)[number]}){
   const accent=site.kind==='premium-grocery'?'#5f8067':site.kind==='department-store'?'#a84b47':site.kind==='asian-grocery'?'#9a5548':'#536875';
@@ -48,11 +74,12 @@ function CivicAsset({
         )
           m.visible = false;
       });
+    if(id==='GC-MARINA-001')c.traverse(object=>{if(object.name.includes(' yacht '))object.visible=false;});
     return c;
   }, [scene, id]);
   return (
     <group position={[x, 0, z]}>
-      {id==='GC-MARINA-001'?<primitive object={display}/>:<Clone object={display} castShadow receiveShadow />}
+      {id==='GC-MARINA-001'?<><primitive object={display}/><MarinaFleet/></>:<Clone object={display} castShadow receiveShadow />}
     </group>
   );
 }

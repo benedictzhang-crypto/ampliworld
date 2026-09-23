@@ -72,6 +72,20 @@ logistics staffing in particular serve a hypothetical wider region, yet the
 current resident-only employer assignment has no cross-city commuters; that
 is an explicit research limitation before any 300,000-person scale-up.
 
+**Neighborhood and marina pass — 23 September:** the previous civic center
+and courthouse stay in place. The street registry adds 24 independent kitchens
+as ground-floor tenants of three distinct Blender-authored mixed-use building
+types, eight small express hotels, a court-linked detention center and a
+regional prison. Fire stations rise from four to six and fuel stations from
+six to twelve. These are incremental sites; the older site's deterministic
+coordinates are preserved. The 150 marina berths also stay fixed while three
+original Blender motor-yacht classes replace the earlier low-detail visible
+fleet. The yacht models are static and the upper mixed-use floors are visual
+shells, not occupied units. The 30,000-person roster is unchanged; its new
+justice jobs draw from the existing workforce. This is a more complete
+fictional service layout, not a statistically validated city or a finished
+AAA environment.
+
 For a real 300,000-person target in the 20 × 30 km city, see the
 [population scaling plan](docs/POPULATION_SCALE_300K.md). The current
 per-tick full-world copy and scan must be replaced before increasing the

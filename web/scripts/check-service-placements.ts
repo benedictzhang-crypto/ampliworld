@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {statSync} from 'node:fs';
-import {CITY_SERVICE_COLLIDERS,MODELED_STOREFRONT_SITES,SPECIAL_SERVICE_SITES,STREET_SERVICE_SITES,venueVariant} from '../app/world-client/city-service-buildings';
+import {CITY_SERVICE_COLLIDERS,MODELED_STOREFRONT_SITES,NEIGHBORHOOD_SITES,SPECIAL_SERVICE_SITES,STREET_SERVICE_SITES,neighborhoodVariant,venueVariant} from '../app/world-client/city-service-buildings';
 import housing from '../app/world-client/housing-parcels.json';
 import {CIVIC_PLACES} from '../app/world-client/civic-registry';
 import {METROPOLITAN_PLACES} from '../app/world-client/metropolitan-registry';
@@ -10,6 +10,9 @@ import kit from '../public/assets/3d/ampliworld/GC-STREET-SERVICE-KIT-001/manife
 import specialKit from '../public/assets/3d/ampliworld/GC-FITNESS-ARCADE-001/manifest.json';
 import mall from '../public/assets/3d/ampliworld/GC-MALL-002/mall-manifest.json';
 import {SERVICE_SITES} from '../app/life-sim/city-service-plan';
+import neighborhood from '../public/assets/3d/ampliworld/GC-NEIGHBORHOOD-001/manifest.json';
+import yachts from '../public/assets/3d/ampliworld/GC-YACHT-FLEET-001/manifest.json';
+import marina from '../public/assets/3d/ampliworld/GC-MARINA-001/marina-manifest.json';
 import {createLifeWorld,moneyTotal,upgradeLifeWorld} from '../app/life-sim/engine';
 
 type Box={left:number;right:number;back:number;front:number};
@@ -52,6 +55,26 @@ assert.equal(SERVICE_SITES.filter(s=>s.type==='arcade').length,2);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='gym'&&s.placement==='mall').length,1);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='arcade'&&s.placement==='mall').length,1);
 assert.equal(SPECIAL_SERVICE_SITES.length,10);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='small-restaurant').length,24);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='budget-hotel').length,8);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='fire').length,6);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='gas-station').length,12);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='detention').length,1);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='prison').length,1);
+assert.equal(NEIGHBORHOOD_SITES.length,40);
+for(const site of NEIGHBORHOOD_SITES){
+  const variant=neighborhoodVariant(site.id,site.type)!;
+  const model=neighborhood.variants[variant as keyof typeof neighborhood.variants];
+  assert(model,`${site.id}: no neighborhood model`);
+  assert.equal(statSync(new URL(`../public/assets/3d/ampliworld/GC-NEIGHBORHOOD-001/${variant}.glb`,import.meta.url)).size,model.bytes);
+  assert(!CITY_SERVICE_COLLIDERS.some(c=>c.id===`${site.id}/building`),`${site.id}: obsolete solid box`);
+}
+assert.equal(marina.berthCount,150);
+assert.equal(marina.berths.filter(berth=>berth.occupied).length,marina.dockedYachtCount);
+for(const [length,model] of Object.entries(yachts.variants)){
+  assert.equal(statSync(new URL(`../public/assets/3d/ampliworld/GC-YACHT-FLEET-001/${length}m.glb`,import.meta.url)).size,model.bytes);
+  assert(marina.berths.some(berth=>berth.occupied&&berth.yachtLength===Number(length)));
+}
 for(const site of SPECIAL_SERVICE_SITES){
   const variant=venueVariant(site.id,site.type)!;
   const asset=specialKit.venues[variant];
@@ -70,6 +93,9 @@ for(const site of SERVICE_SITES){
 const world=createLifeWorld();
 assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='gym').length,10);
 assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='arcade').length,2);
+assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='fire').length,6);
+assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='prison').length,1);
+assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='detention').length,1);
 const movedSite=STREET_SERVICE_SITES[0],old=structuredClone(world);
 delete old.serviceLayoutVersion;
 old.businesses![movedSite.id].entry=[0,0];
