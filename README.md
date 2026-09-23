@@ -1,6 +1,76 @@
 # AmpliWorld
 
-**Aureole Adventure Park — 22 September:** the active 20 × 30 km city now includes a 1.3 × 0.9 km amusement-park geometry prototype with five coaster designs, red/blue twin towers, family rides, two walk-through Halloween houses and a playable basketball challenge. Map teleport reaches the physical gate. Ride boarding and motion, NPC visits and final art quality remain unfinished. See `docs/AMUSEMENT_PARK_2026_09_22.md`.
+AmpliWorld is an experimental, inspectable environment for studying how events
+may propagate through people, businesses and financial markets. Its playable 3D
+city is a research interface and simulation testbed, **not evidence that its
+synthetic inhabitants predict real people or that its signals make money**.
+
+## Where the project stands
+
+| Layer | Implemented | Not established |
+|---|---|---|
+| Playable city | Metre-scale city plan, selected detailed districts, locomotion, vehicles, venues and prototype attractions | Uniformly polished city, complete interiors, citywide physically routed daily lives |
+| People and events | Persistent records for 3,000 residents; inspectable rules, memories and event inputs in limited slices | A validated autonomous model of 30,000 residents, much less 8.3 billion independent minds; measured real-world response accuracy |
+| Research pipeline | Deterministic event → cohort response → asset signal → portfolio proposal; reproducible example runs | A trained latent world model, learned transition dynamics, long-horizon planning or a demonstrated forecasting advantage |
+| Quant evaluation | Directional accuracy, MAE, rank IC and a simple gross portfolio-return calculation | Untouched point-in-time out-of-sample results, net-of-cost P&L, capacity or institutional risk validation |
+
+The upstream 8.3-billion-persona frame is a population concept, **not 8.3
+billion agents running in this city**. The current financial behavior layer is
+mostly hand-specified. A convincing animated world and a profitable, calibrated
+world model are different achievements; the latter has not been demonstrated.
+
+### Current quant implementation, without embellishment
+
+- `src/ampliworld/portfolio.py` ranks eligible signals and proposes weights
+  proportional to `abs(score) × liquidity`, caps each asset at `max_weight`,
+  and sets stop loss / take profit to `1.25 × uncertainty` and
+  `2.25 × uncertainty`. These are prototype heuristics, not an optimized
+  portfolio with turnover, impact, neutralization or capacity controls.
+- `src/ampliworld/calibration.py` updates only `return_scale` and
+  `confidence_scale` (default learning rate: 10%) using realized magnitude and
+  directional accuracy; it records MAE. This is scalar rescaling, **not**
+  learned human behavior or probabilistic calibration of the world.
+- `src/ampliworld/evaluation.py` reports directional accuracy, MAE, rank IC and
+  gross simulated portfolio return. That last metric omits fees, spread,
+  slippage, financing, borrow, market impact and execution feasibility.
+
+### Evidence gates
+
+Progress should be judged by reproducible evidence, not city size or agent
+count. Four distinct kinds of evidence would materially change the assessment:
+
+1. **World-model research:** specify state and latent representations,
+   transition dynamics, objectives/planning, uncertainty and long-horizon
+   evaluation; train and compare against strong baselines on held-out events.
+   No such trained frontier model or published experimental result is claimed.
+2. **Quant edge:** freeze as-of timestamps, universe membership and model
+   versions; run walk-forward and purged validation with 2–3 years of genuinely
+   untouched out-of-sample data where available. Report regime robustness,
+   turnover, transaction costs, slippage, market impact, capacity,
+   delisting/survivorship handling, factor exposures, multiple-testing controls,
+   P&L attribution and drawdown decomposition. No such validated result is
+   currently reported here.
+3. **Economic outcome:** maintain a timestamped research ledger connecting
+   hypotheses, failed experiments, releases, decisions and live or paper P&L
+   attribution. Prototype returns or a single attractive Sharpe cannot prove a
+   scalable, repeatable strategy; no verified live P&L claim is made.
+4. **Organizational execution:** demonstrate a research team and operating
+   process able to build data governance, model evaluation and production
+   infrastructure. This is an organizational milestone, not a feature the
+   repository can prove by itself.
+
+The near-term priority is to meet **one or two** of these gates with auditable
+artifacts: first a point-in-time research ledger and net-of-cost evaluation,
+then a clearly specified and tested behavioral transition model. The 3D city
+remains useful as an observable laboratory, but visual progress must not be
+presented as empirical prediction progress.
+
+## Development checkpoints
+
+The dated notes below record construction slices; later checkpoints supersede
+earlier limits. They are not independent validation of forecasting ability.
+
+**Aureole Adventure Park — 23 September:** the active 20 × 30 km city includes a 1.3 × 0.9 km amusement-park geometry prototype with five coaster designs, red/blue twin towers, family rides, two walk-through Halloween houses and a playable basketball challenge. Map teleport reaches the physical gate; nine rides have first-pass boarding and motion without queues. NPC visits, final art quality, audio and safety details remain unfinished. See `docs/AMUSEMENT_PARK_2026_09_22.md`.
 
 **Eastwater marina / traffic pilot — 14 September:** original 150-berth waterfront asset with 100 static yachts and a three-storey hotel exterior at (6500,13200). Core crossing gains protected signal phases and a driveable-car stop-line pilot; resident travel and waiting time are recorded. Live driving and accelerated residents still require clock unification and citywide routing. MatrAIx software is MIT, but the HF Persona 1M data is research-only; no restricted personas were deployed. Current adapter fields remain AmpliWorld-authored. See `web/docs/traffic-marina-matraix-2026-09-14.md`.
 
@@ -46,24 +116,27 @@ The following dated stages describe the retained detailed core; their smaller gr
 
 The original smaller `GC-MALL-001` asset remains archived in the library; the active world uses its larger successor `GC-MALL-002` above. See `docs/CHECKPOINT_2026_09_12_MALL.md` for that historical construction stage.
 
-AmpliWorld is an open financial world model for event-driven market simulation.
-It injects a real-world event into a heterogeneous synthetic population,
-simulates consumer and investor responses, maps those responses to listed
-assets, and produces a risk-constrained portfolio proposal.
+AmpliWorld is an open research prototype for event-driven market simulation.
+Its current pipeline injects a structured event into a sampled synthetic
+population, computes rule-based consumer and investor responses, maps these to
+listed assets, and produces a heuristic portfolio proposal. This does not yet
+constitute a validated predictive world model.
 
 The project uses [MatrAIx Persona 8B](https://github.com/MatrAIx-ai/MatrAIx-Persona-8B)
 as an upstream population foundation. Persona 8B describes 8.3 billion persona
 records across 1,290 categorical dimensions. AmpliWorld runs tractable,
 weighted cohorts rather than one LLM process per person.
 
-## Core loop
+## Intended core loop
 
 1. Ingest news, filings, search interest, sentiment, footfall and spending proxies.
 2. Select the population cohorts and market participants exposed to the event.
 3. Simulate base, amplification and disconfirmation scenarios.
 4. Aggregate demand, belief, order intent, flows and volatility.
-5. Rank assets and solve for weights under liquidity, concentration and risk limits.
-6. Compare the simulation with realized behavior and recalibrate the agent model.
+5. Rank assets and construct weights subject to liquidity, concentration and
+   risk constraints; the current implementation uses the simpler rule above.
+6. Compare predictions with realized behavior and recalibrate; currently this
+   adjusts two scalars, not agent behavior or transition dynamics.
 
 AmpliWorld treats this loop as a persistent game rather than a stateless batch
 prediction. The world advances one turn per day. Prior events decay instead of
@@ -239,7 +312,8 @@ photographs are references, not automatically redistributable textures.
 - Simulation produces hypotheses, not ground truth.
 - Every portfolio decision must retain its event, cohort and scenario lineage.
 - Probability calibration matters before profit attribution.
-- Backtests include transaction costs and reject look-ahead data.
+- Future backtests must include transaction costs and reject look-ahead data;
+  the current evaluator does neither.
 - Live execution remains separated from the open research environment.
 
 ## Organization
