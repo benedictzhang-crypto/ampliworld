@@ -25,6 +25,8 @@
     "check:amusement": "node --import tsx scripts/check-amusement-park.mjs",
     "check:life-market": "node --import tsx scripts/check-life-market.ts",
     "check:news-counterfactual": "node --import tsx scripts/check-news-counterfactual.ts",
+    "check:economic-behavior": "node --import tsx scripts/check-economic-behavior.ts",
+    "check:payroll-counterfactual": "node --import tsx scripts/check-payroll-counterfactual.ts",
     "assets:residence": "RESIDENCE_OUTPUT_DIR=public/assets/3d/ampliworld/GC-RES-001 node scripts/assets/build-residence.mjs",
     "db:generate": "drizzle-kit generate"
   },

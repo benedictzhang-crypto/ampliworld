@@ -17,6 +17,8 @@ import {searchStockOpportunity} from './investor-policy';
 import {ageAdaptivePolicy,learnExperience,policyFor,type AdaptivePolicy} from './adaptive-policy';
 import {addMood,ageWellbeing,updateWellbeing,wellbeingFor,type WellbeingState} from './wellbeing';
 import type {WellbeingScores} from './wellbeing';
+import {recordPayrollHour,settlePayrollArrears,type PayrollLedger} from './payroll';
+import {BASE_FOOD_PRICES,residentFoodBasket,type FoodPrices} from './food-choice';
 export type Action =
   | 'home'
   | 'drink'
@@ -50,6 +52,7 @@ export type Resident = {
   lastBrowseDay?:number;
   dwellingId?:string;
   employment?:Employment;
+  payroll?:PayrollLedger;
   journey?:{destination:[number,number];minutes:number};
   consumerPersona?:ReturnType<typeof consumerPersona>;
   travelSeconds?:number;
@@ -98,6 +101,9 @@ export type LifeWorld = {
   businessTotal?:number;
   observableSample?:number;
   worldEvents?:WorldEvent[];
+  foodPrices?:FoodPrices;
+  payrollPolicy?:'cash-constrained'|'public-backstop';
+  publicPayrollSupportCents?:number;
   market?:MarketState;
   housingFinanceVersion?:number;
   housingPaidThroughMonth?:number;
@@ -133,6 +139,9 @@ export type WorldEvent={
   id:string;text:string;subject:string;direction:'up'|'down'|'neutral';tone?:'negative'|'positive'|'neutral';shockPct:number;minute:number;
   counts:{reduce:number;maintain:number;increase:number};
   examples:{residentId:string;reaction:'reduce'|'maintain'|'increase';reason:string}[];
+  transferredCents?:number;
+  transferEligibility?:'bottom-wealth-50';
+  foodForecast?:Record<'bread'|'protein'|'sugar'|'fruit',{increase:number;maintain:number;reduce:number}>;
 };
 const cap = (v: number) => Math.max(0, Math.min(100, v));
 export const paperPrice = (minute: number) =>
@@ -184,6 +193,7 @@ export function createLifeWorld(): LifeWorld {
     minute: 480,
     revision: 0,
     residents,
+    foodPrices:{...BASE_FOOD_PRICES},
     treasury: 1_000_000_000,
     openingMoney: 0,
     lastOperation: '',
@@ -357,7 +367,8 @@ function choose(w: LifeWorld, r: Resident): [Action, string] {
   if (
     r.profile &&
     r.profile.lastShopDay !== day &&
-    r.cash > 10000 &&
+    r.cash >= 2*(w.foodPrices?.bread||BASE_FOOD_PRICES.bread) &&
+    r.cash+r.savings >= 20*(w.foodPrices?.bread||BASE_FOOD_PRICES.bread) &&
     r.profile.pantry < 2
   )
     return ['shop', '检查家庭食品库存，根据预算采购生活必需品'];
@@ -497,6 +508,13 @@ function complete(w: LifeWorld, r: Resident) {
       const cashBeforeMeal=r.cash;
       if (r.profile && r.profile.pantry > 0&&!r.diningOut) {
         r.profile.pantry--;
+        const stock=r.profile.foodStock;
+        if(stock){
+          const meal=stock.protein>0?'protein':stock.bread>0?'bread':null;
+          if(meal)stock[meal]--;
+          if(stock.fruit>0){stock.fruit--;r.health=cap(r.health+.15);}
+          if(stock.sugar>0){stock.sugar--;addMood(r,.35);}
+        }
         remember(w, r, '在家使用已购食材做饭');
       } else {
         recordVisit(
@@ -521,10 +539,15 @@ function complete(w: LifeWorld, r: Resident) {
       break;
     }
     case 'shop': {
-      const cost = venue?.price || 2400;
-      if (r.cash >= cost) {
-        recordVisit(pay(cost, '采购三份家庭餐食食材'));
-        if (r.profile) r.profile.pantry += 3;
+      const basket=residentFoodBasket(r,w.foodPrices||BASE_FOOD_PRICES);
+      if (basket.costCents > 0 && r.cash >= basket.costCents) {
+        recordVisit(pay(basket.costCents, `采购家庭食品：面包 ${basket.bread}、蛋白食品 ${basket.protein}、甜食 ${basket.sugar}、水果 ${basket.fruit}`));
+        if (r.profile){
+          const stock=r.profile.foodStock??={bread:0,protein:0,sugar:0,fruit:0};
+          for(const good of ['bread','protein','sugar','fruit'] as const)stock[good]+=basket[good];
+          r.profile.pantry+=basket.bread+basket.protein;
+          r.profile.lastFoodBasket=basket;
+        }
         addMood(r,.3);
         r.stress=cap(r.stress-.5);
       }
@@ -538,21 +561,16 @@ function complete(w: LifeWorld, r: Resident) {
       break;
     case 'work': {
       if((r.identity?.age??18)<18)break;
-      const employer=r.employment&&w.businesses?.[r.employment.placeId];
-      const publicEmployer=!!employer&&['hospital','police','school','fire','community','water','wastewater','city-hall','court','ems','transport-authority'].includes(employer.type);
-      const wage = Math.min(employer&&!publicEmployer?employer.cash:w.treasury, r.wage);
-      if(employer){if(publicEmployer)w.treasury-=wage;else employer.cash-=wage;employer.workedHours++;employer.unpaidWages+=r.wage-wage;}else w.treasury -= wage;
-      r.cash += wage;
+      const {paid:wage,outstanding}=recordPayrollHour(w,r);
       r.worked += 60;
-      log.wages += wage;
       r.energy = cap(r.energy - 5);
       r.stress=cap(r.stress+3-(wage>0?2:0));
       if(wage>0)addMood(r,.2);
       w.serviceHours ??= {};
       const role = r.profile?.occupation || 'worker';
       w.serviceHours[role] = (w.serviceHours[role] || 0) + 1;
-      remember(w, r, `${r.job}完成一小时工作，工资到账`, wage);
-      if(wage<r.wage)learnExperience(r,w.minute,'work',-.8,'unpaid wage');
+      remember(w, r, outstanding?`${r.job}完成一小时工作，部分工资待发`:`${r.job}完成一小时工作，工资到账`, wage);
+      if(outstanding)learnExperience(r,w.minute,'work',-.8,'unpaid wage');
       else if(wage>0&&r.worked===60)learnExperience(r,w.minute,'work',.35,'wage received');
       break;
     }
@@ -667,6 +685,7 @@ export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
         clinicVisits: 0,
         trades: 0,
       });
+      settlePayrollArrears(w);
       if (w.daily.length > 31) w.daily.shift();
       householdDay(w,previousDay+1);
     }

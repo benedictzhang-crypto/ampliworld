@@ -99,6 +99,10 @@ for (let day = 0; day < 30; day++) {
     assert(r.adaptivePolicy.experiences.length<=8);
     assert(r.adaptivePolicy.riskMultiplier>=.4&&r.adaptivePolicy.riskMultiplier<=1.1);
     assert(r.wellbeing);
+    if(r.payroll){
+      assert.equal(r.payroll.earnedCents,r.payroll.paidCents+r.payroll.outstandingCents);
+      assert.equal(Object.values(r.payroll.arrearsByPayerCents).reduce((sum,amount)=>sum+amount,0),r.payroll.outstandingCents);
+    }
     for(const value of [r.wellbeing.mood,r.wellbeing.mentalHealth,r.wellbeing.eventPressure])assert(Number.isFinite(value)&&value>=0&&value<=100);
     if(r.identity!.age<18){assert.equal(r.shares,0);assert(!r.memory.some(m=>m.text.includes('工资到账')||m.text.includes('买入虚拟')));}
     assert(Number.isFinite(r.x) && Number.isFinite(r.z));

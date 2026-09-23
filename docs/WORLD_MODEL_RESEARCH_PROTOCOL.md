@@ -51,8 +51,36 @@ and report uncertainty rather than output a single persuasive story.
   client receives its 1,200-person spatial sample. It adds physical health
   and a cash-buffer-based financial-security estimate. These
   are synthetic research scores, not clinical assessments or empirically
-  calibrated population norms. Price headlines currently affect perceived
-  affordability and discretionary choices; store-level repricing is pending.
+  calibrated population norms. Milk headlines currently affect perceived
+  affordability; the bread scenario additionally reprices the model's food
+  basket, but full merchant-level repricing is pending.
+- The $18/hour nominal wage floor is distinct from cash actually paid. The
+  resident payroll ledger records earned, paid, outstanding and subsequently
+  repaid cents; private payroll is constrained by business cash, public
+  payroll by the public account. Day-boundary arrears settlement transfers
+  available money without minting it. This makes wage reliability testable.
+  `npm run check:payroll-counterfactual` compares that default with a finite
+  public-account backstop on the same opening city for 30 days, recording
+  wages paid, arrears, support costs and wellbeing. The backstop is an
+  experimental fiscal intervention, not a free guarantee or policy proposal.
+  In the first paired run, the default paid 41.8% of accrued wages and ended
+  with roughly $45.0m owed; the finite backstop paid 74.5%, spent $24.0m of
+  public funds and still owed roughly $19.8m. Mean mental health ended at
+  61.73 versus 62.20 under the backstop, compared with 64.93 initially;
+  stress did not consistently improve. These are synthetic accounting
+  diagnostics, not empirical estimates. Employer revenue/productivity and
+  cash-circulation closure remain a priority before using this world to
+  forecast economic outcomes.
+- The food basket contains bread, protein foods, sweets and fruit. A
+  subsistence constraint, daily budget and heterogeneous preference determine
+  quantities. Bread demand can be locally Giffen-like when a price rise pushes
+  protein out of a narrowly constrained basket; a small transfer may buy
+  sweets while a larger or differently preferred basket buys protein/fruit.
+  The low-income transfer currently uses the bottom-wealth cohort as an
+  eligibility proxy and is funded by the simulated treasury. These are
+  scenario mechanisms, not calibrated demand elasticities or claims about
+  universal poor-household preferences. Compare planned choices with actual
+  store purchases and eventually observed data.
 - A market snapshot supplies 1–50 symbols with cent prices, source, `asOf`
   and `availableAt`. The API rejects future or backwards observations and
   requires explicit zero-value delisting rather than silently dropping a
@@ -67,7 +95,7 @@ and report uncertainty rather than output a single persuasive story.
 ### Synthetic equilibrium check (30,000 residents)
 
 In a deterministic 30-day run with no injected news, city-mean happiness was
-59.5 → 60.0, transient mood 69.5 → 68.5, and stress 33.0 → 33.1. Simulated
+59.5 → 60.1, transient mood 69.5 → 68.6, and stress 33.0 → 33.0. Simulated
 mental health moved 64.9 → 61.7; wage reliability and household/economic
 dynamics still require separate calibration. A 20% milk-price headline moved
 the immediate means to happiness 58.3, mood 66.1 and stress 34.9. One day

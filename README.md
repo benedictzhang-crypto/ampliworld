@@ -24,15 +24,45 @@ world model are different achievements; the latter has not been demonstrated.
 The city can now run a persistent, self-updating **synthetic** society and expose
 an intervention against a no-news baseline. In a deterministic 30-day run of
 30,000 residents with no injected news, the citywide means stayed close to
-their starting levels: long-run happiness **59.5 → 60.0**, short-run mood
-**69.5 → 68.5**, and stress **33.0 → 33.1**. Mental-health score moved
+their starting levels: long-run happiness **59.5 → 60.1**, short-run mood
+**69.5 → 68.6**, and stress **33.0 → 33.0**. Mental-health score moved
 **64.9 → 61.7**. That decline remains an open calibration issue, potentially
 involving wage settlement, household dynamics and financial buffers; the
 society is not yet fully balanced.
 
 Employed residents now have a nominal pay floor of **$18 per hour**. Students,
 retirees and jobseekers may have no wages; a business short of operating cash
-can still accrue unpaid wages rather than creating money to meet payroll.
+can still accrue unpaid wages rather than creating money to meet payroll. A
+per-resident ledger distinguishes contracted earnings, actual payment,
+outstanding arrears and later repayment; daily settlement uses available
+business or public funds.
+
+A paired 30-day payroll experiment exposes a material economic gap. In the
+default cash-constrained world, **41.8%** of accrued wages were paid and about
+**$45.0 million** remained outstanding. A finite public-account backstop raised
+payment to **74.5%**, but still left about **$19.8 million** outstanding after
+using **$24.0 million** of public funds. Mean mental-health score ended at
+**61.73** versus **62.20** with the backstop, both below the **64.93** opening
+score; stress did not uniformly improve. Wage reliability matters, but this
+does **not** solve the model's underfunded firms, missing productivity/revenue
+flows or other causes of wellbeing drift. The two worlds start from the same
+state and conserve cash; they diverge endogenously after the intervention.
+
+The first budget-constrained grocery model also distinguishes bread, a generic
+protein-food category, sweets and fruit; beef and lamb are not yet separate
+products. An explicit bread-price shock changes the model's
+staple price, and a funded low-income cash-transfer scenario moves money from
+the public account to the bottom-wealth cohort. Under a narrow subsistence
+budget, higher bread prices can replace protein with *more* bread; a small
+transfer can buy sweets for one preference profile, while another chooses
+protein and fruit. The event view reports **planned baskets**, and completed
+grocery trips record purchases and inventory separately. This is an
+auditable mechanism test—not evidence that all poor households prefer sugar,
+that all bread is a Giffen good, or that our synthetic response rates match
+reality. The empirical motivation includes [Jensen and Miller's staple-food
+experiment](https://www.aeaweb.org/articles?id=10.1257/aer.98.4.1553) and
+cash-transfer studies with [different dietary outcomes in Kenya](https://academic.oup.com/heapol/article/35/7/784/5854078)
+and [Massachusetts](https://www.hks.harvard.edu/randomized-unconditional-cash-transfers-improved-diet-quantity-and-quality-low-income-community).
 
 Injecting a **20% milk-price headline** moved the immediate means to happiness
 **58.3**, mood **66.1**, and stress **34.9**. After one simulated day, the
@@ -49,7 +79,9 @@ synthetic agents forecast real people or stock prices. The headline currently
 changes perceived affordability and choices; merchant inventory is not yet
 repriced. From `web/`, reproduce the baseline and event checks with
 `node --import tsx scripts/check-population.ts` and
-`npm run check:life-market` and `npm run check:news-counterfactual`; see the
+`npm run check:life-market`, `npm run check:news-counterfactual`, and
+`npm run check:economic-behavior`, and
+`npm run check:payroll-counterfactual`; see the
 [research protocol](docs/WORLD_MODEL_RESEARCH_PROTOCOL.md) for the remaining
 validation gates.
 

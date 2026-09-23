@@ -105,7 +105,7 @@ export async function POST(request: Request) {
     if(body.llmResidentId!==undefined){if(typeof body.llmResidentId!=='string')return response({error:'居民编号无效'},400);try{await deliberate(current,body.llmResidentId,inferenceConfig());}catch(e){return response({error:e instanceof Error?e.message:'推理失败'},422);}}
     let next:LifeWorld;
     try{next=eventText?applyWorldEvent(current,eventText):hasMarketSnapshot?ingestMarketSnapshot(current,body.marketSnapshot):advanceLifeWorld(current, body.minutes);}
-    catch(error){if(hasMarketSnapshot)return response({error:error instanceof Error?error.message:'Invalid market transition'},422);throw error;}
+    catch(error){if(hasMarketSnapshot||eventText)return response({error:error instanceof Error?error.message:'Invalid simulation event'},422);throw error;}
     next.lastOperation = body.operationId;
     if(!user){guestWorld=next;return response({world:observable(next,observe)});}
     const update = await populationDB()
