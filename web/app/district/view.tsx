@@ -424,7 +424,7 @@ export function DistrictClient() {
     const key = step ? `${step.house}-${step.stage}` : '';
     if (key === lastHauntStage.current) return;
     lastHauntStage.current = key;
-    if (step && (step.stage === 2 || step.stage === 5)) {
+    if (step?.cue && (step.stage === 1 || step.stage === 2 || step.stage === 4 || step.stage === 5)) {
       setScare(step);
       if (scareTimeout.current) clearTimeout(scareTimeout.current);
       scareTimeout.current = setTimeout(() => setScare(null), 1500);

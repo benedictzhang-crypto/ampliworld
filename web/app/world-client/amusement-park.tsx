@@ -53,9 +53,12 @@ function Apparition({ scare }: { scare: HauntStep }) {
   });
   const house = plan.attractions.find((a) => a.id === scare.house)!;
   const side = scare.stage % 2 === 0 ? 44 : -44;
+  const isLab = scare.house === 'haunt-lab';
+  const isFinale = scare.stage >= 4;
   return <group ref={actor} position={[house.x + side, 2.7, house.z + 62 - scare.stage * 25]}>
-    <mesh castShadow><coneGeometry args={[1.65, 4.8, 8]} /><meshStandardMaterial color="#dfe4df" transparent opacity={.87} emissive="#25384c" emissiveIntensity={.8} /></mesh>
-    <mesh position={[0, 2.3, 0]} castShadow><sphereGeometry args={[.92, 12, 8]} /><meshStandardMaterial color="#e3e7de" emissive="#506780" emissiveIntensity={.6} /></mesh>
+    <pointLight color={isFinale ? '#ec1f35' : isLab ? '#77e5e4' : '#a9c6ff'} intensity={isFinale ? 8 : 4} distance={11} decay={2} />
+    <mesh castShadow><coneGeometry args={[1.65, 4.8, 8]} /><meshStandardMaterial color={isLab ? '#b5dad5' : '#dfe4df'} transparent opacity={.87} emissive={isFinale ? '#8b1625' : '#25384c'} emissiveIntensity={isFinale ? 1.5 : .8} /></mesh>
+    <mesh position={[0, 2.3, 0]} castShadow><sphereGeometry args={[.92, 12, 8]} /><meshStandardMaterial color={isLab ? '#a2ccc5' : '#e3e7de'} emissive={isFinale ? '#923444' : '#506780'} emissiveIntensity={.6} /></mesh>
     {[-.34, .34].map((dx) => <mesh key={dx} position={[dx, 2.46, .82]}><sphereGeometry args={[.16, 8, 6]} /><meshBasicMaterial color="#ff2938" /></mesh>)}
   </group>;
 }
