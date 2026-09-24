@@ -11,11 +11,11 @@ import {
   type LifeWorld,
 } from './engine';
 import { OCCUPATIONS, VENUES, WEALTH_REFERENCE } from './society';
-import {CENSUS_SIZE} from './census';
 import {WellbeingHexagon} from './wellbeing-hexagon';
 import type {AgentGoal} from './agent-cycle';
 import './population.css';
 type PopulationResponse = { world?: LifeWorld; error?: string };
+const VISIBLE_RESIDENT_CAPACITY=1200;
 
 export function usePopulation() {
   const [world, setWorld] = useState<LifeWorld | null>(null),
@@ -49,9 +49,6 @@ export function usePopulation() {
       current.current=data.world;setWorld(data.world);setError('');
     }catch(error){if(request===areaRequest.current)setError(error instanceof Error?error.message:'Area stream failed');}
   },[]);
-  useEffect(() => {
-    void load();
-  }, [load]);
   const advance = useCallback(async (minutes: number,llmResidentId?:string) => {
     if (locked.current || !current.current) return;
     locked.current = true;
@@ -156,6 +153,9 @@ export function PopulationLayer({
         legs.current!.setMatrixAt(i * 2 + leg, object.matrix);
       }
     });
+    bodies.current.count=world.residents.length;
+    heads.current.count=world.residents.length;
+    legs.current.count=world.residents.length*2;
     for (const ref of [bodies, heads, legs]) {
       ref.current!.instanceMatrix.needsUpdate = true;
       if (ref.current!.instanceColor)
@@ -169,7 +169,7 @@ export function PopulationLayer({
     <group>
       <instancedMesh
         ref={bodies}
-        args={[undefined, undefined, CENSUS_SIZE]}
+        args={[undefined, undefined, VISIBLE_RESIDENT_CAPACITY]}
         onClick={(event) => {
           event.stopPropagation();
           if (event.instanceId !== undefined)
@@ -179,11 +179,11 @@ export function PopulationLayer({
         <capsuleGeometry args={[0.22, 0.48, 3, 6]} />
         <meshStandardMaterial roughness={0.9} />
       </instancedMesh>
-      <instancedMesh ref={heads} args={[undefined, undefined, CENSUS_SIZE]}>
+      <instancedMesh ref={heads} args={[undefined, undefined, VISIBLE_RESIDENT_CAPACITY]}>
         <sphereGeometry args={[0.18, 8, 6]} />
         <meshStandardMaterial color="#c49b7f" />
       </instancedMesh>
-      <instancedMesh ref={legs} args={[undefined, undefined, CENSUS_SIZE*2]}>
+      <instancedMesh ref={legs} args={[undefined, undefined, VISIBLE_RESIDENT_CAPACITY*2]}>
         <cylinderGeometry args={[0.09, 0.08, 0.7, 6]} />
         <meshStandardMaterial color="#3c434d" />
       </instancedMesh>
