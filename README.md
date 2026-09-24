@@ -471,6 +471,17 @@ The prototype includes CC0 3D assets from
 license files, official source URLs and package hashes are retained under
 `web/public/assets/3d/vendor/`.
 
+**Current boundary:** `/` and `/district` both mount the same active
+`DistrictClient`. Its metre-scale world lives in `web/app/world-client/` and
+the district scene; the 30,000-resident simulation and persistent API live in
+`web/app/life-sim/` and `/api/population`. `use-population.ts` owns requests and
+revision handling, while `client.tsx` renders the selected resident sample and
+the observation panel. The old on-screen navigation has been removed. The
+retained `/api/game` economy is a separate legacy service, not evidence that
+its old visual world is running or synchronized with the resident economy.
+Future migration must explicitly map its accounts, symbols and actions into
+the active simulation before exposing them in the new city UI.
+
 ## City architecture: develop the new world only
 
 Our target remains a playable city—not an architectural gallery. The user retired
@@ -482,7 +493,7 @@ design intentions remain requirements for the new world, not old meshes to reuse
 
 | Inspiration | AmpliWorld architectural decision | Actual state |
 |---|---|---|
-| GTA-style city structure | A connected metric road/civic/transit graph with stable building and entrance IDs | Legacy world registries exist; new 2×2 km plan and first connected street prototype are separate |
+| GTA-style city structure | A connected metric road/civic/transit graph with stable building and entrance IDs | The metric street client is the sole playable world; its detailed core and wider plan share one coordinate system, but many outer parcels remain coarse |
 | Genshin-style world presentation | Nearby detailed assets, distant silhouettes/HLOD, streamed cells and a floating origin | Three residence LOD assets exist; full streaming/HLOD/floating origin are still planned |
 | Sims-style individual lives | Stable identities, needs, relationships, memory and selective simulation activation | Cohort research and representative NPC/gameplay systems exist; full city-scale individual minds remain planned |
 

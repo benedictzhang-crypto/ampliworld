@@ -9,7 +9,8 @@ import {
   useState,
 } from 'react';
 import { CITY, CityLayer } from '../world-client/city-layer';
-import {usePopulation,PopulationLayer,PopulationPanel} from '../life-sim/client';
+import {PopulationLayer,PopulationPanel} from '../life-sim/client';
+import {usePopulation} from '../life-sim/use-population';
 import {CityOperations,CITY_OPERATION_COLLIDERS} from '../world-client/city-operations';
 import {CityServiceBuildings,CITY_SERVICE_COLLIDERS} from '../world-client/city-service-buildings';
 import { CITY_INFRA } from '../world-client/city-surface';
@@ -391,7 +392,6 @@ export function DistrictClient() {
   const [coreReady, setCoreReady] = useState(false);
   const onCoreReady = useCallback(() => setCoreReady(true), []);
   const [walking, setWalking] = useState(false);
-  const [legacyNavigationEnabled] = useState(false);
   const [wide, setWide] = useState(false);
   const [planOpen, setPlanOpen] = useState(false);
   const [garageLevel, setGarageLevel] = useState(0);
@@ -1009,178 +1009,6 @@ export function DistrictClient() {
           <Button onClick={() => teleportTo(AMUSEMENT_PARK.center.x + 445, AMUSEMENT_PARK.center.z - 280 + 84)}>实验室鬼屋入口</Button>
         </>}
         <Button onClick={() => { setWide(true); setWalking(false); }}>全城总览</Button>
-        {legacyNavigationEnabled&&<>
-        <Button onClick={()=>setSelectedResident(population.world?.residents[0]?.id||null)}>居民档案 · {population.world?.residents.length||0} 人</Button>
-        <Button onClick={()=>{setFocus('marina');setWide(false);setWalking(false);}}>东湾游艇港 · 150 泊位</Button>
-        <Button onClick={()=>{setWalking(false);setFocus('cbd');setWide(false)}}>实验室 · 街区观察</Button>
-        <Button onClick={()=>{setWalking(true);setWide(false);(document.activeElement as HTMLElement)?.blur();}}>进入现场 · 步行 / 驾驶</Button>
-        <Button onClick={()=>{setFocus('mall');setWide(false);setWalking(false)}}>商场楼层览景</Button>
-        {!walking && focus==='mall' && MALL_LEVELS.map((l,i)=>l.y>=0&&<Button key={l.id} aria-pressed={i===mallLevel} onClick={()=>setMallLevel(i)}>{l.label}</Button>)}
-        {walking && !driving && nearbyLift && <Button onClick={()=>setLiftPanel(v=>!v)}>电梯 {nearbyLift!.id} · {currentMallLevel.id}</Button>}
-        {walking && !driving && liftPanel && nearbyLift && <section aria-label="商场电梯楼层" style={{background:'#152b32',padding:16,border:'1px solid #ba9d67',maxWidth:420,color:'#f4eedf'}}>
-          <strong>电梯 {nearbyLift!.id} · {currentMallLevel.label}</strong>
-          <p aria-live="polite">{liftNotice}</p>
-          <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
-            <Button onClick={()=>rideLift(currentMallLevel.y)}>呼梯到本层</Button>
-            {MALL_LEVELS.map(l=><Button key={l.id} disabled={liftCarrier.current.active} onClick={()=>rideLift(l.y)}>{l.label}</Button>)}
-          </div>
-        </section>}
-        <Button
-          onClick={() => {
-            setFocus('stadium');
-            setWide(false);
-            setWalking(false);
-            (document.activeElement as HTMLElement)?.blur();
-          }}
-        >
-          体育场俯瞰
-        </Button>
-        <Button
-          onClick={() => {
-            setFocus('sushi');
-            setWide(false);
-            setWalking(false);
-            (document.activeElement as HTMLElement)?.blur();
-          }}
-        >
-          日料街景
-        </Button>
-        <Button
-          onClick={() => {
-            setFocus('auto');
-            setWide(false);
-            setWalking(false);
-            (document.activeElement as HTMLElement)?.blur();
-          }}
-        >
-          汽车中心览景
-        </Button>
-        <Button
-          onClick={() => {
-            setFocus('garage');
-            setWide(false);
-            setWalking(false);
-            (document.activeElement as HTMLElement)?.blur();
-          }}
-        >
-          地库览景
-        </Button>
-        {!walking &&
-          focus === 'garage' &&
-          MALL_GARAGE.levels.map((level, i) => (
-            <Button
-              key={level.id}
-              aria-pressed={i === garageLevel}
-              onClick={() => setGarageLevel(i)}
-            >
-              {level.id} · {level.bayCount} 车位
-            </Button>
-          ))}
-        {walking && (
-          <Button
-            disabled={!driving && !nearCar}
-            onClick={() => {
-              toggleCar();
-              (document.activeElement as HTMLElement)?.blur();
-            }}
-          >
-            {driving
-              ? '下车（E）'
-              : nearCar
-                ? '上车驾驶（E）'
-                : '靠近前街汽车上车'}
-          </Button>
-        )}
-        <Button
-          onClick={() => {
-            setFocus('middle');
-            setWide(false);
-            setWalking(false);
-            (document.activeElement as HTMLElement)?.blur();
-          }}
-        >
-          青庭花园 · 15 栋
-        </Button>
-        <Button
-          onClick={() => {
-            setFocus('river');
-            setWide(false);
-            setWalking(false);
-            (document.activeElement as HTMLElement)?.blur();
-          }}
-        >
-          澜岸别墅 · 60 栋
-        </Button>
-        <Button
-          onClick={() => {
-            setWalking((v) => !v);
-            setWide(false);
-            setFocus('cbd');
-            (document.activeElement as HTMLElement)?.blur();
-          }}
-        >
-          {walking ? '俯瞰街区' : '控制小人'}
-        </Button>
-        {[
-          'low',
-          'lowerMiddle',
-          'high',
-          'ultra',
-          'mixedVilla',
-          'largeDetached',
-        ].map((type) => (
-          <Button
-            key={type}
-            onClick={() => {
-              setFocus(`housing-${type}`);
-              setWide(false);
-              setWalking(false);
-              (document.activeElement as HTMLElement)?.blur();
-            }}
-          >
-            {HOUSING_LABELS[type]}览景
-          </Button>
-        ))}
-        {walking && nearGate && (
-          <Button
-            disabled={openGates.has(nearGate!.id) && !gateCanClose}
-            onClick={() =>
-              setOpenGates((s) => {
-                if (s.has(nearGate!.id) && !gateCanClose) return s;
-                const n = new Set(s);
-                n.has(nearGate!.id) ? n.delete(nearGate!.id) : n.add(nearGate!.id);
-                return n;
-              })
-            }
-          >
-            {openGates.has(nearGate!.id)
-              ? gateCanClose
-                ? '关闭小区门禁'
-                : '请先离开门口再关闭'
-              : '打开小区门禁（试玩）'}
-          </Button>
-        )}
-        <a href="/architecture">住宅细节</a>
-        {(
-          [
-            ['east', '东曜副中心'],
-            ['south', '南辰副中心'],
-            ['estuary', '河口景观'],
-          ] as const
-        ).map(([id, label]) => (
-          <Button
-            key={id}
-            onClick={() => {
-              setFocus(id);
-              setWide(false);
-              setWalking(false);
-              (document.activeElement as HTMLElement)?.blur();
-            }}
-          >
-            {label}
-          </Button>
-        ))}
-        </>}
       </nav></Localized>
       {walking && (
         <Localized><div className="district-look">
