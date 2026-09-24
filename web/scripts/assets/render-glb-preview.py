@@ -19,6 +19,7 @@ minimum = Vector((min(v.x for v in corners), min(v.y for v in corners), min(v.z 
 maximum = Vector((max(v.x for v in corners), max(v.y for v in corners), max(v.z for v in corners)))
 center = (minimum + maximum) * 0.5
 span = maximum - minimum
+detail_center = Vector((float(args[2]), float(args[3]), float(args[4]))) if len(args) >= 5 else None
 
 bpy.ops.mesh.primitive_plane_add(size=max(span.x, span.y) * 2.4, location=(center.x, center.y, minimum.z - 0.08))
 ground = bpy.context.object
@@ -39,10 +40,13 @@ area.rotation_euler = (center - area.location).to_track_quat("-Z", "Y").to_euler
 
 bpy.ops.object.camera_add()
 camera = bpy.context.object
-camera.location = (center.x + span.x * 1.4, center.y - span.y * 1.9, maximum.z + max(span.x, span.y) * 0.8)
-direction = center - camera.location
+camera.location = ((detail_center.x + 85, detail_center.y - 115, detail_center.z + 90)
+                   if detail_center else
+                   (center.x + span.x * 1.4, center.y - span.y * 1.9, maximum.z + max(span.x, span.y) * 0.8))
+direction = (detail_center or center) - camera.location
 camera.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
 camera.data.lens = 42
+camera.data.clip_end = max(10000, direction.length * 4)
 bpy.context.scene.camera = camera
 
 world = bpy.context.scene.world or bpy.data.worlds.new("World")

@@ -27,7 +27,28 @@ export function CBDBoulevards() {
   const { scene } = useGLTF(
     '/assets/3d/ampliworld/GC-CBD-STREET-001/cbd-streets.glb',
   );
-  return <Clone object={scene} castShadow receiveShadow />;
+  return <group name="CBD streets, bus stops and wayfinding">
+    <Clone object={scene} castShadow receiveShadow />
+    {[[ -440,-915],[-440,-725],[440,-910],[440,-720]].map(([x,z])=>{
+      const sx=x+(x<0?-19:19);
+      return <Text key={`speed-${x}-${z}`} position={[sx,3.85,z+.265]}
+        fontSize={.55} color="#26373d" anchorX="center" anchorY="middle">40</Text>;
+    })}
+    {[[-440,-790,'CENTRAL STATION  →  CBD'],[440,-790,'RIVERFRONT  ←  CBD']].map(([x,z,label])=><group key={String(label)}>
+      <Text position={[Number(x),7.2,Number(z)+.2]} fontSize={1.05} color="#f5f7f1"
+        anchorX="center" anchorY="middle">{String(label)}</Text>
+      <Text position={[Number(x),7.2,Number(z)-.2]} rotation={[0,Math.PI,0]} fontSize={1.05}
+        color="#f5f7f1" anchorX="center" anchorY="middle">{String(label)}</Text>
+    </group>)}
+    {[[-304.2,-402,'MALL  →'],[315.8,-402,'METRO  ←'],[5.8,-812,'RIVER  ↑']].map(([x,z,label])=><Text
+      key={String(label)} position={[Number(x),2.82,Number(z)+.23]} fontSize={.29}
+      color="#f5f7f1" anchorX="center" anchorY="middle">{String(label)}</Text>)}
+    {[[-467,-869.9], [473,-869.9],[-467,-564.9],[473,-564.9]].map(([x,z],i)=><Text
+      key={`bus-${i}`} position={[x,3.75,z+.08]} fontSize={.3}
+      color="#f5f7f1" anchorX="center" anchorY="middle">BUS {i+1}</Text>)}
+    <Text position={[-446,2.55,-869.04]} fontSize={.58} color="#ffe8ad"
+      anchorX="center" anchorY="middle">B1</Text>
+  </group>;
 }
 
 export function Mall() {
