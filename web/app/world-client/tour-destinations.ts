@@ -15,8 +15,10 @@ const civic=CIVIC_PLACES.map(p=>{
   const door=manifest.entrances?.main??manifest.entrance;
   const ax=p.id==='GC-MARINA-001'?p.x:p.x+(door?.[0]??0);
   const az=p.id==='GC-MARINA-001'?p.z-110:p.z+(door?.[2]??manifest.bounds.max[2])+8;
-  const kind=p.id.includes('HOSPITAL')?'医院 hospital':p.id.includes('SCHOOL')?'学校 school':p.id.includes('AUTO')?'汽车中心 car dealer':p.id.includes('CITYHALL')?'市政府 city hall':p.id.includes('COURT')?'法院 court':'城市地标 landmark';
-  return destination(p.id,p.name,kind,p.x,p.z,ax,az,kind.includes('医院')||kind.includes('学校')||kind.includes('市政府'));
+  const kind=p.id.includes('CRESCENT-COMMONS')?'全民运动公园 sports park':p.id.includes('HOSPITAL')?'医院 hospital':p.id.includes('SCHOOL')?'学校 school':p.id.includes('AUTO')?'汽车中心 car dealer':p.id.includes('CITYHALL')?'市政府 city hall':p.id.includes('COURT')?'法院 court':'城市地标 landmark';
+  const item=destination(p.id,p.name,kind,p.x,p.z,ax,az,kind.includes('公园')||kind.includes('医院')||kind.includes('学校')||kind.includes('市政府'));
+  if(p.id==='GC-CRESCENT-COMMONS-001')item.searchText+=' 足球 篮球 网球 红土 屋顶 保龄球 football basketball tennis clay rooftop bowling';
+  return item;
 });
 const services=SERVICE_SITES.filter(s=>s.placement==='street').map(s=>{
   const kind=s.type==='fire'?'消防站 fire station':s.type==='clinic'?'诊所 clinic':s.type==='real-estate-broker'?'房地产中介 real estate':s.type==='property-developer'?'房地产开发商 developer':s.type==='car-rental'?'汽车租赁 car rental':s.type==='bank'?'银行 bank':s.type;

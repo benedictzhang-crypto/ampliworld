@@ -19,8 +19,10 @@ import school from '../../public/assets/3d/ampliworld/GC-SCHOOL-001/manifest.jso
 import cityHall from '../../public/assets/3d/ampliworld/GC-CITYHALL-001/manifest.json';
 import court from '../../public/assets/3d/ampliworld/GC-COURT-001/manifest.json';
 import emergency from '../../public/assets/3d/ampliworld/GC-EMS-001/manifest.json';
+import commons from '../../public/assets/3d/ampliworld/GC-CRESCENT-COMMONS-001/manifest.json';
 
 export const CIVIC_PLACES = [
+  {id:'GC-CRESCENT-COMMONS-001',name:'Crescent Commons · 全民运动公园',x:970,z:1230,file:'commons.glb',manifest:commons},
   {id:'GC-CITYHALL-001',name:'AmpliWorld City Hall and Civic Services',x:1250,z:520,file:'model.glb',manifest:cityHall},
   {id:'GC-COURT-001',name:'Metropolitan Court and Justice Center',x:1450,z:520,file:'model.glb',manifest:court},
   {id:'GC-EMS-001',name:'Metropolitan Emergency Medical Service',x:3270,z:4400,file:'model.glb',manifest:emergency},

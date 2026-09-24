@@ -327,6 +327,20 @@ export function CityPlan({
                 ry={road.radiusZ} fill="none" stroke="#69797b" strokeWidth={40}
                 pointerEvents="none" />
             ))}
+            <g pointerEvents="none" aria-label="Crescent Commons public sports park">
+              <rect x={650} y={1085} width={640} height={290} rx={22}
+                fill="#77a271" stroke="#456c4c" strokeWidth={Math.max(3, view.span / 3200)} />
+              <path d="M670 1348 Q800 1290 920 1330 T1265 1350 M670 1118 Q840 1160 1005 1115 T1265 1115"
+                fill="none" stroke="#d8d2bb" strokeWidth={Math.max(3, view.span / 1700)} />
+              <rect x={711} y={1172} width={88} height={124} rx={4} fill="#397343" />
+              <rect x={859} y={1164} width={36} height={46} rx={3} fill="#387c91" />
+              <rect x={957} y={1164} width={38} height={46} rx={3} fill="#c8734e" />
+              <rect x={1142} y={1259} width={88} height={56} rx={4} fill="#8c9b97" />
+              {view.span < 6500 && <text x={963} y={1361} textAnchor="middle"
+                fill="#1c503a" fontWeight="bold" fontSize={Math.max(17, view.span / 250)}>
+                Crescent Commons · Sports Park
+              </text>}
+            </g>
             <g
               onClick={() => { setSelectedDestination(null); setSelectedPark(true); setSelectedStation(null); setSelected(null); }}
               style={{ cursor: 'pointer' }}
