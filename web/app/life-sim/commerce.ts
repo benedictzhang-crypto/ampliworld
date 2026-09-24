@@ -37,6 +37,22 @@ export function initializeCommerce(w:LifeWorld){
  }
  const adults=w.residents.filter(r=>(r.identity?.age||0)>=18&&r.wage>0).sort((a,b)=>hash(a.id)-hash(b.id));
  const remaining=new Set(adults.map(r=>r.id));
+ const byId=new Map(w.residents.map(r=>[r.id,r]));
+ const byRole=new Map<string,Resident[]>();
+ for(const resident of adults){const pool=byRole.get(resident.job)||[];pool.push(resident);byRole.set(resident.job,pool);}
+ const roleCursor=new Map<string,number>(),ageCursor=new Map<number,number>();
+ const firstAvailable=(pool:Resident[],start:number,minimum:number)=>{
+  let index=start;
+  while(index<pool.length&&(!remaining.has(pool[index].id)||pool[index].identity!.age<minimum))index++;
+  return index;
+ };
+ const nextWorker=(wanted:string,minimum:number):Resident|undefined=>{
+  const pool=byRole.get(wanted);
+  if(pool){const index=firstAvailable(pool,roleCursor.get(wanted)||0,minimum);roleCursor.set(wanted,index);if(index<pool.length)return pool[index];}
+  const index=firstAvailable(adults,ageCursor.get(minimum)||0,minimum);
+  ageCursor.set(minimum,index);
+  return adults[index];
+ };
  function role(type:string,i:number,placeId=''):string{
   if(type==='hospital'){
    const n=i%100;
@@ -138,7 +154,7 @@ export function initializeCommerce(w:LifeWorld){
   for(let i=0;i<requested&&remaining.size;i++){
    const wanted=d.type==='restaurant'&&'price' in d&&typeof d.price==='number'&&d.price<=4200&&i===requested-1&&i>3?'外卖员':role(d.type,i,d.id);
    const minimum=/医生|牙医|兽医/.test(wanted)?26:wanted==='护士'?21:/经理|主管|店长|经营者|主任|院长/.test(wanted)?24:18;
-   const person=adults.find(r=>remaining.has(r.id)&&r.identity!.age>=minimum&&wanted&&r.job===wanted)||adults.find(r=>remaining.has(r.id)&&r.identity!.age>=minimum);
+   const person=nextWorker(wanted,minimum);
    if(!person)break;
    remaining.delete(person.id);b.staffIds.push(person.id);
    if(wanted)person.job=wanted;
@@ -150,7 +166,7 @@ export function initializeCommerce(w:LifeWorld){
   }
   b.managerId=b.staffIds[0]||null;
   if(d.type==='restaurant')b.ownerId=b.managerId;
-  const funding=['hospital','police','fire','detention','prison','school','water','wastewater','city-hall','court','ems','transport-authority'].includes(b.type)?0:Math.min(w.treasury,b.staffIds.reduce((n,id)=>n+(w.residents.find(r=>r.id===id)?.wage||0)*16,0));
+  const funding=['hospital','police','fire','detention','prison','school','water','wastewater','city-hall','court','ems','transport-authority'].includes(b.type)?0:Math.min(w.treasury,b.staffIds.reduce((n,id)=>n+(byId.get(id)?.wage||0)*16,0));
   b.cash+=funding;w.treasury-=funding;
  }
  // Remaining professionals retain differentiated roles in office jobs, with no duplicate employment.
