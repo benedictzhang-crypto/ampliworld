@@ -52,6 +52,9 @@ export const CITY_SERVICE_PLAN=[
   {kind:'prison',label:'Regional correctional campus',count:1,staff:110,price:0},
   {kind:'gas-station-expansion',label:'Neighborhood fuel station',count:6,staff:7,price:4800},
   {kind:'fire-expansion',label:'Neighborhood fire station',count:2,staff:28,price:0},
+  {kind:'real-estate-broker',label:'Residential property brokerage',count:4,staff:12,price:0},
+  {kind:'property-developer',label:'Metropolitan property developer',count:2,staff:48,price:0},
+  {kind:'car-rental',label:'City car rental and fleet service',count:3,staff:16,price:4800},
 ] as const;
 
 const centers=[[0,0],[5400,3400],[-1300,8400],[1100,7200],[-1100,1000],[6500,13200]] as const;

@@ -8,6 +8,7 @@ export const STREET_SERVICE_SITES=SERVICE_SITES.filter(s=>s.placement==='street'
 const MODELED_STOREFRONT_TYPES=new Set(['convenience','pharmacy','florist','signature-restaurant','premium-restaurant','upper-restaurant','mid-restaurant','value-restaurant','milk-tea','cafe','bakery','electronics-repair','dry-cleaning','laundromat','salon','clinic','dentist','pet','repair','post']);
 export const MODELED_STOREFRONT_SITES=STREET_SERVICE_SITES.filter(s=>MODELED_STOREFRONT_TYPES.has(s.type));
 export const SPECIAL_SERVICE_SITES=STREET_SERVICE_SITES.filter(s=>s.type==='gym'||s.type==='arcade');
+export const REALTY_MOBILITY_SITES=STREET_SERVICE_SITES.filter(s=>['real-estate-broker','property-developer','car-rental'].includes(s.type));
 export const NEIGHBORHOOD_SITES=STREET_SERVICE_SITES.filter(s=>['small-restaurant','budget-hotel','fire','detention','prison'].includes(s.type));
 export function neighborhoodVariant(id:string,type:string){
   if(type==='small-restaurant')return `mixed-${(Number(id.slice(-3))%3)+1}`;
@@ -22,6 +23,14 @@ export function venueVariant(id:string,type:string){
   return null;
 }
 export const CITY_SERVICE_COLLIDERS=STREET_SERVICE_SITES.flatMap(s=>{
+  if(REALTY_MOBILITY_SITES.includes(s)){
+    const developer=s.type==='property-developer',width=developer?32:s.type==='car-rental'?30:28;
+    const depth=developer?21:s.type==='car-rental'?18:17,height=developer?18:s.type==='car-rental'?7.5:8.4;
+    return [
+      {id:`${s.id}/rear`,min:[s.x-width/2,0,s.z-depth/2] as [number,number,number],max:[s.x+width/2,height,s.z-depth/2+.5] as [number,number,number]},
+      ...[-1,1].map(side=>({id:`${s.id}/side-${side}`,min:[s.x+side*width/2-.3,0,s.z-depth/2] as [number,number,number],max:[s.x+side*width/2+.3,height,s.z+depth/2] as [number,number,number]})),
+    ];
+  }
   if(s.type==='detention'||s.type==='prison'){
     const halfWidth=s.type==='prison'?18:15,halfDepth=s.type==='prison'?13:10,height=s.type==='prison'?12.8:8.8;
     return [
@@ -100,11 +109,21 @@ function SpecialVenue({variant}:{variant:'aquatic'|'studio'|'iron'|'arcade'}){
   </group>)}</group>;
 }
 
+function CommercialAsset({variant}:{variant:'brokerage'|'developer'|'car-rental'}){
+  const {scene}=useGLTF(`/assets/3d/ampliworld/GC-REALTY-MOBILITY-001/${variant}.glb`);
+  const type=variant==='brokerage'?'real-estate-broker':variant==='developer'?'property-developer':'car-rental';
+  return <group name={`${variant} physical business sites`}>
+    {REALTY_MOBILITY_SITES.filter(s=>s.type===type).map(s=><group key={s.id} position={[s.x,0,s.z]}>
+      <Clone object={scene} castShadow receiveShadow/>
+    </group>)}
+  </group>;
+}
+
 export function CityServiceBuildings(){
   const bodies=useRef<InstancedMesh>(null),glass=useRef<InstancedMesh>(null),roofs=useRef<InstancedMesh>(null),paving=useRef<InstancedMesh>(null);
   useEffect(()=>{const o=new Object3D(),c=new Color();STREET_SERVICE_SITES.forEach((s,i)=>{
     const tall=['school','hotel','community','police','fire'].includes(s.type),sides=s.type==='police'?1.8:s.type==='bank'||s.type==='nightclub'?1.45:['auto-repair','fuel'].includes(s.type)?1.5:1;
-    const shellScale=MODELED_STOREFRONT_TYPES.has(s.type)||s.type==='gym'||s.type==='arcade'||NEIGHBORHOOD_SITES.includes(s)?0:1;
+    const shellScale=MODELED_STOREFRONT_TYPES.has(s.type)||s.type==='gym'||s.type==='arcade'||NEIGHBORHOOD_SITES.includes(s)||REALTY_MOBILITY_SITES.includes(s)?0:1;
     o.position.set(s.x,tall?5:2.8,s.z);o.scale.set(sides*shellScale,(tall?1.8:1)*shellScale,shellScale);o.updateMatrix();bodies.current!.setMatrixAt(i,o.matrix);bodies.current!.setColorAt(i,c.setHSL((i*.097)%1,.16,.58));
     o.position.set(s.x,tall?4.2:2.4,s.z+6.04);o.scale.set(sides*shellScale,.75*shellScale,shellScale);o.updateMatrix();glass.current!.setMatrixAt(i,o.matrix);
     o.position.set(s.x,tall?10.2:5.8,s.z);o.scale.set(sides*shellScale,shellScale,shellScale);o.updateMatrix();roofs.current!.setMatrixAt(i,o.matrix);
@@ -115,6 +134,7 @@ export function CityServiceBuildings(){
     <Suspense fallback={null}><ModeledStorefronts/></Suspense>
     <Suspense fallback={null}><SpecialVenue variant="aquatic"/><SpecialVenue variant="studio"/><SpecialVenue variant="iron"/><SpecialVenue variant="arcade"/></Suspense>
     <Suspense fallback={null}><NeighborhoodAssets variant="mixed-1"/><NeighborhoodAssets variant="mixed-2"/><NeighborhoodAssets variant="mixed-3"/><NeighborhoodAssets variant="express-hotel"/><NeighborhoodAssets variant="fire-station"/><NeighborhoodAssets variant="detention"/><NeighborhoodAssets variant="prison"/></Suspense>
+    <Suspense fallback={null}><CommercialAsset variant="brokerage"/><CommercialAsset variant="developer"/><CommercialAsset variant="car-rental"/></Suspense>
     <instancedMesh ref={paving} args={[undefined,undefined,count]} receiveShadow><boxGeometry args={[22,.08,9]}/><meshStandardMaterial color="#858983" roughness={.96}/></instancedMesh>
     <instancedMesh ref={bodies} args={[undefined,undefined,count]} castShadow receiveShadow><boxGeometry args={[16,5.6,12]}/><meshStandardMaterial roughness={.78}/></instancedMesh>
     <instancedMesh ref={glass} args={[undefined,undefined,count]}><boxGeometry args={[11,3.1,.12]}/><meshPhysicalMaterial color="#759093" transparent opacity={.58} roughness={.18}/></instancedMesh>

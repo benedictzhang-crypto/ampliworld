@@ -93,6 +93,13 @@ function Office({ assetId, x, z }: { assetId: string; x: number; z: number }) {
     </group>
   );
 }
+function RooftopHelipads(){
+  const {scene}=useGLTF('/assets/3d/ampliworld/GC-REALTY-MOBILITY-001/helipad.glb');
+  return <group name="Rooftop helipads, static visual infrastructure">
+    <group position={[2937,84,4376]}><Clone object={scene} castShadow receiveShadow/></group>
+    <group position={[280,350,-490]}><Clone object={scene} castShadow receiveShadow/></group>
+  </group>;
+}
 function CityInfrastructure() {
   const { scene } = useGLTF(
     '/assets/3d/ampliworld/GC-CITY-INFRA-001/globalinfra.glb',
@@ -777,6 +784,7 @@ export function DistrictClient() {
                         : playerFloor.current
                   }
                 />
+                <Suspense fallback={null}><RooftopHelipads/></Suspense>
                 <Communities />
                 <MetropolitanPlaces />
                 <Suspense fallback={null}>

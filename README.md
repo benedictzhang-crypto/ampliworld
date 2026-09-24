@@ -34,6 +34,15 @@ the rent transfer remains cash-conserving. This is synthetic scenario logic,
 not a calibrated housing market. Pets, family formation and hospital specialty
 operations remain unimplemented.
 
+**Property, mobility and municipal facilities — 23 September:** four property
+brokerages, two development offices and three car-rental branches have stable
+street parcels, employment roles and original Blender exterior models. The
+hospital west inpatient roof and one CBD office tower have static helipads.
+The roads department and waste service now staff sprinkler-truck and street-
+sweeper drivers; Blender fleet vehicles are parked at their operating sites.
+Actual leasing contracts, rental-car trips, helicopter flights and moving
+municipal service routes are not yet simulated.
+
 ### From a playable city to a controlled social experiment
 
 The city can now run a persistent, self-updating **synthetic** society and expose

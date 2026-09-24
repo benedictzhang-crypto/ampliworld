@@ -3,7 +3,7 @@ import { OCCUPATIONS, VENUES, profileAt, type CitizenProfile } from './society';
 import {citizen,CENSUS_SIZE,CENSUS_VERSION} from './census';
 import {crossingWait} from './traffic';
 import {consumerPersona} from './persona-adapter';
-import {bindResidency,type Dwelling,type Employment} from './residency';
+import {bindResidency,RESIDENCY_VERSION,type Dwelling,type Employment} from './residency';
 import {initializeCommerce,chooseBusiness,COMMERCE_VERSION,type Business} from './commerce';
 import {occupationFor} from './occupation-weights';
 import type {Decision} from './deliberation';
@@ -251,7 +251,7 @@ function attachIdentities(w:LifeWorld){
   w.censusVersion=CENSUS_VERSION;
 }
 export function upgradeLifeWorld(input: LifeWorld): LifeWorld {
-  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===2&&input.commerceVersion===COMMERCE_VERSION&&input.serviceLayoutVersion===1&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housingFinanceVersion===HOUSING_FINANCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName&&Number.isFinite(r.stress)&&r.holdings&&r.adaptivePolicy?.version===1&&r.wellbeing?.version===1&&Number.isFinite(r.wellbeing.mentalHealth)&&Number.isFinite(r.wellbeing.financialSecuritySetpoint)&&(r.wage===0||r.wage>=MIN_HOURLY_WAGE_CENTS)&&(!r.employment||r.employment.monthlyGrossCents===r.wage*176))) return input;
+  if (input.societyVersion === 1&&input.censusVersion===CENSUS_VERSION&&input.residencyVersion===RESIDENCY_VERSION&&input.commerceVersion===COMMERCE_VERSION&&input.serviceLayoutVersion===1&&input.regionalVersion===1&&input.liquidityVersion===1&&input.housingFinanceVersion===HOUSING_FINANCE_VERSION&&input.housing&&input.residents.every(r=>r.consumerPersona&&r.englishName&&Number.isFinite(r.stress)&&r.holdings&&r.adaptivePolicy?.version===1&&r.wellbeing?.version===1&&Number.isFinite(r.wellbeing.mentalHealth)&&Number.isFinite(r.wellbeing.financialSecuritySetpoint)&&(r.wage===0||r.wage>=MIN_HOURLY_WAGE_CENTS)&&(!r.employment||r.employment.monthlyGrossCents===r.wage*176))) return input;
   const w = structuredClone(input),
     fresh = createLifeWorld();
   if(input.societyVersion!==1)for (let i = 0; i < w.residents.length; i++) {

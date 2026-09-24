@@ -1,5 +1,5 @@
 'use client';
-import {Text} from '@react-three/drei';
+import {Clone,Text,useGLTF} from '@react-three/drei';
 import {CITY_OPERATION_SITES} from '../life-sim/city-service-plan';
 
 function Wheel({x,z}:{x:number;z:number}){return <mesh position={[x,.48,z]} rotation={[Math.PI/2,0,0]} castShadow><cylinderGeometry args={[.55,.55,.34,14]}/><meshStandardMaterial color="#202326"/></mesh>}
@@ -29,4 +29,13 @@ function TransportAuthority(){const s=operation('DOT-01');return <group position
   </group>}
 const operationBounds:Record<string,[number,number,number]>= {'CONSTRUCTION-01':[90,65,48],'WASTE-01':[95,70,67],'POWER-01':[110,80,84],'TAX-01':[35,23,30],'MUSEUM-01':[46,29,27],'ART-01':[48,30,30],'WATER-01':[120,85,25],'SEWAGE-01':[130,95,28],'CITYHALL-01':[75,53,84],'COURT-01':[70,50,34],'EMS-01':[75,53,21],'DOT-01':[105,75,29]};
 export const CITY_OPERATION_COLLIDERS=CITY_OPERATION_SITES.filter(s=>s.id!=='CITYHALL-01'&&s.id!=='COURT-01'&&s.id!=='EMS-01').map(s=>{const [x,z,h]=operationBounds[s.id]??[30,30,20];return {id:`${s.id}/campus`,min:[s.x-x,0,s.z-z] as [number,number,number],max:[s.x+x,h,s.z+z] as [number,number,number]};});
-export function CityOperations(){return <><Construction/><Waste/><Power/><Tax/><Museum/><ArtMuseum/><WaterWorks/><Wastewater/><TransportAuthority/></>}
+function UtilityFleet(){
+  const sprinkler=useGLTF('/assets/3d/ampliworld/GC-REALTY-MOBILITY-001/sprinkler.glb').scene;
+  const sweeper=useGLTF('/assets/3d/ampliworld/GC-REALTY-MOBILITY-001/sweeper.glb').scene;
+  const road=operation('DOT-01'),waste=operation('WASTE-01');
+  return <group name="Blender municipal fleet, parked until routing is implemented">
+    {[-68,68].map(x=><group key={`sprinkler-${x}`} position={[road.x+x,0,road.z+65]}><Clone object={sprinkler} castShadow receiveShadow/></group>)}
+    {[-74,74].map(x=><group key={`sweeper-${x}`} position={[waste.x+x,0,waste.z+58]}><Clone object={sweeper} castShadow receiveShadow/></group>)}
+  </group>;
+}
+export function CityOperations(){return <><Construction/><Waste/><Power/><Tax/><Museum/><ArtMuseum/><WaterWorks/><Wastewater/><TransportAuthority/><UtilityFleet/></>}

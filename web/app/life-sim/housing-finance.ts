@@ -17,9 +17,9 @@ export function monthlySalaryCents(job: string, age: number, employed: boolean):
   if (!employed || age < 18 || age >= 65) return 0;
   // Hypothetical monthly gross salaries in fictional currency, not market estimates.
   if (/医生|牙医|兽医|律师|软件工程师|研究员|创业者/.test(job)) return 1_200_000;
-  if (/产品经理|客户经理|审计|药剂师|工程师/.test(job)) return 900_000;
+  if (/产品经理|客户经理|审计|药剂师|工程师|建筑设计师|房地产开发总经理/.test(job)) return 900_000;
   if (/教师|会计|设计师|护士|警员|消防员|技师|电工|水管工/.test(job)) return 650_000;
-  if (/店长|销售|行政|图书|实验室|司机|健身|摄影|自由职业/.test(job)) return 500_000;
+  if (/店长|销售|行政|图书|实验室|司机|健身|摄影|自由职业|经纪人|租赁顾问|车队调度员/.test(job)) return 500_000;
   return 380_000;
 }
 export function monthlyMortgagePaymentCents(principalCents: number, annualRateBps = 360, months = 360): number {

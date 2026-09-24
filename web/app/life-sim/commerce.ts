@@ -3,7 +3,7 @@ import {hourlyWageCents,monthlySalaryCents} from './housing-finance';
 import type {LifeWorld,Resident} from './engine';
 import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from '../world-client/retail-registry';
 import {SERVICE_SITES,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS,CITY_OPERATION_SITES} from './city-service-plan';
-export const COMMERCE_VERSION=12;
+export const COMMERCE_VERSION=13;
 export const HOSPITALITY=[
  {id:'GC-RESTAURANT-001',name:'Lotus Siam · 泰国菜',type:'restaurant',entry:[245,-68],price:2600,staff:12},
  {id:'GC-RESTAURANT-002',name:'Bronze Garden · 花园中餐',type:'restaurant',entry:[290,-68],price:2800,staff:9},
@@ -63,6 +63,9 @@ export function initializeCommerce(w:LifeWorld){
   if(type==='bank')return i===0?'银行网点经理':i%12<4?'银行柜员':i%12<7?'客户经理':i%12<9?'信贷专员':i%12===9?'银行客服':i%12===10?'银行保安':'银行保洁员';
   if(type==='hotel')return i===0?'酒店经理':i%4===0?'客房保洁员':i%4===1?'酒店前台':i%4===2?'礼宾员':'服务员';
   if(type==='auto')return i===0?'汽车中心经理':i%3===0?'维修技师':'汽车销售顾问';
+  if(type==='real-estate-broker')return i===0?'房地产中介店长':i%4===0?'租赁经纪人':i%4===1?'新房销售顾问':i%4===2?'房源摄影师':'房地产经纪人';
+  if(type==='property-developer')return i===0?'房地产开发总经理':i%7===0?'城市规划师':i%7===1?'建筑设计师':i%7===2?'项目经理':i%7===3?'造价工程师':i%7===4?'招商专员':i%7===5?'物业策划师':'开发商销售顾问';
+  if(type==='car-rental')return i===0?'汽车租赁店长':i%5===0?'车队调度员':i%5===1?'租车顾问':i%5===2?'车辆清洁员':i%5===3?'汽车维修技师':'租车接送司机';
   if(type==='retail-shop')return i===0?'店长':'零售顾问';
   if(type==='guardhouse')return '保安';
   if(type==='management')return i===0?'物业经理':i%2?'物业管家':'园林养护员';
@@ -89,7 +92,7 @@ export function initializeCommerce(w:LifeWorld){
   if(type==='metro')return i===0?'地铁运营主管':i%3===0?'地铁运营员':i%3===1?'地铁安检员':'站务员';
   if(type==='logistics')return i===0?'物流园主管':i%3===0?'货车司机':i%3===1?'仓库管理员':'配送员';
   if(type==='construction')return i===0?'项目经理':i%5===0?'塔吊司机':i%5===1?'水泥搅拌车司机':i%5===2?'建筑工人':i%5===3?'电工':'安全员';
-  if(type==='waste')return i===0?'垃圾处理中心主管':i%3===0?'垃圾车司机':i%3===1?'焚烧炉操作员':'环卫工人';
+  if(type==='waste')return i===0?'垃圾处理中心主管':i%5===0?'垃圾车司机':i%5===1?'焚烧炉操作员':i%5===2?'环卫工人':i%5===3?'道路清扫车司机':'垃圾分类员';
   if(type==='power')return i===0?'电厂运行主管':i%3===0?'电力运行员':i%3===1?'设备维修工程师':'电网调度员';
   if(type==='tax')return i===0?'税务局主管':i%3===0?'税务审查员':i%3===1?'纳税服务专员':'政府会计';
   if(type==='museum')return i===0?'博物馆馆长':i%4===0?'策展人':i%4===1?'藏品维护员':i%4===2?'博物馆讲解员':'公共教育专员';
@@ -120,7 +123,7 @@ export function initializeCommerce(w:LifeWorld){
   if(type==='city-hall')return i===0?'市政厅行政主管':i%6===0?'城市规划师':i%6===1?'行政审批员':i%6===2?'民政服务专员':i%6===3?'政府采购专员':i%6===4?'市政档案员':'政务服务人员';
   if(type==='court')return i===0?'法院行政主管':i%7===0?'法官':i%7===1?'检察官':i%7===2?'公设辩护人':i%7===3?'法庭书记员':i%7===4?'法警':i%7===5?'法律援助专员':'法院档案员';
   if(type==='ems')return i===0?'急救中心主管':i%5===0?'急救调度员':i%5<3?'急救员':i%5===3?'救护车司机':'救护车维修技师';
-  if(type==='transport-authority')return i===0?'道路交通管理局主管':i%7===0?'道路养护工':i%7===1?'交通信号技师':i%7===2?'停车执法员':i%7===3?'拖车司机':i%7===4?'交通规划师':i%7===5?'桥梁巡检员':'道路调度员';
+  if(type==='transport-authority')return i===0?'道路交通管理局主管':i%9===0?'道路养护工':i%9===1?'交通信号技师':i%9===2?'停车执法员':i%9===3?'拖车司机':i%9===4?'交通规划师':i%9===5?'桥梁巡检员':i%9===6?'路政洒水车司机':i%9===7?'道路施工安全员':'道路调度员';
   return '';
  }
  // Services and individual shops get staffing first; office populations fill remaining capacity.
