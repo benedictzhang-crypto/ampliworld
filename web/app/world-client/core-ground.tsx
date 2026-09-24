@@ -8,10 +8,10 @@ import {
 import concourse from '../../public/assets/3d/ampliworld/GC-CBD-CONCOURSE-001/concourse-manifest.json';
 
 type Finish='paving'|'garden';
-const X_MIN=-600,X_MAX=600,Z_MIN=-1100,Z_MAX=1100,TILE=55;
+const X_MIN=-600,X_MAX=600,Z_MIN=-1100,Z_MAX=1100,TILE=28;
 const PALETTE={
-  paving:['#929995','#858e8b','#a1a7a0','#777f7d'],
-  garden:['#647d63','#728569','#5d755d','#819074'],
+  paving:['#838d87','#89918b','#8e958e','#7d8781'],
+  garden:['#5d795c','#698368','#597456','#71886c'],
 } as const;
 
 function grid(min:number,max:number,step:number,boundaries:number[]){
@@ -26,8 +26,13 @@ function hash(x:number,z:number){
 }
 function finishAt(x:number,z:number):Finish{
   if(Math.abs(x)<310&&Math.abs(z)<490)return 'paving';
-  if(Math.abs(x)>440||Math.abs(z)>800)return hash(Math.floor(x/110),Math.floor(z/110))%5<4?'garden':'paving';
-  return hash(Math.floor(x/110),Math.floor(z/110))%4===0?'garden':'paving';
+  const edge=17*Math.sin(z/74)+11*Math.cos(x/67);
+  if(Math.abs(x)>440+edge||Math.abs(z)>800+edge)return 'garden';
+  for(const [cx,cz,rx,rz] of [[-376,-555,65,105],[382,-550,67,105],[-385,620,68,112],[379,626,72,116]]){
+    const dx=(x-cx)/rx,dz=(z-cz)/rz;
+    if(dx*dx+dz*dz<1)return 'garden';
+  }
+  return 'paving';
 }
 function makeDetailTexture(finish:Finish){
   const size=64,pixels=new Uint8Array(size*size*4);

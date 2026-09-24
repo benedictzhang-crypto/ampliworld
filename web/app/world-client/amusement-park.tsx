@@ -18,8 +18,8 @@ export function AmusementPark({ x, z, scare, shot, ride }: { x: number; z: numbe
   const cx = plan.center.x;
   const cz = plan.center.z;
   const distance = Math.hypot(x - cx, z - cz);
-  if (distance > 2400) return null;
-  return <AmusementParkModel scare={scare} shot={shot} ride={ride} animateTrains={distance <= 1400} />;
+  if (distance > 2400 && !ride) return null;
+  return <AmusementParkModel scare={scare} shot={shot} ride={ride} animateTrains={ride !== null || distance <= 1400} />;
 }
 
 function BasketballFlight({ shot }: { shot: BasketballShot }) {
@@ -72,6 +72,20 @@ function Apparition({ scare }: { scare: HauntStep }) {
 const COASTERS = PARK_RIDES.filter((entry) => entry.kind === 'coaster');
 const TOWERS = PARK_RIDES.filter((entry) => entry.kind === 'tower');
 
+// The walking avatar is hidden while riding. Keep the same recognizable
+// passenger silhouette attached to the moving seat, not at the old station.
+function RidePassenger({ scale = 1 }: { scale?: number }) {
+  return <group name="boarded-player-avatar" scale={scale}>
+    <mesh position={[0,.64,0]} castShadow><capsuleGeometry args={[.25,.42,4,10]}/><meshStandardMaterial color="#c3a36a"/></mesh>
+    <mesh position={[0,1.17,0]} castShadow><sphereGeometry args={[.22,14,10]}/><meshStandardMaterial color="#e8bd9d"/></mesh>
+    <mesh position={[0,1.3,-.03]} castShadow><sphereGeometry args={[.2,12,8,0,Math.PI*2,0,Math.PI/2]}/><meshStandardMaterial color="#302f31"/></mesh>
+    {[-.31,.31].map(x=><group key={x}>
+      <mesh position={[x,.62,.03]} rotation={[.22,0,x<0?-.22:.22]} castShadow><capsuleGeometry args={[.085,.38,4,8]}/><meshStandardMaterial color="#c3a36a"/></mesh>
+      <mesh position={[x*.45,-.08,.32]} rotation={[Math.PI/2,0,0]} castShadow><capsuleGeometry args={[.12,.43,4,8]}/><meshStandardMaterial color="#293b44"/></mesh>
+    </group>)}
+  </group>;
+}
+
 function CoasterMotion({ ride: boarded }: { ride: RideSession | null }) {
   const cars = useRef<Array<Group | null>>([]);
   const { invalidate } = useThree();
@@ -107,6 +121,7 @@ function CoasterMotion({ ride: boarded }: { ride: RideSession | null }) {
   return <group name="moving-coaster-trains">
     {COASTERS.flatMap((ride, rideIndex) => Array.from({ length: 4 }, (_, carIndex) =>
       <group key={`${ride.id}-${carIndex}`} ref={(node) => { cars.current[rideIndex * 4 + carIndex] = node; }}>
+        {boarded?.id === ride.id && carIndex === 0 && <group position={[-.38,.52,0]}><RidePassenger /></group>}
         <mesh castShadow><boxGeometry args={[3.6, .65, 2.35]} /><meshStandardMaterial color={ride.color} metalness={.48} roughness={.27} /></mesh>
         <mesh position={[1.38, .12, 0]} rotation={[0, 0, -Math.PI / 2]} castShadow>
           <coneGeometry args={[1.12, 1.25, 8]} /><meshStandardMaterial color={ride.color} metalness={.48} roughness={.27} />
@@ -162,6 +177,7 @@ function TowerMotion({ boarded }: { boarded: RideSession | null }) {
       {Array.from({ length: 12 }, (_, seat) => {
         const angle = seat * Math.PI / 6;
         return <group key={seat} position={[8.6 * Math.cos(angle), .3, 8.6 * Math.sin(angle)]} rotation={[0, -angle, 0]}>
+          {boarded?.id === tower.id && seat === 0 && <group position={[0,.48,0]}><RidePassenger /></group>}
           <mesh castShadow><boxGeometry args={[1.25, 1.8, 1.15]} /><meshStandardMaterial color="#192734" roughness={.53} /></mesh>
           <mesh position={[.58, .27, 0]} castShadow><boxGeometry args={[.13, .35, 1.04]} /><meshStandardMaterial color="#e7e8de" metalness={.66} roughness={.25} /></mesh>
         </group>;
@@ -206,6 +222,7 @@ function FamilyRideMotion({ boarded }: { boarded: RideSession | null }) {
         const a = -Math.PI / 2 + i * 2 * Math.PI / 16;
         const saddle = i % 2 ? '#314c70' : '#a64451';
         return <group key={i} ref={(node) => { horses.current[i] = node; }} position={[20 * Math.cos(a), 2.3, 20 * Math.sin(a)]} rotation={[0, -a, 0]}>
+          {boarded?.id === 'carousel' && i === 0 && <group position={[-.2,.9,0]}><RidePassenger /></group>}
           <mesh position={[0, 3.85, 0]} castShadow><cylinderGeometry args={[.12, .12, 8.3, 8]} /><meshStandardMaterial color="#cfae5e" metalness={.8} roughness={.22} /></mesh>
           <mesh scale={[1.65, .9, .65]} castShadow><sphereGeometry args={[1, 12, 8]} /><meshStandardMaterial color="#f1eee4" roughness={.58} /></mesh>
           <mesh position={[1.02, .68, 0]} rotation={[0, 0, -.4]} castShadow><cylinderGeometry args={[.4, .53, 1.35, 10]} /><meshStandardMaterial color="#f1eee4" roughness={.58} /></mesh>
@@ -224,6 +241,7 @@ function FamilyRideMotion({ boarded }: { boarded: RideSession | null }) {
       {Array.from({ length: 9 }, (_, i) => {
         const a = -Math.PI / 2 + i * 2 * Math.PI / 9;
         return <group key={i} position={[18 * Math.cos(a), 0, 18 * Math.sin(a)]} ref={(node) => { cupBodies.current[i] = node; }}>
+          {boarded?.id === 'teacups' && i === 0 && <group position={[-1,.67,0]}><RidePassenger /></group>}
           <mesh position={[0, .33, 0]} castShadow><cylinderGeometry args={[2.26, 2.26, .18, 20]} /><meshStandardMaterial color="#eee7d7" roughness={.62} /></mesh>
           <mesh position={[0, 1.05, 0]} castShadow><cylinderGeometry args={[2.7, 2.25, 1.65, 20, 1, true]} /><meshStandardMaterial color={i % 3 === 0 ? '#c94d64' : i % 3 === 1 ? '#5a88b2' : '#f1e6d1'} metalness={.32} roughness={.38} side={2} /></mesh>
           <mesh position={[0, 1.02, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[2.48, .08, 6, 20]} /><meshStandardMaterial color="#eacb82" metalness={.65} roughness={.3} /></mesh>
