@@ -98,7 +98,7 @@ function Paving({ kind }: { kind: 'road' | 'walk' | 'garden' }) {
       <boxGeometry />
       <meshStandardMaterial
         color={
-          kind === 'road' ? '#667377' : kind === 'walk' ? '#d5d3c9' : '#80946e'
+          kind === 'road' ? '#59686b' : kind === 'walk' ? '#a8ada4' : '#718766'
         }
         roughness={0.9}
       />

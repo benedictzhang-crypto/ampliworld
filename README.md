@@ -482,6 +482,12 @@ its old visual world is running or synchronized with the resident economy.
 Future migration must explicitly map its accounts, symbols and actions into
 the active simulation before exposing them in the new city UI.
 
+**Ground finishes:** the CBD's former single pale ground sheet is now
+`web/app/world-client/core-ground.tsx`. It keeps the original underground
+openings while dividing the surface into editable paving and planted tiles.
+The road and housing layers remain separate so future district refinements
+can change surface material without moving buildings or collision anchors.
+
 ## City architecture: develop the new world only
 
 Our target remains a playable city—not an architectural gallery. The user retired

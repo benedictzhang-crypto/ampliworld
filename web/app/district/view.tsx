@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react';
 import { CITY, CityLayer } from '../world-client/city-layer';
+import {CoreGround} from '../world-client/core-ground';
 import {PopulationLayer,PopulationPanel} from '../life-sim/client';
 import {usePopulation} from '../life-sim/use-population';
 import {CityOperations,CITY_OPERATION_COLLIDERS} from '../world-client/city-operations';
@@ -51,7 +52,7 @@ import { AmusementRideCamera } from '../world-client/amusement-ride-camera';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls, Text } from '@react-three/drei';
 import { useGLTF } from '@react-three/drei';
-import { Box3, Vector3, BufferGeometry, Float32BufferAttribute } from 'three';
+import { Box3, Vector3 } from 'three';
 import { DriveableCar, carBlocked, type CarState } from '../world-client/driveable-car';
 import concourse from '../../public/assets/3d/ampliworld/GC-CBD-CONCOURSE-001/concourse-manifest.json';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
@@ -127,73 +128,6 @@ function Mall() {
           {[-8,8].map(s=><mesh key={s} position={[s,7,0]}><cylinderGeometry args={[.045,.045,14,6]}/><meshStandardMaterial color="#a78b61" metalness={.7}/></mesh>)}
         </group>)}
       </group>
-    </group>
-  );
-}
-function MallApproach() {
-  const ground = useMemo(() => {
-    const holes = [...concourse.holes, { min: [114, -128], max: [127, -79] }];
-    const xs = [-600, 600, ...holes.flatMap((h) => [h.min[0], h.max[0]])].sort(
-      (a, b) => a - b,
-    );
-    const zs = [
-      -1100,
-      1100,
-      ...holes.flatMap((h) => [h.min[1], h.max[1]]),
-    ].sort((a, b) => a - b);
-    const vertices: number[] = [];
-    for (let i = 1; i < xs.length; i++)
-      for (let j = 1; j < zs.length; j++) {
-        const x0 = xs[i - 1],
-          x1 = xs[i],
-          z0 = zs[j - 1],
-          z1 = zs[j],
-          x = (x0 + x1) / 2,
-          z = (z0 + z1) / 2;
-        if (
-          x0 === x1 ||
-          z0 === z1 ||
-          holes.some(
-            (h) => x > h.min[0] && x < h.max[0] && z > h.min[1] && z < h.max[1],
-          )
-        )
-          continue;
-        vertices.push(
-          x0,
-          -0.015,
-          z0,
-          x0,
-          -0.015,
-          z1,
-          x1,
-          -0.015,
-          z0,
-          x1,
-          -0.015,
-          z0,
-          x0,
-          -0.015,
-          z1,
-          x1,
-          -0.015,
-          z1,
-        );
-      }
-    const g = new BufferGeometry();
-    g.setAttribute('position', new Float32BufferAttribute(vertices, 3));
-    g.computeVertexNormals();
-    return g;
-  }, []);
-  useEffect(() => () => ground.dispose(), [ground]);
-  return (
-    <group>
-      <mesh geometry={ground} receiveShadow>
-        <meshStandardMaterial color="#c9ceca" roughness={0.9} />
-      </mesh>
-      <mesh position={[0, 0, -81]} receiveShadow>
-        <boxGeometry args={[14, 0.06, 14]} />
-        <meshStandardMaterial color="#8b9294" roughness={0.85} />
-      </mesh>
     </group>
   );
 }
@@ -814,7 +748,7 @@ export function DistrictClient() {
                 <StudioLight intensity={0.3} />
                 <PopulationLayer world={population.world} onSelect={setSelectedResident}/>
                 <CoreSignals/>
-                <MallApproach />
+                <CoreGround />
                 <CityInfrastructure />
                 <Street />
                 <Mall />

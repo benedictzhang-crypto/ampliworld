@@ -198,7 +198,7 @@ export function HousingWorld({
         <Boxes
           key={i}
           items={items}
-          color={['#7e9570', '#697578', '#b8b4a8', '#ac9053', '#d4d0c3'][i]}
+          color={['#6f896e', '#59666a', '#aaa599', '#94784e', '#a7aaa1'][i]}
         />
       ))}
       {batches.map(
