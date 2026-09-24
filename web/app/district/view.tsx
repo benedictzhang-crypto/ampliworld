@@ -51,7 +51,7 @@ import { Canvas, useThree } from '@react-three/fiber';
 import { Clone, Html, OrbitControls, Text } from '@react-three/drei';
 import { useGLTF } from '@react-three/drei';
 import { Box3, Vector3, BufferGeometry, Float32BufferAttribute } from 'three';
-import { DriveableCar, type CarState } from '../world-client/driveable-car';
+import { DriveableCar, carBlocked, type CarState } from '../world-client/driveable-car';
 import concourse from '../../public/assets/3d/ampliworld/GC-CBD-CONCOURSE-001/concourse-manifest.json';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { Button } from '@/components/ui/button';
@@ -741,6 +741,32 @@ export function DistrictClient() {
       setParkCarReport(vehicle);
       setVehicleMessage('游乐园入口旁已备好园区车 · 靠近按 E 上车');
     }
+    // Move the playable city car to a clear arrival apron. Its previous
+    // collision set describes the old streamed cell, so include destination
+    // tiles and nearby housing before checking candidate parking positions.
+    const nearbySolids=[
+      ...solids,
+      ...housingColliders(Math.round(x/1000)*1000,Math.round(z/1000)*1000,openGates),
+      ...CITY.tiles.filter(tile=>Math.abs(tile.cx-x)<1400&&Math.abs(tile.cz-z)<1400)
+        .flatMap(tile=>tile.colliders),
+      ...CITY_INFRA.colliders.filter(c=>Math.abs((c.min[0]+c.max[0])/2-x)<100&&Math.abs((c.min[2]+c.max[2])/2-z)<100),
+    ].map(c=>c instanceof Box3?c:new Box3(new Vector3(...(c.min as [number,number,number])),new Vector3(...(c.max as [number,number,number]))));
+    let parked=false;
+    for(const radius of [6,8,10,14,20,28,40]){
+      for(let step=0;step<16;step++){
+        const angle=step*Math.PI/8,cx=x+Math.cos(angle)*radius,cz=z+Math.sin(angle)*radius;
+        const cy=districtGroundHeight(cx,cz);
+        if(Math.abs(cy-y)>1.2||carBlocked(cx,cz,nearbySolids,districtGroundHeight,cy,0))continue;
+        const vehicle={x:cx,z:cz,y:cy,yaw:0,speed:0};
+        car.current=vehicle;
+        setCarReport(vehicle);
+        setVehicleMessage(radius<=10?'目的地旁已有车辆 · 靠近按 E 上车':`车辆停在入口约 ${radius} 米处 · 靠近按 E 上车`);
+        parked=true;
+        break;
+      }
+      if(parked)break;
+    }
+    if(!parked)setVehicleMessage('目的地周围没有安全车位，车辆停留在上一个位置');
     setRide(null);
     setDriving(false);
     setActiveCar(null);

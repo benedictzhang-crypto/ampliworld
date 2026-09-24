@@ -92,7 +92,8 @@ export function CityPlan({
   const [selectedPark, setSelectedPark] = useState(false);
   const [showHomes, setShowHomes] = useState(true),
     [showRoads, setShowRoads] = useState(true);
-  const drag = useRef<{ x: number; y: number } | null>(null),
+  const drag = useRef<{ id:number; x: number; y: number } | null>(null),
+    gestureScale = useRef(1),
     moved = useRef(false);
   const [mapElement, setMapElement] = useState<SVGSVGElement | null>(null);
   const [selectedInfo, setSelectedInfo] = useState('');
@@ -135,39 +136,40 @@ export function CityPlan({
     if (!open) return;
     const svg = mapElement;
     if (!svg) return;
+    const mapPoint = (clientX:number,clientY:number) => {
+      const ctm=svg.getScreenCTM();
+      if(ctm){const point=svg.createSVGPoint();point.x=clientX;point.y=clientY;
+        const world=point.matrixTransform(ctm.inverse());return {x:world.x,z:world.y};}
+      const box=svg.getBoundingClientRect();
+      return {x:view.x-w/2+(clientX-box.left)/box.width*w,z:view.z-view.span/2+(clientY-box.top)/box.height*view.span};
+    };
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
       event.stopPropagation();
-      const ctm = svg.getScreenCTM();
-      if (!ctm) return;
-      const point = svg.createSVGPoint();
-      point.x = event.clientX;
-      point.y = event.clientY;
-      const world = point.matrixTransform(ctm.inverse());
-      zoomAt(event.deltaY > 0 ? 1.15 : 0.87, { x: world.x, z: world.y });
+      const delta=event.deltaY*(event.deltaMode===1?16:event.deltaMode===2?240:1);
+      zoomAt(Math.exp(Math.max(-1,Math.min(1,delta*(event.ctrlKey ? 0.012 : 0.004)))),mapPoint(event.clientX,event.clientY));
     };
-    const preventPagePinch = (event: Event) => event.preventDefault();
+    const handleGestureStart=(event:Event)=>{event.preventDefault();gestureScale.current=1;};
+    const handleGestureChange=(event:Event)=>{
+      event.preventDefault();
+      const scale=(event as Event&{scale?:number}).scale??1;
+      if(scale>0){zoomAt(gestureScale.current/scale,mapPoint(svg.getBoundingClientRect().left+svg.clientWidth/2,svg.getBoundingClientRect().top+svg.clientHeight/2));gestureScale.current=scale;}
+    };
     const handleDoubleClick = (event: MouseEvent) => {
       event.preventDefault();
-      const ctm = svg.getScreenCTM();
-      if (!ctm) return;
-      const point = svg.createSVGPoint();
-      point.x = event.clientX;
-      point.y = event.clientY;
-      const world = point.matrixTransform(ctm.inverse());
-      zoomAt(0.5, { x: world.x, z: world.y });
+      zoomAt(0.5,mapPoint(event.clientX,event.clientY));
     };
     svg.addEventListener('wheel', handleWheel, { passive: false });
     svg.addEventListener('dblclick', handleDoubleClick);
-    svg.addEventListener('gesturestart', preventPagePinch, { passive: false });
-    svg.addEventListener('gesturechange', preventPagePinch, { passive: false });
+    svg.addEventListener('gesturestart', handleGestureStart, { passive: false });
+    svg.addEventListener('gesturechange', handleGestureChange, { passive: false });
     return () => {
       svg.removeEventListener('wheel', handleWheel);
       svg.removeEventListener('dblclick', handleDoubleClick);
-      svg.removeEventListener('gesturestart', preventPagePinch);
-      svg.removeEventListener('gesturechange', preventPagePinch);
+      svg.removeEventListener('gesturestart', handleGestureStart);
+      svg.removeEventListener('gesturechange', handleGestureChange);
     };
-  }, [open, mapElement, zoomAt]);
+  }, [open, mapElement, zoomAt, view, w]);
   const zoom = (factor: number) =>
     setView((v) => ({
       ...v,
@@ -243,27 +245,32 @@ export function CityPlan({
             aria-label="可缩放城市用地平面图"
             viewBox={`${view.x - w / 2} ${view.z - view.span / 2} ${w} ${view.span}`}
             onPointerDown={(e) => {
-              drag.current = { x: e.clientX, y: e.clientY };
+              if(e.button!==0)return;
+              drag.current = { id:e.pointerId,x: e.clientX, y: e.clientY };
               moved.current = false;
             }}
             onPointerMove={(e) => {
-              if (!drag.current) return;
+              if (!drag.current||drag.current.id!==e.pointerId) return;
               const dx = e.clientX - drag.current.x,
                 dy = e.clientY - drag.current.y;
               moved.current ||= Math.abs(dx) + Math.abs(dy) > 3;
+              if(moved.current&&!e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.setPointerCapture(e.pointerId);
               const b = e.currentTarget.getBoundingClientRect();
-              const scale = Math.max(w / b.width, view.span / b.height);
+              const ctm=e.currentTarget.getScreenCTM();
+              const scaleX=ctm&&ctm.a ? 1/ctm.a : w/b.width;
+              const scaleZ=ctm&&ctm.d ? 1/ctm.d : view.span/b.height;
               setView((v) => ({
                 ...v,
-                x: Math.max(-10000, Math.min(10000, v.x - dx * scale)),
-                z: Math.max(-15000, Math.min(15000, v.z - dy * scale)),
+                x: Math.max(-10000, Math.min(10000, v.x - dx * scaleX)),
+                z: Math.max(-15000, Math.min(15000, v.z - dy * scaleZ)),
               }));
-              drag.current = { x: e.clientX, y: e.clientY };
+              drag.current = { id:e.pointerId,x: e.clientX, y: e.clientY };
             }}
-            onPointerUp={() => {
+            onPointerUp={(e) => {
+              if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);
               drag.current = null;
             }}
-            onPointerLeave={() => {
+            onPointerCancel={() => {
               drag.current = null;
             }}
           >
@@ -691,10 +698,13 @@ export function CityPlan({
                 <Button onClick={()=>onTeleportPoint(selectedDestination.arrivalX,selectedDestination.arrivalZ)}>Teleport · 传送到入口</Button>
               </div>}
               <div className="plan-destination-results">
-                {destinationMatches.map(d=><button type="button" key={d.id} onClick={()=>{
-                  setSelectedDestination(d);setSelectedPark(false);setSelectedStation(null);setSelected(null);
-                  setView({x:d.x,z:d.z,span:Math.min(view.span,1800)});
-                }}>{d.name}</button>)}
+                {destinationMatches.map(d=><div className="plan-destination-result" key={d.id}>
+                  <button type="button" onClick={()=>{
+                    setSelectedDestination(d);setSelectedPark(false);setSelectedStation(null);setSelected(null);
+                    setView({x:d.x,z:d.z,span:Math.min(view.span,1800)});
+                  }}>{d.name}</button>
+                  <button type="button" aria-label={`传送到 ${d.name}`} onClick={()=>onTeleportPoint(d.arrivalX,d.arrivalZ)}>传送</button>
+                </div>)}
                 {!destinationMatches.length&&<small>未找到地点，请换关键词。</small>}
               </div>
             </section>
