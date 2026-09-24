@@ -36,7 +36,7 @@ export function MetroPlaces({ x, z }: { x: number; z: number }) {
     <group name="metro-pilot-visible-structures">
       <MetroViaduct x={x} z={z} />
       {METRO_STATIONS.filter((station) =>
-        station.mode === 'ELEVATED' && Math.hypot(station.x - x, station.z - z) < 2200,
+        (station.id === 'M04' || station.id === 'M05') && Math.hypot(station.x - x, station.z - z) < 2200,
       ).map((station) => (
         <ElevatedStation key={station.id} x={station.x} z={station.z} />
       ))}

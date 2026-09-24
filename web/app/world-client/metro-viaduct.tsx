@@ -120,9 +120,9 @@ function RunningTrain({ route, lane, phase }: {
       : 1 - Math.max(0, Math.min(1, (elapsed - METRO_DWELL_SECONDS * 2 - travel) / travel));
     const point = route.getPointAt(fraction);
     const tangent = route.getTangentAt(fraction);
-    const heading = -Math.atan2(tangent.z, tangent.x) + (outward ? 0 : Math.PI);
-    train.current.position.set(point.x + Math.sin(heading) * lane * TRACK_OFFSET, RAIL_Y, point.z + Math.cos(heading) * lane * TRACK_OFFSET);
-    train.current.rotation.y = heading;
+    const trackHeading = -Math.atan2(tangent.z, tangent.x);
+    train.current.position.set(point.x + Math.sin(trackHeading) * lane * TRACK_OFFSET, RAIL_Y, point.z + Math.cos(trackHeading) * lane * TRACK_OFFSET);
+    train.current.rotation.y = trackHeading + (outward ? 0 : Math.PI);
     invalidate();
   });
   return <group ref={train} name="animated metro train, visual only"><Clone object={scene} castShadow receiveShadow /></group>;
@@ -135,6 +135,6 @@ export function MetroViaduct({ x, z }: { x: number; z: number }) {
   return <group name="metro-pilot-M04-M05">
     <ViaductStructure route={route} />
     <RunningTrain route={route} lane={1} phase={0} />
-    <RunningTrain route={route} lane={1} phase={route.getLength() / 24 + METRO_DWELL_SECONDS} />
+    <RunningTrain route={route} lane={-1} phase={route.getLength() / 24 + METRO_DWELL_SECONDS} />
   </group>;
 }

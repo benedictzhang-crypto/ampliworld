@@ -34,6 +34,11 @@ const GROUND = 0.035,
   MAX_Z = 15000;
 const columns = Array.from({ length: 20 }, (_, i) => (i - 10) * 1000 + 500);
 const rows = Array.from({ length: 28 }, (_, i) => (i - 15) * 1000 + 500);
+// A surveyed, building-clear curved neighborhood loop. Its four cardinal
+// crossings join the existing -4500 m east/west and north/south streets.
+const curvedRoads = [{ id: 'SOUTHWEST-GARDEN-LOOP', x: -4500, z: -4500,
+  radiusX: 225, radiusZ: 185, carriagewayWidth: 20,
+  cycleWidth: 3, sidewalkWidth: 4, segments: 96 }];
 const palette = {
   terrain: [0x84957f, 0, 0.95],
   bank: [0x687873, 0, 0.95],
@@ -475,6 +480,28 @@ for (const e of endings) {
   box('concrete', e.x, 0.38, e.z, 24, 0.65, 0.5, true, 'road-termination');
   box('gold', e.x, 0.76, e.z, 24, 0.12, 0.52);
 }
+for (const loop of curvedRoads) {
+  const edge = (angle, offset) => {
+    const cx = Math.cos(angle), sz = Math.sin(angle);
+    const nx = cx / loop.radiusX, nz = sz / loop.radiusZ;
+    const norm = Math.hypot(nx, nz);
+    return [loop.x + loop.radiusX * cx + offset * nx / norm,
+      loop.z + loop.radiusZ * sz + offset * nz / norm];
+  };
+  for (let i = 0; i < loop.segments; i++) {
+    const a = 2 * Math.PI * i / loop.segments;
+    const b = 2 * Math.PI * (i + 1) / loop.segments;
+    for (const [lo, hi, material, lift] of [
+      [-20, -16, 'walk', .13], [-16, -13, 'cycle', .02],
+      [-13, 13, 'asphalt', 0], [13, 16, 'cycle', .02], [16, 20, 'walk', .13],
+      [-13.2, -13.05, 'white', .028], [13.05, 13.2, 'white', .028],
+    ]) {
+      const p = edge(a, lo), q = edge(a, hi), r = edge(b, hi), s = edge(b, lo);
+      quad(material, [p[0], ROAD + lift, p[1]], [q[0], ROAD + lift, q[1]],
+        [r[0], ROAD + lift, r[1]], [s[0], ROAD + lift, s[1]]);
+    }
+  }
+}
 const scene = new T.Scene();
 scene.name = 'GC-CITY-INFRA-001';
 let triangles = 0;
@@ -528,6 +555,7 @@ const manifest = {
     parkingStripWidth: 7,
   },
   bridges,
+  curvedRoads,
   roadrects,
   surfaces,
   ramps,

@@ -1,9 +1,21 @@
 import assert from 'node:assert/strict';
 import {createLifeWorld,moneyTotal,upgradeLifeWorld} from '../app/life-sim/engine';
 import {settleHousingThrough} from '../app/life-sim/housing-payments';
+import {marketMonthlyRentCents} from '../app/life-sim/residency';
 
 const world=createLifeWorld(),openingMoney=moneyTotal(world);
 const homes=Object.values(world.housing!);
+const privateRentals=homes.filter(h=>h.tenure==='renter'&&h.landlordId!=='CITY-HOUSING-TRUST');
+const landlordCounts=new Map<string,number>();
+for(const home of privateRentals){
+  assert.equal(home.landlordCapitalAllocatedCents,home.propertyValueCents);
+  assert(!home.residentIds.includes(home.landlordId),'tenant cannot own their leased unit');
+  landlordCounts.set(home.landlordId,(landlordCounts.get(home.landlordId)||0)+1);
+}
+assert(privateRentals.length>0&&[...landlordCounts.values()].some(count=>count>1),'wealth-backed multi-property landlords must exist');
+assert([...landlordCounts.values()].every(count=>count<=12),'natural-person landlord concentration cap');
+assert(marketMonthlyRentCents(100_000_000,[0,0])>marketMonthlyRentCents(100_000_000,[8000,-7000]));
+assert(marketMonthlyRentCents(100_000_000,[3650,4600])>marketMonthlyRentCents(100_000_000,[8000,-7000]));
 const owner=homes.find(h=>h.tenure==='owner'&&h.loanBalanceCents>0)!;
 const renter=homes.find(h=>h.tenure==='renter'&&h.monthlyRentCents>0)!;
 assert(owner&&renter,'fixture needs owner and renter homes');

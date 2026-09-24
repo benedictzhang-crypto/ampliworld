@@ -79,6 +79,52 @@ def cylinder(name, location, radius, depth, material, vertices=20):
     return bpy.context.object
 
 
+def sculpted_canopy(name, half_length, half_width, base_z, crown, material, thickness=.38):
+    """A real double-sided shell, not a textured box or a line-only roof."""
+    across, along = 20, 28
+    vertices = []
+    for level in (0, 1):
+        for i in range(along + 1):
+            x = -half_length + 2 * half_length * i / along
+            end_taper = .92 + .08 * math.sin(math.pi * i / along)
+            for j in range(across + 1):
+                u = -1 + 2 * j / across
+                y = half_width * end_taper * u
+                arch = crown * (1 - u * u) ** 1.55
+                wave = .12 * math.cos(2 * math.pi * i / along) * (1 - u * u)
+                vertices.append((x, y, base_z + arch + wave - level * thickness))
+    layer = (along + 1) * (across + 1)
+    faces = []
+    for i in range(along):
+        for j in range(across):
+            a = i * (across + 1) + j
+            b = a + across + 1
+            faces.extend([(a, b, b + 1, a + 1),
+                          (a + layer + 1, b + layer + 1, b + layer, a + layer)])
+    for i in range(along):
+        for j in (0, across):
+            a = i * (across + 1) + j
+            b = a + across + 1
+            faces.append((a, a + layer, b + layer, b))
+    for i in (0, along):
+        for j in range(across):
+            a = i * (across + 1) + j
+            faces.append((a, a + 1, a + layer + 1, a + layer))
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    mesh.materials.append(MATS[material])
+    bevel = obj.modifiers.new('Continuous cast edge', 'BEVEL')
+    bevel.width = .08
+    bevel.segments = 2
+    bevel.limit_method = 'ANGLE'
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.modifier_apply(modifier=bevel.name)
+    return obj
+
+
 def escalator(name, x, y0, z0, y1, z1):
     length = math.hypot(y1 - y0, z1 - z0)
     angle = math.atan2(z1 - z0, y1 - y0)
@@ -135,10 +181,23 @@ def elevated_station():
     for x in (-19, -10, 0, 10, 19):
         for y in (-5, 5):
             block("Canopy slender column", (x, y, 13.8), (.22, .22, 4.1), "graphite")
-    block("Floating elliptical canopy lower", (0, 0, 16.15), (56, 16.5, .44), "gold", .65)
-    block("Floating canopy pale upper", (0, 0, 16.52), (54, 15.0, .32), "white", .7)
-    for x in range(-22, 23, 4):
-        block("Linear canopy luminaire", (x, 0, 16.0), (2.4, 7.5, .08), "light", .04)
+    sculpted_canopy("Sweeping white station roof", 27, 8.4, 16.2, 1.35, "white")
+    sculpted_canopy("Recessed bronze roof soffit", 26.3, 7.8, 16.12, 1.30, "gold", .07)
+    for x in range(-23, 24, 5):
+        for side in (-1, 1):
+            y = side * 7.75
+            block("Floating roof luminous edge", (x, y, 16.24), (4.45, .07, .11), "light", .04)
+        block("Soffit luminaire", (x, 0, 17.30), (2.9, 4.5, .07), "light", .04)
+    for x in (-24, 24):
+        for y in (-6, 6):
+            block("Sculptural corner fin", (x, y, 14.1), (.42, .42, 3.65), "gold", .10)
+    for x in (-15, 15):
+        block("Platform glazed windscreen", (x, 5.7, 13.23), (12, .09, 2.5), "glass", .08)
+        block("Windscreen bronze cap", (x, 5.7, 14.52), (12.2, .12, .12), "gold", .04)
+    for x in (-21, 21):
+        for y in (-12, 12):
+            cylinder("Forecourt planter", (x, y, .58), 1.05, .95, "concrete", 28)
+            cylinder("Forecourt raised planting", (x, y, 1.10), .88, .15, "green", 28)
     elevator("Public glass elevator", 19, -11, 12.3)
     escalator("Up escalator", -12, -17.5, .4, 2.5, 11.9)
     escalator("Down escalator", -8, -17.5, .4, 2.5, 11.9)

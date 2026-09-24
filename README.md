@@ -19,6 +19,21 @@ billion agents running in this city**. The current financial behavior layer is
 mostly hand-specified. A convincing animated world and a profitable, calibrated
 world model are different achievements; the latter has not been demonstrated.
 
+**Metro, curved streets and rental pass — 23 September:** the M04–M05 elevated
+pilot now has a Blender-authored curved roof and improved glazing and forecourt
+details; its two animated trains occupy distinct physical tracks. M06 is no
+longer drawn as a connected station before its line exists. This remains a
+visual pilot: train boarding, doors, fares and timed passenger trips are not
+implemented. One building-clear southwest garden loop is a real curved 3D road
+surface, with cycle and pedestrian bands and a corresponding map shape; the
+larger city ring road and new flyovers are still design work. The opening
+housing ledger now offers location-adjusted market rents near the CBD and
+school, and assigns rented units to wealthy residents only against existing
+non-cash asset capacity. Some landlords own multiple units, capped at twelve;
+the rent transfer remains cash-conserving. This is synthetic scenario logic,
+not a calibrated housing market. Pets, family formation and hospital specialty
+operations remain unimplemented.
+
 ### From a playable city to a controlled social experiment
 
 The city can now run a persistent, self-updating **synthetic** society and expose

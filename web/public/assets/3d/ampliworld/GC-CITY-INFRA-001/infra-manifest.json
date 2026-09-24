@@ -448,6 +448,19 @@
       "rampLength": 220
     }
   ],
+  "curvedRoads": [
+    {
+      "id": "SOUTHWEST-GARDEN-LOOP",
+      "x": -4500,
+      "z": -4500,
+      "radiusX": 225,
+      "radiusZ": 185,
+      "carriagewayWidth": 20,
+      "cycleWidth": 3,
+      "sidewalkWidth": 4,
+      "segments": 96
+    }
+  ],
   "roadrects": [
     {
       "min": [
@@ -211695,8 +211708,8 @@
     "Water and landform are static; traffic, ship navigation, hydrology and regional streaming are not implemented."
   ],
   "stats": {
-    "triangles": 373618,
+    "triangles": 374962,
     "drawCalls": 10,
-    "bytes": 18802184
+    "bytes": 18845896
   }
 }

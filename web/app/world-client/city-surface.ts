@@ -23,6 +23,12 @@ const tiles = new Map(city.tiles.map((t) => [`${t.cx}:${t.cz}`, t]));
 // Existing residential survey anchors must not move when the channel widens.
 export const riverX = riverBaseX;
 export function cityGroundHeight(x: number, z: number) {
+  for (const loop of infra.curvedRoads ?? []) {
+    const dx = x - loop.x, dz = z - loop.z;
+    const theta = Math.atan2(dz / loop.radiusZ, dx / loop.radiusX);
+    const cx = loop.radiusX * Math.cos(theta), cz = loop.radiusZ * Math.sin(theta);
+    if (Math.hypot(dx - cx, dz - cz) <= 20) return 0.065;
+  }
   for (const r of roadCells.get(
     `${Math.floor(x / 1000)}:${Math.floor(z / 1000)}`,
   ) || [])

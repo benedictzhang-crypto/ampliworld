@@ -285,6 +285,11 @@ export function CityPlan({
               />
             ))}
             {showRoads && <path d={cityRoadPath} fill="#7e898b" pointerEvents="none" />}
+            {showRoads && CITY_INFRA.curvedRoads.map((road) => (
+              <ellipse key={road.id} cx={road.x} cy={road.z} rx={road.radiusX}
+                ry={road.radiusZ} fill="none" stroke="#69797b" strokeWidth={40}
+                pointerEvents="none" />
+            ))}
             <g
               onClick={() => { setSelectedPark(true); setSelectedStation(null); setSelected(null); }}
               style={{ cursor: 'pointer' }}
