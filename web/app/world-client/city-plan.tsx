@@ -99,6 +99,8 @@ export function CityPlan({
   const [selectedInfo, setSelectedInfo] = useState('');
   const w = view.span * 0.85,
     fs = view.span / 70;
+  const viewRef = useRef(view);
+  viewRef.current = view;
   const visible = useMemo(
     () =>
       compounds.filter(
@@ -136,18 +138,31 @@ export function CityPlan({
     if (!open) return;
     const svg = mapElement;
     if (!svg) return;
+    let wheelFrame = 0;
+    let wheelFactor = 1;
+    let wheelAnchor: { x: number; z: number } | null = null;
     const mapPoint = (clientX:number,clientY:number) => {
       const ctm=svg.getScreenCTM();
       if(ctm){const point=svg.createSVGPoint();point.x=clientX;point.y=clientY;
         const world=point.matrixTransform(ctm.inverse());return {x:world.x,z:world.y};}
       const box=svg.getBoundingClientRect();
-      return {x:view.x-w/2+(clientX-box.left)/box.width*w,z:view.z-view.span/2+(clientY-box.top)/box.height*view.span};
+      const current=viewRef.current;
+      const width=current.span*.85;
+      return {x:current.x-width/2+(clientX-box.left)/box.width*width,z:current.z-current.span/2+(clientY-box.top)/box.height*current.span};
+    };
+    const flushWheel = () => {
+      wheelFrame = 0;
+      if (wheelAnchor) zoomAt(wheelFactor, wheelAnchor);
+      wheelFactor = 1;
+      wheelAnchor = null;
     };
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
       event.stopPropagation();
       const delta=event.deltaY*(event.deltaMode===1?16:event.deltaMode===2?240:1);
-      zoomAt(Math.exp(Math.max(-1,Math.min(1,delta*(event.ctrlKey ? 0.012 : 0.004)))),mapPoint(event.clientX,event.clientY));
+      wheelFactor *= Math.exp(Math.max(-1,Math.min(1,delta*(event.ctrlKey ? 0.012 : 0.004))));
+      wheelAnchor = mapPoint(event.clientX,event.clientY);
+      if (!wheelFrame) wheelFrame = requestAnimationFrame(flushWheel);
     };
     const handleGestureStart=(event:Event)=>{event.preventDefault();gestureScale.current=1;};
     const handleGestureChange=(event:Event)=>{
@@ -164,12 +179,13 @@ export function CityPlan({
     svg.addEventListener('gesturestart', handleGestureStart, { passive: false });
     svg.addEventListener('gesturechange', handleGestureChange, { passive: false });
     return () => {
+      if (wheelFrame) cancelAnimationFrame(wheelFrame);
       svg.removeEventListener('wheel', handleWheel);
       svg.removeEventListener('dblclick', handleDoubleClick);
       svg.removeEventListener('gesturestart', handleGestureStart);
       svg.removeEventListener('gesturechange', handleGestureChange);
     };
-  }, [open, mapElement, zoomAt, view, w]);
+  }, [open, mapElement, zoomAt]);
   const zoom = (factor: number) =>
     setView((v) => ({
       ...v,
