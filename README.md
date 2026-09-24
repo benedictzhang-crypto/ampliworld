@@ -6,6 +6,20 @@ preferences as news and markets change. The playable 3D city is an interface
 to that experiment. **Plausible behavior is not evidence that these residents
 predict real people or that their market signals make money.**
 
+The research question is narrower—and testable: **can a population model that
+remembers, earns, spends, travels and reacts to information predict the
+distribution of real responses to a new event better than simpler baselines?**
+If it can, the next question is whether those responses add a measurable,
+net-of-cost signal to enterprise or market forecasts. The playable city makes
+assumptions and failures inspectable; it is not itself the proof.
+
+**Start here:** the [open-issues and AI research register](docs/OPEN_ISSUES_AND_AI_RESEARCH.md)
+separates reproducible problems from visual aspirations and states the next
+evidence gate for each. Dated construction notes farther down this README are
+an archive of milestones, **not** a list of features currently complete at
+production quality. In particular, an accessible 20 × 30 km coordinate system
+does not mean 600 km² of detailed, continuously simulated city.
+
 ## Where the project stands
 
 | Layer | Implemented | Not established |
@@ -14,6 +28,14 @@ predict real people or that their market signals make money.**
 | People and events | 30,000 synthetic residents with inspectable observations, goal competition, action episodes, outcome feedback, household interactions, adaptive memories and event inputs | 30,000 independent LLM minds, a trained social world model or measured real-world response accuracy |
 | Research pipeline | Deterministic event → cohort response → asset signal → portfolio proposal; reproducible example runs | A trained latent world model, learned transition dynamics, long-horizon planning or a demonstrated forecasting advantage |
 | Quant evaluation | Directional accuracy, MAE, rank IC and a simple gross portfolio-return calculation | Untouched point-in-time out-of-sample results, net-of-cost P&L, capacity or institutional risk validation |
+
+The active browser world is `/` (with `/district` as the same scene). The
+resident register is 30,000 records; the client caps its local visible sample
+at 1,200. These are different numbers from simultaneously animated people,
+independently reasoning model instances, or residents whose entire day has a
+physically routed commute. The current decision loop is rule-based with bounded
+memory. The test `npm run check:agent` currently passes for 30,000 residents;
+it verifies internal execution, not real-world behavioral validity.
 
 The upstream 8.3-billion-persona frame is a population concept, **not 8.3
 billion agents running in this city**. The current financial behavior layer is
@@ -536,15 +558,16 @@ cycle: dawn 10 min, daytime 20 min, dusk 10 min, night 15 min. This is not yet a
 complete weather simulation: persistent rain/snow/storm states are not implemented.
 New metric-space scenes must adapt fog/shadow ranges; floating-origin lighting is pending.
 
-### Current construction slices and next gates
+### Active city boundary and next gates
 
 - `/architecture`: one original 32×24 m residence with 84 genuine geometric balconies,
   four complete facades, roof, three LODs, and an exterior walk test.
-- `/` and `/district`: the same 220×360 m block envelope, four instances of that residence,
-  crossed roads, cycle lanes, sidewalks, street furniture, a schematic metro pavilion,
-  six-storey courtyard mall, shared character control and retained day/night sky. **Four instances are not four
-  architectural types.** The metro is not yet operational; interiors and trading UI
-  adapters remain pending in this upgraded block.
+- `/` and `/district`: one active, metre-scale 20 × 30 km coordinate system,
+  with a selected detailed core, coarser outer parcels, roads, residential
+  districts, civic sites, venues, marina and prototype transit/attractions.
+  There is no second playable legacy city. Much of the outer plan remains
+  procedural exterior geometry; continuous detailed interiors, citywide
+  collision/transport QA and uniform architectural quality are not complete.
 - Both new views now use full-detail residence geometry throughout their current
   playable/inspection range. The three exported LODs remain asset-library variants,
   not compulsory near/mid/far switches. Future large-city distant simplification
@@ -553,9 +576,12 @@ New metric-space scenes must adapt fog/shadow ranges; floating-origin lighting i
   eight-direction input, smooth turn-to-travel (including S facing the camera),
   displacement-driven limb animation and release-gated Space jumping. This is a
   prototype character controller, not a full physics-engine or animation-rig integration.
-- Next: distinct residential types, a functional entrance/interior contract,
-  transit/economy connection, automatic LOD selection and streaming, then block-by-block
-  expansion inside the 2×2 km quality core. No completed 2×2 km city is claimed.
+- Next: finish and measure one coherent 2×2 km quality core; audit exterior
+  entrances, collision and road seams; make selected transport journeys
+  playable; then extend measured streaming and asset LOD outward. Separately,
+  connect resident decisions and the market ledger to venue and enterprise
+  outcomes under point-in-time data constraints. No completed 2×2 km
+  AAA-quality district or validated investment edge is claimed.
 
 The retained geography, income-tier housing, villas, civic campuses, marinas and
 city references are specified in [the design continuity brief](docs/GOLDEN_CITY_DESIGN_CONTINUITY.md).
