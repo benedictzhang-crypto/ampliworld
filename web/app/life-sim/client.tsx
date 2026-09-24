@@ -13,6 +13,7 @@ import {
 import { OCCUPATIONS, VENUES, WEALTH_REFERENCE } from './society';
 import {CENSUS_SIZE} from './census';
 import {WellbeingHexagon} from './wellbeing-hexagon';
+import type {AgentGoal} from './agent-cycle';
 import './population.css';
 type PopulationResponse = { world?: LifeWorld; error?: string };
 
@@ -201,6 +202,12 @@ const usd = (cents: number) =>
   `$${(cents / 100).toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
 const timestamp = (minute: number) =>
   `第 ${Math.floor(minute / 1440) + 1} 天 ${String(Math.floor((minute % 1440) / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
+const agentGoalLabels:Record<AgentGoal,[string,string]>={
+  hydration:['饮水','Hydration'],liquidity:['流动资金','Liquidity'],health:['身体健康','Health'],nutrition:['营养','Nutrition'],
+  recovery:['恢复精力','Recovery'],education:['学习','Education'],income:['工资收入','Income'],
+  'fresh-food':['新鲜饮食','Fresh food'],wellbeing:['心情与幸福','Wellbeing'],
+  'household-supply':['家庭补给','Household supply'],portfolio:['投资组合','Portfolio'],exploration:['探索与出行','Exploration'],
+};
 export function PopulationPanel({
   controller,
   selected,
@@ -526,6 +533,18 @@ export function PopulationPanel({
                 {displayName(resident)} <small>{resident.job}</small>
               </h3>
               <p>{resident.reason}</p>
+              {resident.agentEpisode&&<section className="population-agent-cycle" aria-label={language==='en'?'Latest agent decision':'最近一次居民决策'}>
+                <h4>{language==='en'?'Agent loop · latest decision':'Agent 决策循环 · 最近一次'}</h4>
+                <p><b>{language==='en'?'Observed':'观察'}</b> · {language==='en'?'Mood':'心情'} {Math.round(resident.agentEpisode.observation.mood)} · {language==='en'?'Nutrition':'营养'} {Math.round(resident.agentEpisode.observation.nutrition)} · {language==='en'?'Cash':'现金'} {usd(resident.agentEpisode.observation.cashCents)}{resident.agentEpisode.observation.lastEventId?` · ${language==='en'?'Event':'事件'} ${resident.agentEpisode.observation.lastEventId}`:''}</p>
+                <p><b>{language==='en'?'Goal':'目标'}</b> · {agentGoalLabels[resident.agentEpisode.goal][language==='en'?1:0]} → <b>{language==='en'?'Action':'行动'}</b> · {resident.agentEpisode.action}</p>
+                {resident.agentEpisode.alternatives.length>1&&<p><b>{language==='en'?'Considered':'比较过'}</b> · {resident.agentEpisode.alternatives.map(option=>`${option.action} ${option.score}`).join(' / ')}</p>}
+                <p><b>{language==='en'?'Feedback':'反馈'}</b> · {resident.agentEpisode.result
+                  ?resident.agentEpisode.result.status==='delayed'
+                    ?language==='en'?'Market outcome pending later quotes':'市场结果等待后续行情'
+                    :`${resident.agentEpisode.result.metric} ${resident.agentEpisode.result.actualDelta!>=0?'+':''}${resident.agentEpisode.result.actualDelta} · ${language==='en'?'forecast error':'预期误差'} ${resident.agentEpisode.result.forecastError!>=0?'+':''}${resident.agentEpisode.result.forecastError}`
+                  :language==='en'?'Action in progress':'行动执行中'}</p>
+                <small>{language==='en'?'Inspectable rule-based decisions; not 30,000 LLM agents.':'可检查的规则决策；并非三万个大模型自主智能体。'}</small>
+              </section>}
               <p className="population-note">累计出行 {((resident.travelSeconds||0)/60).toFixed(1)} 分钟 · 其中等灯 {((resident.crossingWaitSeconds||0)/60).toFixed(1)} 分钟</p>
               <p>{resident.id} · {resident.identity?.age} 岁<br/>模拟银行账户：{resident.bankAccountId}</p>
               {resident.identity&&<><p>{resident.identity.home}<br/><small>{resident.identity.homeStatus}</small></p><p>兴趣：{resident.identity.preference} · 工作单位：{resident.identity.workplace||'家庭 / 学校 / 社区'}</p><h4>家庭、邻居与同事</h4><div className="occupation-grid">{resident.identity.relations.map(link=>{const other=world.residents.find(r=>r.id===`R${String(link.index+1).padStart(3,'0')}`);return other?<button key={other.id} onClick={()=>onSelect(other.id)}>{link.type} · {displayName(other)}</button>:null;})}{world.residents.filter(r=>r.id!==resident.id&&!!resident.identity?.workplace&&r.identity?.workplace===resident.identity.workplace).slice(0,4).map(r=><button key={`coworker-${r.id}`} onClick={()=>onSelect(r.id)}>同事 · {displayName(r)}</button>)}</div><h4>人格参数（合成，非大模型）</h4>{Object.entries(resident.identity.personality).map(([key,value],i)=><p className="service-hours" key={key}><span>{['开放性','尽责性','外向性','亲和性','情绪稳定性'][i]}</span><b>{value}</b></p>)}</>}

@@ -20,6 +20,7 @@ import type {WellbeingScores} from './wellbeing';
 import {canOfferPaidHour,recordPayrollHour,settlePayrollArrears,type PayrollLedger} from './payroll';
 import {BASE_FOOD_PRICES,residentFoodBasket,type FoodPrices} from './food-choice';
 import {SERVICE_SITES} from './city-service-plan';
+import {beginAgentEpisode,rankDiscretionaryOptions,reflectAgentEpisode,type AgentEpisode,type AgentOption} from './agent-cycle';
 export type Action =
   | 'home'
   | 'drink'
@@ -72,6 +73,7 @@ export type Resident = {
   shares: number;
   holdings?:Record<string,number>; // integer milli-shares (1/1000 share)
   adaptivePolicy?:AdaptivePolicy;
+  agentEpisode?:AgentEpisode;
   wellbeing?:WellbeingState;
   wage: number;
   risk: number;
@@ -338,9 +340,8 @@ function householdDay(w:LifeWorld,day:number){
   }
   w.socialEncounters=encounters.slice(-50);
 }
-function choose(w: LifeWorld, r: Resident): [Action, string] {
+function choose(w: LifeWorld, r: Resident): [Action, string, AgentOption[]?] {
   const adaptive=policyFor(r);
-  const pricePressure=wellbeingFor(r).eventPressure;
   const hour = (w.minute % 1440) / 60,
     day = Math.floor(w.minute / 1440);
   if (r.water < 38) return ['drink', '口渴，寻找免费饮水点'];
@@ -383,28 +384,9 @@ function choose(w: LifeWorld, r: Resident): [Action, string] {
     return ['home','岗位未筹资，本时段没有付薪排班'];
   }
   if (r.cash > 65000) return ['bank', '保留生活费，把多余现金存入银行'];
-  if(r.lastFruitDay!==day&&r.nutrition<72+adaptive.freshFoodAffinity*12&&r.cash>=900)
-    return ['fruit','补充水果和新鲜食材，改善饮食'];
-  if (r.happiness < 48+adaptive.outingsAffinity*7-adaptive.familySupport*5)
-    return [
-      'leisure',
-      r.cash >= 600 ? '需要放松，选择付费娱乐' : '选择免费的街心公园活动',
-    ];
-  if (
-    r.profile &&
-    r.profile.lastShopDay !== day &&
-    r.cash >= 2*(w.foodPrices?.bread||BASE_FOOD_PRICES.bread) &&
-    r.cash+r.savings >= 20*(w.foodPrices?.bread||BASE_FOOD_PRICES.bread) &&
-    r.profile.pantry < 2
-  )
-    return ['shop', '检查家庭食品库存，根据预算采购生活必需品'];
-  if ((r.identity?.age??18)>=18 && r.risk*adaptive.riskMultiplier > 0.55 && r.cash+r.savings > 50000 && r.stress<78 &&
-    (w.market?r.lastTradeAsOf!==w.market.latest.asOf:r.lastTradeDay!==day))
-    return ['trade', w.market?'研究已发布的股票行情与个人风险预算':'演示模式：虚拟指数交易'];
-  if (day % 7 >= 5 && r.cash > 25000+pricePressure*1200 && r.lastTripDay !== day)
-    return ['travel', '休息日有预算，安排一次短途出游'];
-  if((r.identity?.age||0)>=18&&r.cash>12000&&r.lastBrowseDay!==day&&hour>=10&&hour<21&&Number(r.id.slice(1))%4===day%4)return ['leisure','有可支配预算，逛店或安排车辆服务'];
-  return ['home', '回家补充精力，保留消费预算'];
+  const options=rankDiscretionaryOptions(w,r);
+  const selected=options[0];
+  return [selected.action,`权衡目标：${selected.reason}`,options];
 }
 // Explicit sidewalk waypoints in the detailed core. Cross-city navigation is not implied.
 function routeTo(r: Resident, dest: [number, number]): [number, number][] {
@@ -425,8 +407,9 @@ function start(w: LifeWorld, r: Resident) {
   const plan=candidate?.action==='work'&&!canOfferPaidHour(w,r)?undefined:candidate;
   delete r.plannedDecision;
   if(w.deliberation?.residentId===r.id&&w.deliberation.status==='proposed')w.deliberation.status=plan?'executing':'overridden-by-needs';
-  const [action, reason] = plan?[plan.action,'自主决策 · '+plan.reason]:choose(w, r),
+  const [action, reason, options] = plan?[plan.action,'自主决策 · '+plan.reason,[] as AgentOption[]]:choose(w, r),
     f = FACILITIES.find((f) => f.id === action);
+  beginAgentEpisode(w,r,action,reason,options??[],plan?'model-proposal':'local-policy');
   let venueId = '';
   r.businessId=undefined;r.diningOut=false;
   const hour=(w.minute%1440)/60;
@@ -711,6 +694,7 @@ function complete(w: LifeWorld, r: Resident) {
       break;
     }
   }
+  reflectAgentEpisode(w,r);
 }
 export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
   if (![15, 60, 1440].includes(minutes)) throw new Error('Unsupported advance');

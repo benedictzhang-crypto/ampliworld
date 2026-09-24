@@ -30,6 +30,7 @@
     "check:firm-funding": "node --import tsx scripts/check-firm-funding.ts",
     "check:population-consistency": "node --import tsx scripts/audit-population-consistency.ts",
     "check:population": "node --import tsx scripts/check-population.ts",
+    "check:agent": "node --import tsx scripts/check-agent-cycle.ts",
     "check:service-placements": "node --import tsx scripts/check-service-placements.ts",
     "assets:residence": "RESIDENCE_OUTPUT_DIR=public/assets/3d/ampliworld/GC-RES-001 node scripts/assets/build-residence.mjs",
     "db:generate": "drizzle-kit generate"

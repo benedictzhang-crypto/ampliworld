@@ -43,6 +43,19 @@
   color: #a4b3b7;
   margin: 8px 0;
 }
+.population-agent-cycle {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #87adab6b;
+  border-radius: 9px;
+  background: #20343a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.population-agent-cycle h4 { margin: 0 0 8px; font-size: 15px; color: #f2dda8; }
+.population-agent-cycle p { margin: 6px 0; overflow-wrap: anywhere; }
+.population-agent-cycle b { color: #a7ddd1; }
+.population-agent-cycle small { display: block; margin-top: 8px; line-height: 1.45; }
 .population-controls {
   display: flex;
   gap: 8px;

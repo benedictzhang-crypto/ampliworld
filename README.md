@@ -1,16 +1,17 @@
 # AmpliWorld
 
-AmpliWorld is an experimental, inspectable environment for studying how events
-may propagate through people, businesses and financial markets. Its playable 3D
-city is a research interface and simulation testbed, **not evidence that its
-synthetic inhabitants predict real people or that its signals make money**.
+AmpliWorld is an experimental agent-society lab: synthetic residents observe a
+shared city, pursue constrained goals, act, remember outcomes and adapt bounded
+preferences as news and markets change. The playable 3D city is an interface
+to that experiment. **Plausible behavior is not evidence that these residents
+predict real people or that their market signals make money.**
 
 ## Where the project stands
 
 | Layer | Implemented | Not established |
 |---|---|---|
 | Playable city | Metre-scale city plan, selected detailed districts, locomotion, vehicles, venues and prototype attractions | Uniformly polished city, complete interiors, citywide physically routed daily lives |
-| People and events | Persistent records for 30,000 synthetic residents; inspectable needs, six-dimensional wellbeing, household interactions, adaptive memories and event inputs | A validated autonomous model of those residents, much less 8.3 billion independent minds; measured real-world response accuracy |
+| People and events | 30,000 synthetic residents with inspectable observations, goal competition, action episodes, outcome feedback, household interactions, adaptive memories and event inputs | 30,000 independent LLM minds, a trained social world model or measured real-world response accuracy |
 | Research pipeline | Deterministic event → cohort response → asset signal → portfolio proposal; reproducible example runs | A trained latent world model, learned transition dynamics, long-horizon planning or a demonstrated forecasting advantage |
 | Quant evaluation | Directional accuracy, MAE, rank IC and a simple gross portfolio-return calculation | Untouched point-in-time out-of-sample results, net-of-cost P&L, capacity or institutional risk validation |
 
@@ -18,6 +19,49 @@ The upstream 8.3-billion-persona frame is a population concept, **not 8.3
 billion agents running in this city**. The current financial behavior layer is
 mostly hand-specified. A convincing animated world and a profitable, calibrated
 world model are different achievements; the latter has not been demonstrated.
+
+## The resident agent loop
+
+This is a deliberately small, inspectable **agent prototype**, not a claim of
+human-level autonomy. Every simulated resident has an identity, household,
+budget, job, needs, memory and adaptive preferences. On each decision:
+
+1. **Observe:** record only currently available needs, mood, cash, pantry,
+   personal event pressure and published market timestamp. Do not reveal later
+   prices or outcomes to the decision.
+2. **Constrain:** urgent water, health, food and sleep needs, school and funded
+   shifts take precedence. Age, cash, opening hours and employment restrict
+   what can actually execute.
+3. **Choose a goal:** feasible discretionary options—fresh food, household
+   supplies, leisure, travel, portfolio research or staying home—compete through
+   bounded, explainable scores. Memories alter several scores through the
+   resident's adaptive policy; an optional one-resident model proposal must
+   pass validation and can be overridden by urgent needs.
+4. **Act in the world:** choose a venue, route or explicitly estimated
+   cross-city journey, then settle costs and outcomes against the shared
+   business, household and market ledgers.
+5. **Reflect:** compare an action-specific expected change with the actual
+   result, retain a short decision episode, and update the existing bounded
+   experience policy where that action has a feedback channel. A trade's
+   immediate price result is marked *pending*, not misreported as profit.
+
+The resident inspector exposes observation → goal → alternatives → action →
+feedback. This makes a news intervention testable as a change in decisions,
+not merely a change in dialogue. The 30,000-agent loop remains deterministic
+and mostly hand-specified; it is not 30,000 concurrent LLM calls. The next
+research threshold is **out-of-sample behavioral calibration** against real
+consumer and investor outcomes, followed by learned transition dynamics,
+longer-horizon planning and multi-agent institutional responses. Until then,
+the system is an agent research scaffold rather than a validated predictor.
+
+The full population snapshot is now split into bounded database rows before
+storage. This avoids placing a compressed 30,000-resident state in one D1 value;
+guest sessions remain in memory, while signed-in sessions retain the same
+revision and conflict checks.
+
+The loop is implemented in `web/app/life-sim/agent-cycle.ts` and integrated
+with `web/app/life-sim/engine.ts`. Run `npm run check:agent` from `web/` to
+reproduce the 30,000-resident decision, feedback and snapshot check.
 
 **City navigation — 23 September:** the plan now has a searchable destination
 directory, clickable site markers and an explicit Teleport button for 441

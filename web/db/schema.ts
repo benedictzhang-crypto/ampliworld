@@ -259,3 +259,9 @@ export const populationRuns = sqliteTable('population_runs', {
   stateJson: text('state_json').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
+export const populationRunChunks = sqliteTable('population_run_chunks', {
+  userId: text('user_id').notNull(),
+  revision: integer('revision').notNull(),
+  chunkIndex: integer('chunk_index').notNull(),
+  payload: text('payload').notNull(),
+}, (table) => [primaryKey({columns:[table.userId,table.revision,table.chunkIndex]})]);

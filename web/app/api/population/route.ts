@@ -1,7 +1,7 @@
 import { getChatGPTUser } from '../../chatgpt-auth';
 import { populationDB,inferenceConfig } from '../../life-sim/storage';
 import {deliberate} from '../../life-sim/deliberation';
-import {encodeSnapshot,decodeSnapshot} from '../../life-sim/snapshot-codec';
+import {encodeSnapshot,decodeSnapshot,splitSnapshot} from '../../life-sim/snapshot-codec';
 import {
   createLifeWorld,
   advanceLifeWorld,
@@ -22,12 +22,13 @@ async function load(userId: string) {
     .bind(userId)
     .first<{ revision: number; state_json: string }>();
   if (!row) {
-    await db
-      .prepare(
-        'INSERT OR IGNORE INTO population_runs (user_id, revision, state_json, updated_at) VALUES (?, 0, ?, ?)',
-      )
-      .bind(userId, await encodeSnapshot(createLifeWorld()), new Date().toISOString())
-      .run();
+    const chunks=splitSnapshot(await encodeSnapshot(createLifeWorld()));
+    await db.batch([
+      db.prepare('INSERT OR IGNORE INTO population_runs (user_id, revision, state_json, updated_at) VALUES (?, 0, ?, ?)')
+        .bind(userId,`chunks:${chunks.length}`,new Date().toISOString()),
+      ...chunks.map((payload,index)=>db.prepare('INSERT OR IGNORE INTO population_run_chunks (user_id, revision, chunk_index, payload) VALUES (?, 0, ?, ?)')
+        .bind(userId,index,payload)),
+    ]);
     row = await db
       .prepare(
         'SELECT revision, state_json FROM population_runs WHERE user_id = ?',
@@ -36,7 +37,17 @@ async function load(userId: string) {
       .first<{ revision: number; state_json: string }>();
   }
   if (!row) throw new Error('Population persistence unavailable');
-  return upgradeLifeWorld(await decodeSnapshot(row.state_json));
+  let encoded=row.state_json;
+  if(encoded.startsWith('chunks:')){
+    const expected=Number(encoded.slice(7));
+    if(!Number.isSafeInteger(expected)||expected<1||expected>32)throw new Error('Invalid population chunk manifest');
+    const result=await db.prepare('SELECT chunk_index, payload FROM population_run_chunks WHERE user_id = ? AND revision = ? ORDER BY chunk_index')
+      .bind(userId,row.revision).all<{chunk_index:number;payload:string}>();
+    const pieces=result.results||[];
+    if(pieces.length!==expected||pieces.some((piece,index)=>piece.chunk_index!==index))throw new Error('Incomplete population snapshot');
+    encoded=pieces.map(piece=>piece.payload).join('');
+  }
+  return upgradeLifeWorld(await decodeSnapshot(encoded));
 }
 let guestWorld:LifeWorld|undefined;
 function observable(world:LifeWorld,center:[number,number]=[0,-68]):LifeWorld{
@@ -108,23 +119,21 @@ export async function POST(request: Request) {
     catch(error){if(hasMarketSnapshot||eventText)return response({error:error instanceof Error?error.message:'Invalid simulation event'},422);throw error;}
     next.lastOperation = body.operationId;
     if(!user){guestWorld=next;return response({world:observable(next,observe)});}
-    const update = await populationDB()
-      .prepare(
-        'UPDATE population_runs SET revision = ?, state_json = ?, updated_at = ? WHERE user_id = ? AND revision = ?',
-      )
-      .bind(
-        next.revision,
-        await encodeSnapshot(next),
-        new Date().toISOString(),
-        user.userId,
-        current.revision,
-      )
-      .run();
-    if (update.meta.changes !== 1)
+    const db=populationDB(),chunks=splitSnapshot(await encodeSnapshot(next));
+    const updates=await db.batch([
+      ...chunks.map((payload,index)=>db.prepare('INSERT OR IGNORE INTO population_run_chunks (user_id, revision, chunk_index, payload) VALUES (?, ?, ?, ?)')
+        .bind(user.userId,next.revision,index,payload)),
+      db.prepare('UPDATE population_runs SET revision = ?, state_json = ?, updated_at = ? WHERE user_id = ? AND revision = ?')
+        .bind(next.revision,`chunks:${chunks.length}`,new Date().toISOString(),user.userId,current.revision),
+    ]);
+    const update=updates.at(-1);
+    if (update?.meta.changes !== 1)
       return response(
         { world: observable(await load(user.userId),observe), error: '并发更新，已刷新' },
         409,
       );
+    await db.prepare('DELETE FROM population_run_chunks WHERE user_id = ? AND revision < ?')
+      .bind(user.userId,next.revision).run();
     return response({ world: observable(next,observe) });
   } catch (error) {
     console.error('population step failed', error);
