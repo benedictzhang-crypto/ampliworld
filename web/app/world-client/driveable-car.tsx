@@ -179,7 +179,7 @@ export function DriveableCar({
       const steer =
         Number(k.has('KeyA') || k.has('ArrowLeft')) -
         Number(k.has('KeyD') || k.has('ArrowRight'));
-      const approachSpeed=s.speed+throttle*10*dt;
+      const approachSpeed=s.speed+throttle*15*dt;
       const redStop=(s.y??0)>-1&&coreCarMustStop(s.x,s.z,s.x-Math.sin(s.yaw)*approachSpeed*dt,s.z-Math.cos(s.yaw)*approachSpeed*dt,Date.now()/1000);
       if(redStop)s.speed=0;
       stepVehicleMotion(

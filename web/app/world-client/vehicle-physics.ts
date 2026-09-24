@@ -79,7 +79,7 @@ export function stepVehicleMotion(
   const dt = Math.min(elapsed, 0.06),
     throttle = Math.max(-1, Math.min(1, input.throttle)),
     steer = Math.max(-1, Math.min(1, input.steer));
-  s.speed = Math.max(-8, Math.min(22, s.speed + throttle * 10 * dt));
+  s.speed = Math.max(-12, Math.min(34, s.speed + throttle * 15 * dt));
   if (!throttle) s.speed *= Math.exp(-1.4 * dt);
   if (input.brake) s.speed *= Math.exp(-12 * dt);
   const steps = Math.max(1, Math.ceil(Math.abs(s.speed * dt) / 0.4));

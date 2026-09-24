@@ -238,6 +238,45 @@
   border-radius: 8px;
   padding: 12px;
 }
+.plan-destination-finder {
+  margin-bottom: 12px;
+  border: 1px solid #9baf9d;
+}
+.plan-destination-finder input {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 9px;
+  border: 1px solid #849b91;
+  border-radius: 6px;
+  background: #fff;
+  color: #17302a;
+  font-size: 14px;
+}
+.plan-teleport-selection {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0;
+}
+.plan-teleport-selection button { min-height: 40px; font-size: 13px; }
+.plan-destination-results {
+  display: grid;
+  gap: 3px;
+  max-height: 180px;
+  overflow: auto;
+  margin-top: 8px;
+}
+.plan-destination-results button {
+  min-height: 31px;
+  padding: 5px 7px;
+  text-align: left;
+  background: #eef4ed;
+  color: #173b34;
+  border: 1px solid #adc3b5;
+  border-radius: 5px;
+  font-size: 12px;
+}
+.plan-destination-results button:hover,
+.plan-destination-results button:focus-visible { background: #d1e5d7; }
 .plan-legend small {
   color: #57695d;
   font-size: 12px;

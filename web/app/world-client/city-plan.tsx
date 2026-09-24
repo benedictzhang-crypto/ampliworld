@@ -19,6 +19,7 @@ import {
 import { SPORTS_STREETS } from './civic-registry';
 import { DISTRICT } from '../district/registry';
 import { METRO_STATIONS, type MetroStation } from './metro-network';
+import {TOUR_DESTINATIONS,type TourDestination} from './tour-destinations';
 import amusementPlan from './amusement-park-plan.json';
 import { PARK_RIDES } from './amusement-rides';
 import { COMMUNITIES, COMMUNITY_SURFACES, HOMES } from './community-registry';
@@ -86,6 +87,8 @@ export function CityPlan({
     null,
   );
   const [selectedStation, setSelectedStation] = useState<MetroStation | null>(null);
+  const [selectedDestination,setSelectedDestination]=useState<TourDestination|null>(null);
+  const [destinationSearch,setDestinationSearch]=useState('');
   const [selectedPark, setSelectedPark] = useState(false);
   const [showHomes, setShowHomes] = useState(true),
     [showRoads, setShowRoads] = useState(true);
@@ -110,6 +113,14 @@ export function CityPlan({
       Math.abs(p.x - view.x) < w / 2 + p.width &&
       Math.abs(p.z - view.z) < view.span / 2 + p.depth,
     ), [view, w]);
+  const destinationMatches=useMemo(()=>{
+    const query=destinationSearch.trim().toLowerCase();
+    return (query?TOUR_DESTINATIONS.filter(d=>d.searchText.includes(query)):TOUR_DESTINATIONS.filter(d=>d.featured)).slice(0,16);
+  },[destinationSearch]);
+  const mapDestinations=useMemo(()=>TOUR_DESTINATIONS.filter(d=>
+    (view.span<6500||d.featured||d.id===selectedDestination?.id)&&
+    Math.abs(d.x-view.x)<w/2+80&&Math.abs(d.z-view.z)<view.span/2+80,
+  ),[view,w,selectedDestination]);
   const zoomAt = useCallback((factor: number, anchor: { x: number; z: number }) =>
     setView((current) => {
       const span = Math.max(650, Math.min(32000, current.span * factor));
@@ -164,6 +175,9 @@ export function CityPlan({
     }));
   const select = (c: (typeof compounds)[number]) => {
     if (!moved.current) {
+      setSelectedDestination(null);
+      setSelectedPark(false);
+      setSelectedStation(null);
       setSelected(c);
       setSelectedInfo(landValueZone(c.x, c.z));
     }
@@ -173,7 +187,7 @@ export function CityPlan({
       <DialogContent className="city-plan-dialog">
         <DialogTitle>金庭城市平面图 · 20 × 30 km</DialogTitle>
         <DialogDescription>
-          真实场景坐标：小区边界、大门、主路、河道与桥梁。拖动平移，滚轮缩放；传送点可供玩家快速旅行，不代表居民已经乘坐地铁。
+          真实场景坐标：小区边界、大门、主路、河道与桥梁。拖动平移，滚轮缩放；点击地点圆点或在右侧搜索，然后按 Teleport 到建筑入口外。玩家快速旅行不代表居民已经乘坐地铁。
           金色虚线表示三中心布局关系，不是道路；浅金色标识高价值地段，尚未设置售价。
         </DialogDescription>
         <div className="plan-tools">
@@ -291,7 +305,7 @@ export function CityPlan({
                 pointerEvents="none" />
             ))}
             <g
-              onClick={() => { setSelectedPark(true); setSelectedStation(null); setSelected(null); }}
+              onClick={() => { setSelectedDestination(null); setSelectedPark(true); setSelectedStation(null); setSelected(null); }}
               style={{ cursor: 'pointer' }}
               aria-label="Aureole Adventure Park"
             >
@@ -420,7 +434,7 @@ export function CityPlan({
               Math.abs(station.x - view.x) < w / 2 + 100 &&
               Math.abs(station.z - view.z) < view.span / 2 + 100,
             ).map((station) => (
-              <g key={station.id} onClick={() => { setSelectedStation(station); setSelected(null); }} style={{ cursor: 'pointer' }}>
+              <g key={station.id} onClick={() => { setSelectedDestination(null); setSelectedPark(false); setSelectedStation(station); setSelected(null); }} style={{ cursor: 'pointer' }}>
                 <circle cx={station.x} cy={station.z} r={Math.max(16, view.span / 220)}
                   fill={station.mode === 'ELEVATED' ? '#365f96' : '#7049a3'}
                   stroke="white" strokeWidth={Math.max(3, view.span / 2000)} />
@@ -642,6 +656,13 @@ export function CityPlan({
                 </text>
               </g>
             )}
+            {mapDestinations.map(d=><circle key={d.id} cx={d.x} cy={d.z}
+              r={Math.max(8,view.span/900)} fill={selectedDestination?.id===d.id?'#ffb453':'#275f80'}
+              stroke="#fff7e0" strokeWidth={Math.max(2,view.span/2500)}
+              style={{cursor:'pointer'}} aria-label={`选择 ${d.name}`}
+              onClick={(event)=>{event.stopPropagation();if(!moved.current){setSelectedDestination(d);setSelectedPark(false);setSelectedStation(null);setSelected(null);}}}>
+              <title>{d.name} · {d.kind}</title>
+            </circle>)}
             <circle
               cx={position[0]}
               cy={position[1]}
@@ -660,6 +681,23 @@ export function CityPlan({
             </text>
           </svg>
           <aside className="plan-legend">
+            <section className="plan-destination-finder">
+              <h3>快速传送 · Teleport</h3>
+              <input type="search" value={destinationSearch} onChange={event=>setDestinationSearch(event.target.value)}
+                placeholder="医院 / 学校 / 消防站…" aria-label="搜索传送地点" />
+              {selectedDestination&&<div className="plan-teleport-selection">
+                <strong>{selectedDestination.name}</strong>
+                <small>{selectedDestination.kind} · 入口 X {selectedDestination.arrivalX.toFixed(0)} / Z {selectedDestination.arrivalZ.toFixed(0)}</small>
+                <Button onClick={()=>onTeleportPoint(selectedDestination.arrivalX,selectedDestination.arrivalZ)}>Teleport · 传送到入口</Button>
+              </div>}
+              <div className="plan-destination-results">
+                {destinationMatches.map(d=><button type="button" key={d.id} onClick={()=>{
+                  setSelectedDestination(d);setSelectedPark(false);setSelectedStation(null);setSelected(null);
+                  setView({x:d.x,z:d.z,span:Math.min(view.span,1800)});
+                }}>{d.name}</button>)}
+                {!destinationMatches.length&&<small>未找到地点，请换关键词。</small>}
+              </div>
+            </section>
             <h3>用地与社区</h3>
             <p>
               25 老城里 · 15 宜居家园
@@ -753,6 +791,7 @@ export function CityPlan({
                 >
                   放大小区
                 </Button>
+                <Button onClick={()=>onTeleportPoint(selected.entrance[0],selected.entrance[2])}>Teleport · 传送到大门</Button>
               </section>
             ) : (
               <p>{selectedInfo || '点击彩色小区查看边界、大门及建设状态。'}</p>

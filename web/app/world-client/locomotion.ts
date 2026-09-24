@@ -1,4 +1,4 @@
-export const WALK_SPEED = 4.5;
+export const WALK_SPEED = 8;
 export const JUMP_SPEED = 6.6;
 export const GRAVITY = 18;
 export const BODY_HEIGHT = 2.08;

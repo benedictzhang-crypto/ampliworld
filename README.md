@@ -19,6 +19,15 @@ billion agents running in this city**. The current financial behavior layer is
 mostly hand-specified. A convincing animated world and a profitable, calibrated
 world model are different achievements; the latter has not been demonstrated.
 
+**City navigation — 23 September:** the plan now has a searchable destination
+directory, clickable site markers and an explicit Teleport button for 441
+currently safe entrances, including the hospital, school and fire stations.
+Teleport moves the playable character to the outdoor entrance; it does not
+simulate an NPC journey. Walking speed is 8 m/s and the player car's forward
+speed limit is 34 m/s; walking collision is checked in short movement steps.
+Sites whose provisional positions fall in water or overlap existing solid
+geometry are withheld from teleport until their parcels are corrected.
+
 **Metro, curved streets and rental pass — 23 September:** the M04–M05 elevated
 pilot now has a Blender-authored curved roof and improved glazing and forecourt
 details; its two animated trains occupy distinct physical tracks. M06 is no

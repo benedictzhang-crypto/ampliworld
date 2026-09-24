@@ -271,18 +271,17 @@ export function Walker({
       .normalize()
       .multiplyScalar(dt * WALK_SPEED);
     if(state.grounded && !carrier?.current.active)state.delta.z+=(surfaceVelocity?.(p.x,p.z,state.feet)??0)*dt;
-    const x = Math.max(-limits[0], Math.min(limits[0], p.x + state.delta.x));
-    const z = Math.max(-limits[1], Math.min(limits[1], p.z + state.delta.z));
-    const nx =
-      blocked(obstacles, x, p.z, state.feet) ||
-      groundHeight(x, p.z, state.feet) > state.feet + 0.29
-        ? p.x
-        : x;
-    const nz =
-      blocked(obstacles, nx, z, state.feet) ||
-      groundHeight(nx, z, state.feet) > state.feet + 0.29
-        ? p.z
-        : z;
+    // Faster exploration must still probe every thin wall and curb between
+    // frames; a single end-point check would let the avatar tunnel through.
+    const steps=Math.max(1,Math.ceil(state.delta.length()/.24));
+    const stepX=state.delta.x/steps,stepZ=state.delta.z/steps;
+    let nx=p.x,nz=p.z,stepFloor=state.feet;
+    for(let i=0;i<steps;i++){
+      const x=Math.max(-limits[0],Math.min(limits[0],nx+stepX));
+      if(!blocked(obstacles,x,nz,stepFloor)&&groundHeight(x,nz,stepFloor)<=stepFloor+.29){nx=x;if(state.grounded)stepFloor=groundHeight(nx,nz,stepFloor);}
+      const z=Math.max(-limits[1],Math.min(limits[1],nz+stepZ));
+      if(!blocked(obstacles,nx,z,stepFloor)&&groundHeight(nx,z,stepFloor)<=stepFloor+.29){nz=z;if(state.grounded)stepFloor=groundHeight(nx,nz,stepFloor);}
+    }
     state.delta.set(nx - p.x, 0, nz - p.z);
     const travelled = state.delta.length();
     if (travelled > 0.00001)
