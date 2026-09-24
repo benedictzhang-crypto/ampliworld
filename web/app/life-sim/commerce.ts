@@ -3,7 +3,7 @@ import {hourlyWageCents,monthlySalaryCents} from './housing-finance';
 import type {LifeWorld,Resident} from './engine';
 import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from '../world-client/retail-registry';
 import {SERVICE_SITES,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS,CITY_OPERATION_SITES} from './city-service-plan';
-export const COMMERCE_VERSION=13;
+export const COMMERCE_VERSION=14;
 export const HOSPITALITY=[
  {id:'GC-RESTAURANT-001',name:'Lotus Siam · 泰国菜',type:'restaurant',entry:[245,-68],price:2600,staff:12},
  {id:'GC-RESTAURANT-002',name:'Bronze Garden · 花园中餐',type:'restaurant',entry:[290,-68],price:2800,staff:9},
@@ -23,7 +23,7 @@ export function initializeCommerce(w:LifeWorld){
   ...RETAIL_CAMPUSES.map(s=>({id:s.id,name:s.name,type:'supermarket',entry:[s.x,s.z] as [number,number],price:s.kind==='premium-grocery'?5200:s.kind==='warehouse-club'?9800:3600,jobCapacity:s.staff})),
   ...CITY_CINEMAS.map(s=>({id:s.id,name:s.name,type:'cinema',entry:[s.x,s.z] as [number,number],price:2200,jobCapacity:s.staff})),
   ...FOOD_VENUES.map(s=>({id:s.id,name:s.name,type:s.type==='food-truck'?'restaurant':'restaurant',entry:[s.x,s.z] as [number,number],price:s.price,jobCapacity:s.staff})),
-  ...SERVICE_SITES.map(s=>({id:s.id,name:s.name,type:s.type.endsWith('restaurant')?'restaurant':s.type==='budget-hotel'?'hotel':s.type,entry:[s.x,s.z] as [number,number],price:s.price,jobCapacity:s.staff,...(s.placement==='mall'?{floor:s.floor}:{})})),
+  ...SERVICE_SITES.map(s=>({id:s.id,name:s.name,type:s.type.endsWith('restaurant')?'restaurant':s.type==='budget-hotel'?'hotel':s.type==='fresh-market'?'supermarket':s.type,entry:[s.x,s.z] as [number,number],price:s.price,jobCapacity:s.staff,...(s.placement==='mall'?{floor:s.floor}:{})})),
   ...TRANSPORT_HUBS.filter(h=>'x' in h).map(h=>({id:h.id,name:h.name,type:h.mode,entry:[h.x,h.z] as [number,number],price:0,jobCapacity:h.staff})),
   ...EMPLOYMENT_DISTRICTS.map(s=>({id:s.id,name:s.name,type:s.type,entry:[s.x,s.z] as [number,number],price:0,jobCapacity:s.staff})),
   ...CITY_OPERATION_SITES.map(s=>({id:s.id,name:s.name,type:s.type,entry:('entry' in s?[...s.entry]:[s.x,s.z]) as [number,number],price:0,jobCapacity:s.staff})),
@@ -116,6 +116,12 @@ export function initializeCommerce(w:LifeWorld){
   if(type==='clinic')return i===0?'诊所主任':i%12<4?'医生':i%12<7?'护士':i%12===7?'康复师':i%12===8?'实验室技术员':i%12===9?'诊所前台':i%12===10?'药剂师':'诊所保洁员';
   if(type==='dentist')return i===0?'牙科诊所主任':i%6<3?'牙医':i%6<5?'牙科助理':'牙科前台';
   if(type==='daycare')return i===0?'托育中心主任':i%6<3?'幼教老师':i%6<5?'保育员':'托育中心后勤';
+  if(type==='tutoring-center')return i===0?'课后学习中心主任':i%6<4?'学科辅导教师':i%6===4?'课程顾问':'学习中心前台';
+  if(type==='children-arts')return i===0?'儿童艺术中心主任':i%5<3?'儿童美术教师':i%5===3?'材料与教室助理':'课程顾问';
+  if(type==='music-school')return i===0?'音乐学院主任':i%6<3?'器乐教师':i%6===3?'声乐教师':i%6===4?'钢琴伴奏教师':'课程顾问';
+  if(type==='dance-school')return i===0?'舞蹈学校主任':i%5<3?'舞蹈教师':i%5===3?'排练助理':'课程顾问';
+  if(type==='concert-hall')return i===0?'音乐厅艺术总监':i%12<5?'管弦乐演奏员':i%12<7?'舞台技术员':i%12===7?'音响工程师':i%12===8?'灯光师':i%12===9?'票务员':i%12===10?'观众服务员':'音乐厅保洁员';
+  if(type==='opera-house')return i===0?'歌剧院总经理':i%15<4?'歌剧演员':i%15<8?'乐团演奏员':i%15<10?'舞台技术员':i%15===10?'服装与化妆师':i%15===11?'音响工程师':i%15===12?'票务员':i%15===13?'观众服务员':'歌剧院保洁员';
   if(type==='pet')return i===0?'宠物医院院长':i%5<2?'兽医':i%5===2?'宠物护理员':i%5===3?'宠物美容师':'宠物医院前台';
   if(type==='repair')return i===0?'维修店经理':i%4<3?'维修技师':'维修店前台';
   if(type==='salon')return i===0?'美容店经理':i%5<2?'美甲师':i%5<4?'理发师':'美容店前台';
@@ -145,7 +151,7 @@ export function initializeCommerce(w:LifeWorld){
  // Services and individual shops get staffing first; office populations fill remaining capacity.
  const ordered=definitions.sort((a,b)=>Number(a.type==='office')-Number(b.type==='office'));
  for(const d of ordered){
-  const fullStaff=['water','wastewater','city-hall','court','ems','transport-authority','fire','detention','prison'];
+  const fullStaff=['water','wastewater','city-hall','court','ems','transport-authority','fire','detention','prison','supermarket','tutoring-center','children-arts','music-school','dance-school','concert-hall','opera-house'];
   const target=d.type==='hospital'?Math.min(d.jobCapacity,900):d.type==='school'?Math.min(d.jobCapacity,220):fullStaff.includes(d.type)?d.jobCapacity:d.type==='police'?d.jobCapacity:d.type==='restaurant'?d.jobCapacity:d.type==='bank'?d.jobCapacity:d.type==='bar'||d.type==='nightclub'||d.type==='dry-cleaning'||d.type==='laundromat'?d.jobCapacity:d.type==='retail-shop'?2+hash(d.id)%5:d.type==='auto'?22:d.type==='office'?Math.min(d.jobCapacity,60+hash(d.id)%210):Math.min(d.jobCapacity,8+hash(d.id)%19);
   const requested=d.type==='office'?Math.min(target,Math.max(0,remaining.size-(ordered.length-ordered.indexOf(d)-1)*8)):d.type==='retail-shop'?target:Math.min(d.jobCapacity,remaining.size);
   const alwaysOpen=['hotel','hospital','police','fire','detention','prison','water','wastewater','ems','transport-authority'];

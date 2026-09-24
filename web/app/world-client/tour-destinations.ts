@@ -21,10 +21,10 @@ const civic=CIVIC_PLACES.map(p=>{
   return item;
 });
 const services=SERVICE_SITES.filter(s=>s.placement==='street').map(s=>{
-  const kind=s.type==='fire'?'消防站 fire station':s.type==='clinic'?'诊所 clinic':s.type==='real-estate-broker'?'房地产中介 real estate':s.type==='property-developer'?'房地产开发商 developer':s.type==='car-rental'?'汽车租赁 car rental':s.type==='bank'?'银行 bank':s.type;
+  const kind=s.type==='fire'?'消防站 fire station':s.type==='clinic'?'诊所 clinic':s.type==='real-estate-broker'?'房地产中介 real estate':s.type==='property-developer'?'房地产开发商 developer':s.type==='car-rental'?'汽车租赁 car rental':s.type==='bank'?'银行 bank':s.type==='concert-hall'?'音乐厅 concert hall':s.type==='opera-house'?'歌剧院 opera house':s.type==='fresh-market'?'生鲜超市 fresh market':s.type==='tutoring-center'?'儿童辅导 after-school learning':s.type==='children-arts'?'儿童艺术 children arts':s.type==='music-school'?'音乐学校 music school':s.type==='dance-school'?'舞蹈学校 dance school':s.type;
   // These lots reserve a 31 m front apron. The visitor arrives outside the
   // modeled wall, doors, parked cars and fire-engine bay, never at its centre.
-  const front=s.type==='fire'?32:s.type==='car-rental'?25:21;
+  const front=s.type==='fire'||s.type==='concert-hall'||s.type==='opera-house'?32:s.type==='car-rental'?25:21;
   return destination(s.id,s.name,kind,s.x,s.z,s.x,s.z+front,
     s.type==='fire'&&s.id.endsWith('001')||s.type==='real-estate-broker'&&s.id.endsWith('001')||s.type==='car-rental'&&s.id.endsWith('001'));
 });

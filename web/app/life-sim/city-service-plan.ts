@@ -46,7 +46,7 @@ export const CITY_SERVICE_PLAN=[
   {kind:'post',label:'Post and parcel center',count:6,staff:9,price:1200},
   // Additions follow the old deterministic layout so existing business IDs
   // and street coordinates remain stable in saved worlds.
-  {kind:'small-restaurant',label:'Neighborhood kitchen',count:24,staff:5,price:1400},
+  {kind:'small-restaurant',label:'Neighborhood kitchen',count:64,staff:5,price:1400},
   {kind:'budget-hotel',label:'Neighborhood express hotel',count:8,staff:9,price:6500},
   {kind:'detention',label:'Metropolitan detention and intake center',count:1,staff:50,price:0},
   {kind:'prison',label:'Regional correctional campus',count:1,staff:110,price:0},
@@ -55,10 +55,20 @@ export const CITY_SERVICE_PLAN=[
   {kind:'real-estate-broker',label:'Residential property brokerage',count:4,staff:12,price:0},
   {kind:'property-developer',label:'Metropolitan property developer',count:2,staff:48,price:0},
   {kind:'car-rental',label:'City car rental and fleet service',count:3,staff:16,price:4800},
+  // Daily-life services are intentionally distributed around residential
+  // parcels rather than concentrated in the three commercial centers.
+  {kind:'fresh-market',label:'Neighborhood fresh market',count:24,staff:10,price:2400},
+  {kind:'tutoring-center',label:'After-school learning center',count:18,staff:12,price:4800},
+  {kind:'children-arts',label:"Children's arts studio",count:10,staff:8,price:4200},
+  {kind:'music-school',label:'Music academy',count:8,staff:10,price:5800},
+  {kind:'dance-school',label:'Dance and movement studio',count:8,staff:9,price:4500},
+  {kind:'concert-hall',label:'Aureole Metropolitan Concert Hall',count:1,staff:80,price:12000},
+  {kind:'opera-house',label:'AmpliWorld Grand Opera House',count:1,staff:120,price:18000},
 ] as const;
 
 const centers=[[0,0],[5400,3400],[-1300,8400],[1100,7200],[-1100,1000],[6500,13200]] as const;
 const neighborhoodCenters=[[-4800,3500],[3200,9200],[-4400,12500],[7900,6800],[-7300,17000],[4000,18500],[8500,14500],[-3000,21000]] as const;
+const residentialCenters=housingPlan.placements.map(parcel=>[parcel.x,parcel.z] as const);
 const mallSlots:Record<string,{x:number;z:number;floor:string;shopId:string}>={
   'apple-store:0':{x:88,z:-137,floor:'L1',shopId:'L1-shop-13'},'apple-store:1':{x:-33,z:-239,floor:'L3',shopId:'L3-shop-2'},
   'samsung-store:0':{x:-12,z:-239,floor:'L3',shopId:'L3-shop-3'},
@@ -97,9 +107,10 @@ function streetParcelIsClear(x:number,z:number){
   return true;
 }
 export const SERVICE_SITES=CITY_SERVICE_PLAN.flatMap((service,categoryIndex)=>Array.from({length:service.count},(_,i)=>{
-  const satellite=['small-restaurant','budget-hotel','gas-station-expansion','fire-expansion','prison','detention'].includes(service.kind);
-  const pool=satellite?neighborhoodCenters:centers;
-  const center=service.kind==='detention'?([1450,520] as const):service.kind==='prison'?([-7200,16000] as const):service.kind==='small-restaurant'&&i%3===0?([(i%6-2.5)*720,(Math.floor(i/6)-1.5)*950] as const):pool[(i+categoryIndex)%pool.length];
+  const residential=['small-restaurant','fresh-market','tutoring-center','children-arts','music-school','dance-school'].includes(service.kind);
+  const satellite=['budget-hotel','gas-station-expansion','fire-expansion','prison','detention'].includes(service.kind);
+  const pool=residential?residentialCenters:satellite?neighborhoodCenters:centers;
+  const center=service.kind==='detention'?([1450,520] as const):service.kind==='prison'?([-7200,16000] as const):pool[(i+categoryIndex)%pool.length];
   const baseRing=service.kind==='detention'?180:service.kind==='prison'?240:180+Math.floor(i/pool.length)*135,baseAngle=(i*2.399+categoryIndex*.73);
   const slot=mallSlots[`${service.kind}:${i}`];
   let x=slot?.x??0,z=slot?.z??0,found=!!slot;
@@ -119,7 +130,9 @@ export const SERVICE_SITES=CITY_SERVICE_PLAN.flatMap((service,categoryIndex)=>Ar
       ? `Metropolitan Police Precinct ${i+1}`
       : service.kind==='gym'
         ? `${i===0?'Aurea Galleria Fitness':i<=2?'Aurea Aquatic Club':i<=5?'Ampli Fitness Studio':'Iron District Gym'} ${i+1}`
-        : `${service.label} ${i+1}`;
+        : service.kind==='concert-hall'||service.kind==='opera-house'
+          ? service.label
+          : `${service.label} ${i+1}`;
   const staff=service.kind==='gym'?(i<=2?16:i<=5?10:6):service.staff;
   const price=service.kind==='gym'?(i<=2?12000:i<=5?6500:2800):service.price;
   return {id:`CITY-${service.kind.toUpperCase()}-${String(i+1).padStart(3,'0')}`,name,type,x,z,staff,price,...(slot?{placement:'mall' as const,floor:slot.floor,shopId:slot.shopId}:{placement:'street' as const})};

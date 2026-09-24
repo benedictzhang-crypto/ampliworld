@@ -156,6 +156,20 @@ and ride-hail operating businesses and their demand flows are still missing.
 Existing saved worlds are not silently reallocated;
 these opening-policy changes apply to newly created worlds.
 
+**Residential services and culture pass — 24 September:** the deterministic
+street registry now distributes **64 small restaurants, 24 fresh-food markets,
+18 tutoring centers, 10 children's art studios, eight music academies and eight
+dance studios** around actual housing parcels instead of concentrating them in
+the CBD. A metropolitan concert hall and an opera house add two searchable,
+collidable cultural landmarks with purpose-built concrete, glass and bronze
+facades. The repeated neighborhood storefronts use an instanced facade layer
+for canopies, sign bands and planters, so added detail costs a few draw calls
+rather than hundreds of separate meshes. These sites enter the commerce and
+employment registry and existing worlds migrate to commerce version 14. Their
+interiors, scheduled performances, tuition, food inventory and measured demand
+remain future simulation work; this checkpoint does not claim that every older
+tower facade has been rebuilt.
+
 **Fitness and recreation pass — 23 September:** the 30,000-resident scenario
 now has exactly ten gyms (one walk-in L4 mall studio, two standalone aquatic
 clubs with modeled pools, three neighborhood studios and four low-cost iron

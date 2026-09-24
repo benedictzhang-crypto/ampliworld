@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {statSync} from 'node:fs';
-import {CITY_SERVICE_COLLIDERS,MODELED_STOREFRONT_SITES,NEIGHBORHOOD_SITES,SPECIAL_SERVICE_SITES,STREET_SERVICE_SITES,neighborhoodVariant,venueVariant} from '../app/world-client/city-service-buildings';
+import {CITY_SERVICE_COLLIDERS,CULTURAL_SITES,MODELED_STOREFRONT_SITES,NEIGHBORHOOD_SITES,SPECIAL_SERVICE_SITES,STREET_SERVICE_SITES,neighborhoodVariant,venueVariant} from '../app/world-client/city-service-buildings';
 import housing from '../app/world-client/housing-parcels.json';
 import {CIVIC_PLACES} from '../app/world-client/civic-registry';
 import {METROPOLITAN_PLACES} from '../app/world-client/metropolitan-registry';
@@ -55,7 +55,23 @@ assert.equal(SERVICE_SITES.filter(s=>s.type==='arcade').length,2);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='gym'&&s.placement==='mall').length,1);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='arcade'&&s.placement==='mall').length,1);
 assert.equal(SPECIAL_SERVICE_SITES.length,10);
-assert.equal(SERVICE_SITES.filter(s=>s.type==='small-restaurant').length,24);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='small-restaurant').length,64);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='fresh-market').length,24);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='tutoring-center').length,18);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='children-arts').length,10);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='music-school').length,8);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='dance-school').length,8);
+for(const type of ['small-restaurant','fresh-market','tutoring-center','children-arts','music-school','dance-school']){
+  for(const site of SERVICE_SITES.filter(s=>s.type===type)){
+    const nearest=Math.min(...housing.placements.map(parcel=>Math.hypot(site.x-parcel.x,site.z-parcel.z)));
+    assert(nearest<400,`${site.id} is ${Math.round(nearest)}m from the nearest residential parcel`);
+  }
+}
+assert.equal(CULTURAL_SITES.length,2);
+for(const site of CULTURAL_SITES){
+  assert(CITY_SERVICE_COLLIDERS.some(c=>c.id===`${site.id}/left-glazing`));
+  assert(!CITY_SERVICE_COLLIDERS.some(c=>c.id===`${site.id}/building`));
+}
 assert.equal(SERVICE_SITES.filter(s=>s.type==='budget-hotel').length,8);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='fire').length,6);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='gas-station').length,12);
