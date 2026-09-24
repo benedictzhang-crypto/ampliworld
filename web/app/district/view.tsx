@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react';
 import { CITY, CityLayer } from '../world-client/city-layer';
+import {SetupCamera} from './camera';
 import {CoreGround} from '../world-client/core-ground';
 import {PopulationLayer,PopulationPanel} from '../life-sim/client';
 import {usePopulation} from '../life-sim/use-population';
@@ -20,16 +21,14 @@ import {escalatorVelocity} from '../world-client/mall-escalators.mjs';
 import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
 import { CivicPlaces } from '../world-client/civic-places';
 import { MallElevators } from '../world-client/mall-elevators';
-import { createMallLifts, LIFT_STATIC_SOLIDS, MALL_LEVELS, nearestMallLevel, liftContains, requestMallLift, type LiftCarrier } from '../world-client/mall-circulation';
+import { createMallLifts, LIFT_STATIC_SOLIDS, nearestMallLevel, liftContains, requestMallLift, type LiftCarrier } from '../world-client/mall-circulation';
 import { Communities } from '../world-client/communities';
 import { MetropolitanPlaces } from '../world-client/metropolitan-places';
 import { METROPOLITAN_COLLIDERS } from '../world-client/metropolitan-registry';
-import { riverCenterX } from '../world-client/river-profile.mjs';
 import { COMMUNITY_COLLIDERS } from '../world-client/community-registry';
 import { HousingWorld } from '../world-client/housing-world';
 import {
   HOUSING_PLAN,
-  HOUSING_LABELS,
   housingColliders,
   canCloseHousingGate,
 } from '../world-client/housing-registry';
@@ -38,7 +37,6 @@ import { findVehicleExit } from '../world-client/vehicle-safety';
 import {
   GARAGE_COLLIDERS,
   parkedGarageBay,
-  MALL_GARAGE,
   garageLevelAt,
 } from '../world-client/mall-garage';
 import { CityPlan } from '../world-client/city-plan';
@@ -49,9 +47,9 @@ import { AMUSEMENT_COLLIDERS, AmusementPark, AMUSEMENT_PARK, type BasketballShot
 import { hauntStepAt, hauntNextDoor, nearBasketballCourt, evaluateBasketballShot, type HauntStep } from '../world-client/amusement-experience';
 import { PARK_RIDES, rideAtStation, type RideSession } from '../world-client/amusement-rides';
 import { AmusementRideCamera } from '../world-client/amusement-ride-camera';
-import { Canvas, useThree } from '@react-three/fiber';
-import { Clone, Html, OrbitControls, Text } from '@react-three/drei';
-import { useGLTF } from '@react-three/drei';
+import { Canvas } from '@react-three/fiber';
+import { Html, OrbitControls } from '@react-three/drei';
+import {Office,RooftopHelipads,CityInfrastructure,CBDBoulevards,Mall,Concourse,Street} from '../world-client/core-assets';
 import { Box3, Vector3 } from 'three';
 import { DriveableCar, carBlocked, type CarState } from '../world-client/driveable-car';
 import concourse from '../../public/assets/3d/ampliworld/GC-CBD-CONCOURSE-001/concourse-manifest.json';
@@ -87,237 +85,6 @@ function CoreReady({ onReady }: { onReady: () => void }) {
   useEffect(onReady, [onReady]);
   return null;
 }
-function Office({ assetId, x, z }: { assetId: string; x: number; z: number }) {
-  const { scene } = useGLTF(`/assets/3d/ampliworld/${assetId}/tower-lod0.glb`);
-  return (
-    <group position={[x, 0, z]}>
-      <Clone object={scene} castShadow receiveShadow />
-    </group>
-  );
-}
-function RooftopHelipads(){
-  const {scene}=useGLTF('/assets/3d/ampliworld/GC-REALTY-MOBILITY-001/helipad.glb');
-  return <group name="Rooftop helipads, static visual infrastructure">
-    <group position={[2937,84,4376]}><Clone object={scene} castShadow receiveShadow/></group>
-    <group position={[280,350,-490]}><Clone object={scene} castShadow receiveShadow/></group>
-  </group>;
-}
-function CityInfrastructure() {
-  const { scene } = useGLTF(
-    '/assets/3d/ampliworld/GC-CITY-INFRA-001/globalinfra.glb',
-  );
-  return <Clone object={scene} receiveShadow />;
-}
-function CBDBoulevards() {
-  const { scene } = useGLTF(
-    '/assets/3d/ampliworld/GC-CBD-STREET-001/cbd-streets.glb',
-  );
-  return <Clone object={scene} castShadow receiveShadow />;
-}
-
-function Mall() {
-  const { scene } = useGLTF('/assets/3d/ampliworld/GC-MALL-002/mall-lod0.glb');
-  return (
-    <group position={[DISTRICT.mall.x, 0, DISTRICT.mall.z]}>
-      <Clone object={scene} castShadow receiveShadow />
-      <group name="atrium suspended campaign banners">
-        {[[-15,16,0,'AUREOLE • NEW SEASON'],[16,22,0,'DESIGN THE FUTURE']].map(([x,y,z,label],i)=><group key={String(label)} position={[Number(x),Number(y),Number(z)]}>
-          <mesh castShadow><boxGeometry args={[20,5,.15]}/><meshStandardMaterial color={i?'#703a47':'#1d424c'} roughness={.68} side={2}/></mesh>
-          <Text position={[0,0,.1]} fontSize={.95} color="#f5e5c0" anchorX="center" anchorY="middle">{String(label)}</Text>
-          <Text position={[0,0,-.1]} rotation={[0,Math.PI,0]} fontSize={.95} color="#f5e5c0" anchorX="center" anchorY="middle">{String(label)}</Text>
-          {[-8,8].map(s=><mesh key={s} position={[s,7,0]}><cylinderGeometry args={[.045,.045,14,6]}/><meshStandardMaterial color="#a78b61" metalness={.7}/></mesh>)}
-        </group>)}
-      </group>
-    </group>
-  );
-}
-function Concourse() {
-  const { scene } = useGLTF(
-    '/assets/3d/ampliworld/GC-CBD-CONCOURSE-001/concourse.glb',
-  );
-  return <Clone object={scene} castShadow receiveShadow />;
-}
-
-function Street() {
-  const { scene } = useGLTF(
-    '/assets/3d/ampliworld/GC-STREET-001/street-block.glb',
-  );
-  const display = useMemo(() => {
-    const c = scene.clone(true);
-    c.traverse((o) => {
-      if (o.name === 'Street_bark' || o.name === 'Street_leaf')
-        o.visible = false;
-    });
-    return c;
-  }, [scene]);
-  return <Clone object={display} castShadow receiveShadow />;
-}
-function SetupCamera({
-  walking,
-  controls,
-  wide,
-  focus,
-  garageLevel,
-  mallLevel,
-}: {
-  walking: boolean;
-  garageLevel: number;
-  mallLevel: number;
-  controls: React.RefObject<OrbitControlsImpl | null>;
-  wide: boolean;
-  focus:
-    | 'cbd'
-    | 'stadium'
-    | 'sushi'
-    | 'auto'
-    | 'garage'
-    | 'mall'
-    | 'middle'
-    | 'river'
-    | 'east'
-    | 'south'
-    | 'estuary'
-    | 'marina'
-    | `housing-${string}`;
-}) {
-  const { camera, invalidate } = useThree();
-  const savedWalkCamera = useRef<{ position: Vector3; target: Vector3 } | null>(
-    null,
-  );
-  const lastWalking = useRef(true);
-  useEffect(() => {
-    // Millimetre-scale street layers need more depth precision at kilometre
-    // overview distances. Keep the close near plane only for the walker.
-    camera.near = walking || focus === 'garage' || focus === 'mall' ? 0.1 : wide ? 3500 : 8;
-    camera.far = wide ? 100000 : 18000;
-    camera.updateProjectionMatrix();
-    if (!walking && lastWalking.current && controls.current) {
-      savedWalkCamera.current = {
-        position: camera.position.clone(),
-        target: controls.current.target.clone(),
-      };
-    }
-    lastWalking.current = walking;
-    if (walking && savedWalkCamera.current) {
-      camera.position.copy(savedWalkCamera.current.position);
-      controls.current?.target.copy(savedWalkCamera.current.target);
-      controls.current?.update();
-      invalidate();
-      return;
-    }
-    if(!walking&&!wide&&focus==='marina'){camera.position.set(6820,150,13530);controls.current?.target.set(6500,0,13300);controls.current?.update();invalidate();return;}
-    if (!walking && !wide && focus === 'garage') {
-      const floor = MALL_GARAGE.levels[garageLevel].floorY;
-      camera.position.set(36, floor + 3, -130);
-      controls.current?.target.set(-25, floor + 1.6, -208);
-      controls.current?.update();
-      invalidate();
-      return;
-    }
-    if (!walking && !wide && focus === 'mall') {
-      const floor = MALL_LEVELS[mallLevel].y;
-      camera.position.set(-52, floor + 2.7, -160);
-      controls.current?.target.set(-52, floor + 1.5, -227);
-      controls.current?.update();
-      invalidate();return;
-    }
-    if (!walking && !wide && focus.startsWith('housing-')) {
-      const p = HOUSING_PLAN.placements.find((p) => p.type === focus.slice(8))!;
-      camera.position.set(
-        p.x + p.width * 0.8,
-        p.type === 'ultra' ? 390 : 230,
-        p.z + p.depth * 0.8,
-      );
-      controls.current?.target.set(p.x, p.type === 'ultra' ? 70 : 12, p.z);
-      controls.current?.update();
-      invalidate();
-      return;
-    }
-    if (!walking && !wide && (focus === 'middle' || focus === 'river')) {
-      if (focus === 'middle') {
-        camera.position.set(-570, 235, 1060);
-        controls.current?.target.set(-850, 12, 750);
-      } else {
-        camera.position.set(2550, 240, 1390);
-        controls.current?.target.set(2010, 8, 980);
-      }
-      controls.current?.update();
-      invalidate();
-      return;
-    }
-    if (!walking && !wide && ['east', 'south', 'estuary'].includes(focus)) {
-      const x =
-        focus === 'east'
-          ? 5000
-          : focus === 'south'
-            ? -1000
-            : riverCenterX(13200) - 1100;
-      const z = focus === 'east' ? 3000 : focus === 'south' ? 8000 : 13135;
-      camera.position.set(
-        x + (focus === 'estuary' ? 140 : 650),
-        focus === 'estuary' ? 95 : 440,
-        z + (focus === 'estuary' ? 150 : 750),
-      );
-      controls.current?.target.set(x, focus === 'estuary' ? 0 : 70, z);
-      controls.current?.update();
-      invalidate();
-      return;
-    }
-    camera.position.set(
-      ...((walking
-        ? [0, 4, -59]
-        : wide
-          ? [17000, 23000, 26000]
-          : focus === 'garage'
-            ? [100, -2.3, -123]
-            : focus === 'stadium'
-              ? [190, 430, 930]
-              : focus === 'auto'
-                ? [-425, 30, 815]
-                : focus === 'sushi'
-                  ? [229, 28, 13]
-                  : [430, 660, 740]) as [number, number, number]),
-    );
-    controls.current?.target.set(
-      !walking && !wide && focus === 'garage'
-        ? 40
-        : !walking && !wide && focus === 'auto'
-          ? -565
-          : !walking && !wide && focus === 'sushi'
-            ? 180
-            : 0,
-      walking
-        ? 1.5
-        : wide
-          ? 0
-          : focus === 'garage'
-            ? -2.8
-            : focus === 'auto'
-              ? 8
-              : focus === 'stadium'
-                ? 10
-                : focus === 'sushi'
-                  ? 2.5
-                  : 190,
-      walking
-        ? -68
-        : wide
-          ? 0
-          : focus === 'garage'
-            ? -154
-            : focus === 'auto'
-              ? 655
-              : focus === 'stadium'
-                ? 600
-                : focus === 'sushi'
-                  ? -38
-                  : -500,
-    );
-    controls.current?.update();
-    invalidate();
-  }, [walking, controls, camera, invalidate, wide, focus, garageLevel, mallLevel]);
-  return null;
-}
 
 export function DistrictClient() {
   const population=usePopulation();
@@ -328,24 +95,7 @@ export function DistrictClient() {
   const [walking, setWalking] = useState(false);
   const [wide, setWide] = useState(false);
   const [planOpen, setPlanOpen] = useState(false);
-  const [garageLevel, setGarageLevel] = useState(0);
-  const [mallLevel, setMallLevel] = useState(4);
   const look = useRef({ pitch: 0 });
-  const [focus, setFocus] = useState<
-    | 'cbd'
-    | 'stadium'
-    | 'sushi'
-    | 'auto'
-    | 'garage'
-    | 'mall'
-    | 'middle'
-    | 'river'
-    | 'east'
-    | 'south'
-    | 'estuary'
-    | 'marina'
-    | `housing-${string}`
-  >('cbd');
   const [loadedTiles, setLoadedTiles] = useState<Set<string>>(() => new Set());
   const onTileReady = useCallback(
     (id: string) =>
@@ -706,7 +456,6 @@ export function DistrictClient() {
     setActiveCar(null);
     setWalking(true);
     setWide(false);
-    setFocus('cbd');
     setPosition([x, z]);
     playerFloor.current = y;
     setRelocation({ x, z, y, nonce: Date.now() });
@@ -755,13 +504,7 @@ export function DistrictClient() {
                 <CBDBoulevards />
                 <Concourse />
                 <CivicPlaces
-                  garageY={
-                    !walking && focus === 'garage'
-                      ? MALL_GARAGE.levels[garageLevel].floorY
-                      : driving
-                        ? (activeReport.y ?? 0)
-                        : playerFloor.current
-                  }
+                  garageY={driving ? (activeReport.y ?? 0) : playerFloor.current}
                 />
                 <Suspense fallback={null}><RooftopHelipads/></Suspense>
                 <Communities />
@@ -836,21 +579,9 @@ export function DistrictClient() {
                   );
                 }}
                 enableDamping={false}
-                minDistance={
-                  walking || focus === 'garage' || focus === 'mall'
-                    ? 0.1
-                    : wide
-                      ? 18000
-                      : focus === 'sushi'
-                        ? 3
-                        : 35
-                }
+                minDistance={walking ? 0.1 : wide ? 18000 : 35}
                 maxDistance={walking ? 18 : wide ? 65000 : 1800}
-                maxPolarAngle={
-                  !walking && focus === 'garage'
-                    ? Math.PI - 0.04
-                    : Math.PI / 2 - 0.04
-                }
+                maxPolarAngle={Math.PI / 2 - 0.04}
                 enablePan={!walking}
                 enableRotate={!walking}
                 enableZoom={!walking}
@@ -859,9 +590,6 @@ export function DistrictClient() {
                 walking={walking}
                 controls={controls}
                 wide={wide}
-                focus={focus}
-                garageLevel={garageLevel}
-                mallLevel={mallLevel}
               />
               <Walker
                 active={coreReady && walking && !driving && !ride && !planOpen}
@@ -931,8 +659,8 @@ export function DistrictClient() {
       </header>
       <nav className="district-tools">
         <LanguageSwitch />
-        <Button onClick={()=>{setDriving(false);setActiveCar(null);setRide(null);setWalking(true);setWide(false);setFocus('cbd');setRelocation({x:0,z:-68,y:0,nonce:Date.now()});(document.activeElement as HTMLElement)?.blur();}}>人物起点</Button>
-        <Button onClick={()=>{car.current={x:6,z:-68,yaw:0,speed:0};setCarReport({...car.current});setRide(null);setActiveCar('city');setDriving(true);setWalking(true);setWide(false);setFocus('cbd');setPosition([6,-68]);(document.activeElement as HTMLElement)?.blur();}}>车辆起点</Button>
+        <Button onClick={()=>{setDriving(false);setActiveCar(null);setRide(null);setWalking(true);setWide(false);setRelocation({x:0,z:-68,y:0,nonce:Date.now()});(document.activeElement as HTMLElement)?.blur();}}>人物起点</Button>
+        <Button onClick={()=>{car.current={x:6,z:-68,yaw:0,speed:0};setCarReport({...car.current});setRide(null);setActiveCar('city');setDriving(true);setWalking(true);setWide(false);setPosition([6,-68]);(document.activeElement as HTMLElement)?.blur();}}>车辆起点</Button>
         <Button onClick={() => setPlanOpen(true)}>城市平面图</Button>
         <Button onClick={() => teleportTo(
           AMUSEMENT_PARK.center.x + AMUSEMENT_PARK.entrance.x,

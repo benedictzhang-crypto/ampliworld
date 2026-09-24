@@ -20,7 +20,7 @@ await mkdir(out, { recursive: true });
 const mats = Object.fromEntries(
   Object.entries({
     road: 0x586269,
-    paving: 0xc8cdc8,
+    paving: 0xa8aea7,
     paint: 0xe0d7b2,
     cycle: 0x728e87,
     gold: 0xa48a57,
