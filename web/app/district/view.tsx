@@ -407,7 +407,10 @@ export function DistrictClient() {
         )
       ) {
         e.preventDefault();
-        if (ride) return;
+        if (ride) {
+          leaveRide(ride.id);
+          return;
+        }
         if (nearRide) beginRide();
         else toggleCar();
       }
@@ -624,8 +627,8 @@ export function DistrictClient() {
       </div></Localized>}
       {ride && <Localized><div className="district-ride-prompt" aria-live="polite">
         <strong>{PARK_RIDES.find((entry) => entry.id === ride.id)?.label}</strong>
-        <small>乘坐中 · 结束后自动返回站台</small>
-        <Button onClick={()=>leaveRide(ride.id)}>Exit ride · 随时下车</Button>
+        <small>乘坐中 · 鼠标拖动／触控板双指移动视角 · 按 E 随时返回站台</small>
+        <Button onClick={()=>leaveRide(ride.id)}>按 E 下车 · Exit ride</Button>
       </div></Localized>}
       {scare && <div className="district-haunt-scare" role="status" aria-live="assertive">
         <span className="district-haunt-eyes">◉　◉</span>
