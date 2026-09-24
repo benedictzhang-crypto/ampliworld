@@ -43,6 +43,14 @@ export function Mall() {
           {[-8,8].map(s=><mesh key={s} position={[s,7,0]}><cylinderGeometry args={[.045,.045,14,6]}/><meshStandardMaterial color="#a78b61" metalness={.7}/></mesh>)}
         </group>)}
       </group>
+      <group name="mall exterior campaign displays">
+        {[[-72,'AUREOLE','CITY LIFE','#193b46'],[72,'ATELIER','NEW SEASON','#55404a']].map(([x,name,caption,tone])=><group key={String(name)} position={[Number(x),19,91.2]}>
+          <mesh castShadow><boxGeometry args={[24,8,.35]}/><meshStandardMaterial color="#b6a57e" metalness={.7} roughness={.32}/></mesh>
+          <mesh position={[0,0,.22]}><boxGeometry args={[23.2,7.2,.12]}/><meshStandardMaterial color={String(tone)} roughness={.4} metalness={.2} emissive={String(tone)} emissiveIntensity={.2}/></mesh>
+          <Text position={[0,.75,.31]} fontSize={1.65} letterSpacing={.08} color="#f3e7cf" anchorX="center">{String(name)}</Text>
+          <Text position={[0,-1.5,.31]} fontSize={.65} letterSpacing={.16} color="#d9d1bd" anchorX="center">{String(caption)}</Text>
+        </group>)}
+      </group>
     </group>
   );
 }

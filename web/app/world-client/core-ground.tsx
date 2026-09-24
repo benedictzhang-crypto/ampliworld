@@ -32,10 +32,13 @@ function finishAt(x:number,z:number):Finish{
 function makeDetailTexture(finish:Finish){
   const size=64,pixels=new Uint8Array(size*size*4);
   for(let y=0;y<size;y++)for(let x=0;x<size;x++){
-    const i=(y*size+x)*4,noise=hash(x,y)%23;
+    const i=(y*size+x)*4,noise=hash(x,y)%15-7;
     const joint=finish==='paving'&&(x%16===0||y%16===0);
-    const value=joint?164:finish==='paving'?225+noise:198+noise;
-    pixels[i]=value;pixels[i+1]=value;pixels[i+2]=value;pixels[i+3]=255;
+    const value=finish==='paving'?(joint?192:216+noise):198+noise;
+    pixels[i]=finish==='garden'?value-8:value;
+    pixels[i+1]=finish==='garden'?value+5:value+2;
+    pixels[i+2]=finish==='garden'?value-7:value+1;
+    pixels[i+3]=255;
   }
   const texture=new DataTexture(pixels,size,size,RGBAFormat);
   texture.colorSpace=SRGBColorSpace;

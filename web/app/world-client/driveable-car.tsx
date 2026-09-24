@@ -34,7 +34,8 @@ export function DriveableCar({
 }) {
   const { scene } = useGLTF('/assets/3d/ampliworld/GC-CAR-001/car.glb');
   const body = useRef<Group>(null),
-    keys = useRef(new Set<string>());
+    keys = useRef(new Set<string>()),
+    reported = useRef<CarState | null>(null);
   const { camera, gl, invalidate } = useThree();
   const display = useMemo(() => scene.clone(true), [scene]);
   const wheels = useMemo(
@@ -253,7 +254,13 @@ export function DriveableCar({
     }
     if (clock.elapsedTime - scratch.report > 0.12) {
       scratch.report = clock.elapsedTime;
-      onReport({ ...s });
+      const before=reported.current;
+      if(!before||Math.abs(before.x-s.x)>.02||Math.abs(before.z-s.z)>.02||
+        Math.abs((before.y??0)-(s.y??0))>.02||Math.abs(before.yaw-s.yaw)>.005||
+        Math.abs(before.speed-s.speed)>.05){
+        reported.current={...s};
+        onReport({...s});
+      }
     }
   });
   return (

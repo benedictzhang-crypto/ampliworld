@@ -495,7 +495,7 @@ export function DistrictClient() {
                   fogFar={wide ? 95000 : 16000}
                 />
                 <StudioLight intensity={0.3} />
-                <PopulationLayer world={population.world} onSelect={setSelectedResident}/>
+                <PopulationLayer world={population.world} onSelect={setSelectedResident} groundHeight={districtGroundHeight}/>
                 <CoreSignals/>
                 <CoreGround />
                 <CityInfrastructure />

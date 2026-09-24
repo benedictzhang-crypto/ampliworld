@@ -20,47 +20,68 @@ const VISIBLE_RESIDENT_CAPACITY=1200;
 export function PopulationLayer({
   world,
   onSelect,
+  groundHeight,
 }: {
   world: LifeWorld | null;
   onSelect: (id: string) => void;
+  groundHeight: (x: number, z: number) => number;
 }) {
   const bodies = useRef<InstancedMesh>(null),
     heads = useRef<InstancedMesh>(null),
     legs = useRef<InstancedMesh>(null),
+    arms = useRef<InstancedMesh>(null),
+    hair = useRef<InstancedMesh>(null),
     invalidate = useThree((s) => s.invalidate);
   useEffect(() => {
-    if (!world || !bodies.current || !heads.current || !legs.current) return;
+    if (!world || !bodies.current || !heads.current || !legs.current || !arms.current || !hair.current) return;
     const object = new Object3D(),
       color = new Color();
-    world.residents.forEach((r, i) => {
+    const count=Math.min(world.residents.length,VISIBLE_RESIDENT_CAPACITY);
+    for(let i=0;i<count;i++) {
+      const r=world.residents[i];
       const offset = (i % 4) * 0.28;
-      object.position.set(r.x + offset, 0.99, r.z);
+      const x=r.x+offset,z=r.z,floor=groundHeight(x,z);
       const scale=(r.identity?.age??18)<12?.67:1;
       object.scale.setScalar(r.journey?0:scale);
-      object.position.y=.17+.82*scale;
+      object.rotation.set(0,0,0);
+      object.position.set(x,floor+.17+.82*scale,z);
       object.updateMatrix();
       bodies.current!.setMatrixAt(i, object.matrix);
-      bodies.current!.setColorAt(i, color.setHSL((i * 0.137) % 1, 0.28, 0.52));
-      object.position.y = .17+1.4*scale;
+      color.setHSL((i * 0.137) % 1, 0.28, 0.52);
+      bodies.current!.setColorAt(i,color);
+      object.position.y = floor+.17+1.4*scale;
       object.updateMatrix();
       heads.current!.setMatrixAt(i, object.matrix);
+      heads.current!.setColorAt(i,color.set(['#d2a181','#aa7457','#ebbe99','#78513e'][i%4]));
+      object.position.y=floor+.17+1.43*scale;
+      object.updateMatrix();
+      hair.current!.setMatrixAt(i,object.matrix);
+      hair.current!.setColorAt(i,color.set(['#29262a','#453127','#766047','#1d1c21'][i%4]));
       for (let leg = 0; leg < 2; leg++) {
-        object.position.set(r.x + offset + (leg ? -0.13 : 0.13)*scale, .17+.21*scale, r.z);
+        object.position.set(x + (leg ? -0.13 : 0.13)*scale, floor+.17+.21*scale, z);
+        object.rotation.z=leg?-.045:.045;
         object.updateMatrix();
         legs.current!.setMatrixAt(i * 2 + leg, object.matrix);
+        object.position.set(x+(leg?-.29:.29)*scale,floor+.17+.83*scale,z);
+        object.rotation.z=leg?-.15:.15;
+        object.updateMatrix();
+        arms.current!.setMatrixAt(i*2+leg,object.matrix);
+        arms.current!.setColorAt(i*2+leg,color.setHSL((i*.137)%1,.28,.52));
       }
-    });
-    bodies.current.count=world.residents.length;
-    heads.current.count=world.residents.length;
-    legs.current.count=world.residents.length*2;
-    for (const ref of [bodies, heads, legs]) {
+    }
+    bodies.current.count=count;
+    heads.current.count=count;
+    hair.current.count=count;
+    legs.current.count=count*2;
+    arms.current.count=count*2;
+    for (const ref of [bodies, heads, hair, legs, arms]) {
       ref.current!.instanceMatrix.needsUpdate = true;
       if (ref.current!.instanceColor)
         ref.current!.instanceColor.needsUpdate = true;
       ref.current!.computeBoundingSphere();
     }
     invalidate();
-  }, [world, invalidate]);
+  }, [world, groundHeight, invalidate]);
   if (!world) return null;
   return (
     <group>
@@ -69,7 +90,7 @@ export function PopulationLayer({
         args={[undefined, undefined, VISIBLE_RESIDENT_CAPACITY]}
         onClick={(event) => {
           event.stopPropagation();
-          if (event.instanceId !== undefined)
+          if (event.instanceId !== undefined && world.residents[event.instanceId])
             onSelect(world.residents[event.instanceId].id);
         }}
       >
@@ -78,11 +99,19 @@ export function PopulationLayer({
       </instancedMesh>
       <instancedMesh ref={heads} args={[undefined, undefined, VISIBLE_RESIDENT_CAPACITY]}>
         <sphereGeometry args={[0.18, 8, 6]} />
-        <meshStandardMaterial color="#c49b7f" />
+        <meshStandardMaterial color="#ffffff" roughness={0.82}/>
+      </instancedMesh>
+      <instancedMesh ref={hair} args={[undefined, undefined, VISIBLE_RESIDENT_CAPACITY]}>
+        <sphereGeometry args={[0.188, 8, 5, 0, Math.PI*2, 0, Math.PI/2]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.92}/>
       </instancedMesh>
       <instancedMesh ref={legs} args={[undefined, undefined, VISIBLE_RESIDENT_CAPACITY*2]}>
         <cylinderGeometry args={[0.09, 0.08, 0.7, 6]} />
         <meshStandardMaterial color="#3c434d" />
+      </instancedMesh>
+      <instancedMesh ref={arms} args={[undefined, undefined, VISIBLE_RESIDENT_CAPACITY*2]}>
+        <capsuleGeometry args={[0.075,0.43,3,6]}/>
+        <meshStandardMaterial color="#ffffff" roughness={0.9}/>
       </instancedMesh>
       {FACILITIES.map((f) => (
         <group key={f.id} position={[f.x, 0.08, f.z]}>
