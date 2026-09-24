@@ -1,6 +1,6 @@
 'use client';
 
-import { Clone, useGLTF } from '@react-three/drei';
+import { Clone, Text, useGLTF } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
 import { CubicBezierCurve3, Vector3, type Group, type Mesh } from 'three';
@@ -242,12 +242,31 @@ function AmusementParkModel({ scare, shot, ride, animateTrains }: { scare: Haunt
   return (
     <group name="aureole-adventure-park" position={[x, cityGroundHeight(x, z), z]}>
       <Clone object={scene} castShadow receiveShadow />
+      <ParkVisitorAccents />
       <CoasterStationSpurs />
       {animateTrains && <><CoasterMotion ride={ride} /><TowerMotion boarded={ride} /><FamilyRideMotion boarded={ride} /></>}
       {scare && <Apparition key={`${scare.house}-${scare.stage}`} scare={scare} />}
       {shot && <BasketballFlight key={shot.id} shot={shot} />}
     </group>
   );
+}
+
+function ParkVisitorAccents() {
+  return <group name="park boarding walks and wayfinding">
+    {[45,160].map((x,i)=><group key={x}>
+      {Array.from({length:6},(_,j)=><mesh key={j} position={[x,.048,283+j*7.1]} receiveShadow>
+        <boxGeometry args={[13,.055,6.7]}/>
+        <meshStandardMaterial color={(j+i)%3===0?'#8e8d86':(j+i)%3===1?'#a89a87':'#777f7e'} roughness={.95}/>
+      </mesh>)}
+      <mesh position={[x,3.1,281]} castShadow><boxGeometry args={[14,5.6,.45]}/><meshStandardMaterial color={i?'#744b67':'#3b6680'} metalness={.3} roughness={.55}/></mesh>
+      <Text position={[x,3.4,281.28]} fontSize={1.5} color="#fff2ce" anchorX="center" anchorY="middle">{i?'TEACUPS • BOARD E':'CAROUSEL • BOARD E'}</Text>
+    </group>)}
+    {[[-260,395,'FIVE WORLDS'],[0,395,'AUREOLE FESTIVAL'],[260,395,'HALLOWEEN QUARTER']].map(([x,z,label])=><group key={String(label)} position={[Number(x),0,Number(z)]}>
+      <mesh position={[0,6,0]} castShadow><boxGeometry args={[48,10,.5]}/><meshStandardMaterial color="#243b46" metalness={.48} roughness={.5}/></mesh>
+      <mesh position={[0,6,.31]}><boxGeometry args={[45,7,.12]}/><meshStandardMaterial color="#b2574b" roughness={.72}/></mesh>
+      <Text position={[0,6,.43]} fontSize={2.4} color="#fff3d4" anchorX="center" anchorY="middle">{String(label)}</Text>
+    </group>)}
+  </group>;
 }
 
 export function amusementGroundHeight(x: number, z: number, currentY: number) {

@@ -24,7 +24,8 @@ export const PARK_RIDES: ParkRide[] = [
 export function rideAtStation(worldX: number, worldZ: number) {
   const x = worldX - plan.center.x;
   const z = worldZ - plan.center.z;
-  return PARK_RIDES.find((ride) => Math.abs(x - ride.station[0]) <= 27 && Math.abs(z - ride.station[1]) <= 19) ?? null;
+  return PARK_RIDES.find((ride) => Math.abs(x - ride.station[0]) <= (ride.kind === 'carousel' || ride.kind === 'teacups' ? 32 : 27)
+    && Math.abs(z - ride.station[1]) <= (ride.kind === 'carousel' || ride.kind === 'teacups' ? 24 : 19)) ?? null;
 }
 
 export function rideDuration(ride: ParkRide) {

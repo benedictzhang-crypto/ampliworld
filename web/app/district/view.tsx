@@ -48,7 +48,7 @@ import { hauntStepAt, hauntNextDoor, nearBasketballCourt, evaluateBasketballShot
 import { PARK_RIDES, rideAtStation, type RideSession } from '../world-client/amusement-rides';
 import { AmusementRideCamera } from '../world-client/amusement-ride-camera';
 import { Canvas, useThree } from '@react-three/fiber';
-import { Clone, Html, OrbitControls } from '@react-three/drei';
+import { Clone, Html, OrbitControls, Text } from '@react-three/drei';
 import { useGLTF } from '@react-three/drei';
 import { Box3, Vector3, BufferGeometry, Float32BufferAttribute } from 'three';
 import { DriveableCar, type CarState } from '../world-client/driveable-car';
@@ -118,6 +118,14 @@ function Mall() {
   return (
     <group position={[DISTRICT.mall.x, 0, DISTRICT.mall.z]}>
       <Clone object={scene} castShadow receiveShadow />
+      <group name="atrium suspended campaign banners">
+        {[[-15,16,0,'AUREOLE • NEW SEASON'],[16,22,0,'DESIGN THE FUTURE']].map(([x,y,z,label],i)=><group key={String(label)} position={[Number(x),Number(y),Number(z)]}>
+          <mesh castShadow><boxGeometry args={[20,5,.15]}/><meshStandardMaterial color={i?'#703a47':'#1d424c'} roughness={.68} side={2}/></mesh>
+          <Text position={[0,0,.1]} fontSize={.95} color="#f5e5c0" anchorX="center" anchorY="middle">{String(label)}</Text>
+          <Text position={[0,0,-.1]} rotation={[0,Math.PI,0]} fontSize={.95} color="#f5e5c0" anchorX="center" anchorY="middle">{String(label)}</Text>
+          {[-8,8].map(s=><mesh key={s} position={[s,7,0]}><cylinderGeometry args={[.045,.045,14,6]}/><meshStandardMaterial color="#a78b61" metalness={.7}/></mesh>)}
+        </group>)}
+      </group>
     </group>
   );
 }
@@ -665,6 +673,17 @@ export function DistrictClient() {
     setRide({ id: nearRide.id, startedAt: performance.now() });
     (document.activeElement as HTMLElement)?.blur();
   };
+  const leaveRide = (id: string) => {
+    const finished = PARK_RIDES.find((entry) => entry.id === id);
+    if (!finished) return;
+    const x = AMUSEMENT_PARK.center.x + finished.station[0];
+    const z = AMUSEMENT_PARK.center.z + finished.station[1];
+    const y = districtGroundHeight(x, z);
+    setRide(null);
+    setPosition([x, z]);
+    playerFloor.current = y;
+    setRelocation({ x, z, y, nonce: Date.now() });
+  };
   const toggleCar = () => {
     if (!walking) return;
     if (!driving) {
@@ -793,17 +812,7 @@ export function DistrictClient() {
                 <Suspense fallback={null}>
                   <AmusementPark x={housingX} z={housingZ} scare={scare} shot={basketballShot} ride={ride} />
                 </Suspense>
-                {ride && <AmusementRideCamera key={ride.startedAt} session={ride} controls={controls} onComplete={(id) => {
-                  const finished = PARK_RIDES.find((entry) => entry.id === id);
-                  if (!finished) return;
-                  const x = AMUSEMENT_PARK.center.x + finished.station[0];
-                  const z = AMUSEMENT_PARK.center.z + finished.station[1];
-                  const y = districtGroundHeight(x, z);
-                  setRide(null);
-                  setPosition([x, z]);
-                  playerFloor.current = y;
-                  setRelocation({ x, z, y, nonce: Date.now() });
-                }} />}
+                {ride && <AmusementRideCamera key={ride.startedAt} session={ride} controls={controls} onComplete={leaveRide} />}
                 <CityOperations />
                 <CityServiceBuildings />
                 <HousingWorld x={housingX} z={housingZ} open={openGates} />
@@ -928,6 +937,7 @@ export function DistrictClient() {
       {ride && <Localized><div className="district-ride-prompt" aria-live="polite">
         <strong>{PARK_RIDES.find((entry) => entry.id === ride.id)?.label}</strong>
         <small>乘坐中 · 结束后自动返回站台</small>
+        <Button onClick={()=>leaveRide(ride.id)}>Exit ride · 随时下车</Button>
       </div></Localized>}
       {scare && <div className="district-haunt-scare" role="status" aria-live="assertive">
         <span className="district-haunt-eyes">◉　◉</span>
