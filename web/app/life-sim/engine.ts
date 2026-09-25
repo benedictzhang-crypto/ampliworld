@@ -371,7 +371,7 @@ function choose(w: LifeWorld, r: Resident): [Action, string, AgentOption[]?] {
   const shiftStart=employer&&['hotel','hospital','police','fire','detention','prison','water','wastewater','ems','transport-authority'].includes(employer.type)?(Number(r.id.slice(1))%3)*8:employer?.type==='nightclub'?20:employer?.type==='bar'?17:employer?.type==='restaurant'?11:9;
   const onShift=shiftStart+8<=24?hour>=shiftStart&&hour<shiftStart+8:hour>=shiftStart||hour<(shiftStart+8)%24;
   const willingMinutes=Math.max(420,Math.min(480,Math.round((480+adaptive.workReliability*80)/60)*60));
-  if (onShift && r.worked < willingMinutes && (day % 7 < 5||employer&&['hotel','hospital','police','fire','detention','prison','water','wastewater','ems','transport-authority','restaurant','bar','nightclub','retail-shop','supermarket','cinema'].includes(employer.type)) && r.wage > 0) {
+  if (onShift && r.worked < willingMinutes && (day % 7 < 5||employer&&['hotel','hospital','police','fire','detention','prison','water','wastewater','ems','transport-authority','restaurant','bar','nightclub','retail-shop','supermarket','cinema','car-wash','parking-garage','boat-rental','river-cruise'].includes(employer.type)) && r.wage > 0) {
     if (canOfferPaidHour(w,r))
       return ['work', `${r.job}：在岗位完成一小时服务；工资兑现经历影响下一次排班意愿`];
     if(r.lastUnderemployedDay!==day){
@@ -696,6 +696,31 @@ function complete(w: LifeWorld, r: Resident) {
   }
   reflectAgentEpisode(w,r);
 }
+function settleDailyMobilityDemand(w:LifeWorld,day:number){
+  const businesses=Object.values(w.businesses||{});
+  const garages=businesses.filter(b=>b.type==='parking-garage');
+  const washes=businesses.filter(b=>b.type==='car-wash');
+  const rentals=businesses.filter(b=>b.type==='boat-rental');
+  const cruises=businesses.filter(b=>b.type==='river-cruise');
+  const charge=(resident:Resident,business:Business,description:string)=>{
+    if(resident.cash<business.price)return;
+    resident.cash-=business.price;business.cash+=business.price;business.visits++;business.todayVisits++;
+    business.revenue+=business.price;business.todayRevenue+=business.price;
+    w.daily.at(-1)!.consumption+=business.price;remember(w,resident,`${description} · ${business.name}`,-business.price);
+  };
+  for(const resident of w.residents){
+    const n=Number(resident.id.slice(1));
+    // Until personal vehicle ownership is modeled, employment and stable
+    // income are an explicit commuting proxy rather than an invisible car.
+    if(garages.length&&resident.employment&&resident.wage>0&&n%8===day%8)charge(resident,garages[n%garages.length],'支付通勤停车费');
+    if(washes.length&&resident.employment&&resident.wage>0&&n%67===day%67)charge(resident,washes[n%washes.length],'完成车辆清洗');
+    if(cruises.length&&n%401===day%401)charge(resident,cruises[n%cruises.length],'参加河岸观光游船');
+    if(rentals.length&&n%1401===day%1401){
+      const affordable=rentals.filter(business=>business.price<=resident.cash).sort((a,b)=>a.price-b.price);
+      if(affordable.length)charge(resident,affordable[n%affordable.length],'租赁船艇出行');
+    }
+  }
+}
 export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
   if (![15, 60, 1440].includes(minutes)) throw new Error('Unsupported advance');
   const w = structuredClone(upgradeLifeWorld(input));
@@ -713,6 +738,7 @@ export function advanceLifeWorld(input: LifeWorld, minutes: number): LifeWorld {
         clinicVisits: 0,
         trades: 0,
       });
+      settleDailyMobilityDemand(w,previousDay+1);
       settlePayrollArrears(w);
       if (w.daily.length > 31) w.daily.shift();
       householdDay(w,previousDay+1);

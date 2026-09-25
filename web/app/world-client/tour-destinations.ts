@@ -15,13 +15,13 @@ const civic=CIVIC_PLACES.map(p=>{
   const door=manifest.entrances?.main??manifest.entrance;
   const ax=p.id==='GC-MARINA-001'?p.x:p.x+(door?.[0]??0);
   const az=p.id==='GC-MARINA-001'?p.z-110:p.z+(door?.[2]??manifest.bounds.max[2])+8;
-  const kind=p.id.includes('CRESCENT-COMMONS')?'全民运动公园 sports park':p.id.includes('HOSPITAL')?'医院 hospital':p.id.includes('SCHOOL')?'学校 school':p.id.includes('AUTO')?'汽车中心 car dealer':p.id.includes('CITYHALL')?'市政府 city hall':p.id.includes('COURT')?'法院 court':'城市地标 landmark';
+  const kind=p.id.includes('CRESCENT-COMMONS')?'全民运动公园 sports park':p.id.includes('HOSPITAL')?'医院 hospital':p.id.includes('SCHOOL')?'学校 school':p.id.includes('AUTO')?'汽车中心 car dealer':p.id.includes('CITYHALL')?'市政府 city hall':p.id.includes('COURT')?'法院 court':p.id.includes('MARINA')?'游艇港 观光船 船艇租赁 marina river cruise boat rental':'城市地标 landmark';
   const item=destination(p.id,p.name,kind,p.x,p.z,ax,az,kind.includes('公园')||kind.includes('医院')||kind.includes('学校')||kind.includes('市政府'));
   if(p.id==='GC-CRESCENT-COMMONS-001')item.searchText+=' 足球 篮球 网球 红土 屋顶 保龄球 football basketball tennis clay rooftop bowling';
   return item;
 });
 const services=SERVICE_SITES.filter(s=>s.placement==='street').map(s=>{
-  const kind=s.type==='fire'?'消防站 fire station':s.type==='clinic'?'诊所 clinic':s.type==='real-estate-broker'?'房地产中介 real estate':s.type==='property-developer'?'房地产开发商 developer':s.type==='car-rental'?'汽车租赁 car rental':s.type==='bank'?'银行 bank':s.type==='concert-hall'?'音乐厅 concert hall':s.type==='opera-house'?'歌剧院 opera house':s.type==='fresh-market'?'生鲜超市 fresh market':s.type==='tutoring-center'?'儿童辅导 after-school learning':s.type==='children-arts'?'儿童艺术 children arts':s.type==='music-school'?'音乐学校 music school':s.type==='dance-school'?'舞蹈学校 dance school':s.type;
+  const kind=s.type==='fire'?'消防站 fire station':s.type==='clinic'?'诊所 clinic':s.type==='real-estate-broker'?'房地产中介 real estate':s.type==='property-developer'?'房地产开发商 developer':s.type==='car-rental'?'汽车租赁 car rental':s.type==='bank'?'银行 bank':s.type==='concert-hall'?'音乐厅 concert hall':s.type==='opera-house'?'歌剧院 opera house':s.type==='fresh-market'?'生鲜超市 fresh market':s.type==='tutoring-center'?'儿童辅导 after-school learning':s.type==='children-arts'?'儿童艺术 children arts':s.type==='music-school'?'音乐学校 music school':s.type==='dance-school'?'舞蹈学校 dance school':s.type==='car-wash'?'自动洗车 car wash':s.type==='parking-garage'?'公共停车库 parking garage':s.type;
   // These lots reserve a 31 m front apron. The visitor arrives outside the
   // modeled wall, doors, parked cars and fire-engine bay, never at its centre.
   const front=s.type==='fire'||s.type==='concert-hall'||s.type==='opera-house'?32:s.type==='car-rental'?25:21;

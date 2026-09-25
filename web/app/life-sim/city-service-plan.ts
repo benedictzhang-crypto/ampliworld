@@ -64,6 +64,8 @@ export const CITY_SERVICE_PLAN=[
   {kind:'dance-school',label:'Dance and movement studio',count:8,staff:9,price:4500},
   {kind:'concert-hall',label:'Aureole Metropolitan Concert Hall',count:1,staff:80,price:12000},
   {kind:'opera-house',label:'AmpliWorld Grand Opera House',count:1,staff:120,price:18000},
+  {kind:'car-wash',label:'Automatic car wash',count:6,staff:5,price:1800},
+  {kind:'parking-garage',label:'Neighborhood public parking garage',count:8,staff:4,price:600},
 ] as const;
 
 const centers=[[0,0],[5400,3400],[-1300,8400],[1100,7200],[-1100,1000],[6500,13200]] as const;
@@ -107,7 +109,7 @@ function streetParcelIsClear(x:number,z:number){
   return true;
 }
 export const SERVICE_SITES=CITY_SERVICE_PLAN.flatMap((service,categoryIndex)=>Array.from({length:service.count},(_,i)=>{
-  const residential=['small-restaurant','fresh-market','tutoring-center','children-arts','music-school','dance-school'].includes(service.kind);
+  const residential=['small-restaurant','fresh-market','tutoring-center','children-arts','music-school','dance-school','parking-garage'].includes(service.kind);
   const satellite=['budget-hotel','gas-station-expansion','fire-expansion','prison','detention'].includes(service.kind);
   const pool=residential?residentialCenters:satellite?neighborhoodCenters:centers;
   const center=service.kind==='detention'?([1450,520] as const):service.kind==='prison'?([-7200,16000] as const):pool[(i+categoryIndex)%pool.length];
@@ -135,8 +137,18 @@ export const SERVICE_SITES=CITY_SERVICE_PLAN.flatMap((service,categoryIndex)=>Ar
           : `${service.label} ${i+1}`;
   const staff=service.kind==='gym'?(i<=2?16:i<=5?10:6):service.staff;
   const price=service.kind==='gym'?(i<=2?12000:i<=5?6500:2800):service.price;
-  return {id:`CITY-${service.kind.toUpperCase()}-${String(i+1).padStart(3,'0')}`,name,type,x,z,staff,price,...(slot?{placement:'mall' as const,floor:slot.floor,shopId:slot.shopId}:{placement:'street' as const})};
+  return {id:`CITY-${service.kind.toUpperCase()}-${String(i+1).padStart(3,'0')}`,name,type,x,z,staff,price,
+    ...(service.kind==='parking-garage'?{parkingBays:180}:service.kind==='car-wash'?{washBays:2}:{}),
+    ...(slot?{placement:'mall' as const,floor:slot.floor,shopId:slot.shopId}:{placement:'street' as const})};
 }));
+
+/** Staffed counters use the existing marina/hotel fabric; they do not add
+ * duplicate buildings or pretend that every moored yacht is commercially active. */
+export const WATERFRONT_OPERATORS=[
+  {id:'MARINA-CHARTER-01',name:'Eastwater Crewed Yacht Charter',type:'boat-rental',entry:[6445,13095] as [number,number],staff:12,price:125000},
+  {id:'MARINA-RENTAL-01',name:'Eastwater Day Boat Rental',type:'boat-rental',entry:[6500,13095] as [number,number],staff:10,price:28000},
+  {id:'RIVER-CRUISE-01',name:'Ampli River Sightseeing Cruise',type:'river-cruise',entry:[6555,13095] as [number,number],staff:24,price:6800},
+] as const;
 
 export const TRANSPORT_HUBS=[
   {id:'AIR-01',name:'AmpliWorld International Airport',mode:'airport',x:8800,z:11800,staff:1800},
@@ -166,4 +178,4 @@ export const CITY_OPERATION_SITES=[
   {id:'DOT-01',name:'Department of Roads and Transportation',type:'transport-authority',x:2300,z:7200,staff:230},
 ] as const;
 
-export const CITY_CAPACITY_SUMMARY={population:30000,serviceSites:SERVICE_SITES.length,employmentDistricts:EMPLOYMENT_DISTRICTS.length,cityOperationSites:CITY_OPERATION_SITES.length,transportHubs:TRANSPORT_HUBS.length,metroStations:14};
+export const CITY_CAPACITY_SUMMARY={population:30000,serviceSites:SERVICE_SITES.length,waterfrontOperators:WATERFRONT_OPERATORS.length,employmentDistricts:EMPLOYMENT_DISTRICTS.length,cityOperationSites:CITY_OPERATION_SITES.length,transportHubs:TRANSPORT_HUBS.length,metroStations:14};

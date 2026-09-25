@@ -12,6 +12,8 @@ export const SPECIAL_SERVICE_SITES=STREET_SERVICE_SITES.filter(s=>s.type==='gym'
 export const REALTY_MOBILITY_SITES=STREET_SERVICE_SITES.filter(s=>['real-estate-broker','property-developer','car-rental'].includes(s.type));
 export const NEIGHBORHOOD_SITES=STREET_SERVICE_SITES.filter(s=>['budget-hotel','fire','detention','prison'].includes(s.type)||(s.type==='small-restaurant'&&serviceNumber(s.id)<=24));
 export const CULTURAL_SITES=STREET_SERVICE_SITES.filter(s=>s.type==='concert-hall'||s.type==='opera-house');
+export const MOBILITY_SUPPORT_SITES=STREET_SERVICE_SITES.filter(s=>s.type==='car-wash'||s.type==='parking-garage');
+export const FORECOURT_PARKING_SITES=STREET_SERVICE_SITES.filter(s=>!['gas-station','ev-charging','fire','police','car-wash','parking-garage','concert-hall','opera-house'].includes(s.type));
 export function neighborhoodVariant(id:string,type:string){
   if(type==='small-restaurant')return `mixed-${(Number(id.slice(-3))%3)+1}`;
   if(type==='budget-hotel')return 'express-hotel';
@@ -25,6 +27,16 @@ export function venueVariant(id:string,type:string){
   return null;
 }
 export const CITY_SERVICE_COLLIDERS=STREET_SERVICE_SITES.flatMap(s=>{
+  if(s.type==='parking-garage')return [
+    {id:`${s.id}/rear`,min:[s.x-18,0,s.z-12] as [number,number,number],max:[s.x+18,15.5,s.z-11.5] as [number,number,number]},
+    {id:`${s.id}/west`,min:[s.x-18,0,s.z-12] as [number,number,number],max:[s.x-17.5,15.5,s.z+12] as [number,number,number]},
+    {id:`${s.id}/east`,min:[s.x+17.5,0,s.z-12] as [number,number,number],max:[s.x+18,15.5,s.z+12] as [number,number,number]},
+    {id:`${s.id}/front-upper`,min:[s.x-18,4,s.z+11.5] as [number,number,number],max:[s.x+18,15.5,s.z+12] as [number,number,number]},
+  ];
+  if(s.type==='car-wash')return [
+    {id:`${s.id}/west-tunnel`,min:[s.x-8,0,s.z-8] as [number,number,number],max:[s.x-5.8,4.8,s.z+8] as [number,number,number]},
+    {id:`${s.id}/east-tunnel`,min:[s.x+5.8,0,s.z-8] as [number,number,number],max:[s.x+8,4.8,s.z+8] as [number,number,number]},
+  ];
   if(CULTURAL_SITES.includes(s)){
     const halfWidth=18,halfDepth=12,height=s.type==='opera-house'?19:16;
     return [
@@ -151,6 +163,42 @@ function CulturalVenue({site}:{site:(typeof CULTURAL_SITES)[number]}){
   </group>;
 }
 
+function ParkingMarkBatch(){
+  const lines=useRef<InstancedMesh>(null),stops=useRef<InstancedMesh>(null);
+  useEffect(()=>{
+    const object=new Object3D();
+    FORECOURT_PARKING_SITES.forEach((site,index)=>{
+      [-10,-5,0,5,10].forEach((x,boundary)=>{object.position.set(site.x+x,.105,site.z+11);object.updateMatrix();lines.current!.setMatrixAt(index*5+boundary,object.matrix);});
+      [-7.5,-2.5,2.5,7.5].forEach((x,bay)=>{object.position.set(site.x+x,.2,site.z+8.35);object.updateMatrix();stops.current!.setMatrixAt(index*4+bay,object.matrix);});
+    });
+    for(const ref of [lines,stops]){ref.current!.instanceMatrix.needsUpdate=true;ref.current!.computeBoundingSphere();}
+  },[]);
+  return <group name="Marked neighborhood service parking">
+    <instancedMesh ref={lines} args={[undefined,undefined,FORECOURT_PARKING_SITES.length*5]}><boxGeometry args={[.12,.025,5.6]}/><meshStandardMaterial color="#ece9d8" roughness={.92}/></instancedMesh>
+    <instancedMesh ref={stops} args={[undefined,undefined,FORECOURT_PARKING_SITES.length*4]} castShadow><boxGeometry args={[3.8,.28,.32]}/><meshStandardMaterial color="#d8d3c5" roughness={.88}/></instancedMesh>
+  </group>;
+}
+
+function MobilitySupportVenue({site}:{site:(typeof MOBILITY_SUPPORT_SITES)[number]}){
+  if(site.type==='car-wash')return <group position={[site.x,0,site.z]} name={site.name}>
+    <mesh position={[0,.08,0]} receiveShadow><boxGeometry args={[26,.16,22]}/><meshStandardMaterial color="#656b6b" roughness={.9}/></mesh>
+    {[-7,7].map(x=><mesh key={x} position={[x,2.5,0]} castShadow><boxGeometry args={[2,5,17]}/><meshStandardMaterial color="#a9b0ad" roughness={.58}/></mesh>)}
+    <mesh position={[0,5.05,0]} castShadow><boxGeometry args={[17,.55,18]}/><meshStandardMaterial color="#d9ddda" metalness={.42} roughness={.35}/></mesh>
+    {[-5,0,5].map(z=><group key={z} position={[0,0,z]}>{[-4.4,4.4].map(x=><mesh key={x} position={[x,2.4,0]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[1.35,1.35,.7,18]}/><meshStandardMaterial color="#3c7f91" roughness={.72}/></mesh>)}</group>)}
+    <Text position={[0,5.6,8.95]} fontSize={.72} color="#f5f1e5" anchorX="center">{site.name}</Text>
+  </group>;
+  return <group position={[site.x,0,site.z]} name={site.name}>
+    <mesh position={[0,.1,0]} receiveShadow><boxGeometry args={[38,.2,25]}/><meshStandardMaterial color="#777b78" roughness={.9}/></mesh>
+    {[.4,3.4,6.4,9.4,12.4,15.4].map((y,level)=><group key={y}>
+      <mesh position={[0,y,0]} castShadow receiveShadow><boxGeometry args={[37,.32,24]}/><meshStandardMaterial color={level%2?'#a6aaa5':'#b9b8b0'} roughness={.76}/></mesh>
+      <mesh position={[0,y+.8,11.7]}><boxGeometry args={[37,1.15,.32]}/><meshStandardMaterial color="#4f6265" metalness={.22}/></mesh>
+    </group>)}
+    {[-16,16].flatMap(x=>[-9,0,9].map(z=><mesh key={`${x}-${z}`} position={[x,7.8,z]} castShadow><boxGeometry args={[.7,15.6,.7]}/><meshStandardMaterial color="#777b78"/></mesh>))}
+    <mesh position={[0,2.1,8.5]} rotation={[0,0,-.16]} castShadow><boxGeometry args={[12,.32,5.5]}/><meshStandardMaterial color="#c5c3ba" roughness={.78}/></mesh>
+    <Text position={[0,16.5,12.25]} fontSize={.76} color="#f7f0df" anchorX="center">{site.name} · 180 spaces</Text>
+  </group>;
+}
+
 function NeighborhoodAssets({variant}:{variant:'mixed-1'|'mixed-2'|'mixed-3'|'express-hotel'|'fire-station'|'detention'|'prison'}){
   const {scene}=useGLTF(`/assets/3d/ampliworld/GC-NEIGHBORHOOD-001/${variant}.glb`);
   const meshes=useMemo(()=>{const result:Mesh[]=[];scene.traverse(object=>{if((object as Mesh).isMesh)result.push(object as Mesh);});return result;},[scene]);
@@ -180,7 +228,7 @@ export function CityServiceBuildings(){
   const bodies=useRef<InstancedMesh>(null),glass=useRef<InstancedMesh>(null),roofs=useRef<InstancedMesh>(null),paving=useRef<InstancedMesh>(null);
   useEffect(()=>{const o=new Object3D(),c=new Color();STREET_SERVICE_SITES.forEach((s,i)=>{
     const tall=['school','hotel','community','police','fire'].includes(s.type),sides=s.type==='police'?1.8:s.type==='bank'||s.type==='nightclub'?1.45:['auto-repair','fuel'].includes(s.type)?1.5:1;
-    const shellScale=MODELED_STOREFRONT_SITES.includes(s)||s.type==='gym'||s.type==='arcade'||NEIGHBORHOOD_SITES.includes(s)||REALTY_MOBILITY_SITES.includes(s)||CULTURAL_SITES.includes(s)?0:1;
+    const shellScale=MODELED_STOREFRONT_SITES.includes(s)||s.type==='gym'||s.type==='arcade'||NEIGHBORHOOD_SITES.includes(s)||REALTY_MOBILITY_SITES.includes(s)||CULTURAL_SITES.includes(s)||MOBILITY_SUPPORT_SITES.includes(s)?0:1;
     o.position.set(s.x,tall?5:2.8,s.z);o.scale.set(sides*shellScale,(tall?1.8:1)*shellScale,shellScale);o.updateMatrix();bodies.current!.setMatrixAt(i,o.matrix);bodies.current!.setColorAt(i,c.setHSL((i*.097)%1,.16,.58));
     o.position.set(s.x,tall?4.2:2.4,s.z+6.04);o.scale.set(sides*shellScale,.75*shellScale,shellScale);o.updateMatrix();glass.current!.setMatrixAt(i,o.matrix);
     o.position.set(s.x,tall?10.2:5.8,s.z);o.scale.set(sides*shellScale,shellScale,shellScale);o.updateMatrix();roofs.current!.setMatrixAt(i,o.matrix);
@@ -190,7 +238,9 @@ export function CityServiceBuildings(){
   return <group name="Physical street services">
     <Suspense fallback={null}><ModeledStorefronts/></Suspense>
     <FacadeAccentBatch/>
+    <ParkingMarkBatch/>
     {CULTURAL_SITES.map(site=><CulturalVenue key={site.id} site={site}/>)}
+    {MOBILITY_SUPPORT_SITES.map(site=><MobilitySupportVenue key={site.id} site={site}/>)}
     <Suspense fallback={null}><SpecialVenue variant="aquatic"/><SpecialVenue variant="studio"/><SpecialVenue variant="iron"/><SpecialVenue variant="arcade"/></Suspense>
     <Suspense fallback={null}><NeighborhoodAssets variant="mixed-1"/><NeighborhoodAssets variant="mixed-2"/><NeighborhoodAssets variant="mixed-3"/><NeighborhoodAssets variant="express-hotel"/><NeighborhoodAssets variant="fire-station"/><NeighborhoodAssets variant="detention"/><NeighborhoodAssets variant="prison"/></Suspense>
     <Suspense fallback={null}><CommercialAsset variant="brokerage"/><CommercialAsset variant="developer"/><CommercialAsset variant="car-rental"/></Suspense>

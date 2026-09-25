@@ -156,6 +156,20 @@ and ride-hail operating businesses and their demand flows are still missing.
 Existing saved worlds are not silently reallocated;
 these opening-policy changes apply to newly created worlds.
 
+**Urban operations audit — 24 September:** a six-city topology comparison and
+official New York, Hong Kong and Beijing establishment benchmarks show that the
+current 168 restaurants are already a high-density provision, so restaurant,
+fuel, cafe and milk-tea counts are frozen rather than inflated. The actual gaps
+receive physical and economic implementations: six two-bay automatic car
+washes, eight 180-space neighborhood garages, four marked forecourt bays at
+every eligible street service, two staffed boat-rental operators and one river
+sightseeing operator inside the existing 150-berth marina. Parking, washing and
+waterfront demand now transfers resident cash into operator revenue each day;
+new tests require nonzero visits and conservation of money. Employed residents
+remain only a vehicle-ownership proxy, boats remain static and most individual
+parking bays do not yet expose occupancy. See
+[`web/docs/CITY_OPERATIONS_AUDIT_2026_09_24.md`](web/docs/CITY_OPERATIONS_AUDIT_2026_09_24.md).
+
 **Residential services and culture pass — 24 September:** the deterministic
 street registry now distributes **64 small restaurants, 24 fresh-food markets,
 18 tutoring centers, 10 children's art studios, eight music academies and eight

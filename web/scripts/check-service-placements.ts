@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {statSync} from 'node:fs';
-import {CITY_SERVICE_COLLIDERS,CULTURAL_SITES,MODELED_STOREFRONT_SITES,NEIGHBORHOOD_SITES,SPECIAL_SERVICE_SITES,STREET_SERVICE_SITES,neighborhoodVariant,venueVariant} from '../app/world-client/city-service-buildings';
+import {CITY_SERVICE_COLLIDERS,CULTURAL_SITES,FORECOURT_PARKING_SITES,MOBILITY_SUPPORT_SITES,MODELED_STOREFRONT_SITES,NEIGHBORHOOD_SITES,SPECIAL_SERVICE_SITES,STREET_SERVICE_SITES,neighborhoodVariant,venueVariant} from '../app/world-client/city-service-buildings';
 import housing from '../app/world-client/housing-parcels.json';
 import {CIVIC_PLACES} from '../app/world-client/civic-registry';
 import {METROPOLITAN_PLACES} from '../app/world-client/metropolitan-registry';
@@ -9,11 +9,11 @@ import {WORLD_SOLID_FOOTPRINTS} from '../app/world-spatial-registry';
 import kit from '../public/assets/3d/ampliworld/GC-STREET-SERVICE-KIT-001/manifest.json';
 import specialKit from '../public/assets/3d/ampliworld/GC-FITNESS-ARCADE-001/manifest.json';
 import mall from '../public/assets/3d/ampliworld/GC-MALL-002/mall-manifest.json';
-import {SERVICE_SITES} from '../app/life-sim/city-service-plan';
+import {SERVICE_SITES,WATERFRONT_OPERATORS} from '../app/life-sim/city-service-plan';
 import neighborhood from '../public/assets/3d/ampliworld/GC-NEIGHBORHOOD-001/manifest.json';
 import yachts from '../public/assets/3d/ampliworld/GC-YACHT-FLEET-001/manifest.json';
 import marina from '../public/assets/3d/ampliworld/GC-MARINA-001/marina-manifest.json';
-import {createLifeWorld,moneyTotal,upgradeLifeWorld} from '../app/life-sim/engine';
+import {advanceLifeWorld,createLifeWorld,moneyTotal,upgradeLifeWorld} from '../app/life-sim/engine';
 
 type Box={left:number;right:number;back:number;front:number};
 const box=(x:number,z:number):Box=>({left:x-21,right:x+21,back:z-16,front:z+34});
@@ -72,6 +72,15 @@ for(const site of CULTURAL_SITES){
   assert(CITY_SERVICE_COLLIDERS.some(c=>c.id===`${site.id}/left-glazing`));
   assert(!CITY_SERVICE_COLLIDERS.some(c=>c.id===`${site.id}/building`));
 }
+assert.equal(SERVICE_SITES.filter(s=>s.type==='car-wash').length,6);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='parking-garage').length,8);
+assert.equal(MOBILITY_SUPPORT_SITES.length,14);
+assert(FORECOURT_PARKING_SITES.length>500);
+for(const site of MOBILITY_SUPPORT_SITES){
+  assert(!CITY_SERVICE_COLLIDERS.some(c=>c.id===`${site.id}/building`));
+  assert(CITY_SERVICE_COLLIDERS.some(c=>c.id.startsWith(`${site.id}/`)));
+}
+assert.equal(WATERFRONT_OPERATORS.length,3);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='budget-hotel').length,8);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='fire').length,6);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='gas-station').length,12);
@@ -112,6 +121,15 @@ assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='arcade').le
 assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='fire').length,6);
 assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='prison').length,1);
 assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='detention').length,1);
+assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='car-wash').length,6);
+assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='parking-garage').length,8);
+assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='boat-rental').length,2);
+assert.equal(Object.values(world.businesses||{}).filter(b=>b.type==='river-cruise').length,1);
+const operated=advanceLifeWorld(world,1440);
+for(const type of ['car-wash','parking-garage','boat-rental','river-cruise']){
+  assert(Object.values(operated.businesses||{}).filter(b=>b.type===type).reduce((sum,b)=>sum+b.todayVisits,0)>0,`${type} received no daily demand`);
+}
+assert.equal(moneyTotal(operated),moneyTotal(world),'urban service demand must transfer, not create, money');
 const movedSite=STREET_SERVICE_SITES[0],old=structuredClone(world);
 delete old.serviceLayoutVersion;
 old.businesses![movedSite.id].entry=[0,0];

@@ -3,7 +3,7 @@ import {createOpeningHousing,hourlyWageCents,monthlySalaryCents,monthlyMortgageP
 import type {LifeWorld,Resident} from './engine';
 import {VENUES} from './society';
 import type {HousingPaymentState} from './housing-payments';
-import {SERVICE_SITES,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS,CITY_OPERATION_SITES} from './city-service-plan';
+import {SERVICE_SITES,WATERFRONT_OPERATORS,TRANSPORT_HUBS,EMPLOYMENT_DISTRICTS,CITY_OPERATION_SITES} from './city-service-plan';
 import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from '../world-client/retail-registry';
 export type Dwelling = HousingLedger & {buildingId:string;buildingName:string;group:string;tier:string;equityAccounting:'included-in-existing-net-assets';landlordId:string;marketMonthlyRentCents?:number;landlordCapitalAllocatedCents?:number;payment?:HousingPaymentState};
 export type Employment = {placeId:string;name:string;entry:[number,number];monthlyGrossCents:number;floor?:string};
@@ -20,6 +20,7 @@ export function bindResidency(w:LifeWorld){
   for(const r of w.residents){const id=r.identity!.familyId;families.set(id,[...(families.get(id)||[]),r]);}
   const plannedJobs=[
     ...SERVICE_SITES.map(s=>({id:s.id,name:s.name,type:s.type.endsWith('restaurant')?'restaurant':s.type==='budget-hotel'?'hotel':s.type==='fresh-market'?'supermarket':s.type,entry:[s.x,s.z] as [number,number],jobCapacity:s.staff,...(s.placement==='mall'?{floor:s.floor}:{})})),
+    ...WATERFRONT_OPERATORS.map(s=>({id:s.id,name:s.name,type:s.type,entry:s.entry,jobCapacity:s.staff})),
     ...TRANSPORT_HUBS.filter(h=>'x' in h).map(h=>({id:h.id,name:h.name,type:h.mode,entry:[h.x,h.z] as [number,number],jobCapacity:h.staff})),
     ...EMPLOYMENT_DISTRICTS.map(s=>({id:s.id,name:s.name,type:s.type,entry:[s.x,s.z] as [number,number],jobCapacity:s.staff})),
     ...CITY_OPERATION_SITES.map(s=>({id:s.id,name:s.name,type:s.type,entry:('entry' in s?[...s.entry]:[s.x,s.z]) as [number,number],jobCapacity:s.staff})),
