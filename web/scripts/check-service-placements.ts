@@ -14,6 +14,7 @@ import neighborhood from '../public/assets/3d/ampliworld/GC-NEIGHBORHOOD-001/man
 import yachts from '../public/assets/3d/ampliworld/GC-YACHT-FLEET-001/manifest.json';
 import marina from '../public/assets/3d/ampliworld/GC-MARINA-001/marina-manifest.json';
 import {advanceLifeWorld,createLifeWorld,moneyTotal,upgradeLifeWorld} from '../app/life-sim/engine';
+import {RESTAURANT_TIER_PLAN} from '../app/life-sim/city-capacity-standard';
 
 type Box={left:number;right:number;back:number;front:number};
 const box=(x:number,z:number):Box=>({left:x-21,right:x+21,back:z-16,front:z+34});
@@ -55,7 +56,8 @@ assert.equal(SERVICE_SITES.filter(s=>s.type==='arcade').length,2);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='gym'&&s.placement==='mall').length,1);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='arcade'&&s.placement==='mall').length,1);
 assert.equal(SPECIAL_SERVICE_SITES.length,10);
-assert.equal(SERVICE_SITES.filter(s=>s.type==='small-restaurant').length,64);
+assert.equal(SERVICE_SITES.filter(s=>s.type==='small-restaurant').length,
+  RESTAURANT_TIER_PLAN.find(tier=>tier.id==='neighborhood')!.count);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='fresh-market').length,24);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='tutoring-center').length,18);
 assert.equal(SERVICE_SITES.filter(s=>s.type==='children-arts').length,10);

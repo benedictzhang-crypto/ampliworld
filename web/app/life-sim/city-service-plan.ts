@@ -46,7 +46,10 @@ export const CITY_SERVICE_PLAN=[
   {kind:'post',label:'Post and parcel center',count:6,staff:9,price:1200},
   // Additions follow the old deterministic layout so existing business IDs
   // and street coordinates remain stable in saved worlds.
-  {kind:'small-restaurant',label:'Neighborhood kitchen',count:64,staff:5,price:1400},
+  // Together with the three original street restaurants, three skyline
+  // restaurants and four food trucks, this brings the operating restaurant
+  // licence count to the 30k-city standard of 200.
+  {kind:'small-restaurant',label:'Neighborhood kitchen',count:86,staff:5,price:1400},
   {kind:'budget-hotel',label:'Neighborhood express hotel',count:8,staff:9,price:6500},
   {kind:'detention',label:'Metropolitan detention and intake center',count:1,staff:50,price:0},
   {kind:'prison',label:'Regional correctional campus',count:1,staff:110,price:0},

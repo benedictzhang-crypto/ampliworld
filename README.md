@@ -150,17 +150,25 @@ observed estimate. Liquid savings remain separate from inherited or other
 non-cash wealth; a high net worth with low current wages can be legitimate,
 while an implausible bank balance is tested separately. Employer-specific
 roles now replace accidental assignments such as delivery drivers in clinics
-or waiters in professional offices. The fresh-world registry has **282 distinct
+or waiters in professional offices. The fresh-world registry has **353 distinct
 job titles** after adding pool safety and amusement-venue work, but bus, taxi
 and ride-hail operating businesses and their demand flows are still missing.
 Existing saved worlds are not silently reallocated;
 these opening-policy changes apply to newly created worlds.
 
-**Urban operations audit — 24 September:** a six-city topology comparison and
-official New York, Hong Kong and Beijing establishment benchmarks show that the
-current 168 restaurants are already a high-density provision, so restaurant,
-fuel, cafe and milk-tea counts are frozen rather than inflated. The actual gaps
-receive physical and economic implementations: six two-bay automatic car
+**Urban capacity standard — 24 September:** the earlier claim that 168
+restaurants were already a complete high-density provision was not supported
+by a comparable establishment denominator. The corrected 30,000-resident
+operating target is **200 restaurant licences**, approximately one per 150
+residents; coffee shops, tea shops, bakeries, bars and institutional canteens
+are tracked separately. A machine-checked city standard now also enumerates
+restaurant tiers and cuisines, 20 hospital departments, schools by stage,
+transport, utilities, justice, retail, culture and 19,512 sector-level jobs.
+See [`web/docs/CITY_CAPACITY_AND_OCCUPATION_STANDARD.md`](web/docs/CITY_CAPACITY_AND_OCCUPATION_STANDARD.md)
+and run `npm run check:city-capacity` from `web/`.
+
+The remaining operational gaps receive physical and economic implementations:
+six two-bay automatic car
 washes, eight 180-space neighborhood garages, four marked forecourt bays at
 every eligible street service, two staffed boat-rental operators and one river
 sightseeing operator inside the existing 150-berth marina. Parking, washing and
@@ -171,7 +179,7 @@ parking bays do not yet expose occupancy. See
 [`web/docs/CITY_OPERATIONS_AUDIT_2026_09_24.md`](web/docs/CITY_OPERATIONS_AUDIT_2026_09_24.md).
 
 **Residential services and culture pass — 24 September:** the deterministic
-street registry now distributes **64 small restaurants, 24 fresh-food markets,
+street registry now distributes **86 small restaurants, 24 fresh-food markets,
 18 tutoring centers, 10 children's art studios, eight music academies and eight
 dance studios** around actual housing parcels instead of concentrating them in
 the CBD. A metropolitan concert hall and an opera house add two searchable,
