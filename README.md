@@ -22,6 +22,23 @@ does not mean 600 km² of detailed, continuously simulated city.
 
 ## Where the project stands
 
+### Loading reliability — 29 September 2026
+
+The browser now loads the WebGL district behind a client-only boundary; Three.js
+must not initialize its loaders inside the Cloudflare server worker. A targeted
+build transform preserves Troika's worker-side environment checks, with an
+executable font-parser regression test (`web/scripts/check-text-worker.mjs`).
+Buildings and civic assets have independent loading/error boundaries so one
+pending asset does not hide already-loaded neighbours. Nearby small venues are
+distance-gated; garage lights activate below ground. Large landmark visibility
+is retained. Population-area GET requests cancel obsolete requests, time out,
+and reject snapshots older than the current simulation revision.
+
+These changes improve loading isolation, not asset quality or guaranteed FPS.
+Large bundles, heavy landmark meshes and widespread city-detail work remain
+open. The amusement and camera invariant suites test geometry/control rules;
+they are not substitutes for interactive browser testing.
+
 | Layer | Implemented | Not established |
 |---|---|---|
 | Playable city | Metre-scale city plan, selected detailed districts, locomotion, vehicles, venues and prototype attractions | Uniformly polished city, complete interiors, citywide physically routed daily lives |

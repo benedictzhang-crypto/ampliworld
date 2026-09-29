@@ -6,6 +6,7 @@ import { Mesh, Material, InstancedMesh, Matrix4, Object3D } from 'three';
 import { MALL_GARAGE, garageLevelAt } from './mall-garage';
 import {RETAIL_CAMPUSES,CITY_CINEMAS,FOOD_VENUES} from './retail-registry';
 import marina from '../../public/assets/3d/ampliworld/GC-MARINA-001/marina-manifest.json';
+import { AssetIsland } from './asset-island';
 
 type MooredYacht=typeof marina.berths[number];
 function MarinaFleetMesh({mesh,berths}:{mesh:Mesh;berths:MooredYacht[]}){
@@ -83,25 +84,32 @@ function CivicAsset({
     </group>
   );
 }
-export function CivicPlaces({ garageY = 0 }: { garageY?: number }) {
+export function CivicPlaces({ garageY = 0, x = 0, z = 0, overview = false }: {
+  garageY?: number; x?: number; z?: number; overview?: boolean;
+}) {
   const floor = garageLevelAt(garageY).floorY;
+  const nearby = (sx: number, sz: number, radius = 2200) =>
+    Math.hypot(sx - x, sz - z) <= radius;
+  const atMall = nearby(0, -188, 700) && garageY < -1;
   return (
     <>
-      <CivicAsset
+      <AssetIsland name="sports streets"><CivicAsset
         id="GC-SPORT-STREET-001"
         file="sports-streets.glb"
         x={0}
         z={0}
-      />
+      /></AssetIsland>
       {CIVIC_PLACES.map((p) => (
-        <CivicAsset key={`${p.id}/${p.x}/${p.z}`} {...p} />
+        <AssetIsland key={`${p.id}/${p.x}/${p.z}`} name={p.id}>
+          <CivicAsset {...p} />
+        </AssetIsland>
       ))}
       <HospitalityLandscape />
-      {RETAIL_CAMPUSES.map(site=><RetailCampus key={site.id} site={site}/>)}
-      {CITY_CINEMAS.filter(site=>site.id!=='CINEMA-CBD').map(site=><CinemaMarker key={site.id} site={site}/>)}
-      {FOOD_VENUES.map(site=><FoodTruck key={site.id} site={site}/>)}
-      <CivicAsset id="GC-MALL-GARAGE-002" file="garage.glb" x={0} z={-188} />
-      {[-70, 0, 75].flatMap((x) =>
+      {RETAIL_CAMPUSES.filter(site=>overview||nearby(site.x,site.z)).map(site=><AssetIsland key={site.id} name={site.id}><RetailCampus site={site}/></AssetIsland>)}
+      {CITY_CINEMAS.filter(site=>site.id!=='CINEMA-CBD'&&(overview||nearby(site.x,site.z))).map(site=><AssetIsland key={site.id} name={site.id}><CinemaMarker site={site}/></AssetIsland>)}
+      {FOOD_VENUES.filter(site=>nearby(site.x,site.z,1200)).map(site=><AssetIsland key={site.id} name={site.id}><FoodTruck site={site}/></AssetIsland>)}
+      {nearby(0,-188,900) && <AssetIsland name="mall garage"><CivicAsset id="GC-MALL-GARAGE-002" file="garage.glb" x={0} z={-188} /></AssetIsland>}
+      {atMall && [-70, 0, 75].flatMap((x) =>
         [-240, -150].map((z) => (
           <pointLight
             key={`${x}/${z}`}

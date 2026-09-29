@@ -1,4 +1,4 @@
-import { DistrictClient } from './district/view';
+import { DistrictClient } from './district/bootstrap';
 import './district/style.css';
 
 export default function Home() {

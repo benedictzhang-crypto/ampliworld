@@ -14,27 +14,29 @@ export function usePopulation(){
   const current=useRef(world),
     locked=useRef(false),
     observeAt=useRef<[number,number]>([0,-68]),
-    areaRequest=useRef(0);
+    areaRequest=useRef(0),
+    areaAbort=useRef<AbortController|null>(null);
   current.current=world;
-  const load=useCallback(async()=>{
-    try{
-      const response=await fetch('/api/population',{cache:'no-store'}),
-        data=(await response.json()) as PopulationResponse;
-      if(!response.ok||!data.world)throw new Error(data.error||'存档格式错误');
-      setWorld(data.world);setError('');
-    }catch(error){setError(error instanceof Error?error.message:'存档加载失败');}
-  },[]);
   const loadArea=useCallback(async(x:number,z:number)=>{
     observeAt.current=[x,z];
     const request=++areaRequest.current;
+    areaAbort.current?.abort();
+    const abort=new AbortController();
+    areaAbort.current=abort;
+    const timeout=setTimeout(()=>abort.abort(),20000);
     try{
-      const response=await fetch(`/api/population?x=${Math.round(x)}&z=${Math.round(z)}`,{cache:'no-store'}),
+      const response=await fetch(`/api/population?x=${Math.round(x)}&z=${Math.round(z)}`,{cache:'no-store',signal:abort.signal}),
         data=(await response.json()) as PopulationResponse;
       if(request!==areaRequest.current)return;
       if(!response.ok||!data.world)throw new Error(data.error||'Area stream failed');
+      // An earlier GET must not overwrite a newer simulation action.
+      if(current.current && data.world.revision < current.current.revision)return;
       current.current=data.world;setWorld(data.world);setError('');
-    }catch(error){if(request===areaRequest.current)setError(error instanceof Error?error.message:'Area stream failed');}
+    }catch(error){if(request===areaRequest.current)setError(abort.signal.aborted?'Resident loading timed out. Retry; city controls remain available.':error instanceof Error?error.message:'Area stream failed');}
+    finally{clearTimeout(timeout);}
   },[]);
+  const load=useCallback(()=>loadArea(...observeAt.current),[loadArea]);
+  useEffect(()=>()=>{areaRequest.current++;areaAbort.current?.abort();},[]);
   const advance=useCallback(async(minutes:number,llmResidentId?:string)=>{
     if(locked.current||!current.current)return;
     locked.current=true;setBusy(true);

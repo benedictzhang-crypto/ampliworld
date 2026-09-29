@@ -20,7 +20,9 @@ export function AmusementRideCamera({ session, controls, onComplete }: {
   const target = useMemo(() => new Vector3(), []);
   const ride = PARK_RIDES.find((entry) => entry.id === session.id);
   useEffect(() => {
-    const timer = window.setInterval(invalidate, 33);
+    const timer = window.setInterval(() => {
+      if (!document.hidden) invalidate();
+    }, 33);
     invalidate();
     return () => { window.clearInterval(timer); delete gl.domElement.dataset.ride; };
   }, [gl, invalidate]);

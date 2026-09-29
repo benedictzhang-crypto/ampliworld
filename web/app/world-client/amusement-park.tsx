@@ -90,7 +90,9 @@ function CoasterMotion({ ride: boarded }: { ride: RideSession | null }) {
   const cars = useRef<Array<Group | null>>([]);
   const { invalidate } = useThree();
   useEffect(() => {
-    const timer = window.setInterval(invalidate, 40);
+    const timer = window.setInterval(() => {
+      if (!document.hidden) invalidate();
+    }, 40);
     return () => window.clearInterval(timer);
   }, [invalidate]);
   useFrame(({ clock }) => {

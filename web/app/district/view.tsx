@@ -9,6 +9,8 @@ import {
   useState,
 } from 'react';
 import { CITY, CityLayer } from '../world-client/city-layer';
+import { AssetIsland } from '../world-client/asset-island';
+import { RenderHealth } from '../world-client/render-health';
 import { SetupCamera } from './camera';
 import { CoreGround } from '../world-client/core-ground';
 import { PopulationLayer, PopulationPanel } from '../life-sim/client';
@@ -122,10 +124,6 @@ function vehicleBodyCollider(s: CarState) {
     new Vector3(s.x - dx, floor - 0.1, s.z - dz),
     new Vector3(s.x + dx, floor + 1.7, s.z + dz),
   );
-}
-function CoreReady({ onReady }: { onReady: () => void }) {
-  useEffect(onReady, [onReady]);
-  return null;
 }
 
 export function DistrictClient() {
@@ -681,27 +679,31 @@ export function DistrictClient() {
               />
               <CoreSignals />
               <CoreGround />
-              <CoreReady onReady={onCoreReady} />
+              <RenderHealth onReady={onCoreReady} />
 
               {assetStage >= 1 && (
-                <Suspense fallback={null}>
-                  <Street />
-                  <CBDBoulevards />
-                  <Concourse />
-                </Suspense>
+                <>
+                  <AssetIsland name="street"><Street /></AssetIsland>
+                  <AssetIsland name="boulevards"><CBDBoulevards /></AssetIsland>
+                  <AssetIsland name="concourse"><Concourse /></AssetIsland>
+                </>
               )}
               {assetStage >= 2 && (
-                <Suspense fallback={null}>
-                  <Mall />
+                <>
+                  <AssetIsland name="mall"><Mall /></AssetIsland>
                   <CivicPlaces
+                    x={housingX}
+                    z={housingZ}
+                    overview={wide}
                     garageY={
                       driving ? (activeReport.y ?? 0) : playerFloor.current
                     }
                   />
                   {DISTRICT.offices.map((b) => (
-                    <Office key={b.id} {...b} />
+                    <AssetIsland key={b.id} name={b.id}><Office {...b} /></AssetIsland>
                   ))}
                   {DISTRICT.buildings.map((b) => (
+                    <AssetIsland key={b.id} name={b.id}>
                     <group
                       key={b.id}
                       position={[b.x, 0, b.z]}
@@ -709,25 +711,26 @@ export function DistrictClient() {
                     >
                       <Residence lod={0} />
                     </group>
+                    </AssetIsland>
                   ))}
-                </Suspense>
+                </>
               )}
               {assetStage >= 3 && (
-                <Suspense fallback={null}>
-                  <Communities />
-                  <MetropolitanPlaces />
-                  <MetroPlaces x={housingX} z={housingZ} />
-                  <HousingWorld x={housingX} z={housingZ} open={openGates} />
-                </Suspense>
+                <>
+                  <AssetIsland name="communities"><Communities /></AssetIsland>
+                  <AssetIsland name="metropolitan"><MetropolitanPlaces /></AssetIsland>
+                  <AssetIsland name="metro"><MetroPlaces x={housingX} z={housingZ} /></AssetIsland>
+                  <AssetIsland name="housing"><HousingWorld x={housingX} z={housingZ} open={openGates} /></AssetIsland>
+                </>
               )}
               {assetStage >= 4 && (
-                <Suspense fallback={null}>
-                  <CityInfrastructure />
-                  <RooftopHelipads />
-                  <CityOperations />
-                  <CityServiceBuildings />
-                  <StreetTrees />
-                </Suspense>
+                <>
+                  <AssetIsland name="infrastructure"><CityInfrastructure /></AssetIsland>
+                  <AssetIsland name="helipads"><RooftopHelipads /></AssetIsland>
+                  <AssetIsland name="operations"><CityOperations /></AssetIsland>
+                  <AssetIsland name="services"><CityServiceBuildings /></AssetIsland>
+                  <AssetIsland name="trees"><StreetTrees /></AssetIsland>
+                </>
               )}
               <Suspense fallback={null}>
                 <AmusementPark
@@ -801,6 +804,7 @@ export function DistrictClient() {
               <OrbitControls
                 ref={controls}
                 makeDefault
+                enabled={!planOpen && !ride}
                 onChange={() => {
                   if (walking || wide || !controls.current) return;
                   const target = controls.current.target,
@@ -985,6 +989,8 @@ export function DistrictClient() {
               setRide(null);
               setWalking(true);
               setWide(false);
+              setPosition([0, -68]);
+              playerFloor.current = districtGroundHeight(0, -68);
               setRelocation({ x: 0, z: -68, y: 0, nonce: Date.now() });
               (document.activeElement as HTMLElement)?.blur();
             }}
