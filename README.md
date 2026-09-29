@@ -33,11 +33,21 @@ active amusement ride as well as boarding it from its station on the Site.
 The mall has a separate, editable Blender fit-out asset: L1 lounge seating,
 four ground-floor boutique display interiors, bronze pendant lights,
 wayfinding and L1/L2 stone gallery inlays. Nine material batches and 36
-furniture collision boxes keep this pass small. The map includes the main
+furniture collision boxes formed the initial pass. The map includes the main
 entrance and an L1 gallery observation point; indoor arrivals do not summon
 a car into the shopping gallery. Shop doors, cross-galleries and elevator
 shafts are checked against the added collision boxes. The upper four floors,
 complete tenant interiors and final architectural lighting remain unfinished.
+
+The next refinement expands those four rooms into distinct leather-goods,
+watch, jewelry and footwear fit-outs with recessed ceilings, consultation
+seating, display shelving and embedded stone/timber/fabric material maps.
+The asset remains nine material batches, now with 96 uniquely named collision
+boxes including the interior wall linings. Two local unshadowed fill lights
+serve only the nearest boutique. A map point named **Aurea Galleria · Boutique
+Salon** opens the sample directly. The [CBD interior quality gate](docs/CBD_INTERIOR_STANDARD.md)
+records spatial, material and performance acceptance criteria. These are
+prototype improvements, not a claim of photorealism or finished mall tenancy.
 
 Rebuild: `Blender --background --python scripts/assets/build-mall-fitout.py`
 from `web/` (use your installed Blender binary). Verify with
