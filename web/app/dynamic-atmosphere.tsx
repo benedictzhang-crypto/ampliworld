@@ -4,6 +4,7 @@ import { Cloud, Clouds, Sky, Stars } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { AssetIsland } from './world-client/asset-island';
 
 export type DayPhase = 'DAWN' | 'DAY' | 'DUSK' | 'NIGHT';
 
@@ -490,7 +491,7 @@ export function DynamicAtmosphere({
         </mesh>
       </group>
 
-      <Clouds
+      <AssetIsland name="cloud texture"><Clouds
         visible={!cityOverview}
         ref={cloudGroup}
         position={[0, metricWorld ? 700 : 0, 0]}
@@ -536,7 +537,7 @@ export function DynamicAtmosphere({
           color={palette.cloud}
           opacity={palette.cloudOpacity}
         />
-      </Clouds>
+      </Clouds></AssetIsland>
     </>
   );
 }

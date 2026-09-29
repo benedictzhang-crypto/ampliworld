@@ -29,6 +29,7 @@ import { escalatorVelocity } from '../world-client/mall-escalators.mjs';
 import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
 import { CivicPlaces } from '../world-client/civic-places';
 import { MallElevators } from '../world-client/mall-elevators';
+import { MallFitout, MALL_FITOUT_COLLIDERS } from '../world-client/mall-fitout';
 import {
   createMallLifts,
   LIFT_STATIC_SOLIDS,
@@ -420,6 +421,7 @@ export function DistrictClient() {
             new Vector3(...(c.max as [number, number, number])),
           ),
       ),
+      ...MALL_FITOUT_COLLIDERS.map(c => new Box3(new Vector3(...c.min as [number,number,number]),new Vector3(...c.max as [number,number,number]))),
       ...mallData.colliders.map(
         (c) =>
           new Box3(
@@ -575,6 +577,7 @@ export function DistrictClient() {
     const parkGateX = AMUSEMENT_PARK.center.x + AMUSEMENT_PARK.entrance.x;
     const parkGateZ = AMUSEMENT_PARK.center.z + AMUSEMENT_PARK.entrance.z;
     const atParkGate = Math.abs(x - parkGateX) < 1 && Math.abs(z - parkGateZ) < 1;
+    const insideMall = Math.abs(x) < 113 && Math.abs(z - DISTRICT.mall.z) < 91;
     if (atParkGate) {
       const vehicle = findVehicleArrival(x,z,[...solids,vehicleBodyCollider(car.current)],districtGroundHeight);
       if(vehicle){
@@ -614,7 +617,8 @@ export function DistrictClient() {
           ),
     );
     // The park already supplies one car. Do not summon the city car on top of it.
-    if (!atParkGate) {
+    if (insideMall) setVehicleMessage('室内观察点 · 车辆保留在室外');
+    if (!atParkGate && !insideMall) {
       const vehicle = findVehicleArrival(x,z,nearbySolids,districtGroundHeight);
       if(vehicle){
         car.current = vehicle;
@@ -682,6 +686,7 @@ export function DistrictClient() {
               {assetStage >= 2 && (
                 <>
                   <AssetIsland name="mall"><Mall /></AssetIsland>
+                  <AssetIsland name="mall interior"><MallFitout /></AssetIsland>
                   <CivicPlaces
                     x={housingX}
                     z={housingZ}
@@ -1093,7 +1098,7 @@ export function DistrictClient() {
             : driving && walking
               ? `驾驶 · ${Math.abs(activeReport.speed * 3.6).toFixed(0)} km/h · WASD / 空格刹车 · E 下车`
               : walking
-                ? `WASD 行走 · 空格跳跃 · 鼠标拖动看四周 · X ${position[0].toFixed(1)} m / Z ${position[1].toFixed(1)} m`
+                ? `WASD 行走 · Shift 冲刺 12 m/s · 空格跳跃 · 鼠标拖动看四周 · X ${position[0].toFixed(1)} m / Z ${position[1].toFixed(1)} m`
                 : '拖动俯瞰 · 滚轮缩放 · 点击「控制小人」回到街道'}
           <small>
             {driving

@@ -11,6 +11,7 @@ import {
   GRAVITY,
   JUMP_SPEED,
   WALK_SPEED,
+  SPRINT_SPEED,
   movementHeading,
   turnToward,
 } from './locomotion';
@@ -151,7 +152,7 @@ export function Walker({
         invalidate();
         return;
       }
-      if (/^(Key[WASD]|Arrow(Up|Down|Left|Right)|Space)$/.test(e.code)) {
+      if (/^(Key[WASD]|Arrow(Up|Down|Left|Right)|Space|Shift(Left|Right))$/.test(e.code)) {
         e.preventDefault();
         if (
           e.code === 'Space' &&
@@ -269,7 +270,7 @@ export function Walker({
       .multiplyScalar(f)
       .addScaledVector(state.right, r)
       .normalize()
-      .multiplyScalar(dt * WALK_SPEED);
+      .multiplyScalar(dt * (k.has('ShiftLeft') || k.has('ShiftRight') ? SPRINT_SPEED : WALK_SPEED));
     if(state.grounded && !carrier?.current.active)state.delta.z+=(surfaceVelocity?.(p.x,p.z,state.feet)??0)*dt;
     // Faster exploration must still probe every thin wall and curb between
     // frames; a single end-point check would let the avatar tunnel through.

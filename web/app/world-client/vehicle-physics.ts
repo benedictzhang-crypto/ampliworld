@@ -2,6 +2,7 @@ import { Box3 } from 'three';
 import { isGarageDriveArea } from './mall-garage';
 // Synchronous scratch storage: wheel X/Z/support, reused across physics steps.
 const tyreContacts = new Float64Array(12);
+export const VEHICLE_LIMITS = { forward: 160 / 3.6, reverse: 24 / 3.6, garage: 20 / 3.6, acceleration: 15 } as const;
 export type CarState = {
   x: number;
   z: number;
@@ -79,7 +80,9 @@ export function stepVehicleMotion(
   const dt = Math.min(elapsed, 0.06),
     throttle = Math.max(-1, Math.min(1, input.throttle)),
     steer = Math.max(-1, Math.min(1, input.steer));
-  s.speed = Math.max(-12, Math.min(34, s.speed + throttle * 15 * dt));
+  const garage = isGarageDriveArea(s.x, s.z) && ((s.y ?? 0) < -.5 || (s.x >= 114 && s.x <= 127));
+  const limit = garage ? VEHICLE_LIMITS.garage : VEHICLE_LIMITS.forward;
+  s.speed = Math.max(-Math.min(limit, VEHICLE_LIMITS.reverse), Math.min(limit, s.speed + throttle * VEHICLE_LIMITS.acceleration * dt));
   if (!throttle) s.speed *= Math.exp(-1.4 * dt);
   if (input.brake) s.speed *= Math.exp(-12 * dt);
   const steps = Math.max(1, Math.ceil(Math.abs(s.speed * dt) / 0.4));

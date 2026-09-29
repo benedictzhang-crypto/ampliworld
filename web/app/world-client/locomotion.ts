@@ -1,4 +1,6 @@
 export const WALK_SPEED = 8;
+// Observer navigation only; resident commute speeds remain in the simulation.
+export const SPRINT_SPEED = 12;
 export const JUMP_SPEED = 6.6;
 export const GRAVITY = 18;
 export const BODY_HEIGHT = 2.08;

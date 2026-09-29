@@ -22,6 +22,28 @@ does not mean 600 km² of detailed, continuously simulated city.
 
 ## Where the project stands
 
+### Exploration controls and the first mall fit-out — 29 September 2026
+
+Observer walking remains 8 m/s; Shift adds a 12 m/s sprint. The playable car
+has a 160 km/h forward cap, a 24 km/h reverse cap and a 20 km/h garage/ramp
+cap. These are exploration conveniences, not resident commute calibration.
+Substep collision checks remain active at the higher speed. E now exits an
+active amusement ride as well as boarding it from its station on the Site.
+
+The mall has a separate, editable Blender fit-out asset: L1 lounge seating,
+four ground-floor boutique display interiors, bronze pendant lights,
+wayfinding and L1/L2 stone gallery inlays. Nine material batches and 36
+furniture collision boxes keep this pass small. The map includes the main
+entrance and an L1 gallery observation point; indoor arrivals do not summon
+a car into the shopping gallery. Shop doors, cross-galleries and elevator
+shafts are checked against the added collision boxes. The upper four floors,
+complete tenant interiors and final architectural lighting remain unfinished.
+
+Rebuild: `Blender --background --python scripts/assets/build-mall-fitout.py`
+from `web/` (use your installed Blender binary). Verify with
+`node --import tsx scripts/check-exploration-fitout.mjs` and
+`node --import tsx scripts/check-mall-circulation.mjs`.
+
 ### Loading reliability — 29 September 2026
 
 Follow-up playback fixes: park arrivals now reserve one safe vehicle instead

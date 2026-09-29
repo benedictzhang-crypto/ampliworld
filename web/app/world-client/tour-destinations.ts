@@ -40,7 +40,10 @@ const allVisibleSolids=[...CIVIC_COLLIDERS,...METROPOLITAN_COLLIDERS,...CITY_SER
 
 // Do not advertise ocean-floor, out-of-bounds or unfinished waterfront lots
 // as visitable. Those sites require a separate land/road repair first.
-export const TOUR_DESTINATIONS:readonly TourDestination[]=[...civic,...services,...operations,...subcenters]
+export const TOUR_DESTINATIONS:readonly TourDestination[]=[
+  destination('GC-MALL-ARRIVAL','Aurea Galleria · Main Entrance','Mall shopping interior 商场',0,-188,0,-87,true),
+  destination('GC-MALL-GALLERY','Aurea Galleria · L1 Gallery','Mall interior boutique lounge 商场内部',0,-145,0,-145,true),
+  ...civic,...services,...operations,...subcenters]
   .filter(d=>Math.abs(d.arrivalX)<9900&&Math.abs(d.arrivalZ)<14900&&districtGroundHeight(d.arrivalX,d.arrivalZ)>-.1)
   .filter(d=>!allVisibleSolids.some(c=>d.arrivalX>c.min[0]-.4&&d.arrivalX<c.max[0]+.4&&
     d.arrivalZ>c.min[2]-.4&&d.arrivalZ<c.max[2]+.4&&c.max[1]>1));
