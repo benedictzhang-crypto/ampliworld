@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import { Box3,Vector3 } from 'three';
+import { findVehicleArrival,findVehicleExit } from '../app/world-client/vehicle-safety.ts';
+import { carBlocked } from '../app/world-client/vehicle-physics.ts';
+const floor=()=>0;
+const occupied=new Box3(new Vector3(4.95,-.1,-2.5),new Vector3(7.05,1.7,2.5));
+const open=findVehicleArrival(0,0,[],floor);
+assert.equal(open.x,6);
+const alternate=findVehicleArrival(0,0,[occupied],floor);
+assert.ok(alternate);
+assert.ok(!carBlocked(alternate.x,alternate.z,[occupied],floor));
+assert.ok(Math.hypot(alternate.x-6,alternate.z)>2.1);
+const sealed=new Box3(new Vector3(-60,-1,-60),new Vector3(60,10,60));
+assert.equal(findVehicleArrival(0,0,[sealed],floor),undefined);
+assert.equal(findVehicleArrival(0,0,[],()=>-4),undefined,'Never park in water');
+const alongside=new Box3(new Vector3(1.5,0,-2.5),new Vector3(3.6,1.7,2.5));
+assert.ok(findVehicleExit({x:0,z:0,yaw:0},[alongside],floor).x<0,'Exit away from parked neighbour');
+console.log('Vehicle arrivals passed: occupied bay avoided, safe exit, no placement in blocked areas or water.');

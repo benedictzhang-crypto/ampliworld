@@ -34,8 +34,7 @@ export function DriveableCar({
 }) {
   const { scene } = useGLTF('/assets/3d/ampliworld/GC-CAR-001/car.glb');
   const body = useRef<Group>(null),
-    keys = useRef(new Set<string>()),
-    reported = useRef<CarState | null>(null);
+    keys = useRef(new Set<string>());
   const { camera, gl, invalidate } = useThree();
   const display = useMemo(() => scene.clone(true), [scene]);
   const wheels = useMemo(
@@ -54,6 +53,7 @@ export function DriveableCar({
       ray: new Ray(),
       yawOffset: 0,
       report: 0,
+      reported: { x: NaN, z: NaN, y: NaN, yaw: NaN, speed: NaN },
     }),
     [],
   );
@@ -254,12 +254,14 @@ export function DriveableCar({
     }
     if (clock.elapsedTime - scratch.report > 0.12) {
       scratch.report = clock.elapsedTime;
-      const before=reported.current;
-      if(!before||Math.abs(before.x-s.x)>.02||Math.abs(before.z-s.z)>.02||
-        Math.abs((before.y??0)-(s.y??0))>.02||Math.abs(before.yaw-s.yaw)>.005||
-        Math.abs(before.speed-s.speed)>.05){
-        reported.current={...s};
-        onReport({...s});
+      const previous = scratch.reported;
+      // Parked cars used to rerender the whole district 16 times a second
+      // between them, rebuilding collision arrays even without movement.
+      if (previous.x !== s.x || previous.z !== s.z || previous.y !== floorY ||
+          previous.yaw !== s.yaw || previous.speed !== s.speed) {
+        previous.x=s.x; previous.z=s.z; previous.y=floorY;
+        previous.yaw=s.yaw; previous.speed=s.speed;
+        onReport({ ...s, y: floorY });
       }
     }
   });

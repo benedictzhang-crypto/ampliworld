@@ -7,7 +7,15 @@ const positions = [
   ...tree.replacementPlacements.core,
   ...tree.replacementPlacements.south,
 ];
-function TreeBatch({ mesh }: { mesh: Mesh }) {
+// Spatial batches retain full-detail trees while allowing the GPU to skip
+// blocks behind the camera. A city-wide instance bound defeated frustum culling.
+const cells = new Map<string, typeof positions>();
+for (const position of positions) {
+  const key = `${Math.floor(position.position[0]/200)}:${Math.floor(position.position[2]/200)}`;
+  const cell = cells.get(key) ?? [];
+  cell.push(position); cells.set(key, cell);
+}
+function TreeBatch({ mesh, trees }: { mesh: Mesh; trees: typeof positions }) {
   const ref = useRef<InstancedMesh>(null);
   useEffect(() => {
     if (!ref.current) return;
@@ -15,7 +23,7 @@ function TreeBatch({ mesh }: { mesh: Mesh }) {
       q = new Quaternion(),
       p = new Vector3(),
       s = new Vector3();
-    positions.forEach((t, i) => {
+    trees.forEach((t, i) => {
       q.setFromAxisAngle(new Vector3(0, 1, 0), i * 2.39996);
       s.setScalar(0.88 + (i % 5) * 0.045);
       p.fromArray(t.position);
@@ -25,11 +33,11 @@ function TreeBatch({ mesh }: { mesh: Mesh }) {
     ref.current.instanceMatrix.needsUpdate = true;
     ref.current.computeBoundingBox();
     ref.current.computeBoundingSphere();
-  }, []);
+  }, [trees]);
   return (
     <instancedMesh
       ref={ref}
-      args={[mesh.geometry, mesh.material, positions.length]}
+      args={[mesh.geometry, mesh.material, trees.length]}
       castShadow
       receiveShadow
     />
@@ -46,8 +54,8 @@ export function StreetTrees() {
   }, [scene]);
   return (
     <group>
-      {meshes.map((m) => (
-        <TreeBatch key={m.uuid} mesh={m} />
+      {[...cells].flatMap(([cell, trees]) => meshes.map(m =>
+        <TreeBatch key={`${cell}/${m.uuid}`} mesh={m} trees={trees} />,
       ))}
     </group>
   );

@@ -48,7 +48,7 @@ import {
   canCloseHousingGate,
 } from '../world-client/housing-registry';
 import { StreetTrees } from '../world-client/street-trees';
-import { findVehicleExit } from '../world-client/vehicle-safety';
+import { findVehicleArrival, findVehicleExit } from '../world-client/vehicle-safety';
 import {
   GARAGE_COLLIDERS,
   parkedGarageBay,
@@ -91,7 +91,6 @@ import {
 import { Box3, Vector3 } from 'three';
 import {
   DriveableCar,
-  carBlocked,
   type CarState,
 } from '../world-client/driveable-car';
 import concourse from '../../public/assets/3d/ampliworld/GC-CBD-CONCOURSE-001/concourse-manifest.json';
@@ -264,6 +263,10 @@ export function DistrictClient() {
     speed: 0,
   });
   const playerFloor = useRef(0);
+  const reportPlayerPosition = useCallback((x: number, z: number, y?: number) => {
+    playerFloor.current = y ?? 0;
+    setPosition(previous => previous[0] === x && previous[1] === z ? previous : [x, z]);
+  }, []);
   const liftCars = useMemo(createMallLifts, []);
   const liftCarrier = useRef<LiftCarrier>({ active: false, y: 0, carId: null });
   const [liftPanel, setLiftPanel] = useState(false);
@@ -462,7 +465,10 @@ export function DistrictClient() {
     ],
     [solids, carReport, parkCarReport],
   );
+  const cityCarSolids = useMemo(() => [...solids, vehicleBodyCollider(parkCarReport)], [solids, parkCarReport]);
+  const parkCarSolids = useMemo(() => [...solids, vehicleBodyCollider(carReport)], [solids, carReport]);
   const nearCityCar =
+    // Height is checked as well, so underground cars cannot be boarded upstairs.
     Math.hypot(position[0] - car.current.x, position[1] - car.current.z) < 8 &&
     Math.abs(playerFloor.current - (car.current.y ?? 0)) < 2;
   const nearParkCar =
@@ -517,7 +523,8 @@ export function DistrictClient() {
     } else {
       const selected = activeCar === 'park' ? parkCar.current : car.current;
       selected.speed = 0;
-      const exit = findVehicleExit(selected, solids, districtGroundHeight);
+      const otherCar = activeCar === 'park' ? car.current : parkCar.current;
+      const exit = findVehicleExit(selected, [...solids, vehicleBodyCollider(otherCar)], districtGroundHeight);
       if (exit) {
         setRelocation({ ...exit, nonce: Date.now() });
         setPosition([exit.x, exit.z]);
@@ -567,23 +574,21 @@ export function DistrictClient() {
     const y = districtGroundHeight(x, z);
     const parkGateX = AMUSEMENT_PARK.center.x + AMUSEMENT_PARK.entrance.x;
     const parkGateZ = AMUSEMENT_PARK.center.z + AMUSEMENT_PARK.entrance.z;
-    if (Math.abs(x - parkGateX) < 1 && Math.abs(z - parkGateZ) < 1) {
-      const vehicle = {
-        x: parkGateX + 6,
-        z: parkGateZ - 4,
-        y: districtGroundHeight(parkGateX + 6, parkGateZ - 4),
-        yaw: 0,
-        speed: 0,
-      };
-      parkCar.current = vehicle;
-      setParkCarReport(vehicle);
-      setVehicleMessage('游乐园入口旁已备好园区车 · 靠近按 E 上车');
+    const atParkGate = Math.abs(x - parkGateX) < 1 && Math.abs(z - parkGateZ) < 1;
+    if (atParkGate) {
+      const vehicle = findVehicleArrival(x,z,[...solids,vehicleBodyCollider(car.current)],districtGroundHeight);
+      if(vehicle){
+        parkCar.current = vehicle;
+        setParkCarReport(vehicle);
+        setVehicleMessage('游乐园入口旁已备好园区车 · 靠近按 E 上车');
+      } else setVehicleMessage('入口无安全车位，园区车留在原位');
     }
     // Move the playable city car to a clear arrival apron. Its previous
     // collision set describes the old streamed cell, so include destination
     // tiles and nearby housing before checking candidate parking positions.
     const nearbySolids = [
       ...solids,
+      vehicleBodyCollider(parkCar.current),
       ...housingColliders(
         Math.round(x / 1000) * 1000,
         Math.round(z / 1000) * 1000,
@@ -608,33 +613,19 @@ export function DistrictClient() {
             new Vector3(...(c.max as [number, number, number])),
           ),
     );
-    let parked = false;
-    for (const radius of [6, 8, 10, 14, 20, 28, 40]) {
-      for (let step = 0; step < 16; step++) {
-        const angle = (step * Math.PI) / 8,
-          cx = x + Math.cos(angle) * radius,
-          cz = z + Math.sin(angle) * radius;
-        const cy = districtGroundHeight(cx, cz);
-        if (
-          Math.abs(cy - y) > 1.2 ||
-          carBlocked(cx, cz, nearbySolids, districtGroundHeight, cy, 0)
-        )
-          continue;
-        const vehicle = { x: cx, z: cz, y: cy, yaw: 0, speed: 0 };
+    // The park already supplies one car. Do not summon the city car on top of it.
+    if (!atParkGate) {
+      const vehicle = findVehicleArrival(x,z,nearbySolids,districtGroundHeight);
+      if(vehicle){
         car.current = vehicle;
         setCarReport(vehicle);
         setVehicleMessage(
-          radius <= 10
+          vehicle.radius <= 10
             ? '目的地旁已有车辆 · 靠近按 E 上车'
-            : `车辆停在入口约 ${radius} 米处 · 靠近按 E 上车`,
+            : `车辆停在入口约 ${vehicle.radius} 米处 · 靠近按 E 上车`,
         );
-        parked = true;
-        break;
-      }
-      if (parked) break;
+      } else setVehicleMessage('目的地周围没有安全车位，车辆停留在上一个位置');
     }
-    if (!parked)
-      setVehicleMessage('目的地周围没有安全车位，车辆停留在上一个位置');
     setRide(null);
     setDriving(false);
     setActiveCar(null);
@@ -763,7 +754,7 @@ export function DistrictClient() {
                   }
                   look={look}
                   controls={controls}
-                  obstacles={solids}
+                  obstacles={cityCarSolids}
                   groundHeight={districtGroundHeight}
                   onReport={(s) => {
                     setCarReport(s);
@@ -784,7 +775,7 @@ export function DistrictClient() {
                   }
                   look={look}
                   controls={controls}
-                  obstacles={solids}
+                  obstacles={parkCarSolids}
                   groundHeight={districtGroundHeight}
                   onReport={(s) => {
                     setParkCarReport(s);
@@ -830,10 +821,7 @@ export function DistrictClient() {
                 carrier={liftCarrier}
                 surfaceVelocity={escalatorVelocity}
                 controls={controls}
-                onPosition={(x, z, y) => {
-                  playerFloor.current = y ?? 0;
-                  setPosition([x, z]);
-                }}
+                onPosition={reportPlayerPosition}
                 spawn={DISTRICT.spawnLocalMeters}
                 obstacles={walkerSolids}
                 limits={[9998, 14998]}

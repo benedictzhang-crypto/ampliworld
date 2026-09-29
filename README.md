@@ -24,6 +24,21 @@ does not mean 600 km² of detailed, continuously simulated city.
 
 ### Loading reliability — 29 September 2026
 
+Follow-up playback fixes: park arrivals now reserve one safe vehicle instead
+of summoning two overlapping cars; the cars block each other and exits avoid
+the parked neighbour. Park paths use metre-scaled stone paving with mipmaps,
+and six mesh raycasts check the walkable height against the authored GLB.
+The redundant entrance billboard no longer blocks the view down the boulevard.
+Idle vehicles and an unmoving avatar no longer request unnecessary district
+state updates. Tree instances are grouped into 200 m spatial batches; marina
+fleets use their computed frustum bounds without reducing their draw distance.
+The Site also receives previously local-only ride passenger/free-look and CBD
+ground-finish updates. This is a scoped visual/runtime synchronization, not a
+claim that every older local-versus-published difference has been reconciled.
+
+Checks: `node --import tsx scripts/check-park-surfaces.mjs` and
+`node --import tsx scripts/check-vehicle-arrivals.mjs` from `web/`.
+
 The browser now loads the WebGL district behind a client-only boundary; Three.js
 must not initialize its loaders inside the Cloudflare server worker. A targeted
 build transform preserves Troika's worker-side environment checks, with an

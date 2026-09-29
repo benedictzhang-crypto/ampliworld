@@ -1,6 +1,18 @@
 import { Box3, Ray, Vector3 } from 'three';
 import { isGarageDriveArea } from './mall-garage';
+import { carBlocked } from './vehicle-physics';
 type VehiclePose = { x: number; z: number; yaw: number; y?: number };
+/** Shared arrival placement; callers include other parked cars as obstacles. */
+export function findVehicleArrival(x:number,z:number,boxes:readonly Box3[],floor:(x:number,z:number,y?:number)=>number){
+  const base=floor(x,z);
+  for(const radius of [6,8,10,14,20,28,40])for(let step=0;step<16;step++){
+    const angle=step*Math.PI/8,cx=x+Math.cos(angle)*radius,cz=z+Math.sin(angle)*radius;
+    const y=floor(cx,cz,base);
+    if(Math.abs(y-base)>1.2 || carBlocked(cx,cz,boxes,floor,y,0))continue;
+    return {x:cx,z:cz,y,yaw:0,speed:0,radius};
+  }
+  return undefined;
+}
 export function findVehicleExit(
   car: VehiclePose,
   boxes: readonly Box3[],

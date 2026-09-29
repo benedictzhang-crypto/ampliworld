@@ -23,7 +23,7 @@ function MarinaFleetMesh({mesh,berths}:{mesh:Mesh;berths:MooredYacht[]}){
     });
     instances.instanceMatrix.needsUpdate=true;instances.computeBoundingSphere();
   },[mesh,berths]);
-  return <instancedMesh ref={ref} args={[mesh.geometry,mesh.material,berths.length]} castShadow receiveShadow frustumCulled={false}/>;
+  return <instancedMesh ref={ref} args={[mesh.geometry,mesh.material,berths.length]} castShadow receiveShadow/>;
 }
 function MarinaFleetVariant({length}:{length:14|18|22}){
   const {scene}=useGLTF(`/assets/3d/ampliworld/GC-YACHT-FLEET-001/${length}m.glb`);

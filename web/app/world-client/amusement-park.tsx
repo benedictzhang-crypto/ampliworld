@@ -2,13 +2,14 @@
 
 import { Clone, Text, useGLTF } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { CubicBezierCurve3, Vector3, type Group, type Mesh } from 'three';
 import { cityGroundHeight } from './city-surface';
 import type { HauntStep } from './amusement-experience';
 import { PARK_RIDES, coasterPoint, coasterSpurControls, coasterSpurPoint, ridePose, type RideSession } from './amusement-rides';
 import plan from './amusement-park-plan.json';
 import manifest from '../../public/assets/3d/ampliworld/GC-AMUSEMENT-001/manifest.json';
+import { finishParkSurfaces, parkPathHeight } from './park-surfaces';
 
 export const AMUSEMENT_PARK = plan;
 
@@ -258,10 +259,12 @@ function FamilyRideMotion({ boarded }: { boarded: RideSession | null }) {
 
 function AmusementParkModel({ scare, shot, ride, animateTrains }: { scare: HauntStep | null; shot: BasketballShot | null; ride: RideSession | null; animateTrains: boolean }) {
   const { scene } = useGLTF(`/assets/3d/ampliworld/${manifest.id}/${manifest.file}`);
+  const finished = useMemo(() => finishParkSurfaces(scene), [scene]);
+  useEffect(() => () => finished.dispose(), [finished]);
   const { x, z } = plan.center;
   return (
     <group name="aureole-adventure-park" position={[x, cityGroundHeight(x, z), z]}>
-      <Clone object={scene} castShadow receiveShadow />
+      <Clone object={finished.scene} castShadow receiveShadow />
       <ParkVisitorAccents />
       <CoasterStationSpurs />
       {animateTrains && <><CoasterMotion ride={ride} /><TowerMotion boarded={ride} /><FamilyRideMotion boarded={ride} /></>}
@@ -281,7 +284,9 @@ function ParkVisitorAccents() {
       <mesh position={[x,3.1,281]} castShadow><boxGeometry args={[14,5.6,.45]}/><meshStandardMaterial color={i?'#744b67':'#3b6680'} metalness={.3} roughness={.55}/></mesh>
       <Text position={[x,3.4,281.28]} fontSize={1.5} color="#fff2ce" anchorX="center" anchorY="middle">{i?'TEACUPS • BOARD E':'CAROUSEL • BOARD E'}</Text>
     </group>)}
-    {[[-260,395,'FIVE WORLDS'],[0,395,'AUREOLE FESTIVAL'],[260,395,'HALLOWEEN QUARTER']].map(([x,z,label])=><group key={String(label)} position={[Number(x),0,Number(z)]}>
+    {/* The entry already has a raised Blender gate sign. A second full-width
+        billboard here obscured the boulevard and had no physical collision. */}
+    {[[-260,395,'FIVE WORLDS'],[260,395,'HALLOWEEN QUARTER']].map(([x,z,label])=><group key={String(label)} position={[Number(x),0,Number(z)]}>
       <mesh position={[0,6,0]} castShadow><boxGeometry args={[48,10,.5]}/><meshStandardMaterial color="#243b46" metalness={.48} roughness={.5}/></mesh>
       <mesh position={[0,6,.31]}><boxGeometry args={[45,7,.12]}/><meshStandardMaterial color="#b2574b" roughness={.72}/></mesh>
       <Text position={[0,6,.43]} fontSize={2.4} color="#fff3d4" anchorX="center" anchorY="middle">{String(label)}</Text>
@@ -311,8 +316,8 @@ export function amusementGroundHeight(x: number, z: number, currentY: number) {
     }
     return base + .22;
   }
-  // The park foundation is a 0.02 m step over the surrounding dry city grade.
-  if (currentY >= base - .35) return base + .02;
+  // Resolve the visible stone path tops, not just the lower lawn foundation.
+  if (currentY >= base - .35) return base + parkPathHeight(dx, dz);
   return undefined;
 }
 
