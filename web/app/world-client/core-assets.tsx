@@ -1,6 +1,7 @@
 import {useMemo} from 'react';
 import {Clone,Text,useGLTF} from '@react-three/drei';
 import {DISTRICT} from '../district/registry';
+import {useMallMaterials} from './mall-materials';
 
 export function Office({ assetId, x, z }: { assetId: string; x: number; z: number }) {
   const { scene } = useGLTF(`/assets/3d/ampliworld/${assetId}/tower-lod0.glb`);
@@ -53,9 +54,10 @@ export function CBDBoulevards() {
 
 export function Mall() {
   const { scene } = useGLTF('/assets/3d/ampliworld/GC-MALL-002/mall-lod0.glb');
+  const display=useMallMaterials(scene);
   return (
     <group position={[DISTRICT.mall.x, 0, DISTRICT.mall.z]}>
-      <Clone object={scene} castShadow receiveShadow />
+      <Clone object={display} castShadow receiveShadow />
       <group name="atrium suspended campaign banners">
         {[[-15,16,0,'AUREOLE • NEW SEASON'],[16,22,0,'DESIGN THE FUTURE']].map(([x,y,z,label],i)=><group key={String(label)} position={[Number(x),Number(y),Number(z)]}>
           <mesh castShadow><boxGeometry args={[20,5,.15]}/><meshStandardMaterial color={i?'#703a47':'#1d424c'} roughness={.68} side={2}/></mesh>

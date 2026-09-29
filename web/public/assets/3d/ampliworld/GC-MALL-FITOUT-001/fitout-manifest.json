@@ -6,7 +6,7 @@
     0,
     -188
   ],
-  "scope": "L1 lounge, four furnished boutique themes, packed material maps, coffer ceilings and L1/L2 gallery finishes; upper-floor fit-out still pending",
+  "scope": "L1 furnished boutiques, curved botanical foliage, L2 west lounge and gallery pendants; L2 shops and L3-L6 fit-out still pending",
   "boutiques": [
     {
       "centerX": -54,
@@ -403,7 +403,163 @@
       ]
     },
     {
-      "id": "Boutique feature wall-0028",
+      "id": "L2 upholstered bench base-0028",
+      "min": [
+        -48.675,
+        6.48,
+        -27.0
+      ],
+      "max": [
+        -47.325,
+        6.940000000000001,
+        -23.0
+      ]
+    },
+    {
+      "id": "L2 bench back-0029",
+      "min": [
+        -47.57,
+        6.960000000000001,
+        -27.0
+      ],
+      "max": [
+        -47.330000000000005,
+        7.82,
+        -23.0
+      ]
+    },
+    {
+      "id": "L2 planter-0030",
+      "min": [
+        -48.575,
+        6.48,
+        -28.775
+      ],
+      "max": [
+        -47.425,
+        7.58,
+        -27.625
+      ]
+    },
+    {
+      "id": "L2 planter-0031",
+      "min": [
+        -48.575,
+        6.48,
+        -22.375
+      ],
+      "max": [
+        -47.425,
+        7.58,
+        -21.225
+      ]
+    },
+    {
+      "id": "L2 upholstered bench base-0032",
+      "min": [
+        -48.675,
+        6.48,
+        -2.0
+      ],
+      "max": [
+        -47.325,
+        6.940000000000001,
+        2.0
+      ]
+    },
+    {
+      "id": "L2 bench back-0033",
+      "min": [
+        -47.57,
+        6.960000000000001,
+        -2.0
+      ],
+      "max": [
+        -47.330000000000005,
+        7.82,
+        2.0
+      ]
+    },
+    {
+      "id": "L2 planter-0034",
+      "min": [
+        -48.575,
+        6.48,
+        -3.7750000000000004
+      ],
+      "max": [
+        -47.425,
+        7.58,
+        -2.625
+      ]
+    },
+    {
+      "id": "L2 planter-0035",
+      "min": [
+        -48.575,
+        6.48,
+        2.625
+      ],
+      "max": [
+        -47.425,
+        7.58,
+        3.7750000000000004
+      ]
+    },
+    {
+      "id": "L2 upholstered bench base-0036",
+      "min": [
+        -48.675,
+        6.48,
+        23.0
+      ],
+      "max": [
+        -47.325,
+        6.940000000000001,
+        27.0
+      ]
+    },
+    {
+      "id": "L2 bench back-0037",
+      "min": [
+        -47.57,
+        6.960000000000001,
+        23.0
+      ],
+      "max": [
+        -47.330000000000005,
+        7.82,
+        27.0
+      ]
+    },
+    {
+      "id": "L2 planter-0038",
+      "min": [
+        -48.575,
+        6.48,
+        21.225
+      ],
+      "max": [
+        -47.425,
+        7.58,
+        22.375
+      ]
+    },
+    {
+      "id": "L2 planter-0039",
+      "min": [
+        -48.575,
+        6.48,
+        27.625
+      ],
+      "max": [
+        -47.425,
+        7.58,
+        28.775
+      ]
+    },
+    {
+      "id": "Boutique feature wall-0040",
       "min": [
         -61.7,
         0.25,
@@ -416,7 +572,7 @@
       ]
     },
     {
-      "id": "Boutique ceiling-0029",
+      "id": "Boutique ceiling-0041",
       "min": [
         -61.85,
         3.99,
@@ -429,7 +585,7 @@
       ]
     },
     {
-      "id": "Ceiling border-0030",
+      "id": "Ceiling border-0042",
       "min": [
         -61.599999999999994,
         3.765,
@@ -442,7 +598,7 @@
       ]
     },
     {
-      "id": "Wall panel-0031",
+      "id": "Wall panel-0043",
       "min": [
         -61.379999999999995,
         0.18999999999999995,
@@ -455,7 +611,7 @@
       ]
     },
     {
-      "id": "Ceiling border-0032",
+      "id": "Ceiling border-0044",
       "min": [
         -47.0,
         3.765,
@@ -468,7 +624,7 @@
       ]
     },
     {
-      "id": "Wall panel-0033",
+      "id": "Wall panel-0045",
       "min": [
         -46.78,
         0.18999999999999995,
@@ -481,7 +637,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0034",
+      "id": "Shopfront pier-0046",
       "min": [
         -61.980000000000004,
         0.17999999999999994,
@@ -494,7 +650,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0035",
+      "id": "Shopfront pier-0047",
       "min": [
         -56.0,
         0.17999999999999994,
@@ -507,7 +663,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0036",
+      "id": "Shopfront pier-0048",
       "min": [
         -52.260000000000005,
         0.17999999999999994,
@@ -520,7 +676,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0037",
+      "id": "Shopfront pier-0049",
       "min": [
         -46.28,
         0.17999999999999994,
@@ -533,7 +689,7 @@
       ]
     },
     {
-      "id": "Window display plinth-0038",
+      "id": "Window display plinth-0050",
       "min": [
         -61.0,
         0.18000000000000005,
@@ -546,7 +702,7 @@
       ]
     },
     {
-      "id": "Window display plinth-0039",
+      "id": "Window display plinth-0051",
       "min": [
         -51.2,
         0.18000000000000005,
@@ -559,7 +715,7 @@
       ]
     },
     {
-      "id": "Salon chair seat-0040",
+      "id": "Salon chair seat-0052",
       "min": [
         -59.975,
         0.54,
@@ -572,7 +728,7 @@
       ]
     },
     {
-      "id": "Salon chair back-0041",
+      "id": "Salon chair back-0053",
       "min": [
         -59.975,
         0.655,
@@ -585,7 +741,7 @@
       ]
     },
     {
-      "id": "Salon chair seat-0042",
+      "id": "Salon chair seat-0054",
       "min": [
         -57.175000000000004,
         0.54,
@@ -598,7 +754,7 @@
       ]
     },
     {
-      "id": "Salon chair back-0043",
+      "id": "Salon chair back-0055",
       "min": [
         -57.175000000000004,
         0.655,
@@ -611,7 +767,7 @@
       ]
     },
     {
-      "id": "Table support-0044",
+      "id": "Table support-0056",
       "min": [
         -58.425000000000004,
         0.16499999999999998,
@@ -624,7 +780,7 @@
       ]
     },
     {
-      "id": "Boutique feature wall-0045",
+      "id": "Boutique feature wall-0057",
       "min": [
         -40.7,
         0.25,
@@ -637,7 +793,7 @@
       ]
     },
     {
-      "id": "Boutique ceiling-0046",
+      "id": "Boutique ceiling-0058",
       "min": [
         -40.85,
         3.99,
@@ -650,7 +806,7 @@
       ]
     },
     {
-      "id": "Ceiling border-0047",
+      "id": "Ceiling border-0059",
       "min": [
         -40.599999999999994,
         3.765,
@@ -663,7 +819,7 @@
       ]
     },
     {
-      "id": "Wall panel-0048",
+      "id": "Wall panel-0060",
       "min": [
         -40.379999999999995,
         0.18999999999999995,
@@ -676,7 +832,7 @@
       ]
     },
     {
-      "id": "Ceiling border-0049",
+      "id": "Ceiling border-0061",
       "min": [
         -26.0,
         3.765,
@@ -689,7 +845,7 @@
       ]
     },
     {
-      "id": "Wall panel-0050",
+      "id": "Wall panel-0062",
       "min": [
         -25.779999999999998,
         0.18999999999999995,
@@ -702,7 +858,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0051",
+      "id": "Shopfront pier-0063",
       "min": [
         -40.980000000000004,
         0.17999999999999994,
@@ -715,7 +871,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0052",
+      "id": "Shopfront pier-0064",
       "min": [
         -35.0,
         0.17999999999999994,
@@ -728,7 +884,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0053",
+      "id": "Shopfront pier-0065",
       "min": [
         -31.259999999999998,
         0.17999999999999994,
@@ -741,7 +897,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0054",
+      "id": "Shopfront pier-0066",
       "min": [
         -25.279999999999998,
         0.17999999999999994,
@@ -754,7 +910,7 @@
       ]
     },
     {
-      "id": "Window display plinth-0055",
+      "id": "Window display plinth-0067",
       "min": [
         -40.0,
         0.18000000000000005,
@@ -767,7 +923,7 @@
       ]
     },
     {
-      "id": "Window display plinth-0056",
+      "id": "Window display plinth-0068",
       "min": [
         -30.200000000000003,
         0.18000000000000005,
@@ -780,7 +936,7 @@
       ]
     },
     {
-      "id": "Salon chair seat-0057",
+      "id": "Salon chair seat-0069",
       "min": [
         -38.975,
         0.54,
@@ -793,7 +949,7 @@
       ]
     },
     {
-      "id": "Salon chair back-0058",
+      "id": "Salon chair back-0070",
       "min": [
         -38.975,
         0.655,
@@ -806,7 +962,7 @@
       ]
     },
     {
-      "id": "Salon chair seat-0059",
+      "id": "Salon chair seat-0071",
       "min": [
         -36.175000000000004,
         0.54,
@@ -819,7 +975,7 @@
       ]
     },
     {
-      "id": "Salon chair back-0060",
+      "id": "Salon chair back-0072",
       "min": [
         -36.175000000000004,
         0.655,
@@ -832,7 +988,7 @@
       ]
     },
     {
-      "id": "Table support-0061",
+      "id": "Table support-0073",
       "min": [
         -37.425000000000004,
         0.16499999999999998,
@@ -845,7 +1001,7 @@
       ]
     },
     {
-      "id": "Boutique feature wall-0062",
+      "id": "Boutique feature wall-0074",
       "min": [
         38.3,
         0.25,
@@ -858,7 +1014,7 @@
       ]
     },
     {
-      "id": "Boutique ceiling-0063",
+      "id": "Boutique ceiling-0075",
       "min": [
         38.15,
         3.99,
@@ -871,7 +1027,7 @@
       ]
     },
     {
-      "id": "Ceiling border-0064",
+      "id": "Ceiling border-0076",
       "min": [
         38.400000000000006,
         3.765,
@@ -884,7 +1040,7 @@
       ]
     },
     {
-      "id": "Wall panel-0065",
+      "id": "Wall panel-0077",
       "min": [
         38.620000000000005,
         0.18999999999999995,
@@ -897,7 +1053,7 @@
       ]
     },
     {
-      "id": "Ceiling border-0066",
+      "id": "Ceiling border-0078",
       "min": [
         53.0,
         3.765,
@@ -910,7 +1066,7 @@
       ]
     },
     {
-      "id": "Wall panel-0067",
+      "id": "Wall panel-0079",
       "min": [
         53.22,
         0.18999999999999995,
@@ -923,7 +1079,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0068",
+      "id": "Shopfront pier-0080",
       "min": [
         38.019999999999996,
         0.17999999999999994,
@@ -936,7 +1092,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0069",
+      "id": "Shopfront pier-0081",
       "min": [
         44.0,
         0.17999999999999994,
@@ -949,7 +1105,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0070",
+      "id": "Shopfront pier-0082",
       "min": [
         47.739999999999995,
         0.17999999999999994,
@@ -962,7 +1118,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0071",
+      "id": "Shopfront pier-0083",
       "min": [
         53.72,
         0.17999999999999994,
@@ -975,7 +1131,7 @@
       ]
     },
     {
-      "id": "Window display plinth-0072",
+      "id": "Window display plinth-0084",
       "min": [
         39.0,
         0.18000000000000005,
@@ -988,7 +1144,7 @@
       ]
     },
     {
-      "id": "Window display plinth-0073",
+      "id": "Window display plinth-0085",
       "min": [
         48.8,
         0.18000000000000005,
@@ -1001,7 +1157,7 @@
       ]
     },
     {
-      "id": "Salon chair seat-0074",
+      "id": "Salon chair seat-0086",
       "min": [
         40.025,
         0.54,
@@ -1014,7 +1170,7 @@
       ]
     },
     {
-      "id": "Salon chair back-0075",
+      "id": "Salon chair back-0087",
       "min": [
         40.025,
         0.655,
@@ -1027,7 +1183,7 @@
       ]
     },
     {
-      "id": "Salon chair seat-0076",
+      "id": "Salon chair seat-0088",
       "min": [
         42.824999999999996,
         0.54,
@@ -1040,7 +1196,7 @@
       ]
     },
     {
-      "id": "Salon chair back-0077",
+      "id": "Salon chair back-0089",
       "min": [
         42.824999999999996,
         0.655,
@@ -1053,7 +1209,7 @@
       ]
     },
     {
-      "id": "Table support-0078",
+      "id": "Table support-0090",
       "min": [
         41.574999999999996,
         0.16499999999999998,
@@ -1066,7 +1222,7 @@
       ]
     },
     {
-      "id": "Boutique feature wall-0079",
+      "id": "Boutique feature wall-0091",
       "min": [
         59.3,
         0.25,
@@ -1079,7 +1235,7 @@
       ]
     },
     {
-      "id": "Boutique ceiling-0080",
+      "id": "Boutique ceiling-0092",
       "min": [
         59.15,
         3.99,
@@ -1092,7 +1248,7 @@
       ]
     },
     {
-      "id": "Ceiling border-0081",
+      "id": "Ceiling border-0093",
       "min": [
         59.400000000000006,
         3.765,
@@ -1105,7 +1261,7 @@
       ]
     },
     {
-      "id": "Wall panel-0082",
+      "id": "Wall panel-0094",
       "min": [
         59.620000000000005,
         0.18999999999999995,
@@ -1118,7 +1274,7 @@
       ]
     },
     {
-      "id": "Ceiling border-0083",
+      "id": "Ceiling border-0095",
       "min": [
         74.0,
         3.765,
@@ -1131,7 +1287,7 @@
       ]
     },
     {
-      "id": "Wall panel-0084",
+      "id": "Wall panel-0096",
       "min": [
         74.22,
         0.18999999999999995,
@@ -1144,7 +1300,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0085",
+      "id": "Shopfront pier-0097",
       "min": [
         59.019999999999996,
         0.17999999999999994,
@@ -1157,7 +1313,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0086",
+      "id": "Shopfront pier-0098",
       "min": [
         65.0,
         0.17999999999999994,
@@ -1170,7 +1326,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0087",
+      "id": "Shopfront pier-0099",
       "min": [
         68.74000000000001,
         0.17999999999999994,
@@ -1183,7 +1339,7 @@
       ]
     },
     {
-      "id": "Shopfront pier-0088",
+      "id": "Shopfront pier-0100",
       "min": [
         74.72,
         0.17999999999999994,
@@ -1196,7 +1352,7 @@
       ]
     },
     {
-      "id": "Window display plinth-0089",
+      "id": "Window display plinth-0101",
       "min": [
         60.0,
         0.18000000000000005,
@@ -1209,7 +1365,7 @@
       ]
     },
     {
-      "id": "Window display plinth-0090",
+      "id": "Window display plinth-0102",
       "min": [
         69.80000000000001,
         0.18000000000000005,
@@ -1222,7 +1378,7 @@
       ]
     },
     {
-      "id": "Salon chair seat-0091",
+      "id": "Salon chair seat-0103",
       "min": [
         61.025,
         0.54,
@@ -1235,7 +1391,7 @@
       ]
     },
     {
-      "id": "Salon chair back-0092",
+      "id": "Salon chair back-0104",
       "min": [
         61.025,
         0.655,
@@ -1248,7 +1404,7 @@
       ]
     },
     {
-      "id": "Salon chair seat-0093",
+      "id": "Salon chair seat-0105",
       "min": [
         63.824999999999996,
         0.54,
@@ -1261,7 +1417,7 @@
       ]
     },
     {
-      "id": "Salon chair back-0094",
+      "id": "Salon chair back-0106",
       "min": [
         63.824999999999996,
         0.655,
@@ -1274,7 +1430,7 @@
       ]
     },
     {
-      "id": "Table support-0095",
+      "id": "Table support-0107",
       "min": [
         62.574999999999996,
         0.16499999999999998,
@@ -1288,5 +1444,5 @@
     }
   ],
   "meshes": 9,
-  "triangles": 97368
+  "triangles": 116772
 }

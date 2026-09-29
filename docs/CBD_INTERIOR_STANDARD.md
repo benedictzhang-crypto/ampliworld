@@ -23,7 +23,9 @@ in Blender; the web client displays exported GLB assets at metre scale.
   wavy repetition, giant wood grain, emissive white floors and glossy fabric.
 - Model visible reveals, cabinet depth, thresholds, bevels and ceiling coves.
   These are geometry, not photos of a facade placed on a single plane.
-- Real-time fill is limited to two unshadowed lights at the nearest boutique.
+- Real-time fill is limited to two unshadowed lights at the nearest boutique,
+  reused as one fixture-anchored light in the L2 gallery. Glass uses a cloned,
+  low-iron physical material with environment reflections, not transmission.
   This is not path tracing or physically validated interior illumination.
 
 ## Product identity
@@ -42,6 +44,9 @@ near a wall; a Blender render alone is not sufficient.
 
 Keep the fit-out under 12 material batches and 120,000 triangles for this
 sample. These budgets do not guarantee acceptable whole-city frame rates.
-Upper-floor fit-outs, store-specific interactions, staff placement, realistic
-mannequins, convincing indoor plants, reflective glazing and tuned day/night
-interior lighting remain separate unfinished work.
+L1 lounge pots now contain curved three-dimensional leaves; L2 has three west
+gallery seating pockets, six planted pots and ten pendant fixtures. The L2
+through-route and shop doors have explicit clearance tests.
+L2 shop interiors and L3-L6 fit-outs, store-specific interactions, staff placement,
+realistic mannequins and tuned day/night interior lighting remain unfinished.
+The old structural-shell atrium tree crowns still need a separate replacement.

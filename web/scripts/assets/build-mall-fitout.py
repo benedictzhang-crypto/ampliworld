@@ -77,6 +77,28 @@ def cylinder(name,mat,x,y,z,r,h):
     bpy.ops.mesh.primitive_cylinder_add(vertices=24,radius=r,depth=h,location=(x,-z,y))
     o=bpy.context.object;o.name=name;o.data.materials.append(materials[mat]);return o
 
+def plant(x,y,z,scale=1):
+    """Curved solid leaves, not flat crossed billboards or spherical crowns."""
+    cylinder('Plant stem','Walnut',x,y+.65*scale,z,.026*scale,1.3*scale)
+    for n in range(18):
+        angle=n*2.39996;level=.22+(n%6)*.19
+        length=(.48+.1*(n%3))*scale
+        verts=[]
+        for j in range(6):
+            t=j/5;rad=length*t;width=math.sin(math.pi*t)*.14*scale
+            yy=y+(level+.25*math.sin(t*math.pi)-.12*t)*scale
+            for side in [-1,0,1]:
+                xx=x+math.cos(angle)*rad-math.sin(angle)*width*side
+                zz=z+math.sin(angle)*rad+math.cos(angle)*width*side
+                verts.append((xx,-zz,yy+(.035*scale if side==0 else 0)))
+        faces=[(j*3+k,j*3+k+1,(j+1)*3+k+1,(j+1)*3+k) for j in range(5) for k in range(2)]
+        mesh=bpy.data.meshes.new('Curved leaf');mesh.from_pydata(verts,[],faces);mesh.update()
+        o=bpy.data.objects.new('Botanical leaf',mesh);bpy.context.collection.objects.link(o)
+        o.data.materials.append(materials['Foliage'])
+        for p in mesh.polygons:p.use_smooth=True
+        solid=o.modifiers.new('Leaf thickness','SOLIDIFY');solid.thickness=.008
+        bpy.context.view_layer.objects.active=o;bpy.ops.object.modifier_apply(modifier=solid.name)
+
 # Inset gallery carpets in stone: narrow overlays, never spanning shaft openings.
 for floor,y in enumerate([.17,6.48]):
     for z in [-43,43]:
@@ -98,9 +120,26 @@ for x in [-29,29]:
         for dx in [-7,7]:
             cylinder('Ceramic planter','Travertine',x+dx,.66,z,.60,1)
             box('Planter collision','Travertine',x+dx,.52,z,.78,.8,.78,True,.08)
-            for n in range(5):
-                a=n*2.4;bpy.ops.mesh.primitive_uv_sphere_add(segments=10,ring_count=6,radius=.55,location=(x+dx+math.sin(a)*.28,-z+math.cos(a)*.28,1.5+n*.14))
-                o=bpy.context.object;o.scale=(.7,.7,1.2);o.data.materials.append(materials['Foliage'])
+            plant(x+dx,1.12,z,1.25)
+
+# L2 quiet seating pockets on the west gallery, away from all lift shafts.
+for z in [-25,0,25]:
+    y=6.48
+    box('L2 upholstered bench base','Walnut',-48,y+.23,z,1.35,.46,4,True,.09)
+    box('L2 upholstered bench seat','Sage upholstery',-48,y+.56,z,1.4,.22,4.05,False,.12)
+    box('L2 bench back','Sage upholstery',-47.45,y+.91,z,.24,.86,4,True,.09)
+    for dz in [-3.2,3.2]:
+        box('L2 planter','Warm porcelain',-48,y+.55,z+dz,1.15,1.1,1.15,True,.10)
+        plant(-48,y+1.11,z+dz,1.05)
+    box('L2 reading lamp diffuser','Warm light',-47.3,y+2.4,z,1.3,.06,.4)
+    cylinder('L2 reading lamp stem','Bronze',-47.3,y+1.35,z,.035,2.5)
+
+# Level-specific warm pendants, short enough for the lower L2 ceiling.
+for x in [-84,-42,0,42,84]:
+    for z in [-43,43]:
+        cylinder('L2 pendant stem','Bronze',x,10.35,z,.028,1.2)
+        cylinder('L2 pendant shade','Bronze',x,9.78,z,.72,.18)
+        cylinder('L2 pendant diffuser','Warm light',x,9.67,z,.64,.035)
 
 # Four complete original fit-out themes inside the existing south-side shop shells.
 # The 3.4m door and centre aisle remain clear. No brand assets are copied.
@@ -191,7 +230,7 @@ for m in materials.values():
         bpy.context.view_layer.objects.active=group[0];bpy.ops.object.join();group[0].name='Fitout '+m.name
 bpy.ops.export_scene.gltf(filepath=str(OUT/'fitout.glb'),export_format='GLB',export_apply=True)
 manifest={'id':'GC-MALL-FITOUT-001','units':'meters','origin':[0,0,-188],
-    'scope':'L1 lounge, four furnished boutique themes, packed material maps, coffer ceilings and L1/L2 gallery finishes; upper-floor fit-out still pending',
+    'scope':'L1 furnished boutiques, curved botanical foliage, L2 west lounge and gallery pendants; L2 shops and L3-L6 fit-out still pending',
     'boutiques':[{'centerX':x,'doorZ':51,'theme':theme,'clearDoorMeters':3.4,'floorY':.17} for x,theme in zip([-54,-33,46,67],['leather goods','watches','jewelry','footwear'])],
     'colliders':colliders,'meshes':len(bpy.context.scene.objects),
     'triangles':sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in bpy.context.scene.objects if o.type=='MESH')}

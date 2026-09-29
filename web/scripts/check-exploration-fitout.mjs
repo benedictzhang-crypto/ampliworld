@@ -34,6 +34,10 @@ for(const shopX of [-54,-33,46,67])for(const side of [-1,1]){
   assert.ok(nearest<7.3,'Camera meets the new lining before the old structural wall');
 }
 assert.equal(fit.boutiques.length,4);
+const blockedL2=(x,z)=>fit.colliders.some(b=>x>b.min[0]-.35&&x<b.max[0]+.35&&z>b.min[2]-.35&&z<b.max[2]+.35&&b.max[1]>6.77&&b.min[1]<8.56);
+for(let z=-34;z<=34;z+=.25)assert.equal(blockedL2(-53,z),false,'L2 west lounge keeps through route clear');
+for(const z of [-43,43])for(let x=-106;x<=106;x+=.25)assert.equal(blockedL2(x,z),false,'L2 gallery clear');
+for(const shop of shell.shops.filter(s=>s.level==='L2'))assert.equal(blockedL2(shop.door[0],shop.door[2]),false,'L2 doors clear');
 for(const shop of fit.boutiques){
   for(let z=48;z<=72;z+=.25)assert.equal(blocked(shop.centerX,z),false,'Boutique centre aisle remains clear');
 }
