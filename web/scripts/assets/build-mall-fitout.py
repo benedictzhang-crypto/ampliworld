@@ -51,6 +51,8 @@ for name, color, metallic, rough in [
         m.node_tree.links.new(normalmap.outputs['Normal'],p.inputs['Normal'])
     materials[name]=m
 colliders=[]
+box_meshes={}
+cylinder_meshes={}
 def metric_uv(o):
     uv=o.data.uv_layers.active or o.data.uv_layers.new(name='Metre-scale finish')
     for poly in o.data.polygons:
@@ -59,6 +61,11 @@ def metric_uv(o):
             co=o.data.vertices[o.data.loops[li].vertex_index].co
             uv.data[li].uv=(co[axes[0]]/1.2,co[axes[1]]/1.2)
 def box(name,mat,x,y,z,w,h,d,solid=False,bevel=.035):
+    key=(mat,w,h,d,bevel)
+    if key in box_meshes:
+        o=bpy.data.objects.new(name,box_meshes[key]);bpy.context.collection.objects.link(o);o.location=(x,-z,y)
+        if solid:colliders.append({'id':f'{name}-{len(colliders):04d}','min':[x-w/2,y-h/2,z-d/2],'max':[x+w/2,y+h/2,z+d/2]})
+        return o
     bpy.ops.mesh.primitive_cube_add(size=1,location=(x,-z,y));o=bpy.context.object;o.name=name
     o.dimensions=(w,d,h);bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
     o.data.materials.append(materials[mat])
@@ -66,6 +73,7 @@ def box(name,mat,x,y,z,w,h,d,solid=False,bevel=.035):
         b=o.modifiers.new('Soft manufactured edge','BEVEL');b.width=min(bevel,min(w,h,d)/3);b.segments=2
         bpy.context.view_layer.objects.active=o;bpy.ops.object.modifier_apply(modifier=b.name)
     metric_uv(o)
+    box_meshes[key]=o.data
     if solid:colliders.append({'id':f'{name}-{len(colliders):04d}','min':[x-w/2,y-h/2,z-d/2],'max':[x+w/2,y+h/2,z+d/2]})
     return o
 def text(label,x,y,z,size=.38,reverse=False):
@@ -74,8 +82,11 @@ def text(label,x,y,z,size=.38,reverse=False):
     if reverse:o.rotation_euler.z=math.pi
     o.data.materials.append(materials['Warm porcelain']);bpy.ops.object.convert(target='MESH')
 def cylinder(name,mat,x,y,z,r,h):
+    key=(mat,r,h)
+    if key in cylinder_meshes:
+        o=bpy.data.objects.new(name,cylinder_meshes[key]);bpy.context.collection.objects.link(o);o.location=(x,-z,y);return o
     bpy.ops.mesh.primitive_cylinder_add(vertices=24,radius=r,depth=h,location=(x,-z,y))
-    o=bpy.context.object;o.name=name;o.data.materials.append(materials[mat]);return o
+    o=bpy.context.object;o.name=name;o.data.materials.append(materials[mat]);cylinder_meshes[key]=o.data;return o
 
 def plant(x,y,z,scale=1):
     """Curved solid leaves, not flat crossed billboards or spherical crowns."""
@@ -141,73 +152,10 @@ for x in [-84,-42,0,42,84]:
         cylinder('L2 pendant shade','Bronze',x,9.78,z,.72,.18)
         cylinder('L2 pendant diffuser','Warm light',x,9.67,z,.64,.035)
 
-# Four complete original fit-out themes inside the existing south-side shop shells.
-# The 3.4m door and centre aisle remain clear. No brand assets are copied.
-for idx,x in enumerate([-54,-33,46,67]):
-    theme=['Burgundy','Walnut','Ink','Sage upholstery'][idx]
-    box('Boutique feature wall',theme,x,2.1,73.76,15.4,3.7,.08,True)
-    box('Boutique stone floor','Travertine',x,.184,62.4,15.6,.016,22.4,False,0)
-    # Recessed coffer ceiling, perimeter cove and real solid bulkhead.
-    box('Boutique ceiling','Warm porcelain',x,4.08,62.5,15.7,.18,22.7,True)
-    for dx in [-7.3,7.3]:
-        box('Ceiling border','Walnut',x+dx,3.89,62.5,.6,.25,22.4,True)
-        box('Cove light','Warm light',x+dx*.94,3.81,62.5,.075,.065,21.8)
-        box('Wall panel',theme,x+dx,2.02,64,.16,3.66,18.5,True)
-        for zz in [55,60,65,70]:box('Wall seam','Bronze',x+dx*.987,2.02,zz,.08,3.45,.035)
-    for zz in [52,73]:box('Ceiling cross border','Walnut',x,3.9,zz,15,.24,.7)
-    for dx in [-7.1,7.1]:box('Bronze reveal','Bronze',x+dx,2.05,72.9,.13,3.65,1.6)
-    # Broad stone portal with a dark recessed head; never close the door.
-    for dx in [-7.85,-1.87,1.87,7.85]:box('Shopfront pier','Travertine',x+dx,1.96,50.87,.26,3.56,.34,True)
-    box('Shopfront lintel',theme,x,3.72,50.83,15.9,.48,.4)
-    box('Door threshold','Bronze',x,.185,51,3.35,.012,.2,False,0)
-    for dx in [-4.9,4.9]:
-        box('Window display plinth','Travertine',x+dx,.53,53.1,4.2,.7,1.1,True,.08)
-        # Rounded leather goods with straps, jewelry busts, shoes and watch stands.
-        for n in [-1,0,1]:
-            xx=x+dx+n*1.1
-            if idx==0:
-                box('Leather handbag',['Burgundy','Walnut','Sage upholstery'][n+1],xx,1.08,53.1,.56,.48,.23,False,.10)
-                bpy.ops.mesh.primitive_torus_add(major_radius=.17,minor_radius=.021,major_segments=16,minor_segments=6,location=(xx,-53.1,1.40),rotation=(math.pi/2,0,0))
-                bpy.context.object.data.materials.append(materials['Bronze'])
-                box('Bag clasp','Bronze',xx,1.11,52.973,.09,.06,.025)
-            elif idx==1:
-                box('Watch display riser','Ink',xx,.98,53.16,.24,.20,.24)
-                box('Leather watch strap','Walnut',xx,1.21,53.12,.09,.50,.055)
-                o=cylinder('Watch case','Bronze',xx,1.21,53.07,.14,.055);o.rotation_euler.x=math.pi/2
-                o=cylinder('Watch dial','Warm porcelain',xx,1.21,53.035,.117,.012);o.rotation_euler.x=math.pi/2
-                box('Hour hand','Ink',xx,1.24,53.021,.013,.085,.008)
-                box('Minute hand','Ink',xx+.043,1.21,53.020,.09,.009,.008)
-                for a in range(12):
-                    angle=a*math.pi/6
-                    box('Hour index','Bronze',xx+math.sin(angle)*.099,1.21+math.cos(angle)*.099,53.019,.012,.018,.006,False,0)
-            elif idx==2:
-                bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=8,radius=1,location=(xx,-53.1,1.10))
-                o=bpy.context.object;o.scale=(.30,.16,.38);o.data.materials.append(materials['Ink'])
-                bpy.ops.mesh.primitive_torus_add(major_radius=.23,minor_radius=.025,major_segments=20,minor_segments=6,location=(xx,-53.0,1.12),rotation=(math.pi/3,0,0))
-                bpy.context.object.data.materials.append(materials['Bronze'])
-            else:
-                box('Shoe sole','Ink',xx,.945,53.1,.24,.065,.61,False,.06)
-                box('Shoe upper','Walnut',xx,1.05,53.05,.23,.20,.45,False,.09)
-        box('Window soffit','Warm light',x+dx,3.38,53.3,5,.08,2.5)
-    for dx in [-6,-3,0,3,6]:
-        box('Backwall niche frame','Bronze',x+dx,2.1,73.51,2.25,2.4,.15)
-        box('Backwall niche recess','Ink',x+dx,2.1,73.39,2.08,2.22,.13)
-        for yy in [1.15,2,2.85]:
-            box('Display shelf','Travertine',x+dx,yy,73.12,2.05,.065,.6)
-            box('Shelf light','Warm light',x+dx,yy+.08,73.36,1.85,.025,.06)
-            for u in [-.53,.53]:box('Packaged collection',theme,x+dx+u,yy+.26,73.09,.4,.43,.24,False,.035)
-    # Consultation salon opposite the existing sales counter.
-    for dx in [-5.5,-2.7]:
-        box('Salon chair seat','Sage upholstery',x+dx,.66,69,.95,.24,1,True,.12)
-        box('Salon chair back','Sage upholstery',x+dx,1.08,69.4,.95,.85,.18,True,.09)
-        for u in [-.34,.34]:
-            for v in [-.35,.35]:box('Chair leg','Walnut',x+dx+u,.36,69+v,.065,.38,.065)
-    cylinder('Consultation table','Bronze',x-4.1,.73,69,.56,.08)
-    box('Table support','Walnut',x-4.1,.44,69,.65,.55,.65,True,.06)
-    for xx in [-5,0,5]:
-        for zz in [57,63,70]:
-            cylinder('Downlight trim','Bronze',x+xx,3.95,zz,.15,.06)
-            cylinder('Downlight diffuser','Warm light',x+xx,3.91,zz,.11,.025)
+import runpy
+luxury=runpy.run_path(str(ROOT/'scripts/assets/mall-luxury-fitout.py'),init_globals=globals())
+BRAND_ROOMS=luxury['BRAND_ROOMS']
+
 
 # Sculptural ceiling pendants do not obstruct the tall atrium nor hang over lift wells.
 for x in [-84,-42,0,42,84]:
@@ -228,10 +176,13 @@ for m in materials.values():
     for o in group:o.select_set(True)
     if group:
         bpy.context.view_layer.objects.active=group[0];bpy.ops.object.join();group[0].name='Fitout '+m.name
-bpy.ops.export_scene.gltf(filepath=str(OUT/'fitout.glb'),export_format='GLB',export_apply=True)
+bpy.ops.export_scene.gltf(filepath=str(OUT/'fitout.glb'),export_format='GLB',export_apply=True,
+    export_draco_mesh_compression_enable=True,export_draco_mesh_compression_level=6,
+    export_draco_position_quantization=18,export_draco_normal_quantization=12,
+    export_draco_texcoord_quantization=14)
 manifest={'id':'GC-MALL-FITOUT-001','units':'meters','origin':[0,0,-188],
-    'scope':'L1 furnished boutiques, curved botanical foliage, L2 west lounge and gallery pendants; L2 shops and L3-L6 fit-out still pending',
-    'boutiques':[{'centerX':x,'doorZ':51,'theme':theme,'clearDoorMeters':3.4,'floorY':.17} for x,theme in zip([-54,-33,46,67],['leather goods','watches','jewelry','footwear'])],
+    'scope':'Five brand-specific concept boutiques; Gucci duplex with stair and lift openings; other upper floors remain unfinished',
+    'boutiques':BRAND_ROOMS,
     'colliders':colliders,'meshes':len(bpy.context.scene.objects),
     'triangles':sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in bpy.context.scene.objects if o.type=='MESH')}
 (OUT/'fitout-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')

@@ -43,8 +43,8 @@ for asset_id, filename, manifest_name in jobs:
                     v = .48+.07*math.sin(x*.23+math.sin(y*.045))+.025*math.sin(x*1.6)+grain
                     rgb = (v*.9,v*.64,v*.38)
                 else:
-                    v = .78+.015*math.sin(y*.32+math.sin(x*.08))+grain
-                    if x<1 or y<1: v -= .1
+                    v = .74+.009*math.sin(x*.041+y*.022)+.008*math.sin(x*.073-y*.051)+grain*.25
+                    if x<1 or y<1: v -= .045
                     rgb = (v,v*.985,v*.95)
                 pixels.extend((*rgb,1))
         tex.pixels.foreach_set(pixels)
@@ -52,7 +52,7 @@ for asset_id, filename, manifest_name in jobs:
         node = material.node_tree.nodes.new('ShaderNodeTexImage')
         node.image = tex
         material.node_tree.links.new(node.outputs['Color'],shader.inputs['Base Color'])
-        shader.inputs['Roughness'].default_value = .6 if timber else .72
+        shader.inputs['Roughness'].default_value = .48 if timber else .38 if 'ivory' in label else .62
     for obj in bpy.context.scene.objects:
         if obj.type != 'MESH': continue
         uv = obj.data.uv_layers.active or obj.data.uv_layers.new(name='MetricSurface')
@@ -86,6 +86,10 @@ for asset_id, filename, manifest_name in jobs:
                                 for o in scene.objects if o.type == 'MESH')
     manifest['finishing'] = {'tool': 'Blender 4.5.3', 'editable': f'asset-library/blender/cbd/{asset_id}.blend', 'bevelMeters': .025 if 'MALL' in asset_id else .015}
     (folder / manifest_name).write_text(json.dumps(manifest, indent=2)+'\n')
+    if '--no-preview' in sys.argv:
+        bpy.ops.wm.save_as_mainfile(filepath=str(EDITABLE / f'{asset_id}.blend'), compress=True)
+        print('FINISHED', asset_id, manifest['triangles'], flush=True)
+        continue
     big = 'MALL' in asset_id
     bpy.ops.object.light_add(type='SUN', location=(0, 0, 100))
     bpy.context.object.rotation_euler = (.45, -.5, -.4)

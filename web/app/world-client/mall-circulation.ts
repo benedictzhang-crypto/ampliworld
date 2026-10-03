@@ -1,4 +1,5 @@
 import { Box3, Vector3 } from 'three';
+import luxury from './mall-luxury-plan.json';
 
 export const MALL_LEVELS = [
   { id: 'B4', y: -25.2, label: 'B4 · 公共停车' },
@@ -21,19 +22,27 @@ export const LIFT_GROUPS = [
 ] as const;
 export const liftBox = (x:number,y:number,z:number,w:number,h:number,d:number) => new Box3(new Vector3(x-w/2,y-h/2,z-d/2),new Vector3(x+w/2,y+h/2,z+d/2));
 export function createMallLifts() {
-  return LIFT_GROUPS.flatMap(g => [-4.5,-1.5,1.5,4.5].map((dx,i) => ({
+  const publicCars=LIFT_GROUPS.flatMap(g => [-4.5,-1.5,1.5,4.5].map((dx,i) => ({
     id: `${g.id}${i+1}`, group:g, x:g.x+dx, z:g.z-188,
     y:.17, target:.17, door:1, phase:'idle' as 'idle'|'closing'|'moving'|'opening',
+    levels:[...MALL_LEVELS],
     doors:MALL_LEVELS.map(l => liftBox(g.x+dx,l.y+1.55,g.z-188+g.front*2.45,2.75,3.1,.2)),
     platform:liftBox(g.x+dx,.11,g.z-188,2.72,.12,4.7),
   })));
+  const g=luxury.lift;
+  const levels=MALL_LEVELS.filter(l=>l.id==='L1'||l.id==='L2');
+  return [...publicCars,{
+    id:g.id,group:g,x:g.x,z:g.z-188,y:.17,target:.17,door:1,phase:'idle' as 'idle'|'closing'|'moving'|'opening',levels,
+    doors:levels.map(l=>liftBox(g.x,l.y+1.55,g.z-188+g.front*2.45,2.75,3.1,.2)),
+    platform:liftBox(g.x,.11,g.z-188,2.72,.12,4.7),
+  }];
 }
 export type MallLift = ReturnType<typeof createMallLifts>[number];
 export type LiftCarrier = { active:boolean; y:number; carId:string|null };
 export function nearestMallLevel(y:number) { return MALL_LEVELS.reduce((a,b)=>Math.abs(a.y-y)<Math.abs(b.y-y)?a:b); }
 export function liftContains(c:MallLift,x:number,z:number,y:number) { return Math.abs(x-c.x)<1.2&&Math.abs(z-c.z)<2.1&&Math.abs(y-c.y)<.35; }
 export function requestMallLift(c:MallLift,target:number) {
-  if(c.phase!=='idle'||!MALL_LEVELS.some(l=>l.y===target)) return false;
+  if(c.phase!=='idle'||!c.levels.some(l=>l.y===target)) return false;
   if(Math.abs(c.y-target)<.01) return true;
   c.target=target;c.phase='closing';return true;
 }
@@ -47,7 +56,7 @@ export function stepMallLift(c:MallLift,elapsed:number) {
   } else if(c.phase==='opening') {c.door=Math.min(1,c.door+dt*1.2);if(c.door===1)c.phase='idle';}
   c.platform.min.y=c.y-.12;c.platform.max.y=c.y;
   c.doors.forEach((b,i)=>{
-    const l=MALL_LEVELS[i],open=Math.abs(c.y-l.y)<.01&&c.door>.85;
+    const l=c.levels[i],open=Math.abs(c.y-l.y)<.01&&c.door>.85;
     if(open)b.makeEmpty();
     else {b.min.set(c.x-1.375,l.y,c.z+c.group.front*2.45-.1);b.max.set(c.x+1.375,l.y+3.1,c.z+c.group.front*2.45+.1);}
   });

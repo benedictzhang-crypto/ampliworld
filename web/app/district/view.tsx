@@ -961,6 +961,11 @@ export function DistrictClient() {
           )}
         </div>
       )}
+      {walking&&!driving&&nearbyLift&&<section aria-label="Elevator controls" style={{position:'absolute',right:20,bottom:105,zIndex:25,padding:16,background:'#122029ee',color:'#fff',border:'1px solid #b99b62',borderRadius:12,maxWidth:320}}>
+        <strong>{nearbyLift.id==='GUCCI'?'GUCCI · Private lift':`Lift ${nearbyLift.id}`}</strong>
+        <p aria-live="polite" style={{fontSize:14}}>{liftNotice}</p>
+        <div style={{display:'flex',flexWrap:'wrap',gap:8}}>{nearbyLift.levels.map(l=><Button key={l.id} onClick={()=>rideLift(l.y)}>{l.id}</Button>)}</div>
+      </section>}
       <Localized>
         <header className="district-hud">
           <div>

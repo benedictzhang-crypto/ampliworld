@@ -12,7 +12,7 @@ export function MallElevators({cars,carrier}:{cars:MallLift[];carrier:React.RefO
     cars.forEach((c,i)=>{
       stepMallLift(c,dt);
       const body=moving.current[i];if(body)body.position.y=c.y;
-      MALL_LEVELS.forEach((l,j)=>{
+      c.levels.forEach((l,j)=>{
         const door=doors.current[i*MALL_LEVELS.length+j];
         if(door) {
           const open=Math.abs(c.y-l.y)<.01?c.door:0;
@@ -43,7 +43,7 @@ export function MallElevators({cars,carrier}:{cars:MallLift[];carrier:React.RefO
         <mesh position={[0,3.08,0]}><boxGeometry args={[2.7,.12,4.7]}/><meshStandardMaterial color="#fff2d6" emissive="#fff2d6" emissiveIntensity={.8}/></mesh>
         <mesh position={[0,1.5,-c.group.front*2.25]}><boxGeometry args={[2.6,3,.12]}/><meshStandardMaterial color="#8aadb4" metalness={.75} roughness={.18}/></mesh>
       </group>
-      {MALL_LEVELS.map((l,j)=><group key={l.id} ref={o=>{doors.current[i*MALL_LEVELS.length+j]=o}} position={[c.x,l.y+1.55,c.z+c.group.front*2.45]}>
+      {c.levels.map((l,j)=><group key={l.id} ref={o=>{doors.current[i*MALL_LEVELS.length+j]=o}} position={[c.x,l.y+1.55,c.z+c.group.front*2.45]}>
         {[-1,1].map(s=><mesh key={s} position={[s*.68,0,0]}><boxGeometry args={[1.35,3.1,.14]}/><meshStandardMaterial color="#99aeb3" metalness={.75} roughness={.25}/></mesh>)}
       </group>)}
     </group>)}

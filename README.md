@@ -22,6 +22,27 @@ does not mean 600 km² of detailed, continuously simulated city.
 
 ## Where the project stands
 
+### Brand-specific retail and a walkable duplex — 3 October 2026
+
+Five concept boutiques now replace six generic rooms: Tiffany & Co., Gucci,
+Cartier, Moncler and Chloé. Blender assets distinguish blue-green jewelry cases,
+brown woven leather-goods displays, burgundy salons, black marble with five
+colors of quilted jackets, and warm plaster/brass fashion interiors. These are
+illustrative original concepts, not licensed tenants or accurate store replicas.
+The map provides a direct arrival point for each store.
+
+Gucci occupies L1/L2 with an actual floor opening, a 36-riser staircase and a
+two-stop private elevator. Public mall elevators also reach its upper entrance.
+The shared spatial plan drives geometry and walking support; tests cover holes,
+doors, stair ascent/descent and the private lift's floor limits. An on-screen
+lift panel exposes calling and destination selection. Local lighting adds a
+single nearby 512px shadow spotlight, not full global illumination.
+
+Assets use shared materials and Draco compression with a locally served
+decoder. See [retail design and limitations](docs/MALL_LUXURY_DESIGN.md).
+Other upper-floor stores remain generic, and realistic staff, buying products,
+fitting-room interactions and final architectural lighting remain unfinished.
+
 ### Exploration controls and the first mall fit-out — 29 September 2026
 
 Observer walking remains 8 m/s; Shift adds a 12 m/s sprint. The playable car

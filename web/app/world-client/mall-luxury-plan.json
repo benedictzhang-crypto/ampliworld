@@ -1,0 +1,11 @@
+{
+  "shops": [
+    {"id":"tiffany","label":"TIFFANY & CO.","centerX":-96,"levels":["L1"],"theme":"jewelry","color":"#81d8d0","light":"#efffff"},
+    {"id":"gucci","label":"GUCCI","centerX":-54,"levels":["L1","L2"],"theme":"leather goods and ready-to-wear","color":"#68442f","light":"#fff0da"},
+    {"id":"cartier","label":"Cartier","centerX":-33,"levels":["L1"],"theme":"jewelry and watches","color":"#7c1729","light":"#fff1dc"},
+    {"id":"moncler","label":"MONCLER","centerX":46,"levels":["L1"],"theme":"quilted outerwear","color":"#181c20","light":"#f4f8ff"},
+    {"id":"chloe","label":"Chloé","centerX":67,"levels":["L1"],"theme":"ready-to-wear and leather goods","color":"#ded1b8","light":"#fff2df"}
+  ],
+  "stairs":{"id":"gucci-stair","min":[-60.7,54],"max":[-57.3,72],"low":0.17,"high":6.48,"steps":36},
+  "lift":{"id":"GUCCI","x":-49.5,"z":70,"min":[-50.96,67.5],"max":[-48.04,72.5],"front":-1,"color":"#bb955d"}
+}

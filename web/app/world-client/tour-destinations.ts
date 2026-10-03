@@ -43,7 +43,11 @@ const allVisibleSolids=[...CIVIC_COLLIDERS,...METROPOLITAN_COLLIDERS,...CITY_SER
 export const TOUR_DESTINATIONS:readonly TourDestination[]=[
   destination('GC-MALL-ARRIVAL','Aurea Galleria · Main Entrance','Mall shopping interior 商场',0,-188,0,-87,true),
   destination('GC-MALL-GALLERY','Aurea Galleria · L1 Gallery','Mall interior boutique lounge 商场内部',0,-145,0,-145,true),
-  destination('GC-MALL-BOUTIQUE','Aurea Galleria · Boutique Salon','Mall watch boutique interior 商场精品店',-33,-126,-33,-126,true),
+  destination('GC-MALL-BOUTIQUE','Cartier · Jewelry Salon','Concept boutique · L1 jewelry and watches',-33,-133,-33,-133,true),
+  destination('GC-MALL-TIFFANY','Tiffany & Co. · Blue Salon','Concept boutique · L1 jewelry',-96,-133,-96,-133,true),
+  destination('GC-MALL-GUCCI','Gucci · Duplex Flagship','Concept boutique · internal stairs and private lift to L2',-54,-133,-54,-133,true),
+  destination('GC-MALL-MONCLER','Moncler · Outerwear Gallery','Concept boutique · L1 quilted jackets',46,-133,46,-133,true),
+  destination('GC-MALL-CHLOE','Chloé · Fashion Salon','Concept boutique · L1 leather goods',67,-133,67,-133,true),
   ...civic,...services,...operations,...subcenters]
   .filter(d=>Math.abs(d.arrivalX)<9900&&Math.abs(d.arrivalZ)<14900&&districtGroundHeight(d.arrivalX,d.arrivalZ)>-.1)
   .filter(d=>!allVisibleSolids.some(c=>d.arrivalX>c.min[0]-.4&&d.arrivalX<c.max[0]+.4&&

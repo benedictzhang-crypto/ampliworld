@@ -12,6 +12,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { merchandise } from './mall-merchandise.mjs';
 import { buildParking } from './mall-parking.mjs';
 import {ESCALATORS,ESCALATOR_OPENING} from '../../app/world-client/mall-escalators.mjs';
+import luxury from '../../app/world-client/mall-luxury-plan.json' with {type:'json'};
 if (!globalThis.FileReader) globalThis.FileReader = class { readAsArrayBuffer(b) { b.arrayBuffer().then(v => { this.result = v; this.onloadend?.(); }); } };
 const out = new URL('../../public/assets/3d/ampliworld/GC-MALL-002/', import.meta.url);
 const materials = {};
@@ -41,7 +42,7 @@ const liftGroups=[
 ];
 // Rectangle subtraction avoids hidden solid floor across an elevator shaft.
 function subtract(r,h){const x0=Math.max(r[0],h.min[0]),z0=Math.max(r[1],h.min[1]),x1=Math.min(r[2],h.max[0]),z1=Math.min(r[3],h.max[1]);if(x1<=x0||z1<=z0)return[r];return [[r[0],r[1],x0,r[3]],[x1,r[1],r[2],r[3]],[x0,r[1],x1,z0],[x0,z1,x1,r[3]]].filter(a=>a[2]-a[0]>.001&&a[3]-a[1]>.001);}
-function plate(level,y,thickness){let rs=[[-112.5,-90,112.5,-35],[-112.5,35,112.5,90],[-112.5,-35,-45,35],[45,-35,112.5,35]];for(const h of [...liftGroups,...(level!=='L1'&&level!=='ROOF'?[ESCALATOR_OPENING]:[])])rs=rs.flatMap(r=>subtract(r,h));rs.forEach((r,i)=>{const id=`${level}-plate-${i}`;block(id,'ivory',(r[0]+r[2])/2,y-thickness/2,(r[1]+r[3])/2,r[2]-r[0],thickness,r[3]-r[1]);surfaces.push({id,min:[r[0],r[1]],max:[r[2],r[3]],y,level});});}
+function plate(level,y,thickness){let rs=[[-112.5,-90,112.5,-35],[-112.5,35,112.5,90],[-112.5,-35,-45,35],[45,-35,112.5,35]];for(const h of [...liftGroups,...(level!=='L1'&&level!=='ROOF'?[ESCALATOR_OPENING]:[]),...(level==='L2'?[luxury.stairs,luxury.lift]:[])])rs=rs.flatMap(r=>subtract(r,h));rs.forEach((r,i)=>{const id=`${level}-plate-${i}`;block(id,'ivory',(r[0]+r[2])/2,y-thickness/2,(r[1]+r[3])/2,r[2]-r[0],thickness,r[3]-r[1]);surfaces.push({id,min:[r[0],r[1]],max:[r[2],r[3]],y,level});});}
 FLOOR_Y.forEach((y,i)=>plate('L'+(i+1),y,i===0?.17:.48));plate('ROOF',ROOF_Y,.5);
 for(const e of ESCALATORS){
  const n=70,dz=(e.maxZ-e.minZ)/n,dy=(e.high-e.low)/n;
@@ -94,6 +95,11 @@ const brands=[
 ];
 function room(label,x,z,ry,f,index){
  const y=FLOOR_Y[f],c=Math.cos(ry),s=Math.sin(ry),w=16,depth=23,h=3.9,id=`L${f+1}-shop-${index}`;
+ const flagship=z===51&&luxury.shops.find(shop=>shop.centerX===x&&shop.levels.includes('L'+(f+1)));
+ if(flagship){
+  shops.push({id,label:flagship.label,level:'L'+(f+1),floorY:y,position:[x,y,z],rotationY:ry,doorWidth:3.4,door:[x,y,z],open:true,interior:'Blender brand-specific fit-out',commercialStatus:'Illustrative concept; no affiliation or tenancy claimed'});
+  return; // The dedicated asset owns walls, glazing, merchandise and collisions.
+ }
  const pt=(u,v)=>[x+u*c+v*s,z-u*s+v*c];
  const b=(key,m,u,yy,v,ww,hh,dd,collision=true)=>{const p=pt(u,v);box(m,p[0],y+yy,p[1],ww,hh,dd,ry);if(collision){const ex=Math.abs(c)*ww/2+Math.abs(s)*dd/2,ez=Math.abs(s)*ww/2+Math.abs(c)*dd/2;solid(id+'-'+key,[p[0]-ex,y+yy-hh/2,p[1]-ez],[p[0]+ex,y+yy+hh/2,p[1]+ez]);}};
  b('back','ivory',0,h/2,-depth,w,h,.18);for(const side of [-1,1])b('side'+side,'stone',side*w/2,h/2,-depth/2,.16,h,depth);
