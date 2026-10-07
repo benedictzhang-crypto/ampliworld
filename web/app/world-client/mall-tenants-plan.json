@@ -17,6 +17,15 @@
     {"id":"furniture","name":"Atelier Home · Furniture","level":"L3","x":-153,"z":53,"w":68,"d":54,"theme":"furniture","color":[0.62,0.53,0.40]},
     {"id":"healthy","name":"Green Table · Healthy Kitchen","level":"B1","x":-155,"z":-51,"w":62,"d":50,"theme":"healthy-food","color":[0.20,0.37,0.22]},
     {"id":"moleskine","name":"Moleskine","level":"B1","x":-172,"z":48,"w":28,"d":55,"theme":"stationery","color":[0.17,0.20,0.18]},
-    {"id":"chocolate","name":"Cacao Atelier · Chocolate","level":"B1","x":-138,"z":48,"w":28,"d":55,"theme":"chocolate","color":[0.26,0.10,0.06]}
+    {"id":"chocolate","name":"Cacao Atelier · Chocolate","level":"B1","x":-138,"z":48,"w":28,"d":55,"theme":"chocolate","color":[0.26,0.10,0.06]},
+    {"id":"auto-gallery","name":"Aurea Motors · 4S City Gallery","level":"L3","x":155,"z":-53,"w":60,"d":54,"theme":"auto-showroom","color":[0.20,0.24,0.27]},
+    {"id":"shoe-salon","name":"The Shoe Salon","level":"L3","x":155,"z":53,"w":60,"d":54,"theme":"shoes","color":[0.46,0.30,0.21]},
+    {"id":"alterations","name":"Atelier · Alterations","level":"L4","x":-177,"z":-62,"w":20,"d":36,"theme":"alterations","color":[0.33,0.25,0.18]},
+    {"id":"watch-care","name":"Watch Care Atelier","level":"L4","x":-153,"z":-62,"w":20,"d":36,"theme":"watch-repair","color":[0.19,0.25,0.28]},
+    {"id":"concierge","name":"Aurea Concierge & Gifts","level":"L4","x":-129,"z":-62,"w":20,"d":36,"theme":"concierge","color":[0.30,0.34,0.25]},
+    {"id":"member-lounge","name":"Aurea Members Lounge","level":"L4","x":-171,"z":53,"w":30,"d":54,"theme":"members","color":[0.21,0.29,0.26]},
+    {"id":"personal-styling","name":"Personal Styling Suite","level":"L4","x":-135,"z":53,"w":30,"d":54,"theme":"styling","color":[0.49,0.37,0.33]},
+    {"id":"beauty-spa","name":"Beauty & Wellness Atelier","level":"L4","x":155,"z":-53,"w":60,"d":54,"theme":"spa","color":[0.49,0.51,0.39]},
+    {"id":"culture-gallery","name":"Aurea Culture Gallery","level":"L4","x":155,"z":53,"w":60,"d":54,"theme":"art-gallery","color":[0.65,0.61,0.53]}
   ]
 }

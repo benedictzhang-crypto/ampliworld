@@ -42,6 +42,8 @@ Backlog: concierge/information on every public level; alterations; watch and lea
 
 ## Implemented increment and limits
 
+Follow-up: nine additional physical concept rooms now occupy L3 east and both L4 wings: auto showroom (four original concept vehicles, configuration kiosks and material samples), shoe salon, alterations atelier, watch repair, concierge/gift wrapping, members lounge, styling suite, beauty/SPA and art gallery. The tenant manifest now has 26 rooms. Original abstract artwork is procedural, not copied. The mall directory links to the existing independent `GC-AUTO-001` campus; workshop work remains there, not upstairs in the mall. New rooms have no booking, repair execution or financial transaction workflow yet. Proposed service needs above remain a checklist; these nine are modeled, not operationally completed.
+
 The new `mall-tenants-plan.json` and `GC-MALL-TENANTS-001` manifest define **17 physical concept stores**: McDonald's, Starbucks, Richard Mille, bookshop/café, Chanel tailoring, Sephora, Loewe, Balenciaga, Dior, Hermès, Apple, Piglet gifts, hi-fi, furniture, healthy meals, Moleskine and chocolate. Each has dimensions, level, entry, interior fixtures and colliders. Existing boutiques and sports anchors remain. The floor directory exposes only actual visit destinations, not this proposed brand backlog.
 
 Also implemented: stone finish over existing cut-out floor plates, ceiling vent/speaker fixtures, roof garden seating/guards and sports store detail. Audio playback is not connected. Transactions, inventory, staffing and resident demand are not yet connected to these new rooms. Their geometry is a concept fit-out, not a photoreal, fully bespoke finished flagship.

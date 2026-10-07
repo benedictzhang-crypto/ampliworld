@@ -123,7 +123,8 @@ for s in PLAN['shops']:
     text(s['name'],x,y+4.05,door+front*.17,min(.55,w/(len(s['name'])*.62)),front<0)
     for xx in [x-w*.32,x+w*.32]:
         box('Lighting cove','Warm light',xx,y+4.65,z,.075,.045,d-1)
-        for zz in [z-d*.26,z+d*.26]:shelf(xx,y,zz,s['theme'],min(5,w*.28))
+        if s['theme'] not in ['auto-showroom','alterations','watch-repair','concierge','members','styling','spa','art-gallery','shoes']:
+            for zz in [z-d*.26,z+d*.26]:shelf(xx,y,zz,s['theme'],min(5,w*.28))
     # Clear continuous central aisle and real cashier position.
     box('Cashier desk','Walnut',x+w*.24,y+.55,back+front*3,w*.28,1.1,1.8,True,.10)
     box('Checkout screen','Ink',x+w*.24,y+1.35,back+front*3,.5,.38,.10)
@@ -182,6 +183,7 @@ for s in PLAN['shops']:
         for k in range(8):
             xx=x-10+k*3;sphere('Plush body','Rose cloth',xx,y+1.12,z,.24);sphere('Plush head','Rose cloth',xx,y+1.43,z,.21)
             for dx in [-.14,.14]:sphere('Plush ear','Rose cloth',xx+dx,y+1.62,z,.095)
+    runpy.run_path(str(Path(__file__).with_name('mall-service-interiors.py')),init_globals=globals())
     shops.append({**s,'floorY':y,'entry':[x,y,door+front*2],'inside':[x,y,door-front*3]})
     compact_scene()
 # Roof: retained promenade, discrete gardens and seated outlooks, not a full opaque slab.

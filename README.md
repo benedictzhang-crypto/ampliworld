@@ -24,6 +24,12 @@ does not mean 600 km² of detailed, continuously simulated city.
 
 ### Mall tenant interiors and research-backed coverage — 7 October 2026
 
+Follow-up: nine more rooms add an auto city gallery, shoe salon, alterations,
+watch repair, concierge, membership lounge, styling, SPA and culture gallery.
+The modular tenant manifest now contains 26 rooms. Four solid display cars
+occupy the showroom; the floor directory separately links the existing 4S
+campus. These are explorable models, not working appointment/repair workflows.
+
 Seventeen additional Blender-authored concept stores have physical rooms,
 fixtures, collision and floor-aware arrivals. The new searchable mall directory
 visits actual entrances. This increment also adds marble floor finishes, ceiling
