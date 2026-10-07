@@ -32,6 +32,7 @@ import { MallElevators } from '../world-client/mall-elevators';
 import { MallFitout, MALL_FITOUT_COLLIDERS, mallFitoutLocation } from '../world-client/mall-fitout';
 import {MallLeisure,MALL_LEISURE_COLLIDERS,mallLeisureLocation} from '../world-client/mall-leisure';
 import {MallSports,MALL_SPORTS_COLLIDERS,mallSportsLocation} from '../world-client/mall-sports';
+import mallSpatial from '../world-client/mall-spatial-plan.json';
 import {
   createMallLifts,
   LIFT_STATIC_SOLIDS,
@@ -581,7 +582,7 @@ export function DistrictClient() {
     const parkGateX = AMUSEMENT_PARK.center.x + AMUSEMENT_PARK.entrance.x;
     const parkGateZ = AMUSEMENT_PARK.center.z + AMUSEMENT_PARK.entrance.z;
     const atParkGate = Math.abs(x - parkGateX) < 1 && Math.abs(z - parkGateZ) < 1;
-    const insideMall = Math.abs(x) < 113 && Math.abs(z - DISTRICT.mall.z) < 91;
+    const insideMall = Math.abs(x) < mallSpatial.footprint.length/2 && Math.abs(z - DISTRICT.mall.z) < mallSpatial.footprint.width/2;
     if (atParkGate) {
       const vehicle = findVehicleArrival(x,z,[...solids,vehicleBodyCollider(car.current)],districtGroundHeight);
       if(vehicle){
