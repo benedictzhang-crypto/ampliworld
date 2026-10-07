@@ -32,6 +32,8 @@ import { MallElevators } from '../world-client/mall-elevators';
 import { MallFitout, MALL_FITOUT_COLLIDERS, mallFitoutLocation } from '../world-client/mall-fitout';
 import {MallLeisure,MALL_LEISURE_COLLIDERS,mallLeisureLocation} from '../world-client/mall-leisure';
 import {MallSports,MALL_SPORTS_COLLIDERS,mallSportsLocation} from '../world-client/mall-sports';
+import {MallTenants,MALL_TENANT_COLLIDERS,mallTenantLocation} from '../world-client/mall-tenants';
+import {MallDirectory} from '../world-client/mall-directory';
 import mallSpatial from '../world-client/mall-spatial-plan.json';
 import {
   createMallLifts,
@@ -367,6 +369,7 @@ export function DistrictClient() {
         ...GARAGE_COLLIDERS,
         ...MALL_LEISURE_COLLIDERS,
         ...MALL_SPORTS_COLLIDERS,
+        ...MALL_TENANT_COLLIDERS,
         ...COMMUNITY_COLLIDERS,
         ...housingColliders(cellX * 1000, cellZ * 1000, openGates),
         ...METROPOLITAN_COLLIDERS,
@@ -694,6 +697,7 @@ export function DistrictClient() {
                   <AssetIsland name="mall interior"><MallFitout /></AssetIsland>
                   <AssetIsland name="mall leisure"><MallLeisure /></AssetIsland>
                   <AssetIsland name="mall sports"><MallSports /></AssetIsland>
+                  <AssetIsland name="mall tenants"><MallTenants /></AssetIsland>
                   <CivicPlaces
                     x={housingX}
                     z={housingZ}
@@ -1018,6 +1022,7 @@ export function DistrictClient() {
             车辆起点
           </Button>
           <Button onClick={() => setPlanOpen(true)}>城市平面图</Button>
+          <MallDirectory onVisit={(d)=>teleportTo(d.arrivalX,d.arrivalZ,d.arrivalY)}/>
           <Button
             onClick={() =>
               teleportTo(
@@ -1118,7 +1123,7 @@ export function DistrictClient() {
                 ? `已停入 ${parkedGarageBay(activeReport)!.id} · E 下车`
                 : vehicleMessage
               : walking
-                ? mallSportsLocation(position[0],position[1],playerFloor.current)??mallLeisureLocation(position[0],position[1],playerFloor.current)??mallFitoutLocation(position[0],position[1],playerFloor.current)??districtLocation(position[0], position[1])
+                ? mallTenantLocation(position[0],position[1],playerFloor.current)??mallSportsLocation(position[0],position[1],playerFloor.current)??mallLeisureLocation(position[0],position[1],playerFloor.current)??mallFitoutLocation(position[0],position[1],playerFloor.current)??districtLocation(position[0], position[1])
                 : '俯瞰不会改变角色位置 · 返回继续原地行走'}
           </small>
         </div>

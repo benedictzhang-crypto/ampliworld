@@ -8,6 +8,7 @@ import {CITY_OPERATION_COLLIDERS} from './city-operations';
 import mallPlan from './mall-luxury-plan.json';
 import spatial from './mall-spatial-plan.json';
 import sports from './mall-sports-plan.json';
+import tenants from './mall-tenants-plan.json';
 
 export type TourDestination={id:string;name:string;kind:string;x:number;z:number;arrivalX:number;arrivalZ:number;arrivalY?:number;featured:boolean;searchText:string};
 const destination=(id:string,name:string,kind:string,x:number,z:number,arrivalX:number,arrivalZ:number,featured=false):TourDestination=>
@@ -63,6 +64,8 @@ export const TOUR_DESTINATIONS:readonly TourDestination[]=[
   {...destination('GC-MALL-B1-WEST','B1 Market · Future retail','Basement commercial reserve 地下商业',-140,-168,-140,-168,true),arrivalY:-7.2},
   {...destination('GC-MALL-B1-EAST','B1 Events · Future retail','Basement commercial reserve 地下商业',140,-168,140,-168,true),arrivalY:-7.2},
   ...sports.shops.map(s=>({...destination('GC-MALL-'+s.id,s.name+' · L1',s.theme,s.entry[0],s.entry[1]-188,s.entry[0],s.entry[1]-188,true),arrivalY:sports.floorY})),
+  ...tenants.shops.map(s=>{const front=s.z<0?1:-1;const z=s.z+front*(s.d/2+2)-188;return {...destination('GC-MALL-TENANT-'+s.id,s.name+' · '+s.level,s.theme,s.x,z,s.x,z,true),arrivalY:s.level==='B1'?-7.2:mallFloors[s.level]};}),
+  {...destination('GC-MALL-ROOF-GARDEN','Aurea Roof Garden','Green rooftop overlook 屋顶花园',150,-188,150,-188,true),arrivalY:spatial.roofY},
   ...newMallShops,...washrooms,...civic,...services,...operations,...subcenters]
   .filter(d=>Math.abs(d.arrivalX)<9900&&Math.abs(d.arrivalZ)<14900&&districtGroundHeight(d.arrivalX,d.arrivalZ)>-.1)
   .filter(d=>!allVisibleSolids.some(c=>d.arrivalX>c.min[0]-.4&&d.arrivalX<c.max[0]+.4&&

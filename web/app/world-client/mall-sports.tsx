@@ -1,5 +1,6 @@
 'use client';
 import {Clone,useGLTF} from '@react-three/drei';
+import {useMallMaterials} from './mall-materials';
 import plan from './mall-sports-plan.json';
 import manifest from '../../public/assets/3d/ampliworld/GC-MALL-SPORTS-001/sports-manifest.json';
 export const MALL_SPORTS_COLLIDERS=manifest.colliders.map(c=>({id:c.id,min:[c.min[0],c.min[1],c.min[2]-188],max:[c.max[0],c.max[1],c.max[2]-188]}));
@@ -9,5 +10,6 @@ export function mallSportsLocation(x:number,z:number,y:number){
 }
 export function MallSports(){
   const {scene}=useGLTF('/assets/3d/ampliworld/GC-MALL-SPORTS-001/sports.glb','/assets/decoders/draco/');
-  return <group position={[0,0,-188]}><Clone object={scene} castShadow receiveShadow/></group>;
+  const display=useMallMaterials(scene);
+  return <group position={[0,0,-188]}><Clone object={display} castShadow receiveShadow/></group>;
 }

@@ -52,7 +52,7 @@ def rack(x,z,kind='apparel'):
                 else:box('Equipment bag','Sport blue',xx,Y+h+.26,z,.43,.45,.42,False,.1)
 for shop in PLAN['shops']:
     x0,z0=shop['min'];x1,z1=shop['max'];cz=(z0+z1)/2;ex,ez=shop['entry']
-    box('Anchor floor '+shop['id'],'Court maple' if shop['id']=='NIKE-COURT' else 'Travertine',(x0+x1)/2,Y-.025,cz,x1-x0,.05,z1-z0)
+    box('Anchor floor '+shop['id'],'Court maple' if shop['id']=='NIKE-COURT' else 'Travertine',(x0+x1)/2,Y+.01,cz,x1-x0,.02,z1-z0)
     for z in [z0,z1]:box('Anchor partition '+shop['id'],'Ink',(x0+x1)/2,Y+2.7,z,x1-x0,5.4,.2,True)
     box('Anchor rear wall','Ink',x1,Y+2.7,cz,.2,5.4,z1-z0,True)
     # Wide west entrances open into the shared 12 m gallery; no fake door decal.
@@ -67,15 +67,15 @@ for shop in PLAN['shops']:
     compact_scene()
 # Nike concept: a 15 x 14 m half court, with separate run-off and a glass enclosure.
 c=PLAN['court'];x0,z0=c['min'];x1,z1=c['max'];cx=(x0+x1)/2
-box('Half court maple','Court maple',cx,Y+.01,(z0+z1)/2,x1-x0,.02,z1-z0)
-for x in [x0,x1]:box('Court sideline','Sport white',x,Y+.024,(z0+z1)/2,.055,.008,z1-z0)
-for z in [z0,z1]:box('Court baseline','Sport white',cx,Y+.024,z,x1-x0,.008,.055)
-for x in [cx-2.45,cx+2.45]:box('Paint lane line','Sport white',x,Y+.024,z0+2.9,.055,.008,5.8)
-box('Free throw line','Sport white',cx,Y+.024,z0+5.8,4.9,.008,.055)
+box('Half court maple','Court maple',cx,Y+.03,(z0+z1)/2,x1-x0,.02,z1-z0)
+for x in [x0,x1]:box('Court sideline','Sport white',x,Y+.06,(z0+z1)/2,.055,.008,z1-z0)
+for z in [z0,z1]:box('Court baseline','Sport white',cx,Y+.06,z,x1-x0,.008,.055)
+for x in [cx-2.45,cx+2.45]:box('Paint lane line','Sport white',x,Y+.06,z0+2.9,.055,.008,5.8)
+box('Free throw line','Sport white',cx,Y+.06,z0+5.8,4.9,.008,.055)
 for j in range(80):
     a=math.pi*j/80;b=math.pi*(j+1)/80
-    link('Three point arc','Sport white',(cx+6.5*math.cos(a),Y+.028,z0+1.2+6.5*math.sin(a)),(cx+6.5*math.cos(b),Y+.028,z0+1.2+6.5*math.sin(b)),.025)
-ring('Free throw circle','Sport white',cx,Y+.028,z0+5.8,1.8)
+    link('Three point arc','Sport white',(cx+6.5*math.cos(a),Y+.06,z0+1.2+6.5*math.sin(a)),(cx+6.5*math.cos(b),Y+.06,z0+1.2+6.5*math.sin(b)),.025)
+ring('Free throw circle','Sport white',cx,Y+.06,z0+5.8,1.8)
 for x in c['glassMin'][0],c['glassMax'][0]:box('Court side glass','Glass',x,Y+2.4,-63,.10,4.8,22,True,0)
 box('Court end glass','Glass',158,Y+2.4,-74,22,4.8,.1,True,0)
 for a,b in [(147,156.5),(159.5,169)]:box('Court door glass','Glass',(a+b)/2,Y+2.4,-52,b-a,4.8,.1,True,0)
@@ -135,6 +135,7 @@ for x in [150,160,170]:
     for k in range(5):
         xx=x-1.2+k*.6;link('Golf shaft','Bronze',(xx,Y+.5,74),(xx,Y+1.65,74),.018);box('Golf club head','Ink',xx+.09,Y+.55,74,.23,.11,.14,False,.04)
 label('CONTOUR / INDOOR PUTTING GARDEN',161,Y+4.4,77.7,.56)
+runpy.run_path(str(Path(__file__).with_name('mall-sports-detail.py')),init_globals=globals())
 compact_scene()
 bpy.ops.export_scene.gltf(filepath=str(OUT/'sports.glb'),export_format='GLB',export_apply=True,export_draco_mesh_compression_enable=True,export_draco_mesh_compression_level=6,export_draco_position_quantization=18)
 for mesh in list(bpy.data.meshes):

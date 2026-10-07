@@ -22,6 +22,17 @@ does not mean 600 km² of detailed, continuously simulated city.
 
 ## Where the project stands
 
+### Mall tenant interiors and research-backed coverage — 7 October 2026
+
+Seventeen additional Blender-authored concept stores have physical rooms,
+fixtures, collision and floor-aware arrivals. The new searchable mall directory
+visits actual entrances. This increment also adds marble floor finishes, ceiling
+vent/speaker models, roof planting/seating and sports-store detail. The speakers
+do not yet play music; new stores are not connected to transactions or staffing.
+The [reference and tenant roadmap](docs/MALL_REFERENCE_AND_TENANT_ROADMAP.md)
+separates verified SKP/Saks services, historical WF Central evidence, our proposed
+brand mix and unfinished construction. Named brands imply no affiliation.
+
 ### Sports anchors in the mall east wing — 7 October 2026
 
 L1 now has three large Blender-authored concept stores: a NIKE-labeled retail

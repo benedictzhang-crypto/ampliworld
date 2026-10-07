@@ -1,0 +1,22 @@
+{
+  "origin":[0,0,-188],
+  "shops":[
+    {"id":"mcdonalds","name":"McDonald's","level":"L1","x":-177,"z":-62,"w":20,"d":36,"theme":"quick-food","color":[0.65,0.10,0.05]},
+    {"id":"starbucks","name":"Starbucks","level":"L1","x":-153,"z":-62,"w":20,"d":36,"theme":"coffee","color":[0.05,0.27,0.18]},
+    {"id":"richard-mille","name":"RICHARD MILLE","level":"L1","x":-129,"z":-62,"w":20,"d":36,"theme":"watches","color":[0.16,0.18,0.21]},
+    {"id":"bookhouse","name":"Aurea Books & Coffee","level":"L1","x":-153,"z":51,"w":68,"d":52,"theme":"bookstore","color":[0.30,0.16,0.085]},
+    {"id":"chanel-tailoring","name":"CHANEL · Tailoring","level":"L2","x":-177,"z":-62,"w":20,"d":36,"theme":"tailoring","color":[0.10,0.10,0.11]},
+    {"id":"sephora","name":"SEPHORA","level":"L2","x":-153,"z":-62,"w":20,"d":36,"theme":"beauty","color":[0.10,0.10,0.12]},
+    {"id":"loewe","name":"LOEWE","level":"L2","x":-129,"z":-62,"w":20,"d":36,"theme":"bags","color":[0.55,0.42,0.27]},
+    {"id":"balenciaga","name":"BALENCIAGA","level":"L2","x":-177,"z":62,"w":20,"d":36,"theme":"fashion","color":[0.26,0.28,0.29]},
+    {"id":"dior","name":"DIOR","level":"L2","x":-153,"z":62,"w":20,"d":36,"theme":"fashion","color":[0.56,0.55,0.52]},
+    {"id":"hermes","name":"HERMES","level":"L2","x":-129,"z":62,"w":20,"d":36,"theme":"bags","color":[0.66,0.28,0.075]},
+    {"id":"apple","name":"Apple","level":"L2","x":155,"z":-53,"w":60,"d":54,"theme":"electronics","color":[0.75,0.77,0.78]},
+    {"id":"piglet","name":"Piglet · Gifts & Living","level":"L2","x":155,"z":53,"w":60,"d":54,"theme":"gifts","color":[0.67,0.37,0.37]},
+    {"id":"hifi","name":"Aurea Hi-Fi Listening Rooms","level":"L3","x":-153,"z":-53,"w":68,"d":54,"theme":"hifi","color":[0.19,0.16,0.13]},
+    {"id":"furniture","name":"Atelier Home · Furniture","level":"L3","x":-153,"z":53,"w":68,"d":54,"theme":"furniture","color":[0.62,0.53,0.40]},
+    {"id":"healthy","name":"Green Table · Healthy Kitchen","level":"B1","x":-155,"z":-51,"w":62,"d":50,"theme":"healthy-food","color":[0.20,0.37,0.22]},
+    {"id":"moleskine","name":"Moleskine","level":"B1","x":-172,"z":48,"w":28,"d":55,"theme":"stationery","color":[0.17,0.20,0.18]},
+    {"id":"chocolate","name":"Cacao Atelier · Chocolate","level":"B1","x":-138,"z":48,"w":28,"d":55,"theme":"chocolate","color":[0.26,0.10,0.06]}
+  ]
+}
