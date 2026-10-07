@@ -4,8 +4,17 @@
     {"id":"gucci","label":"GUCCI","centerX":-54,"levels":["L1","L2"],"theme":"leather goods and ready-to-wear","color":"#68442f","light":"#fff0da"},
     {"id":"cartier","label":"Cartier","centerX":-33,"levels":["L1"],"theme":"jewelry and watches","color":"#7c1729","light":"#fff1dc"},
     {"id":"moncler","label":"MONCLER","centerX":46,"levels":["L1"],"theme":"quilted outerwear","color":"#181c20","light":"#f4f8ff"},
-    {"id":"chloe","label":"Chloé","centerX":67,"levels":["L1"],"theme":"ready-to-wear and leather goods","color":"#ded1b8","light":"#fff2df"}
+    {"id":"chloe","label":"Chloé","centerX":67,"levels":["L1"],"theme":"ready-to-wear and leather goods","color":"#ded1b8","light":"#fff2df"},
+    {"id":"vancleef","label":"Van Cleef & Arpels","centerX":-12,"levels":["L1"],"theme":"clover jewelry salon","color":"#264c3a","light":"#fff2d9","fitout":"retail-expansion"},
+    {"id":"givenchy","label":"GIVENCHY","centerX":88,"levels":["L1"],"theme":"tailoring and leather goods","color":"#202024","light":"#fff8ed","fitout":"retail-expansion"},
+    {"id":"lululemon","label":"lululemon","centerX":-96,"levels":["L3"],"theme":"activewear and yoga","color":"#b82335","light":"#fff4e8","fitout":"retail-expansion"},
+    {"id":"lego","label":"LEGO","centerX":-54,"levels":["L3"],"theme":"construction toys and build tables","color":"#f3c631","light":"#fff9ed","fitout":"retail-expansion"},
+    {"id":"gym","label":"AUREA FITNESS","centerX":-96,"levels":["L4"],"theme":"cardio strength and stretching","color":"#364951","light":"#edf6ff","fitout":"retail-expansion"},
+    {"id":"hotpot","label":"JADE POT","centerX":-96,"levels":["L5"],"theme":"hot pot dining","color":"#9b3037","light":"#ffe4c4","fitout":"retail-expansion"},
+    {"id":"grill","label":"EMBER TABLE","centerX":-54,"levels":["L5"],"theme":"table barbecue","color":"#41342d","light":"#ffe0b7","fitout":"retail-expansion"},
+    {"id":"sushi","label":"KOMA SUSHI","centerX":-33,"levels":["L5"],"theme":"sushi counter and Japanese dining","color":"#c4ad86","light":"#fff1db","fitout":"retail-expansion"},
+    {"id":"noodles","label":"DAILY NOODLE","centerX":-12,"levels":["L5"],"theme":"affordable noodle bar","color":"#d1c5ac","light":"#fff6e9","fitout":"retail-expansion"}
   ],
-  "stairs":{"id":"gucci-stair","min":[-60.7,54],"max":[-57.3,72],"low":0.17,"high":6.48,"steps":36},
+  "stairs":{"id":"gucci-stair","min":[-60.7,54],"max":[-57.3,72],"low":0.17,"high":8.17,"steps":40},
   "lift":{"id":"GUCCI","x":-49.5,"z":70,"min":[-50.96,67.5],"max":[-48.04,72.5],"front":-1,"color":"#bb955d"}
 }

@@ -10,6 +10,19 @@ not official stores, licensed products, tenancy confirmations or exact replicas.
 | Cartier | Burgundy lacquer, gold-toned frames, jewelry consultation seating | L1 |
 | Moncler | Black veined stone, white light, hanging quilted jackets in five colors | L1 |
 | Chloé | Warm plaster, light stone, brass arch, leather goods and soft seating | L1 |
+| Van Cleef & Arpels | Green salon, pearl-toned clover pendants, consultation tables | L1 |
+| Givenchy | Black/white stone, tailored coats, bags, open rails and mirrors | L1 |
+| lululemon | Warm timber, activewear, leggings, rolled yoga mats | L3 |
+| LEGO | Yellow/blue fixtures, studded brick skyline, sets and build tables | L3 |
+| Aurea Fitness | Treadmills, barbell racks, benches, stretch mats | L4 |
+| Jade Pot | Divided hot pots, induction hobs, dining tables and kitchen | L5 |
+| Ember Table | Table grills, extraction ducts, dining tables and kitchen | L5 |
+| Koma Sushi | Sushi counter, glass case, paper lanterns and kitchen | L5 |
+| Daily Noodle | Noodle bowls, inexpensive illustrative menu, tables and kitchen | L5 |
+
+Tiffany displays now contain smile-arc necklaces with fine chains, solitaire
+rings with faceted stones and paired diamond studs. These are original stylized
+geometry, not exact catalog reproductions or purchasable merchandise.
 
 The interpretation follows the user's requested palette, not a claim that every
 real store uses the same finishes. Public primary references:
@@ -22,7 +35,7 @@ real store uses the same finishes. Public primary references:
 ## One spatial contract
 
 `mall-luxury-plan.json` drives shell removal, store addresses, L2 holes and
-Gucci's 36-riser staircase and two-stop private lift. The original six generic
+Gucci's 40-riser staircase and two-stop private lift. The original fifteen generic
 rooms are removed from the shell before exporting the replacement Blender
 interiors; old displays, signs and invisible colliders do not remain inside.
 L2 can be reached from the public mall lifts/gallery or through the store.
@@ -38,12 +51,35 @@ used as a wall. Fixtures share materials to avoid one draw call per garment.
 Run `check-luxury-boutiques.mjs`, `check-exploration-fitout.mjs` and
 `check-mall-circulation.mjs` with `node --import tsx`.
 Validate room entrances, private lift landing doors, stair ascent/descent and
-L2 slab openings. The six-room fit-out budget is 26 materials / 650k triangles;
+L2 slab openings and floor-aware map arrivals. The fifteen-room fit-out budget
+plus six washroom suites is 26 materials / 1.2 million triangles;
 this is a content budget, not a whole-city frame-rate guarantee.
 
 Real-time lighting remains approximate (environment map, two local fills and
 one nearby 512px shadow spotlight),
 not path-traced retail lighting. There is no product purchasing, fitting-room
-interaction or shop-staff behavior yet. Other upper-floor stores remain generic.
+interaction or shop-staff behavior yet. Restaurant meals, construction tables
+and exercise equipment are static display geometry, not playable activities.
+The new shop names are not yet mapped to separate economic simulation firms.
+Other upper-floor stores remain generic. Front-door routes remain clear;
+map destinations carry floor elevations, so L3/L4/L5 entries do not land on L1.
 Future work includes distinct ceiling/luminaire design per store, product-scale
 texture refinement, proper mannequins and a broader lighting/performance pass.
+
+## Taller floors and restrooms on every retail level
+
+`mall-spatial-plan.json` is the single floor-elevation contract used by the
+shell, fit-out, escalators, lift shafts, lights and map arrivals. L1 clear height
+is 7.1 m; L2–L5 are 6 m; L6 is 6.5 m. Floor elevations are 0.17, 8.17,
+14.97, 21.77, 28.57 and 35.37 m, with the roof at 42.77 m.
+Escalators use an 18 m run for the increased rise. Stock and people remain
+human-scale; they are not stretched along with the architecture.
+
+Each of L1–L6 has a north-gallery restroom suite at local X=88, Z=-51.
+The suites replace six generic rooms and have six modeled washbasins, four
+private cubicles (one larger), mirrors, soap, bins and a baby-changing counter.
+Service ceilings remain 3.65 m high. Walls, counters and partitions have
+collision volumes; each floor has its own map arrival and location label.
+This is a modeled layout, not accessibility-code certification, working
+plumbing or a simulated sanitation service. Entry and central aisle clearances
+are regression tested.

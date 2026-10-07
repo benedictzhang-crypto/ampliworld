@@ -29,7 +29,7 @@ import { escalatorVelocity } from '../world-client/mall-escalators.mjs';
 import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
 import { CivicPlaces } from '../world-client/civic-places';
 import { MallElevators } from '../world-client/mall-elevators';
-import { MallFitout, MALL_FITOUT_COLLIDERS } from '../world-client/mall-fitout';
+import { MallFitout, MALL_FITOUT_COLLIDERS, mallFitoutLocation } from '../world-client/mall-fitout';
 import {
   createMallLifts,
   LIFT_STATIC_SOLIDS,
@@ -572,8 +572,8 @@ export function DistrictClient() {
     ride,
     nearRide,
   ]);
-  const teleportTo = (x: number, z: number) => {
-    const y = districtGroundHeight(x, z);
+  const teleportTo = (x: number, z: number, requestedY?: number) => {
+    const y = districtGroundHeight(x, z, requestedY);
     const parkGateX = AMUSEMENT_PARK.center.x + AMUSEMENT_PARK.entrance.x;
     const parkGateZ = AMUSEMENT_PARK.center.z + AMUSEMENT_PARK.entrance.z;
     const atParkGate = Math.abs(x - parkGateX) < 1 && Math.abs(z - parkGateZ) < 1;
@@ -1092,8 +1092,8 @@ export function DistrictClient() {
         onTeleport={(station: MetroStation) => {
           teleportTo(station.arrivalX, station.arrivalZ);
         }}
-        onTeleportPoint={(x, z) => {
-          teleportTo(x, z);
+        onTeleportPoint={(x, z, y) => {
+          teleportTo(x, z, y);
         }}
       />
       <Localized>
@@ -1111,7 +1111,7 @@ export function DistrictClient() {
                 ? `已停入 ${parkedGarageBay(activeReport)!.id} · E 下车`
                 : vehicleMessage
               : walking
-                ? districtLocation(position[0], position[1])
+                ? mallFitoutLocation(position[0],position[1],playerFloor.current)??districtLocation(position[0], position[1])
                 : '俯瞰不会改变角色位置 · 返回继续原地行走'}
           </small>
         </div>

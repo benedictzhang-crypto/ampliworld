@@ -80,7 +80,7 @@ export function CityPlan({
   onOpenChange: (v: boolean) => void;
   position: readonly number[];
   onTeleport: (station: MetroStation) => void;
-  onTeleportPoint: (x: number, z: number) => void;
+  onTeleportPoint: (x: number, z: number, y?: number) => void;
 }) {
   const [view, setView] = useState({ x: 0, z: 0, span: 32000 });
   const [selected, setSelected] = useState<(typeof compounds)[number] | null>(
@@ -725,7 +725,7 @@ export function CityPlan({
               {selectedDestination&&<div className="plan-teleport-selection">
                 <strong>{selectedDestination.name}</strong>
                 <small>{selectedDestination.kind} · 入口 X {selectedDestination.arrivalX.toFixed(0)} / Z {selectedDestination.arrivalZ.toFixed(0)}</small>
-                <Button onClick={()=>onTeleportPoint(selectedDestination.arrivalX,selectedDestination.arrivalZ)}>Teleport · 传送到入口</Button>
+                <Button onClick={()=>onTeleportPoint(selectedDestination.arrivalX,selectedDestination.arrivalZ,selectedDestination.arrivalY)}>Teleport · 传送到入口</Button>
               </div>}
               <div className="plan-destination-results">
                 {destinationMatches.map(d=><div className="plan-destination-result" key={d.id}>
@@ -733,7 +733,7 @@ export function CityPlan({
                     setSelectedDestination(d);setSelectedPark(false);setSelectedStation(null);setSelected(null);
                     setView({x:d.x,z:d.z,span:Math.min(view.span,1800)});
                   }}>{d.name}</button>
-                  <button type="button" aria-label={`传送到 ${d.name}`} onClick={()=>onTeleportPoint(d.arrivalX,d.arrivalZ)}>传送</button>
+                  <button type="button" aria-label={`传送到 ${d.name}`} onClick={()=>onTeleportPoint(d.arrivalX,d.arrivalZ,d.arrivalY)}>传送</button>
                 </div>)}
                 {!destinationMatches.length&&<small>未找到地点，请换关键词。</small>}
               </div>

@@ -1,6 +1,6 @@
 # CBD interior quality gate
 
-The mall's five brand-specific boutiques (six room interiors) are a quality sample,
+The mall's fourteen detailed businesses (fifteen room interiors) are a quality sample,
 not a photorealism claim or a finished CBD. Original geometry remains editable
 in Blender; the web client displays exported GLB assets at metre scale.
 
@@ -31,7 +31,7 @@ in Blender; the web client displays exported GLB assets at metre scale.
 
 ## Product identity
 
-The rooms use Tiffany, Gucci, Cartier, Moncler and Chloé concept themes.
+The rooms use nine retail brand concepts, four dining concepts and a gym.
 Their ceiling, finishes, displays and consultation areas should differ while
 sharing one architectural language. Brand names in the older mall shell are
 illustrative; no affiliation, tenancy or merchandise licensing is implied.
@@ -43,11 +43,17 @@ presence, entrance and aisle clearance, camera-lining contact and speed safety.
 Check the actual browser at the gallery, inside the shop, and when turning
 near a wall; a Blender render alone is not sufficient.
 
-Keep the six-room fit-out under 26 material batches and 650,000 triangles.
+Keep the fifteen-room fit-out plus six restrooms under 26 material batches and 1.2 million triangles.
 These content budgets do not guarantee acceptable whole-city frame rates.
 L1 lounge pots now contain curved three-dimensional leaves; L2 has three west
 gallery seating pockets, six planted pots and ten pendant fixtures. The L2
 through-route and shop doors have explicit clearance tests.
-Except for Gucci's duplex, L2 shop interiors and L3-L6 fit-outs, store interactions, staff placement,
+Apart from the documented fifteen interiors, other shop fit-outs, store interactions, staff placement,
 realistic mannequins and tuned day/night interior lighting remain unfinished.
 The old structural-shell atrium tree crowns still need a separate replacement.
+
+Floor heights come from `mall-spatial-plan.json`: 7.1 m clear on L1,
+6 m on L2–L5 and 6.5 m on L6. Each level includes a north-gallery restroom
+with physical partitions, basins, four cubicles and a changing counter.
+Never change floor spacing without rebuilding both shell and fit-out and
+checking the public/private lifts, escalator holes and map arrival elevations.

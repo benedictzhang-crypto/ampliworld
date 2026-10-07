@@ -1,0 +1,14 @@
+{
+  "floors": [
+    {"id":"L1","y":0.17,"clearHeight":7.1},
+    {"id":"L2","y":8.17,"clearHeight":6.0},
+    {"id":"L3","y":14.97,"clearHeight":6.0},
+    {"id":"L4","y":21.77,"clearHeight":6.0},
+    {"id":"L5","y":28.57,"clearHeight":6.0},
+    {"id":"L6","y":35.37,"clearHeight":6.5}
+  ],
+  "roofY":42.77,
+  "shaftTop":47.0,
+  "shaftBottom":-26.0,
+  "restrooms":{"centerX":88,"doorZ":-51,"levels":["L1","L2","L3","L4","L5","L6"]}
+}

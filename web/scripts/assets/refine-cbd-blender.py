@@ -20,6 +20,7 @@ if '--mall-only' in sys.argv:
     jobs = jobs[:1]
 for asset_id, filename, manifest_name in jobs:
     bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.context.preferences.filepaths.save_version = 0
     folder = ASSETS / asset_id
     bpy.ops.import_scene.gltf(filepath=str(folder / filename))
     # Exportable texture images, metre-scale planar UVs: the Web client receives

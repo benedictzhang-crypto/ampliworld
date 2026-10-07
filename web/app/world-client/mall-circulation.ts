@@ -1,18 +1,16 @@
 import { Box3, Vector3 } from 'three';
 import luxury from './mall-luxury-plan.json';
+import spatial from './mall-spatial-plan.json';
 
 export const MALL_LEVELS = [
   { id: 'B4', y: -25.2, label: 'B4 · 公共停车' },
   { id: 'B3', y: -19.2, label: 'B3 · 公共停车' },
   { id: 'B2', y: -13.2, label: 'B2 · 公共停车' },
   { id: 'B1', y: -7.2, label: 'B1 · VIP / 食集 / 活动' },
-  { id: 'L1', y: .17, label: '1F · 奢侈品 / 城市生活' },
-  { id: 'L2', y: 6.48, label: '2F · 奢侈品 / 珠宝腕表' },
-  { id: 'L3', y: 11.28, label: '3F · 科技 / 户外旅行' },
-  { id: 'L4', y: 16.08, label: '4F · 时装 / 数码生活' },
-  { id: 'L5', y: 20.88, label: '5F · 茶楼 / 高端餐饮' },
-  { id: 'L6', y: 25.68, label: '6F · 餐饮 / 影院 / 电玩城' },
-  { id: 'RF', y: 31.05, label: 'RF · 屋顶观景步道' },
+  ...spatial.floors.map((f,i)=>({id:f.id,y:f.y,label:[
+    '1F · 奢侈品 / 城市生活','2F · 奢侈品 / 珠宝腕表','3F · 科技 / 户外旅行',
+    '4F · 时装 / 健身房','5F · 茶楼 / 餐饮','6F · 餐饮 / 影院 / 电玩城'][i]})),
+  { id: 'RF', y: spatial.roofY, label: 'RF · 屋顶观景步道' },
 ] as const;
 export const LIFT_GROUPS = [
   { id: 'A', x: -76, z: -78.5, front: 1, color: '#398de5' },
@@ -63,10 +61,11 @@ export function stepMallLift(c:MallLift,elapsed:number) {
 }
 export const LIFT_STATIC_SOLIDS = LIFT_GROUPS.flatMap(g => {
   const a:Box3[]=[];
-  for(let i=0;i<5;i++)a.push(liftBox(g.x-6+i*3,5,g.z-188,.18,62,5));
-  a.push(liftBox(g.x,5,g.z-188-g.front*2.48,12,62,.16));
+  const height=spatial.shaftTop-spatial.shaftBottom,mid=(spatial.shaftTop+spatial.shaftBottom)/2;
+  for(let i=0;i<5;i++)a.push(liftBox(g.x-6+i*3,mid,g.z-188,.18,height,5));
+  a.push(liftBox(g.x,mid,g.z-188-g.front*2.48,12,height,.16));
   MALL_LEVELS.forEach((l,i)=>{
-    const h=(MALL_LEVELS[i+1]?.y??36)-l.y-3.1;
+    const h=(MALL_LEVELS[i+1]?.y??spatial.shaftTop)-l.y-3.1;
     a.push(liftBox(g.x,l.y+3.1+h/2,g.z-188+g.front*2.45,12,h,.2));
   });
   return a;

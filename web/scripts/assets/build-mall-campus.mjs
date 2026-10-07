@@ -13,6 +13,7 @@ import { merchandise } from './mall-merchandise.mjs';
 import { buildParking } from './mall-parking.mjs';
 import {ESCALATORS,ESCALATOR_OPENING} from '../../app/world-client/mall-escalators.mjs';
 import luxury from '../../app/world-client/mall-luxury-plan.json' with {type:'json'};
+import spatial from '../../app/world-client/mall-spatial-plan.json' with {type:'json'};
 if (!globalThis.FileReader) globalThis.FileReader = class { readAsArrayBuffer(b) { b.arrayBuffer().then(v => { this.result = v; this.onloadend?.(); }); } };
 const out = new URL('../../public/assets/3d/ampliworld/GC-MALL-002/', import.meta.url);
 const materials = {};
@@ -32,8 +33,8 @@ function block(id,m,x,y,z,w,h,d){box(m,x,y,z,w,h,d);solid(id,[x-w/2,y-h/2,z-d/2]
 const font=new FontLoader().parse(fontJson);
 function text3d(label,x,y,z,size,ry=0){const g=new TextGeometry(label,{font,size,depth:.025,curveSegments:2,bevelEnabled:false});g.computeBoundingBox();g.translate(-(g.boundingBox.max.x-g.boundingBox.min.x)/2,0,0);add(g,'gold',x,y,z,ry);}
 const W=225,D=180,IW=90,ID=70;
-const FLOOR_Y=[.17,6.48,11.28,16.08,20.88,25.68];
-const ROOF_Y=31.05;
+const FLOOR_Y=spatial.floors.map(f=>f.y);
+const ROOF_Y=spatial.roofY;
 const liftGroups=[
  {id:'NW',min:[-82,-81],max:[-70,-76],doorDirection:1},
  {id:'NE',min:[18,-81],max:[30,-76],doorDirection:1},
@@ -70,7 +71,7 @@ for(const [f,y] of [...FLOOR_Y.slice(1),ROOF_Y].entries()){
 }
 // Full-height outer glazing, interrupted only by actual ground entrances.
 for(let f=0;f<6;f++){
- const y=FLOOR_Y[f], top=f===5?30.55:FLOOR_Y[f+1]-.48,h=top-y;
+ const y=FLOOR_Y[f], top=f===5?ROOF_Y-.5:FLOOR_Y[f+1]-.48,h=top-y;
  for(const s of [-1,1]){
   const ns=f===0?[[-112.5,-8],[8,112.5]]:[[-112.5,112.5]];
   for(const [a,b] of ns)block(`facade-${f}-z${s}-${a}`,'glass',(a+b)/2,y+h/2,s*89.9,b-a,h,.16);
@@ -94,7 +95,11 @@ const brands=[
  ['Roofside Tea','Sunset Dining','Orchid Table','Stone & Fire','Cloud Cafe','Cinema Lounge','Arcade Studio','Tea Pavilion','Garden Dining','Aurea Cinema','Sky Bistro','Private Dining','Art Kitchen','Evening Bar'],
 ];
 function room(label,x,z,ry,f,index){
- const y=FLOOR_Y[f],c=Math.cos(ry),s=Math.sin(ry),w=16,depth=23,h=3.9,id=`L${f+1}-shop-${index}`;
+ const y=FLOOR_Y[f],c=Math.cos(ry),s=Math.sin(ry),w=16,depth=23,h=spatial.floors[f].clearHeight,id=`L${f+1}-shop-${index}`;
+ if(z===spatial.restrooms.doorZ&&x===spatial.restrooms.centerX){
+  shops.push({id,label:'RESTROOMS',level:'L'+(f+1),floorY:y,position:[x,y,z],rotationY:ry,doorWidth:3.4,door:[x,y,z],open:true,interior:'Blender washroom suite',function:'public-restroom'});
+  return;
+ }
  const flagship=z===51&&luxury.shops.find(shop=>shop.centerX===x&&shop.levels.includes('L'+(f+1)));
  if(flagship){
   shops.push({id,label:flagship.label,level:'L'+(f+1),floorY:y,position:[x,y,z],rotationY:ry,doorWidth:3.4,door:[x,y,z],open:true,interior:'Blender brand-specific fit-out',commercialStatus:'Illustrative concept; no affiliation or tenancy claimed'});
@@ -104,9 +109,9 @@ function room(label,x,z,ry,f,index){
  const b=(key,m,u,yy,v,ww,hh,dd,collision=true)=>{const p=pt(u,v);box(m,p[0],y+yy,p[1],ww,hh,dd,ry);if(collision){const ex=Math.abs(c)*ww/2+Math.abs(s)*dd/2,ez=Math.abs(s)*ww/2+Math.abs(c)*dd/2;solid(id+'-'+key,[p[0]-ex,y+yy-hh/2,p[1]-ez],[p[0]+ex,y+yy+hh/2,p[1]+ez]);}};
  b('back','ivory',0,h/2,-depth,w,h,.18);for(const side of [-1,1])b('side'+side,'stone',side*w/2,h/2,-depth/2,.16,h,depth);
  // Real 3.4m open doorway; no full-width invisible display collider.
- for(const side of [-1,1]){b('window'+side,'glass',side*4.85,1.6,0,6.3,3.2,.10);b('jamb'+side,'gold',side*1.74,1.65,.04,.10,3.3,.15);}
- b('header','ivory',0,3.6,0,w,.7,.25);b('sign-light','light',0,3.25,-.2,12,.04,.25,false);
- text3d(label,x+.19*s,y+3.45,z+.19*c,Math.min(.58,9/Math.max(1,label.length)*1.28),ry);
+ for(const side of [-1,1]){b('window'+side,'glass',side*4.85,(h-.7)/2,0,6.3,h-.7,.10);b('jamb'+side,'gold',side*1.74,(h-.6)/2,.04,.10,h-.6,.15);}
+ b('header','ivory',0,h-.35,0,w,.7,.25);b('sign-light','light',0,h-.73,-.2,12,.04,.25,false);
+ text3d(label,x+.19*s,y+h-.5,z+.19*c,Math.min(.58,9/Math.max(1,label.length)*1.28),ry);
  if(!/Fitness|Arcade/.test(label)){b('display','stone',-4,.65,-7,4,1.1,2);b('desk','wood',4,.72,-16,4,1.3,1.4);}
  if(/Fitness/.test(label)){
   b('mirror','glass',-7.83,2,-12,.06,3.5,15,false);

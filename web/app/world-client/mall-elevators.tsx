@@ -2,6 +2,7 @@
 import { useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Group } from 'three';
+import spatial from './mall-spatial-plan.json';
 import { MALL_LEVELS, LIFT_GROUPS, stepMallLift, type MallLift, type LiftCarrier } from './mall-circulation';
 
 export function MallElevators({cars,carrier}:{cars:MallLift[];carrier:React.RefObject<LiftCarrier>}) {
@@ -30,10 +31,10 @@ export function MallElevators({cars,carrier}:{cars:MallLift[];carrier:React.RefO
   });
   return <group>
     {LIFT_GROUPS.map(g=><group key={g.id} position={[g.x,0,g.z-188]}>
-      {[-6,-3,0,3,6].map(x=><mesh key={x} position={[x,5,0]}><boxGeometry args={[.16,62,5]}/><meshStandardMaterial color="#899b9e" metalness={.7} roughness={.24}/></mesh>)}
-      <mesh position={[0,5,-g.front*2.48]}><boxGeometry args={[12,62,.12]}/><meshStandardMaterial color="#add6dc" transparent opacity={.22} depthWrite={false}/></mesh>
+      {[-6,-3,0,3,6].map(x=><mesh key={x} position={[x,(spatial.shaftTop+spatial.shaftBottom)/2,0]}><boxGeometry args={[.16,spatial.shaftTop-spatial.shaftBottom,5]}/><meshStandardMaterial color="#899b9e" metalness={.7} roughness={.24}/></mesh>)}
+      <mesh position={[0,(spatial.shaftTop+spatial.shaftBottom)/2,-g.front*2.48]}><boxGeometry args={[12,spatial.shaftTop-spatial.shaftBottom,.12]}/><meshStandardMaterial color="#add6dc" transparent opacity={.22} depthWrite={false}/></mesh>
       {MALL_LEVELS.map((l,i)=><group key={l.id} position={[0,l.y,g.front*2.45]}>
-        <mesh position={[0,3.1+((MALL_LEVELS[i+1]?.y??36)-l.y-3.1)/2,0]}><boxGeometry args={[12,(MALL_LEVELS[i+1]?.y??36)-l.y-3.1,.2]}/><meshStandardMaterial color="#d9d7cf"/></mesh>
+        <mesh position={[0,3.1+((MALL_LEVELS[i+1]?.y??spatial.shaftTop)-l.y-3.1)/2,0]}><boxGeometry args={[12,(MALL_LEVELS[i+1]?.y??spatial.shaftTop)-l.y-3.1,.2]}/><meshStandardMaterial color="#d9d7cf"/></mesh>
         <mesh position={[0,3.2,g.front*.16]}><boxGeometry args={[11.5,.13,.12]}/><meshStandardMaterial color={g.color} emissive={g.color} emissiveIntensity={.8}/></mesh>
       </group>)}
     </group>)}

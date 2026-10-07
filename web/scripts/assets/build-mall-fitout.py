@@ -5,6 +5,7 @@ No downloaded brand imagery. Existing shop doors, lift shafts and escalators sta
 import bpy, json, math, random
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
+SPATIAL=json.loads((ROOT/'app/world-client/mall-spatial-plan.json').read_text())
 OUT = ROOT / 'public/assets/3d/ampliworld/GC-MALL-FITOUT-001'
 OUT.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -111,7 +112,7 @@ def plant(x,y,z,scale=1):
         bpy.context.view_layer.objects.active=o;bpy.ops.object.modifier_apply(modifier=solid.name)
 
 # Inset gallery carpets in stone: narrow overlays, never spanning shaft openings.
-for floor,y in enumerate([.17,6.48]):
+for floor,y in enumerate([f['y'] for f in SPATIAL['floors'][:2]]):
     for z in [-43,43]:
         box('Gallery stone inlay','Travertine',0,y+.005,z,218,.008,10,bevel=0)
         for dz in [-4.6,4.6]:box('Bronze floor border','Bronze',0,y+.011,z+dz,218,.004,.045,bevel=0)
@@ -135,7 +136,7 @@ for x in [-29,29]:
 
 # L2 quiet seating pockets on the west gallery, away from all lift shafts.
 for z in [-25,0,25]:
-    y=6.48
+    y=SPATIAL['floors'][1]['y']
     box('L2 upholstered bench base','Walnut',-48,y+.23,z,1.35,.46,4,True,.09)
     box('L2 upholstered bench seat','Sage upholstery',-48,y+.56,z,1.4,.22,4.05,False,.12)
     box('L2 bench back','Sage upholstery',-47.45,y+.91,z,.24,.86,4,True,.09)
@@ -148,22 +149,24 @@ for z in [-25,0,25]:
 # Level-specific warm pendants, short enough for the lower L2 ceiling.
 for x in [-84,-42,0,42,84]:
     for z in [-43,43]:
-        cylinder('L2 pendant stem','Bronze',x,10.35,z,.028,1.2)
-        cylinder('L2 pendant shade','Bronze',x,9.78,z,.72,.18)
-        cylinder('L2 pendant diffuser','Warm light',x,9.67,z,.64,.035)
+        cylinder('L2 pendant stem','Bronze',x,SPATIAL['floors'][1]['y']+5.65,z,.028,1.2)
+        cylinder('L2 pendant shade','Bronze',x,SPATIAL['floors'][1]['y']+5.08,z,.72,.18)
+        cylinder('L2 pendant diffuser','Warm light',x,SPATIAL['floors'][1]['y']+4.97,z,.64,.035)
 
 import runpy
 luxury=runpy.run_path(str(ROOT/'scripts/assets/mall-luxury-fitout.py'),init_globals=globals())
 BRAND_ROOMS=luxury['BRAND_ROOMS']
+runpy.run_path(str(ROOT/'scripts/assets/mall-retail-expansion.py'),init_globals={**luxury,'BRAND_ROOMS':BRAND_ROOMS})
+restroom_result=runpy.run_path(str(ROOT/'scripts/assets/mall-restrooms.py'),init_globals=luxury)
 
 
 # Sculptural ceiling pendants do not obstruct the tall atrium nor hang over lift wells.
 for x in [-84,-42,0,42,84]:
     for z in [-43,43]:
-        for r,y in [(1.9,4.85),(1.45,4.58)]:
+        for r,y in [(1.9,6.65),(1.45,6.38)]:
             bpy.ops.mesh.primitive_torus_add(major_radius=r,minor_radius=.055,major_segments=32,minor_segments=8,location=(x,-z,y))
             bpy.context.object.data.materials.append(materials['Bronze' if r>1.5 else 'Warm light'])
-        cylinder('Pendant stem','Bronze',x,5.48,z,.025,1.2)
+        cylinder('Pendant stem','Bronze',x,7.28,z,.025,1.2)
 for x in [-20,20]:
     box('Suspended directory','Ink',x,4.45,40,8,1.15,.15)
     text('L1  /  GALLERIA',x,4.50,40.1,.43)
@@ -181,8 +184,9 @@ bpy.ops.export_scene.gltf(filepath=str(OUT/'fitout.glb'),export_format='GLB',exp
     export_draco_position_quantization=18,export_draco_normal_quantization=12,
     export_draco_texcoord_quantization=14)
 manifest={'id':'GC-MALL-FITOUT-001','units':'meters','origin':[0,0,-188],
-    'scope':'Five brand-specific concept boutiques; Gucci duplex with stair and lift openings; other upper floors remain unfinished',
+    'scope':'Nine retail brands, four restaurants and a gym; original concept interiors, not official stores or live purchases',
     'boutiques':BRAND_ROOMS,
+    'restrooms':restroom_result['RESTROOMS'],
     'colliders':colliders,'meshes':len(bpy.context.scene.objects),
     'triangles':sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in bpy.context.scene.objects if o.type=='MESH')}
 (OUT/'fitout-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')

@@ -22,6 +22,31 @@ does not mean 600 km² of detailed, continuously simulated city.
 
 ## Where the project stands
 
+### Merchandise, dining and multi-floor arrivals — 7 October 2026
+
+The mall now uses one shared elevation contract for its shell, interiors,
+escalators, elevators and map arrivals. Clear heights are 7.1 m on L1,
+6 m on L2–L5 and 6.5 m on L6. Every retail floor has a north-gallery restroom
+suite with six basins, four private cubicles and a changing counter; these
+replace generic rooms instead of overlapping them. Tests cover six washroom
+arrivals and clear entry routes as well as 178 continuous lift routes.
+
+The mall now has fifteen detailed interiors across fourteen businesses. Tiffany
+cases contain smile-arc necklaces, solitaire rings and paired diamond studs.
+Nine replacement rooms add Van Cleef & Arpels, Givenchy, lululemon, LEGO,
+a fitness studio and four distinct dining concepts: hot pot, barbecue, sushi
+and inexpensive noodles. Blender geometry includes merchandise, kitchen
+fixtures, tableware, exercise equipment, wall joinery and collision volumes.
+Original source remains editable; these are stylized concept stores, not official
+retailers or photoreal replicas.
+
+Map arrivals now carry floor elevations for L3/L4/L5 rather than dropping every
+visitor onto L1. Tests cover named destinations, supporting floors, clear door
+and aisle paths, the existing Gucci duplex and elevator routes. The content
+budget is 26 shared material batches and one million triangles for the fit-out,
+not a measured whole-city FPS guarantee. Purchasing, restaurant ordering,
+exercise interactions and new-store economic-agent assignments remain unfinished.
+
 ### Brand-specific retail and a walkable duplex — 3 October 2026
 
 Five concept boutiques now replace six generic rooms: Tiffany & Co., Gucci,
