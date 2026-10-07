@@ -6,7 +6,7 @@
     0,
     -188
   ],
-  "scope": "Nine retail brands, four restaurants and a gym; original concept interiors, not official stores or live purchases",
+  "scope": "Nineteen businesses across twenty fitted rooms, including seven restaurants and a gym; original concepts, not official stores or live purchases",
   "boutiques": [
     {
       "id": "tiffany",
@@ -177,7 +177,7 @@
         "divided hot pots",
         "induction hobs",
         "vegetable dishes",
-        "open kitchen"
+        "walk-in kitchen"
       ]
     },
     {
@@ -194,7 +194,7 @@
         "table grills",
         "extraction hoods",
         "meat plates",
-        "open kitchen"
+        "walk-in kitchen"
       ]
     },
     {
@@ -211,7 +211,7 @@
         "sushi counter",
         "display case",
         "paper lanterns",
-        "kitchen"
+        "walk-in kitchen"
       ]
     },
     {
@@ -228,7 +228,91 @@
         "noodle bowls",
         "menu board",
         "affordable seating",
-        "kitchen"
+        "walk-in kitchen"
+      ]
+    },
+    {
+      "id": "lukfook",
+      "label": "LUKFOOK JEWELLERY",
+      "centerX": -96,
+      "doorZ": 51,
+      "floorY": 8.17,
+      "level": "L2",
+      "theme": "gold bangles and wedding jewelry",
+      "clearDoorMeters": 3.4,
+      "light": "#fff1cc",
+      "inventory": [
+        "gold bangles",
+        "necklaces",
+        "bridal jewelry cases",
+        "consultation tables"
+      ]
+    },
+    {
+      "id": "chowtaifook",
+      "label": "CHOW TAI FOOK",
+      "centerX": -33,
+      "doorZ": 51,
+      "floorY": 8.17,
+      "level": "L2",
+      "theme": "gold jewelry and bridal consultation",
+      "clearDoorMeters": 3.4,
+      "light": "#fff1cc",
+      "inventory": [
+        "gold bangles",
+        "necklaces",
+        "bridal jewelry cases",
+        "consultation tables"
+      ]
+    },
+    {
+      "id": "steak",
+      "label": "AUREA STEAKHOUSE",
+      "centerX": 46,
+      "doorZ": 51,
+      "floorY": 28.57,
+      "level": "L5",
+      "theme": "premium steak dining",
+      "clearDoorMeters": 3.4,
+      "light": "#ffe6ce",
+      "inventory": [
+        "steak plates",
+        "wineglasses",
+        "timber dining",
+        "walk-in kitchen"
+      ]
+    },
+    {
+      "id": "cantonese",
+      "label": "JADE GARDEN DINING",
+      "centerX": 67,
+      "doorZ": 51,
+      "floorY": 28.57,
+      "level": "L5",
+      "theme": "premium Cantonese tea and dim sum",
+      "clearDoorMeters": 3.4,
+      "light": "#fff1db",
+      "inventory": [
+        "dim sum baskets",
+        "teapots",
+        "jade-toned dining",
+        "walk-in kitchen"
+      ]
+    },
+    {
+      "id": "seafood",
+      "label": "TIDAL HOUSE",
+      "centerX": 88,
+      "doorZ": 51,
+      "floorY": 28.57,
+      "level": "L5",
+      "theme": "seafood restaurant and aquarium",
+      "clearDoorMeters": 3.4,
+      "light": "#edfaff",
+      "inventory": [
+        "aquarium",
+        "seafood platters",
+        "walk-in kitchen"
       ]
     }
   ],
@@ -8502,9 +8586,22 @@
       ]
     },
     {
-      "id": "hotpot back wall-0628",
+      "id": "hotpot rear wall left-0628",
       "min": [
         -103.7,
+        28.57,
+        73.735
+      ],
+      "max": [
+        -102.39999999999999,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "hotpot rear wall right-0629",
+      "min": [
+        -99.8,
         28.57,
         73.735
       ],
@@ -8515,7 +8612,20 @@
       ]
     },
     {
-      "id": "hotpot ceiling-0629",
+      "id": "hotpot staff door lintel-0630",
+      "min": [
+        -102.39999999999999,
+        31.369999999999997,
+        73.735
+      ],
+      "max": [
+        -99.8,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "hotpot ceiling-0631",
       "min": [
         -103.7,
         34.51,
@@ -8528,7 +8638,7 @@
       ]
     },
     {
-      "id": "hotpot front pier-0630",
+      "id": "hotpot front pier-0632",
       "min": [
         -103.79,
         28.57,
@@ -8541,7 +8651,7 @@
       ]
     },
     {
-      "id": "hotpot front pier-0631",
+      "id": "hotpot front pier-0633",
       "min": [
         -97.99,
         28.57,
@@ -8554,7 +8664,7 @@
       ]
     },
     {
-      "id": "hotpot front pier-0632",
+      "id": "hotpot front pier-0634",
       "min": [
         -94.29,
         28.57,
@@ -8567,7 +8677,7 @@
       ]
     },
     {
-      "id": "hotpot front pier-0633",
+      "id": "hotpot front pier-0635",
       "min": [
         -88.49,
         28.57,
@@ -8580,7 +8690,7 @@
       ]
     },
     {
-      "id": "hotpot window-0634",
+      "id": "hotpot window-0636",
       "min": [
         -103.5,
         28.57,
@@ -8593,7 +8703,7 @@
       ]
     },
     {
-      "id": "hotpot display plinth-0635",
+      "id": "hotpot display plinth-0637",
       "min": [
         -103.45,
         28.57,
@@ -8606,7 +8716,7 @@
       ]
     },
     {
-      "id": "hotpot window-0636",
+      "id": "hotpot window-0638",
       "min": [
         -94.0,
         28.57,
@@ -8619,7 +8729,7 @@
       ]
     },
     {
-      "id": "hotpot display plinth-0637",
+      "id": "hotpot display plinth-0639",
       "min": [
         -93.95,
         28.57,
@@ -8632,7 +8742,7 @@
       ]
     },
     {
-      "id": "hotpot sign band-0638",
+      "id": "hotpot sign band-0640",
       "min": [
         -103.75,
         33.56,
@@ -8645,7 +8755,7 @@
       ]
     },
     {
-      "id": "Reception counter-0639",
+      "id": "Reception counter-0641",
       "min": [
         -91.85,
         28.57,
@@ -8658,7 +8768,7 @@
       ]
     },
     {
-      "id": "Planter solid-0640",
+      "id": "Planter solid-0642",
       "min": [
         -102.91999999999999,
         28.57,
@@ -8671,20 +8781,7 @@
       ]
     },
     {
-      "id": "Planter solid-0641",
-      "min": [
-        -102.91999999999999,
-        28.57,
-        71.18
-      ],
-      "max": [
-        -102.28,
-        29.369999999999997,
-        71.82
-      ]
-    },
-    {
-      "id": "Dining tabletop-0642",
+      "id": "Dining tabletop-0643",
       "min": [
         -101.0,
         29.31,
@@ -8697,7 +8794,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0643",
+      "id": "Dining table pedestal-0644",
       "min": [
         -100.19,
         28.57,
@@ -8710,7 +8807,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0644",
+      "id": "Upholstered chair seat-0645",
       "min": [
         -101.69000000000001,
         28.990000000000002,
@@ -8723,7 +8820,7 @@
       ]
     },
     {
-      "id": "Chair back-0645",
+      "id": "Chair back-0646",
       "min": [
         -101.69000000000001,
         29.085,
@@ -8736,7 +8833,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0646",
+      "id": "Upholstered chair seat-0647",
       "min": [
         -98.89,
         28.990000000000002,
@@ -8749,7 +8846,7 @@
       ]
     },
     {
-      "id": "Chair back-0647",
+      "id": "Chair back-0648",
       "min": [
         -98.89,
         29.085,
@@ -8762,7 +8859,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0648",
+      "id": "Dining tabletop-0649",
       "min": [
         -101.0,
         29.31,
@@ -8775,7 +8872,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0649",
+      "id": "Dining table pedestal-0650",
       "min": [
         -100.19,
         28.57,
@@ -8788,7 +8885,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0650",
+      "id": "Upholstered chair seat-0651",
       "min": [
         -101.69000000000001,
         28.990000000000002,
@@ -8801,7 +8898,7 @@
       ]
     },
     {
-      "id": "Chair back-0651",
+      "id": "Chair back-0652",
       "min": [
         -101.69000000000001,
         29.085,
@@ -8814,7 +8911,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0652",
+      "id": "Upholstered chair seat-0653",
       "min": [
         -98.89,
         28.990000000000002,
@@ -8827,7 +8924,7 @@
       ]
     },
     {
-      "id": "Chair back-0653",
+      "id": "Chair back-0654",
       "min": [
         -98.89,
         29.085,
@@ -8840,7 +8937,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0654",
+      "id": "Dining tabletop-0655",
       "min": [
         -101.0,
         29.31,
@@ -8853,7 +8950,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0655",
+      "id": "Dining table pedestal-0656",
       "min": [
         -100.19,
         28.57,
@@ -8866,7 +8963,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0656",
+      "id": "Upholstered chair seat-0657",
       "min": [
         -101.69000000000001,
         28.990000000000002,
@@ -8879,7 +8976,7 @@
       ]
     },
     {
-      "id": "Chair back-0657",
+      "id": "Chair back-0658",
       "min": [
         -101.69000000000001,
         29.085,
@@ -8892,7 +8989,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0658",
+      "id": "Upholstered chair seat-0659",
       "min": [
         -98.89,
         28.990000000000002,
@@ -8905,7 +9002,7 @@
       ]
     },
     {
-      "id": "Chair back-0659",
+      "id": "Chair back-0660",
       "min": [
         -98.89,
         29.085,
@@ -8918,7 +9015,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0660",
+      "id": "Dining tabletop-0661",
       "min": [
         -93.0,
         29.31,
@@ -8931,7 +9028,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0661",
+      "id": "Dining table pedestal-0662",
       "min": [
         -92.19,
         28.57,
@@ -8944,7 +9041,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0662",
+      "id": "Upholstered chair seat-0663",
       "min": [
         -93.69000000000001,
         28.990000000000002,
@@ -8957,7 +9054,7 @@
       ]
     },
     {
-      "id": "Chair back-0663",
+      "id": "Chair back-0664",
       "min": [
         -93.69000000000001,
         29.085,
@@ -8970,7 +9067,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0664",
+      "id": "Upholstered chair seat-0665",
       "min": [
         -90.89,
         28.990000000000002,
@@ -8983,7 +9080,7 @@
       ]
     },
     {
-      "id": "Chair back-0665",
+      "id": "Chair back-0666",
       "min": [
         -90.89,
         29.085,
@@ -8996,7 +9093,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0666",
+      "id": "Dining tabletop-0667",
       "min": [
         -93.0,
         29.31,
@@ -9009,7 +9106,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0667",
+      "id": "Dining table pedestal-0668",
       "min": [
         -92.19,
         28.57,
@@ -9022,7 +9119,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0668",
+      "id": "Upholstered chair seat-0669",
       "min": [
         -93.69000000000001,
         28.990000000000002,
@@ -9035,7 +9132,7 @@
       ]
     },
     {
-      "id": "Chair back-0669",
+      "id": "Chair back-0670",
       "min": [
         -93.69000000000001,
         29.085,
@@ -9048,7 +9145,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0670",
+      "id": "Upholstered chair seat-0671",
       "min": [
         -90.89,
         28.990000000000002,
@@ -9061,7 +9158,7 @@
       ]
     },
     {
-      "id": "Chair back-0671",
+      "id": "Chair back-0672",
       "min": [
         -90.89,
         29.085,
@@ -9074,7 +9171,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0672",
+      "id": "Dining tabletop-0673",
       "min": [
         -93.0,
         29.31,
@@ -9087,7 +9184,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0673",
+      "id": "Dining table pedestal-0674",
       "min": [
         -92.19,
         28.57,
@@ -9100,7 +9197,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0674",
+      "id": "Upholstered chair seat-0675",
       "min": [
         -93.69000000000001,
         28.990000000000002,
@@ -9113,7 +9210,7 @@
       ]
     },
     {
-      "id": "Chair back-0675",
+      "id": "Chair back-0676",
       "min": [
         -93.69000000000001,
         29.085,
@@ -9126,7 +9223,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0676",
+      "id": "Upholstered chair seat-0677",
       "min": [
         -90.89,
         28.990000000000002,
@@ -9139,7 +9236,7 @@
       ]
     },
     {
-      "id": "Chair back-0677",
+      "id": "Chair back-0678",
       "min": [
         -90.89,
         29.085,
@@ -9152,7 +9249,7 @@
       ]
     },
     {
-      "id": "Kitchen partition-0678",
+      "id": "Kitchen partition-0679",
       "min": [
         -99.25,
         28.57,
@@ -9165,7 +9262,7 @@
       ]
     },
     {
-      "id": "Service counter-0679",
+      "id": "Service counter-0680",
       "min": [
         -99.0,
         28.57,
@@ -9178,7 +9275,7 @@
       ]
     },
     {
-      "id": "Kitchen steel cabinet-0680",
+      "id": "Kitchen steel cabinet-0681",
       "min": [
         -98.60000000000001,
         28.57,
@@ -9191,7 +9288,7 @@
       ]
     },
     {
-      "id": "Kitchen steel cabinet-0681",
+      "id": "Kitchen steel cabinet-0682",
       "min": [
         -95.2,
         28.57,
@@ -9204,7 +9301,7 @@
       ]
     },
     {
-      "id": "Kitchen steel cabinet-0682",
+      "id": "Kitchen steel cabinet-0683",
       "min": [
         -91.9,
         28.57,
@@ -9217,7 +9314,20 @@
       ]
     },
     {
-      "id": "grill wall-0683",
+      "id": "Walk-in chiller-0684",
+      "min": [
+        -103.425,
+        28.57,
+        71.35
+      ],
+      "max": [
+        -102.675,
+        30.67,
+        72.65
+      ]
+    },
+    {
+      "id": "grill wall-0685",
       "min": [
         -62.0,
         28.57,
@@ -9230,7 +9340,7 @@
       ]
     },
     {
-      "id": "grill wall-0684",
+      "id": "grill wall-0686",
       "min": [
         -46.3,
         28.57,
@@ -9243,9 +9353,22 @@
       ]
     },
     {
-      "id": "grill back wall-0685",
+      "id": "grill rear wall left-0687",
       "min": [
-        -61.7,
+        -61.699999999999996,
+        28.57,
+        73.735
+      ],
+      "max": [
+        -60.4,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "grill rear wall right-0688",
+      "min": [
+        -57.8,
         28.57,
         73.735
       ],
@@ -9256,7 +9379,20 @@
       ]
     },
     {
-      "id": "grill ceiling-0686",
+      "id": "grill staff door lintel-0689",
+      "min": [
+        -60.4,
+        31.369999999999997,
+        73.735
+      ],
+      "max": [
+        -57.800000000000004,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "grill ceiling-0690",
       "min": [
         -61.7,
         34.51,
@@ -9269,7 +9405,7 @@
       ]
     },
     {
-      "id": "grill front pier-0687",
+      "id": "grill front pier-0691",
       "min": [
         -61.79,
         28.57,
@@ -9282,7 +9418,7 @@
       ]
     },
     {
-      "id": "grill front pier-0688",
+      "id": "grill front pier-0692",
       "min": [
         -55.99,
         28.57,
@@ -9295,7 +9431,7 @@
       ]
     },
     {
-      "id": "grill front pier-0689",
+      "id": "grill front pier-0693",
       "min": [
         -52.29,
         28.57,
@@ -9308,7 +9444,7 @@
       ]
     },
     {
-      "id": "grill front pier-0690",
+      "id": "grill front pier-0694",
       "min": [
         -46.49,
         28.57,
@@ -9321,7 +9457,7 @@
       ]
     },
     {
-      "id": "grill window-0691",
+      "id": "grill window-0695",
       "min": [
         -61.5,
         28.57,
@@ -9334,7 +9470,7 @@
       ]
     },
     {
-      "id": "grill display plinth-0692",
+      "id": "grill display plinth-0696",
       "min": [
         -61.45,
         28.57,
@@ -9347,7 +9483,7 @@
       ]
     },
     {
-      "id": "grill window-0693",
+      "id": "grill window-0697",
       "min": [
         -52.0,
         28.57,
@@ -9360,7 +9496,7 @@
       ]
     },
     {
-      "id": "grill display plinth-0694",
+      "id": "grill display plinth-0698",
       "min": [
         -51.95,
         28.57,
@@ -9373,7 +9509,7 @@
       ]
     },
     {
-      "id": "grill sign band-0695",
+      "id": "grill sign band-0699",
       "min": [
         -61.75,
         33.56,
@@ -9386,7 +9522,7 @@
       ]
     },
     {
-      "id": "Reception counter-0696",
+      "id": "Reception counter-0700",
       "min": [
         -49.85,
         28.57,
@@ -9399,7 +9535,7 @@
       ]
     },
     {
-      "id": "Planter solid-0697",
+      "id": "Planter solid-0701",
       "min": [
         -60.92,
         28.57,
@@ -9412,20 +9548,7 @@
       ]
     },
     {
-      "id": "Planter solid-0698",
-      "min": [
-        -60.92,
-        28.57,
-        71.18
-      ],
-      "max": [
-        -60.28,
-        29.369999999999997,
-        71.82
-      ]
-    },
-    {
-      "id": "Dining tabletop-0699",
+      "id": "Dining tabletop-0702",
       "min": [
         -59.0,
         29.31,
@@ -9438,7 +9561,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0700",
+      "id": "Dining table pedestal-0703",
       "min": [
         -58.19,
         28.57,
@@ -9451,7 +9574,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0701",
+      "id": "Upholstered chair seat-0704",
       "min": [
         -59.69,
         28.990000000000002,
@@ -9464,7 +9587,7 @@
       ]
     },
     {
-      "id": "Chair back-0702",
+      "id": "Chair back-0705",
       "min": [
         -59.69,
         29.085,
@@ -9477,7 +9600,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0703",
+      "id": "Upholstered chair seat-0706",
       "min": [
         -56.89,
         28.990000000000002,
@@ -9490,7 +9613,7 @@
       ]
     },
     {
-      "id": "Chair back-0704",
+      "id": "Chair back-0707",
       "min": [
         -56.89,
         29.085,
@@ -9503,7 +9626,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0705",
+      "id": "Dining tabletop-0708",
       "min": [
         -59.0,
         29.31,
@@ -9516,7 +9639,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0706",
+      "id": "Dining table pedestal-0709",
       "min": [
         -58.19,
         28.57,
@@ -9529,7 +9652,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0707",
+      "id": "Upholstered chair seat-0710",
       "min": [
         -59.69,
         28.990000000000002,
@@ -9542,7 +9665,7 @@
       ]
     },
     {
-      "id": "Chair back-0708",
+      "id": "Chair back-0711",
       "min": [
         -59.69,
         29.085,
@@ -9555,7 +9678,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0709",
+      "id": "Upholstered chair seat-0712",
       "min": [
         -56.89,
         28.990000000000002,
@@ -9568,7 +9691,7 @@
       ]
     },
     {
-      "id": "Chair back-0710",
+      "id": "Chair back-0713",
       "min": [
         -56.89,
         29.085,
@@ -9581,7 +9704,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0711",
+      "id": "Dining tabletop-0714",
       "min": [
         -59.0,
         29.31,
@@ -9594,7 +9717,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0712",
+      "id": "Dining table pedestal-0715",
       "min": [
         -58.19,
         28.57,
@@ -9607,7 +9730,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0713",
+      "id": "Upholstered chair seat-0716",
       "min": [
         -59.69,
         28.990000000000002,
@@ -9620,7 +9743,7 @@
       ]
     },
     {
-      "id": "Chair back-0714",
+      "id": "Chair back-0717",
       "min": [
         -59.69,
         29.085,
@@ -9633,7 +9756,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0715",
+      "id": "Upholstered chair seat-0718",
       "min": [
         -56.89,
         28.990000000000002,
@@ -9646,7 +9769,7 @@
       ]
     },
     {
-      "id": "Chair back-0716",
+      "id": "Chair back-0719",
       "min": [
         -56.89,
         29.085,
@@ -9659,7 +9782,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0717",
+      "id": "Dining tabletop-0720",
       "min": [
         -51.0,
         29.31,
@@ -9672,7 +9795,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0718",
+      "id": "Dining table pedestal-0721",
       "min": [
         -50.19,
         28.57,
@@ -9685,7 +9808,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0719",
+      "id": "Upholstered chair seat-0722",
       "min": [
         -51.69,
         28.990000000000002,
@@ -9698,7 +9821,7 @@
       ]
     },
     {
-      "id": "Chair back-0720",
+      "id": "Chair back-0723",
       "min": [
         -51.69,
         29.085,
@@ -9711,7 +9834,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0721",
+      "id": "Upholstered chair seat-0724",
       "min": [
         -48.89,
         28.990000000000002,
@@ -9724,7 +9847,7 @@
       ]
     },
     {
-      "id": "Chair back-0722",
+      "id": "Chair back-0725",
       "min": [
         -48.89,
         29.085,
@@ -9737,7 +9860,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0723",
+      "id": "Dining tabletop-0726",
       "min": [
         -51.0,
         29.31,
@@ -9750,7 +9873,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0724",
+      "id": "Dining table pedestal-0727",
       "min": [
         -50.19,
         28.57,
@@ -9763,7 +9886,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0725",
+      "id": "Upholstered chair seat-0728",
       "min": [
         -51.69,
         28.990000000000002,
@@ -9776,7 +9899,7 @@
       ]
     },
     {
-      "id": "Chair back-0726",
+      "id": "Chair back-0729",
       "min": [
         -51.69,
         29.085,
@@ -9789,7 +9912,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0727",
+      "id": "Upholstered chair seat-0730",
       "min": [
         -48.89,
         28.990000000000002,
@@ -9802,7 +9925,7 @@
       ]
     },
     {
-      "id": "Chair back-0728",
+      "id": "Chair back-0731",
       "min": [
         -48.89,
         29.085,
@@ -9815,7 +9938,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0729",
+      "id": "Dining tabletop-0732",
       "min": [
         -51.0,
         29.31,
@@ -9828,7 +9951,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0730",
+      "id": "Dining table pedestal-0733",
       "min": [
         -50.19,
         28.57,
@@ -9841,7 +9964,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0731",
+      "id": "Upholstered chair seat-0734",
       "min": [
         -51.69,
         28.990000000000002,
@@ -9854,7 +9977,7 @@
       ]
     },
     {
-      "id": "Chair back-0732",
+      "id": "Chair back-0735",
       "min": [
         -51.69,
         29.085,
@@ -9867,7 +9990,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0733",
+      "id": "Upholstered chair seat-0736",
       "min": [
         -48.89,
         28.990000000000002,
@@ -9880,7 +10003,7 @@
       ]
     },
     {
-      "id": "Chair back-0734",
+      "id": "Chair back-0737",
       "min": [
         -48.89,
         29.085,
@@ -9893,7 +10016,7 @@
       ]
     },
     {
-      "id": "Kitchen partition-0735",
+      "id": "Kitchen partition-0738",
       "min": [
         -57.25,
         28.57,
@@ -9906,7 +10029,7 @@
       ]
     },
     {
-      "id": "Service counter-0736",
+      "id": "Service counter-0739",
       "min": [
         -57.0,
         28.57,
@@ -9919,7 +10042,7 @@
       ]
     },
     {
-      "id": "Kitchen steel cabinet-0737",
+      "id": "Kitchen steel cabinet-0740",
       "min": [
         -56.6,
         28.57,
@@ -9932,7 +10055,7 @@
       ]
     },
     {
-      "id": "Kitchen steel cabinet-0738",
+      "id": "Kitchen steel cabinet-0741",
       "min": [
         -53.199999999999996,
         28.57,
@@ -9945,7 +10068,7 @@
       ]
     },
     {
-      "id": "Kitchen steel cabinet-0739",
+      "id": "Kitchen steel cabinet-0742",
       "min": [
         -49.9,
         28.57,
@@ -9958,7 +10081,20 @@
       ]
     },
     {
-      "id": "sushi wall-0740",
+      "id": "Walk-in chiller-0743",
+      "min": [
+        -61.425,
+        28.57,
+        71.35
+      ],
+      "max": [
+        -60.675,
+        30.67,
+        72.65
+      ]
+    },
+    {
+      "id": "sushi wall-0744",
       "min": [
         -41.0,
         28.57,
@@ -9971,7 +10107,7 @@
       ]
     },
     {
-      "id": "sushi wall-0741",
+      "id": "sushi wall-0745",
       "min": [
         -25.299999999999997,
         28.57,
@@ -9984,9 +10120,22 @@
       ]
     },
     {
-      "id": "sushi back wall-0742",
+      "id": "sushi rear wall left-0746",
       "min": [
-        -40.7,
+        -40.699999999999996,
+        28.57,
+        73.735
+      ],
+      "max": [
+        -39.4,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "sushi rear wall right-0747",
+      "min": [
+        -36.8,
         28.57,
         73.735
       ],
@@ -9997,7 +10146,20 @@
       ]
     },
     {
-      "id": "sushi ceiling-0743",
+      "id": "sushi staff door lintel-0748",
+      "min": [
+        -39.4,
+        31.369999999999997,
+        73.735
+      ],
+      "max": [
+        -36.800000000000004,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "sushi ceiling-0749",
       "min": [
         -40.7,
         34.51,
@@ -10010,7 +10172,7 @@
       ]
     },
     {
-      "id": "sushi front pier-0744",
+      "id": "sushi front pier-0750",
       "min": [
         -40.79,
         28.57,
@@ -10023,7 +10185,7 @@
       ]
     },
     {
-      "id": "sushi front pier-0745",
+      "id": "sushi front pier-0751",
       "min": [
         -34.99,
         28.57,
@@ -10036,7 +10198,7 @@
       ]
     },
     {
-      "id": "sushi front pier-0746",
+      "id": "sushi front pier-0752",
       "min": [
         -31.29,
         28.57,
@@ -10049,7 +10211,7 @@
       ]
     },
     {
-      "id": "sushi front pier-0747",
+      "id": "sushi front pier-0753",
       "min": [
         -25.490000000000002,
         28.57,
@@ -10062,7 +10224,7 @@
       ]
     },
     {
-      "id": "sushi window-0748",
+      "id": "sushi window-0754",
       "min": [
         -40.5,
         28.57,
@@ -10075,7 +10237,7 @@
       ]
     },
     {
-      "id": "sushi display plinth-0749",
+      "id": "sushi display plinth-0755",
       "min": [
         -40.45,
         28.57,
@@ -10088,7 +10250,7 @@
       ]
     },
     {
-      "id": "sushi window-0750",
+      "id": "sushi window-0756",
       "min": [
         -31.0,
         28.57,
@@ -10101,7 +10263,7 @@
       ]
     },
     {
-      "id": "sushi display plinth-0751",
+      "id": "sushi display plinth-0757",
       "min": [
         -30.95,
         28.57,
@@ -10114,7 +10276,7 @@
       ]
     },
     {
-      "id": "sushi sign band-0752",
+      "id": "sushi sign band-0758",
       "min": [
         -40.75,
         33.56,
@@ -10127,7 +10289,7 @@
       ]
     },
     {
-      "id": "Reception counter-0753",
+      "id": "Reception counter-0759",
       "min": [
         -28.85,
         28.57,
@@ -10140,7 +10302,7 @@
       ]
     },
     {
-      "id": "Planter solid-0754",
+      "id": "Planter solid-0760",
       "min": [
         -39.92,
         28.57,
@@ -10153,20 +10315,7 @@
       ]
     },
     {
-      "id": "Planter solid-0755",
-      "min": [
-        -39.92,
-        28.57,
-        71.18
-      ],
-      "max": [
-        -39.28,
-        29.369999999999997,
-        71.82
-      ]
-    },
-    {
-      "id": "Dining tabletop-0756",
+      "id": "Dining tabletop-0761",
       "min": [
         -38.0,
         29.31,
@@ -10179,7 +10328,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0757",
+      "id": "Dining table pedestal-0762",
       "min": [
         -37.19,
         28.57,
@@ -10192,7 +10341,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0758",
+      "id": "Upholstered chair seat-0763",
       "min": [
         -38.69,
         28.990000000000002,
@@ -10205,7 +10354,7 @@
       ]
     },
     {
-      "id": "Chair back-0759",
+      "id": "Chair back-0764",
       "min": [
         -38.69,
         29.085,
@@ -10218,7 +10367,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0760",
+      "id": "Upholstered chair seat-0765",
       "min": [
         -35.89,
         28.990000000000002,
@@ -10231,7 +10380,7 @@
       ]
     },
     {
-      "id": "Chair back-0761",
+      "id": "Chair back-0766",
       "min": [
         -35.89,
         29.085,
@@ -10244,7 +10393,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0762",
+      "id": "Dining tabletop-0767",
       "min": [
         -38.0,
         29.31,
@@ -10257,7 +10406,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0763",
+      "id": "Dining table pedestal-0768",
       "min": [
         -37.19,
         28.57,
@@ -10270,7 +10419,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0764",
+      "id": "Upholstered chair seat-0769",
       "min": [
         -38.69,
         28.990000000000002,
@@ -10283,7 +10432,7 @@
       ]
     },
     {
-      "id": "Chair back-0765",
+      "id": "Chair back-0770",
       "min": [
         -38.69,
         29.085,
@@ -10296,7 +10445,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0766",
+      "id": "Upholstered chair seat-0771",
       "min": [
         -35.89,
         28.990000000000002,
@@ -10309,7 +10458,7 @@
       ]
     },
     {
-      "id": "Chair back-0767",
+      "id": "Chair back-0772",
       "min": [
         -35.89,
         29.085,
@@ -10322,7 +10471,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0768",
+      "id": "Dining tabletop-0773",
       "min": [
         -38.0,
         29.31,
@@ -10335,7 +10484,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0769",
+      "id": "Dining table pedestal-0774",
       "min": [
         -37.19,
         28.57,
@@ -10348,7 +10497,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0770",
+      "id": "Upholstered chair seat-0775",
       "min": [
         -38.69,
         28.990000000000002,
@@ -10361,7 +10510,7 @@
       ]
     },
     {
-      "id": "Chair back-0771",
+      "id": "Chair back-0776",
       "min": [
         -38.69,
         29.085,
@@ -10374,7 +10523,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0772",
+      "id": "Upholstered chair seat-0777",
       "min": [
         -35.89,
         28.990000000000002,
@@ -10387,7 +10536,7 @@
       ]
     },
     {
-      "id": "Chair back-0773",
+      "id": "Chair back-0778",
       "min": [
         -35.89,
         29.085,
@@ -10400,7 +10549,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0774",
+      "id": "Dining tabletop-0779",
       "min": [
         -30.0,
         29.31,
@@ -10413,7 +10562,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0775",
+      "id": "Dining table pedestal-0780",
       "min": [
         -29.19,
         28.57,
@@ -10426,7 +10575,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0776",
+      "id": "Upholstered chair seat-0781",
       "min": [
         -30.689999999999998,
         28.990000000000002,
@@ -10439,7 +10588,7 @@
       ]
     },
     {
-      "id": "Chair back-0777",
+      "id": "Chair back-0782",
       "min": [
         -30.689999999999998,
         29.085,
@@ -10452,7 +10601,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0778",
+      "id": "Upholstered chair seat-0783",
       "min": [
         -27.89,
         28.990000000000002,
@@ -10465,7 +10614,7 @@
       ]
     },
     {
-      "id": "Chair back-0779",
+      "id": "Chair back-0784",
       "min": [
         -27.89,
         29.085,
@@ -10478,7 +10627,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0780",
+      "id": "Dining tabletop-0785",
       "min": [
         -30.0,
         29.31,
@@ -10491,7 +10640,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0781",
+      "id": "Dining table pedestal-0786",
       "min": [
         -29.19,
         28.57,
@@ -10504,7 +10653,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0782",
+      "id": "Upholstered chair seat-0787",
       "min": [
         -30.689999999999998,
         28.990000000000002,
@@ -10517,7 +10666,7 @@
       ]
     },
     {
-      "id": "Chair back-0783",
+      "id": "Chair back-0788",
       "min": [
         -30.689999999999998,
         29.085,
@@ -10530,7 +10679,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0784",
+      "id": "Upholstered chair seat-0789",
       "min": [
         -27.89,
         28.990000000000002,
@@ -10543,7 +10692,7 @@
       ]
     },
     {
-      "id": "Chair back-0785",
+      "id": "Chair back-0790",
       "min": [
         -27.89,
         29.085,
@@ -10556,7 +10705,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0786",
+      "id": "Dining tabletop-0791",
       "min": [
         -30.0,
         29.31,
@@ -10569,7 +10718,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0787",
+      "id": "Dining table pedestal-0792",
       "min": [
         -29.19,
         28.57,
@@ -10582,7 +10731,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0788",
+      "id": "Upholstered chair seat-0793",
       "min": [
         -30.689999999999998,
         28.990000000000002,
@@ -10595,7 +10744,7 @@
       ]
     },
     {
-      "id": "Chair back-0789",
+      "id": "Chair back-0794",
       "min": [
         -30.689999999999998,
         29.085,
@@ -10608,7 +10757,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0790",
+      "id": "Upholstered chair seat-0795",
       "min": [
         -27.89,
         28.990000000000002,
@@ -10621,7 +10770,7 @@
       ]
     },
     {
-      "id": "Chair back-0791",
+      "id": "Chair back-0796",
       "min": [
         -27.89,
         29.085,
@@ -10634,7 +10783,7 @@
       ]
     },
     {
-      "id": "Kitchen partition-0792",
+      "id": "Kitchen partition-0797",
       "min": [
         -36.25,
         28.57,
@@ -10647,7 +10796,7 @@
       ]
     },
     {
-      "id": "Service counter-0793",
+      "id": "Service counter-0798",
       "min": [
         -36.0,
         28.57,
@@ -10660,7 +10809,7 @@
       ]
     },
     {
-      "id": "Kitchen steel cabinet-0794",
+      "id": "Kitchen steel cabinet-0799",
       "min": [
         -35.6,
         28.57,
@@ -10673,7 +10822,7 @@
       ]
     },
     {
-      "id": "Kitchen steel cabinet-0795",
+      "id": "Kitchen steel cabinet-0800",
       "min": [
         -32.2,
         28.57,
@@ -10686,7 +10835,7 @@
       ]
     },
     {
-      "id": "Kitchen steel cabinet-0796",
+      "id": "Kitchen steel cabinet-0801",
       "min": [
         -28.9,
         28.57,
@@ -10699,92 +10848,27 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0797",
+      "id": "Walk-in chiller-0802",
       "min": [
-        -34.29,
-        28.990000000000002,
-        67.205
+        -40.425,
+        28.57,
+        71.35
       ],
       "max": [
-        -33.71,
-        29.11,
-        67.795
-      ]
-    },
-    {
-      "id": "Chair back-0798",
-      "min": [
-        -34.29,
-        29.085,
-        67.71000000000001
-      ],
-      "max": [
-        -33.71,
-        29.795,
-        67.81
-      ]
-    },
-    {
-      "id": "Upholstered chair seat-0799",
-      "min": [
-        -32.09,
-        28.990000000000002,
-        67.205
-      ],
-      "max": [
-        -31.51,
-        29.11,
-        67.795
-      ]
-    },
-    {
-      "id": "Chair back-0800",
-      "min": [
-        -32.09,
-        29.085,
-        67.71000000000001
-      ],
-      "max": [
-        -31.51,
-        29.795,
-        67.81
-      ]
-    },
-    {
-      "id": "Upholstered chair seat-0801",
-      "min": [
-        -30.99,
-        28.990000000000002,
-        67.205
-      ],
-      "max": [
-        -30.41,
-        29.11,
-        67.795
-      ]
-    },
-    {
-      "id": "Chair back-0802",
-      "min": [
-        -30.99,
-        29.085,
-        67.71000000000001
-      ],
-      "max": [
-        -30.41,
-        29.795,
-        67.81
+        -39.675,
+        30.67,
+        72.65
       ]
     },
     {
       "id": "Upholstered chair seat-0803",
       "min": [
-        -29.89,
+        -34.29,
         28.990000000000002,
         67.205
       ],
       "max": [
-        -29.310000000000002,
+        -33.71,
         29.11,
         67.795
       ]
@@ -10792,6 +10876,84 @@
     {
       "id": "Chair back-0804",
       "min": [
+        -34.29,
+        29.085,
+        67.71000000000001
+      ],
+      "max": [
+        -33.71,
+        29.795,
+        67.81
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0805",
+      "min": [
+        -32.09,
+        28.990000000000002,
+        67.205
+      ],
+      "max": [
+        -31.51,
+        29.11,
+        67.795
+      ]
+    },
+    {
+      "id": "Chair back-0806",
+      "min": [
+        -32.09,
+        29.085,
+        67.71000000000001
+      ],
+      "max": [
+        -31.51,
+        29.795,
+        67.81
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0807",
+      "min": [
+        -30.99,
+        28.990000000000002,
+        67.205
+      ],
+      "max": [
+        -30.41,
+        29.11,
+        67.795
+      ]
+    },
+    {
+      "id": "Chair back-0808",
+      "min": [
+        -30.99,
+        29.085,
+        67.71000000000001
+      ],
+      "max": [
+        -30.41,
+        29.795,
+        67.81
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0809",
+      "min": [
+        -29.89,
+        28.990000000000002,
+        67.205
+      ],
+      "max": [
+        -29.310000000000002,
+        29.11,
+        67.795
+      ]
+    },
+    {
+      "id": "Chair back-0810",
+      "min": [
         -29.89,
         29.085,
         67.71000000000001
@@ -10803,7 +10965,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0805",
+      "id": "Upholstered chair seat-0811",
       "min": [
         -28.79,
         28.990000000000002,
@@ -10816,7 +10978,7 @@
       ]
     },
     {
-      "id": "Chair back-0806",
+      "id": "Chair back-0812",
       "min": [
         -28.79,
         29.085,
@@ -10829,7 +10991,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0807",
+      "id": "Upholstered chair seat-0813",
       "min": [
         -27.689999999999998,
         28.990000000000002,
@@ -10842,7 +11004,7 @@
       ]
     },
     {
-      "id": "Chair back-0808",
+      "id": "Chair back-0814",
       "min": [
         -27.689999999999998,
         29.085,
@@ -10855,7 +11017,7 @@
       ]
     },
     {
-      "id": "noodles wall-0809",
+      "id": "noodles wall-0815",
       "min": [
         -20.0,
         28.57,
@@ -10868,7 +11030,7 @@
       ]
     },
     {
-      "id": "noodles wall-0810",
+      "id": "noodles wall-0816",
       "min": [
         -4.300000000000001,
         28.57,
@@ -10881,20 +11043,46 @@
       ]
     },
     {
-      "id": "noodles back wall-0811",
+      "id": "noodles rear wall left-0817",
       "min": [
         -19.7,
         28.57,
         73.735
       ],
       "max": [
-        -4.3,
+        -18.400000000000002,
         34.57,
         73.985
       ]
     },
     {
-      "id": "noodles ceiling-0812",
+      "id": "noodles rear wall right-0818",
+      "min": [
+        -15.8,
+        28.57,
+        73.735
+      ],
+      "max": [
+        -4.300000000000001,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "noodles staff door lintel-0819",
+      "min": [
+        -18.400000000000002,
+        31.369999999999997,
+        73.735
+      ],
+      "max": [
+        -15.8,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "noodles ceiling-0820",
       "min": [
         -19.7,
         34.51,
@@ -10907,7 +11095,7 @@
       ]
     },
     {
-      "id": "noodles front pier-0813",
+      "id": "noodles front pier-0821",
       "min": [
         -19.79,
         28.57,
@@ -10920,7 +11108,7 @@
       ]
     },
     {
-      "id": "noodles front pier-0814",
+      "id": "noodles front pier-0822",
       "min": [
         -13.99,
         28.57,
@@ -10933,7 +11121,7 @@
       ]
     },
     {
-      "id": "noodles front pier-0815",
+      "id": "noodles front pier-0823",
       "min": [
         -10.290000000000001,
         28.57,
@@ -10946,7 +11134,7 @@
       ]
     },
     {
-      "id": "noodles front pier-0816",
+      "id": "noodles front pier-0824",
       "min": [
         -4.489999999999999,
         28.57,
@@ -10959,7 +11147,7 @@
       ]
     },
     {
-      "id": "noodles window-0817",
+      "id": "noodles window-0825",
       "min": [
         -19.5,
         28.57,
@@ -10972,7 +11160,7 @@
       ]
     },
     {
-      "id": "noodles display plinth-0818",
+      "id": "noodles display plinth-0826",
       "min": [
         -19.45,
         28.57,
@@ -10985,7 +11173,7 @@
       ]
     },
     {
-      "id": "noodles window-0819",
+      "id": "noodles window-0827",
       "min": [
         -10.0,
         28.57,
@@ -10998,7 +11186,7 @@
       ]
     },
     {
-      "id": "noodles display plinth-0820",
+      "id": "noodles display plinth-0828",
       "min": [
         -9.95,
         28.57,
@@ -11011,7 +11199,7 @@
       ]
     },
     {
-      "id": "noodles sign band-0821",
+      "id": "noodles sign band-0829",
       "min": [
         -19.75,
         33.56,
@@ -11024,7 +11212,7 @@
       ]
     },
     {
-      "id": "Reception counter-0822",
+      "id": "Reception counter-0830",
       "min": [
         -7.85,
         28.57,
@@ -11037,7 +11225,7 @@
       ]
     },
     {
-      "id": "Planter solid-0823",
+      "id": "Planter solid-0831",
       "min": [
         -18.92,
         28.57,
@@ -11050,20 +11238,7 @@
       ]
     },
     {
-      "id": "Planter solid-0824",
-      "min": [
-        -18.92,
-        28.57,
-        71.18
-      ],
-      "max": [
-        -18.28,
-        29.369999999999997,
-        71.82
-      ]
-    },
-    {
-      "id": "Dining tabletop-0825",
+      "id": "Dining tabletop-0832",
       "min": [
         -17.0,
         29.31,
@@ -11076,7 +11251,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0826",
+      "id": "Dining table pedestal-0833",
       "min": [
         -16.19,
         28.57,
@@ -11089,7 +11264,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0827",
+      "id": "Upholstered chair seat-0834",
       "min": [
         -17.689999999999998,
         28.990000000000002,
@@ -11102,7 +11277,7 @@
       ]
     },
     {
-      "id": "Chair back-0828",
+      "id": "Chair back-0835",
       "min": [
         -17.689999999999998,
         29.085,
@@ -11115,7 +11290,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0829",
+      "id": "Upholstered chair seat-0836",
       "min": [
         -14.889999999999999,
         28.990000000000002,
@@ -11128,7 +11303,7 @@
       ]
     },
     {
-      "id": "Chair back-0830",
+      "id": "Chair back-0837",
       "min": [
         -14.889999999999999,
         29.085,
@@ -11141,7 +11316,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0831",
+      "id": "Dining tabletop-0838",
       "min": [
         -17.0,
         29.31,
@@ -11154,7 +11329,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0832",
+      "id": "Dining table pedestal-0839",
       "min": [
         -16.19,
         28.57,
@@ -11167,7 +11342,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0833",
+      "id": "Upholstered chair seat-0840",
       "min": [
         -17.689999999999998,
         28.990000000000002,
@@ -11180,7 +11355,7 @@
       ]
     },
     {
-      "id": "Chair back-0834",
+      "id": "Chair back-0841",
       "min": [
         -17.689999999999998,
         29.085,
@@ -11193,7 +11368,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0835",
+      "id": "Upholstered chair seat-0842",
       "min": [
         -14.889999999999999,
         28.990000000000002,
@@ -11206,7 +11381,7 @@
       ]
     },
     {
-      "id": "Chair back-0836",
+      "id": "Chair back-0843",
       "min": [
         -14.889999999999999,
         29.085,
@@ -11219,7 +11394,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0837",
+      "id": "Dining tabletop-0844",
       "min": [
         -17.0,
         29.31,
@@ -11232,7 +11407,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0838",
+      "id": "Dining table pedestal-0845",
       "min": [
         -16.19,
         28.57,
@@ -11245,7 +11420,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0839",
+      "id": "Upholstered chair seat-0846",
       "min": [
         -17.689999999999998,
         28.990000000000002,
@@ -11258,7 +11433,7 @@
       ]
     },
     {
-      "id": "Chair back-0840",
+      "id": "Chair back-0847",
       "min": [
         -17.689999999999998,
         29.085,
@@ -11271,7 +11446,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0841",
+      "id": "Upholstered chair seat-0848",
       "min": [
         -14.889999999999999,
         28.990000000000002,
@@ -11284,7 +11459,7 @@
       ]
     },
     {
-      "id": "Chair back-0842",
+      "id": "Chair back-0849",
       "min": [
         -14.889999999999999,
         29.085,
@@ -11297,7 +11472,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0843",
+      "id": "Dining tabletop-0850",
       "min": [
         -9.0,
         29.31,
@@ -11310,7 +11485,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0844",
+      "id": "Dining table pedestal-0851",
       "min": [
         -8.19,
         28.57,
@@ -11323,7 +11498,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0845",
+      "id": "Upholstered chair seat-0852",
       "min": [
         -9.69,
         28.990000000000002,
@@ -11336,7 +11511,7 @@
       ]
     },
     {
-      "id": "Chair back-0846",
+      "id": "Chair back-0853",
       "min": [
         -9.69,
         29.085,
@@ -11349,7 +11524,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0847",
+      "id": "Upholstered chair seat-0854",
       "min": [
         -6.89,
         28.990000000000002,
@@ -11362,7 +11537,7 @@
       ]
     },
     {
-      "id": "Chair back-0848",
+      "id": "Chair back-0855",
       "min": [
         -6.89,
         29.085,
@@ -11375,7 +11550,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0849",
+      "id": "Dining tabletop-0856",
       "min": [
         -9.0,
         29.31,
@@ -11388,7 +11563,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0850",
+      "id": "Dining table pedestal-0857",
       "min": [
         -8.19,
         28.57,
@@ -11401,7 +11576,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0851",
+      "id": "Upholstered chair seat-0858",
       "min": [
         -9.69,
         28.990000000000002,
@@ -11414,7 +11589,7 @@
       ]
     },
     {
-      "id": "Chair back-0852",
+      "id": "Chair back-0859",
       "min": [
         -9.69,
         29.085,
@@ -11427,7 +11602,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0853",
+      "id": "Upholstered chair seat-0860",
       "min": [
         -6.89,
         28.990000000000002,
@@ -11440,7 +11615,7 @@
       ]
     },
     {
-      "id": "Chair back-0854",
+      "id": "Chair back-0861",
       "min": [
         -6.89,
         29.085,
@@ -11453,7 +11628,7 @@
       ]
     },
     {
-      "id": "Dining tabletop-0855",
+      "id": "Dining tabletop-0862",
       "min": [
         -9.0,
         29.31,
@@ -11466,7 +11641,7 @@
       ]
     },
     {
-      "id": "Dining table pedestal-0856",
+      "id": "Dining table pedestal-0863",
       "min": [
         -8.19,
         28.57,
@@ -11479,7 +11654,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0857",
+      "id": "Upholstered chair seat-0864",
       "min": [
         -9.69,
         28.990000000000002,
@@ -11492,7 +11667,7 @@
       ]
     },
     {
-      "id": "Chair back-0858",
+      "id": "Chair back-0865",
       "min": [
         -9.69,
         29.085,
@@ -11505,7 +11680,7 @@
       ]
     },
     {
-      "id": "Upholstered chair seat-0859",
+      "id": "Upholstered chair seat-0866",
       "min": [
         -6.89,
         28.990000000000002,
@@ -11518,7 +11693,7 @@
       ]
     },
     {
-      "id": "Chair back-0860",
+      "id": "Chair back-0867",
       "min": [
         -6.89,
         29.085,
@@ -11531,7 +11706,7 @@
       ]
     },
     {
-      "id": "Kitchen partition-0861",
+      "id": "Kitchen partition-0868",
       "min": [
         -15.25,
         28.57,
@@ -11544,7 +11719,7 @@
       ]
     },
     {
-      "id": "Service counter-0862",
+      "id": "Service counter-0869",
       "min": [
         -15.0,
         28.57,
@@ -11557,7 +11732,7 @@
       ]
     },
     {
-      "id": "Kitchen steel cabinet-0863",
+      "id": "Kitchen steel cabinet-0870",
       "min": [
         -14.6,
         28.57,
@@ -11570,7 +11745,7 @@
       ]
     },
     {
-      "id": "Kitchen steel cabinet-0864",
+      "id": "Kitchen steel cabinet-0871",
       "min": [
         -11.200000000000001,
         28.57,
@@ -11583,7 +11758,7 @@
       ]
     },
     {
-      "id": "Kitchen steel cabinet-0865",
+      "id": "Kitchen steel cabinet-0872",
       "min": [
         -7.9,
         28.57,
@@ -11596,7 +11771,3543 @@
       ]
     },
     {
-      "id": "Restroom enclosing wall-0866",
+      "id": "Walk-in chiller-0873",
+      "min": [
+        -19.425,
+        28.57,
+        71.35
+      ],
+      "max": [
+        -18.675,
+        30.67,
+        72.65
+      ]
+    },
+    {
+      "id": "lukfook wall-0874",
+      "min": [
+        -104.0,
+        8.17,
+        51.0
+      ],
+      "max": [
+        -103.69999999999999,
+        14.17,
+        74.0
+      ]
+    },
+    {
+      "id": "lukfook wall-0875",
+      "min": [
+        -88.30000000000001,
+        8.17,
+        51.0
+      ],
+      "max": [
+        -88.0,
+        14.17,
+        74.0
+      ]
+    },
+    {
+      "id": "lukfook back wall-0876",
+      "min": [
+        -103.7,
+        8.17,
+        73.735
+      ],
+      "max": [
+        -88.3,
+        14.17,
+        73.985
+      ]
+    },
+    {
+      "id": "lukfook ceiling-0877",
+      "min": [
+        -103.7,
+        14.11,
+        51.15
+      ],
+      "max": [
+        -88.3,
+        14.23,
+        73.85
+      ]
+    },
+    {
+      "id": "lukfook front pier-0878",
+      "min": [
+        -103.79,
+        8.17,
+        50.775
+      ],
+      "max": [
+        -103.51,
+        14.17,
+        51.225
+      ]
+    },
+    {
+      "id": "lukfook front pier-0879",
+      "min": [
+        -97.99,
+        8.17,
+        50.775
+      ],
+      "max": [
+        -97.71,
+        14.17,
+        51.225
+      ]
+    },
+    {
+      "id": "lukfook front pier-0880",
+      "min": [
+        -94.29,
+        8.17,
+        50.775
+      ],
+      "max": [
+        -94.01,
+        14.17,
+        51.225
+      ]
+    },
+    {
+      "id": "lukfook front pier-0881",
+      "min": [
+        -88.49,
+        8.17,
+        50.775
+      ],
+      "max": [
+        -88.21,
+        14.17,
+        51.225
+      ]
+    },
+    {
+      "id": "lukfook window-0882",
+      "min": [
+        -103.5,
+        8.17,
+        50.991
+      ],
+      "max": [
+        -98.0,
+        12.97,
+        51.009
+      ]
+    },
+    {
+      "id": "lukfook display plinth-0883",
+      "min": [
+        -103.45,
+        8.17,
+        51.425
+      ],
+      "max": [
+        -98.05,
+        8.569999999999999,
+        52.575
+      ]
+    },
+    {
+      "id": "lukfook window-0884",
+      "min": [
+        -94.0,
+        8.17,
+        50.991
+      ],
+      "max": [
+        -88.5,
+        12.97,
+        51.009
+      ]
+    },
+    {
+      "id": "lukfook display plinth-0885",
+      "min": [
+        -93.95,
+        8.17,
+        51.425
+      ],
+      "max": [
+        -88.55,
+        8.569999999999999,
+        52.575
+      ]
+    },
+    {
+      "id": "lukfook sign band-0886",
+      "min": [
+        -103.75,
+        13.16,
+        50.72
+      ],
+      "max": [
+        -88.25,
+        13.879999999999999,
+        51.099999999999994
+      ]
+    },
+    {
+      "id": "Reception counter-0887",
+      "min": [
+        -91.85,
+        8.17,
+        54.425
+      ],
+      "max": [
+        -89.15,
+        9.17,
+        55.575
+      ]
+    },
+    {
+      "id": "Display cabinet solid base-0888",
+      "min": [
+        -100.75,
+        8.17,
+        58.525
+      ],
+      "max": [
+        -98.25,
+        8.97,
+        59.475
+      ]
+    },
+    {
+      "id": "Dining tabletop-0889",
+      "min": [
+        -100.3,
+        8.91,
+        64.4
+      ],
+      "max": [
+        -98.7,
+        9.010000000000002,
+        65.6
+      ]
+    },
+    {
+      "id": "Dining table pedestal-0890",
+      "min": [
+        -99.69,
+        8.17,
+        64.81
+      ],
+      "max": [
+        -99.31,
+        8.930000000000001,
+        65.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0891",
+      "min": [
+        -101.04,
+        8.59,
+        64.705
+      ],
+      "max": [
+        -100.46,
+        8.71,
+        65.295
+      ]
+    },
+    {
+      "id": "Chair back-0892",
+      "min": [
+        -101.04,
+        8.684999999999999,
+        65.21000000000001
+      ],
+      "max": [
+        -100.46,
+        9.395,
+        65.31
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0893",
+      "min": [
+        -98.54,
+        8.59,
+        64.705
+      ],
+      "max": [
+        -97.96,
+        8.71,
+        65.295
+      ]
+    },
+    {
+      "id": "Chair back-0894",
+      "min": [
+        -98.54,
+        8.684999999999999,
+        65.21000000000001
+      ],
+      "max": [
+        -97.96,
+        9.395,
+        65.31
+      ]
+    },
+    {
+      "id": "Dining tabletop-0895",
+      "min": [
+        -100.3,
+        8.91,
+        68.4
+      ],
+      "max": [
+        -98.7,
+        9.010000000000002,
+        69.6
+      ]
+    },
+    {
+      "id": "Dining table pedestal-0896",
+      "min": [
+        -99.69,
+        8.17,
+        68.81
+      ],
+      "max": [
+        -99.31,
+        8.930000000000001,
+        69.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0897",
+      "min": [
+        -101.04,
+        8.59,
+        68.705
+      ],
+      "max": [
+        -100.46,
+        8.71,
+        69.295
+      ]
+    },
+    {
+      "id": "Chair back-0898",
+      "min": [
+        -101.04,
+        8.684999999999999,
+        69.21000000000001
+      ],
+      "max": [
+        -100.46,
+        9.395,
+        69.31
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0899",
+      "min": [
+        -98.54,
+        8.59,
+        68.705
+      ],
+      "max": [
+        -97.96,
+        8.71,
+        69.295
+      ]
+    },
+    {
+      "id": "Chair back-0900",
+      "min": [
+        -98.54,
+        8.684999999999999,
+        69.21000000000001
+      ],
+      "max": [
+        -97.96,
+        9.395,
+        69.31
+      ]
+    },
+    {
+      "id": "Display cabinet solid base-0901",
+      "min": [
+        -93.75,
+        8.17,
+        58.525
+      ],
+      "max": [
+        -91.25,
+        8.97,
+        59.475
+      ]
+    },
+    {
+      "id": "Dining tabletop-0902",
+      "min": [
+        -93.3,
+        8.91,
+        64.4
+      ],
+      "max": [
+        -91.7,
+        9.010000000000002,
+        65.6
+      ]
+    },
+    {
+      "id": "Dining table pedestal-0903",
+      "min": [
+        -92.69,
+        8.17,
+        64.81
+      ],
+      "max": [
+        -92.31,
+        8.930000000000001,
+        65.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0904",
+      "min": [
+        -94.04,
+        8.59,
+        64.705
+      ],
+      "max": [
+        -93.46,
+        8.71,
+        65.295
+      ]
+    },
+    {
+      "id": "Chair back-0905",
+      "min": [
+        -94.04,
+        8.684999999999999,
+        65.21000000000001
+      ],
+      "max": [
+        -93.46,
+        9.395,
+        65.31
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0906",
+      "min": [
+        -91.54,
+        8.59,
+        64.705
+      ],
+      "max": [
+        -90.96,
+        8.71,
+        65.295
+      ]
+    },
+    {
+      "id": "Chair back-0907",
+      "min": [
+        -91.54,
+        8.684999999999999,
+        65.21000000000001
+      ],
+      "max": [
+        -90.96,
+        9.395,
+        65.31
+      ]
+    },
+    {
+      "id": "Dining tabletop-0908",
+      "min": [
+        -93.3,
+        8.91,
+        68.4
+      ],
+      "max": [
+        -91.7,
+        9.010000000000002,
+        69.6
+      ]
+    },
+    {
+      "id": "Dining table pedestal-0909",
+      "min": [
+        -92.69,
+        8.17,
+        68.81
+      ],
+      "max": [
+        -92.31,
+        8.930000000000001,
+        69.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0910",
+      "min": [
+        -94.04,
+        8.59,
+        68.705
+      ],
+      "max": [
+        -93.46,
+        8.71,
+        69.295
+      ]
+    },
+    {
+      "id": "Chair back-0911",
+      "min": [
+        -94.04,
+        8.684999999999999,
+        69.21000000000001
+      ],
+      "max": [
+        -93.46,
+        9.395,
+        69.31
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0912",
+      "min": [
+        -91.54,
+        8.59,
+        68.705
+      ],
+      "max": [
+        -90.96,
+        8.71,
+        69.295
+      ]
+    },
+    {
+      "id": "Chair back-0913",
+      "min": [
+        -91.54,
+        8.684999999999999,
+        69.21000000000001
+      ],
+      "max": [
+        -90.96,
+        9.395,
+        69.31
+      ]
+    },
+    {
+      "id": "Green recessed jewelry niche-0914",
+      "min": [
+        -102.7,
+        8.62,
+        55.9
+      ],
+      "max": [
+        -102.10000000000001,
+        11.12,
+        58.1
+      ]
+    },
+    {
+      "id": "Green recessed jewelry niche-0915",
+      "min": [
+        -102.7,
+        8.62,
+        60.9
+      ],
+      "max": [
+        -102.10000000000001,
+        11.12,
+        63.1
+      ]
+    },
+    {
+      "id": "Green recessed jewelry niche-0916",
+      "min": [
+        -102.7,
+        8.62,
+        66.9
+      ],
+      "max": [
+        -102.10000000000001,
+        11.12,
+        69.1
+      ]
+    },
+    {
+      "id": "Green recessed jewelry niche-0917",
+      "min": [
+        -89.89999999999999,
+        8.62,
+        55.9
+      ],
+      "max": [
+        -89.3,
+        11.12,
+        58.1
+      ]
+    },
+    {
+      "id": "Green recessed jewelry niche-0918",
+      "min": [
+        -89.89999999999999,
+        8.62,
+        60.9
+      ],
+      "max": [
+        -89.3,
+        11.12,
+        63.1
+      ]
+    },
+    {
+      "id": "Green recessed jewelry niche-0919",
+      "min": [
+        -89.89999999999999,
+        8.62,
+        66.9
+      ],
+      "max": [
+        -89.3,
+        11.12,
+        69.1
+      ]
+    },
+    {
+      "id": "chowtaifook wall-0920",
+      "min": [
+        -41.0,
+        8.17,
+        51.0
+      ],
+      "max": [
+        -40.7,
+        14.17,
+        74.0
+      ]
+    },
+    {
+      "id": "chowtaifook wall-0921",
+      "min": [
+        -25.299999999999997,
+        8.17,
+        51.0
+      ],
+      "max": [
+        -25.0,
+        14.17,
+        74.0
+      ]
+    },
+    {
+      "id": "chowtaifook back wall-0922",
+      "min": [
+        -40.7,
+        8.17,
+        73.735
+      ],
+      "max": [
+        -25.3,
+        14.17,
+        73.985
+      ]
+    },
+    {
+      "id": "chowtaifook ceiling-0923",
+      "min": [
+        -40.7,
+        14.11,
+        51.15
+      ],
+      "max": [
+        -25.3,
+        14.23,
+        73.85
+      ]
+    },
+    {
+      "id": "chowtaifook front pier-0924",
+      "min": [
+        -40.79,
+        8.17,
+        50.775
+      ],
+      "max": [
+        -40.51,
+        14.17,
+        51.225
+      ]
+    },
+    {
+      "id": "chowtaifook front pier-0925",
+      "min": [
+        -34.99,
+        8.17,
+        50.775
+      ],
+      "max": [
+        -34.71,
+        14.17,
+        51.225
+      ]
+    },
+    {
+      "id": "chowtaifook front pier-0926",
+      "min": [
+        -31.29,
+        8.17,
+        50.775
+      ],
+      "max": [
+        -31.009999999999998,
+        14.17,
+        51.225
+      ]
+    },
+    {
+      "id": "chowtaifook front pier-0927",
+      "min": [
+        -25.490000000000002,
+        8.17,
+        50.775
+      ],
+      "max": [
+        -25.21,
+        14.17,
+        51.225
+      ]
+    },
+    {
+      "id": "chowtaifook window-0928",
+      "min": [
+        -40.5,
+        8.17,
+        50.991
+      ],
+      "max": [
+        -35.0,
+        12.97,
+        51.009
+      ]
+    },
+    {
+      "id": "chowtaifook display plinth-0929",
+      "min": [
+        -40.45,
+        8.17,
+        51.425
+      ],
+      "max": [
+        -35.05,
+        8.569999999999999,
+        52.575
+      ]
+    },
+    {
+      "id": "chowtaifook window-0930",
+      "min": [
+        -31.0,
+        8.17,
+        50.991
+      ],
+      "max": [
+        -25.5,
+        12.97,
+        51.009
+      ]
+    },
+    {
+      "id": "chowtaifook display plinth-0931",
+      "min": [
+        -30.95,
+        8.17,
+        51.425
+      ],
+      "max": [
+        -25.55,
+        8.569999999999999,
+        52.575
+      ]
+    },
+    {
+      "id": "chowtaifook sign band-0932",
+      "min": [
+        -40.75,
+        13.16,
+        50.72
+      ],
+      "max": [
+        -25.25,
+        13.879999999999999,
+        51.099999999999994
+      ]
+    },
+    {
+      "id": "Reception counter-0933",
+      "min": [
+        -28.85,
+        8.17,
+        54.425
+      ],
+      "max": [
+        -26.15,
+        9.17,
+        55.575
+      ]
+    },
+    {
+      "id": "Display cabinet solid base-0934",
+      "min": [
+        -37.75,
+        8.17,
+        58.525
+      ],
+      "max": [
+        -35.25,
+        8.97,
+        59.475
+      ]
+    },
+    {
+      "id": "Dining tabletop-0935",
+      "min": [
+        -37.3,
+        8.91,
+        64.4
+      ],
+      "max": [
+        -35.7,
+        9.010000000000002,
+        65.6
+      ]
+    },
+    {
+      "id": "Dining table pedestal-0936",
+      "min": [
+        -36.69,
+        8.17,
+        64.81
+      ],
+      "max": [
+        -36.31,
+        8.930000000000001,
+        65.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0937",
+      "min": [
+        -38.04,
+        8.59,
+        64.705
+      ],
+      "max": [
+        -37.46,
+        8.71,
+        65.295
+      ]
+    },
+    {
+      "id": "Chair back-0938",
+      "min": [
+        -38.04,
+        8.684999999999999,
+        65.21000000000001
+      ],
+      "max": [
+        -37.46,
+        9.395,
+        65.31
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0939",
+      "min": [
+        -35.54,
+        8.59,
+        64.705
+      ],
+      "max": [
+        -34.96,
+        8.71,
+        65.295
+      ]
+    },
+    {
+      "id": "Chair back-0940",
+      "min": [
+        -35.54,
+        8.684999999999999,
+        65.21000000000001
+      ],
+      "max": [
+        -34.96,
+        9.395,
+        65.31
+      ]
+    },
+    {
+      "id": "Dining tabletop-0941",
+      "min": [
+        -37.3,
+        8.91,
+        68.4
+      ],
+      "max": [
+        -35.7,
+        9.010000000000002,
+        69.6
+      ]
+    },
+    {
+      "id": "Dining table pedestal-0942",
+      "min": [
+        -36.69,
+        8.17,
+        68.81
+      ],
+      "max": [
+        -36.31,
+        8.930000000000001,
+        69.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0943",
+      "min": [
+        -38.04,
+        8.59,
+        68.705
+      ],
+      "max": [
+        -37.46,
+        8.71,
+        69.295
+      ]
+    },
+    {
+      "id": "Chair back-0944",
+      "min": [
+        -38.04,
+        8.684999999999999,
+        69.21000000000001
+      ],
+      "max": [
+        -37.46,
+        9.395,
+        69.31
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0945",
+      "min": [
+        -35.54,
+        8.59,
+        68.705
+      ],
+      "max": [
+        -34.96,
+        8.71,
+        69.295
+      ]
+    },
+    {
+      "id": "Chair back-0946",
+      "min": [
+        -35.54,
+        8.684999999999999,
+        69.21000000000001
+      ],
+      "max": [
+        -34.96,
+        9.395,
+        69.31
+      ]
+    },
+    {
+      "id": "Display cabinet solid base-0947",
+      "min": [
+        -30.75,
+        8.17,
+        58.525
+      ],
+      "max": [
+        -28.25,
+        8.97,
+        59.475
+      ]
+    },
+    {
+      "id": "Dining tabletop-0948",
+      "min": [
+        -30.3,
+        8.91,
+        64.4
+      ],
+      "max": [
+        -28.7,
+        9.010000000000002,
+        65.6
+      ]
+    },
+    {
+      "id": "Dining table pedestal-0949",
+      "min": [
+        -29.69,
+        8.17,
+        64.81
+      ],
+      "max": [
+        -29.31,
+        8.930000000000001,
+        65.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0950",
+      "min": [
+        -31.04,
+        8.59,
+        64.705
+      ],
+      "max": [
+        -30.46,
+        8.71,
+        65.295
+      ]
+    },
+    {
+      "id": "Chair back-0951",
+      "min": [
+        -31.04,
+        8.684999999999999,
+        65.21000000000001
+      ],
+      "max": [
+        -30.46,
+        9.395,
+        65.31
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0952",
+      "min": [
+        -28.54,
+        8.59,
+        64.705
+      ],
+      "max": [
+        -27.96,
+        8.71,
+        65.295
+      ]
+    },
+    {
+      "id": "Chair back-0953",
+      "min": [
+        -28.54,
+        8.684999999999999,
+        65.21000000000001
+      ],
+      "max": [
+        -27.96,
+        9.395,
+        65.31
+      ]
+    },
+    {
+      "id": "Dining tabletop-0954",
+      "min": [
+        -30.3,
+        8.91,
+        68.4
+      ],
+      "max": [
+        -28.7,
+        9.010000000000002,
+        69.6
+      ]
+    },
+    {
+      "id": "Dining table pedestal-0955",
+      "min": [
+        -29.69,
+        8.17,
+        68.81
+      ],
+      "max": [
+        -29.31,
+        8.930000000000001,
+        69.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0956",
+      "min": [
+        -31.04,
+        8.59,
+        68.705
+      ],
+      "max": [
+        -30.46,
+        8.71,
+        69.295
+      ]
+    },
+    {
+      "id": "Chair back-0957",
+      "min": [
+        -31.04,
+        8.684999999999999,
+        69.21000000000001
+      ],
+      "max": [
+        -30.46,
+        9.395,
+        69.31
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0958",
+      "min": [
+        -28.54,
+        8.59,
+        68.705
+      ],
+      "max": [
+        -27.96,
+        8.71,
+        69.295
+      ]
+    },
+    {
+      "id": "Chair back-0959",
+      "min": [
+        -28.54,
+        8.684999999999999,
+        69.21000000000001
+      ],
+      "max": [
+        -27.96,
+        9.395,
+        69.31
+      ]
+    },
+    {
+      "id": "Green recessed jewelry niche-0960",
+      "min": [
+        -39.699999999999996,
+        8.62,
+        55.9
+      ],
+      "max": [
+        -39.1,
+        11.12,
+        58.1
+      ]
+    },
+    {
+      "id": "Green recessed jewelry niche-0961",
+      "min": [
+        -39.699999999999996,
+        8.62,
+        60.9
+      ],
+      "max": [
+        -39.1,
+        11.12,
+        63.1
+      ]
+    },
+    {
+      "id": "Green recessed jewelry niche-0962",
+      "min": [
+        -39.699999999999996,
+        8.62,
+        66.9
+      ],
+      "max": [
+        -39.1,
+        11.12,
+        69.1
+      ]
+    },
+    {
+      "id": "Green recessed jewelry niche-0963",
+      "min": [
+        -26.900000000000002,
+        8.62,
+        55.9
+      ],
+      "max": [
+        -26.3,
+        11.12,
+        58.1
+      ]
+    },
+    {
+      "id": "Green recessed jewelry niche-0964",
+      "min": [
+        -26.900000000000002,
+        8.62,
+        60.9
+      ],
+      "max": [
+        -26.3,
+        11.12,
+        63.1
+      ]
+    },
+    {
+      "id": "Green recessed jewelry niche-0965",
+      "min": [
+        -26.900000000000002,
+        8.62,
+        66.9
+      ],
+      "max": [
+        -26.3,
+        11.12,
+        69.1
+      ]
+    },
+    {
+      "id": "steak wall-0966",
+      "min": [
+        38.0,
+        28.57,
+        51.0
+      ],
+      "max": [
+        38.3,
+        34.57,
+        74.0
+      ]
+    },
+    {
+      "id": "steak wall-0967",
+      "min": [
+        53.7,
+        28.57,
+        51.0
+      ],
+      "max": [
+        54.0,
+        34.57,
+        74.0
+      ]
+    },
+    {
+      "id": "steak rear wall left-0968",
+      "min": [
+        38.300000000000004,
+        28.57,
+        73.735
+      ],
+      "max": [
+        39.6,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "steak rear wall right-0969",
+      "min": [
+        42.2,
+        28.57,
+        73.735
+      ],
+      "max": [
+        53.7,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "steak staff door lintel-0970",
+      "min": [
+        39.6,
+        31.369999999999997,
+        73.735
+      ],
+      "max": [
+        42.199999999999996,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "steak ceiling-0971",
+      "min": [
+        38.3,
+        34.51,
+        51.15
+      ],
+      "max": [
+        53.7,
+        34.63,
+        73.85
+      ]
+    },
+    {
+      "id": "steak front pier-0972",
+      "min": [
+        38.21,
+        28.57,
+        50.775
+      ],
+      "max": [
+        38.49,
+        34.57,
+        51.225
+      ]
+    },
+    {
+      "id": "steak front pier-0973",
+      "min": [
+        44.01,
+        28.57,
+        50.775
+      ],
+      "max": [
+        44.29,
+        34.57,
+        51.225
+      ]
+    },
+    {
+      "id": "steak front pier-0974",
+      "min": [
+        47.71,
+        28.57,
+        50.775
+      ],
+      "max": [
+        47.99,
+        34.57,
+        51.225
+      ]
+    },
+    {
+      "id": "steak front pier-0975",
+      "min": [
+        53.51,
+        28.57,
+        50.775
+      ],
+      "max": [
+        53.79,
+        34.57,
+        51.225
+      ]
+    },
+    {
+      "id": "steak window-0976",
+      "min": [
+        38.5,
+        28.57,
+        50.991
+      ],
+      "max": [
+        44.0,
+        33.37,
+        51.009
+      ]
+    },
+    {
+      "id": "steak display plinth-0977",
+      "min": [
+        38.55,
+        28.57,
+        51.425
+      ],
+      "max": [
+        43.95,
+        28.97,
+        52.575
+      ]
+    },
+    {
+      "id": "steak window-0978",
+      "min": [
+        48.0,
+        28.57,
+        50.991
+      ],
+      "max": [
+        53.5,
+        33.37,
+        51.009
+      ]
+    },
+    {
+      "id": "steak display plinth-0979",
+      "min": [
+        48.05,
+        28.57,
+        51.425
+      ],
+      "max": [
+        53.45,
+        28.97,
+        52.575
+      ]
+    },
+    {
+      "id": "steak sign band-0980",
+      "min": [
+        38.25,
+        33.56,
+        50.72
+      ],
+      "max": [
+        53.75,
+        34.28,
+        51.099999999999994
+      ]
+    },
+    {
+      "id": "Reception counter-0981",
+      "min": [
+        50.15,
+        28.57,
+        54.425
+      ],
+      "max": [
+        52.85,
+        29.57,
+        55.575
+      ]
+    },
+    {
+      "id": "Planter solid-0982",
+      "min": [
+        39.08,
+        28.57,
+        54.18
+      ],
+      "max": [
+        39.72,
+        29.369999999999997,
+        54.82
+      ]
+    },
+    {
+      "id": "Dining tabletop-0983",
+      "min": [
+        41.0,
+        29.31,
+        56.6
+      ],
+      "max": [
+        43.0,
+        29.41,
+        58.4
+      ]
+    },
+    {
+      "id": "Dining table pedestal-0984",
+      "min": [
+        41.81,
+        28.57,
+        57.31
+      ],
+      "max": [
+        42.19,
+        29.33,
+        57.69
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0985",
+      "min": [
+        40.31,
+        28.990000000000002,
+        57.205
+      ],
+      "max": [
+        40.89,
+        29.11,
+        57.795
+      ]
+    },
+    {
+      "id": "Chair back-0986",
+      "min": [
+        40.31,
+        29.085,
+        57.71
+      ],
+      "max": [
+        40.89,
+        29.795,
+        57.809999999999995
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0987",
+      "min": [
+        43.11,
+        28.990000000000002,
+        57.205
+      ],
+      "max": [
+        43.69,
+        29.11,
+        57.795
+      ]
+    },
+    {
+      "id": "Chair back-0988",
+      "min": [
+        43.11,
+        29.085,
+        57.71
+      ],
+      "max": [
+        43.69,
+        29.795,
+        57.809999999999995
+      ]
+    },
+    {
+      "id": "Dining tabletop-0989",
+      "min": [
+        41.0,
+        29.31,
+        60.1
+      ],
+      "max": [
+        43.0,
+        29.41,
+        61.9
+      ]
+    },
+    {
+      "id": "Dining table pedestal-0990",
+      "min": [
+        41.81,
+        28.57,
+        60.81
+      ],
+      "max": [
+        42.19,
+        29.33,
+        61.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0991",
+      "min": [
+        40.31,
+        28.990000000000002,
+        60.705
+      ],
+      "max": [
+        40.89,
+        29.11,
+        61.295
+      ]
+    },
+    {
+      "id": "Chair back-0992",
+      "min": [
+        40.31,
+        29.085,
+        61.21
+      ],
+      "max": [
+        40.89,
+        29.795,
+        61.309999999999995
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0993",
+      "min": [
+        43.11,
+        28.990000000000002,
+        60.705
+      ],
+      "max": [
+        43.69,
+        29.11,
+        61.295
+      ]
+    },
+    {
+      "id": "Chair back-0994",
+      "min": [
+        43.11,
+        29.085,
+        61.21
+      ],
+      "max": [
+        43.69,
+        29.795,
+        61.309999999999995
+      ]
+    },
+    {
+      "id": "Dining tabletop-0995",
+      "min": [
+        41.0,
+        29.31,
+        63.6
+      ],
+      "max": [
+        43.0,
+        29.41,
+        65.4
+      ]
+    },
+    {
+      "id": "Dining table pedestal-0996",
+      "min": [
+        41.81,
+        28.57,
+        64.31
+      ],
+      "max": [
+        42.19,
+        29.33,
+        64.69
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0997",
+      "min": [
+        40.31,
+        28.990000000000002,
+        64.205
+      ],
+      "max": [
+        40.89,
+        29.11,
+        64.795
+      ]
+    },
+    {
+      "id": "Chair back-0998",
+      "min": [
+        40.31,
+        29.085,
+        64.71000000000001
+      ],
+      "max": [
+        40.89,
+        29.795,
+        64.81
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-0999",
+      "min": [
+        43.11,
+        28.990000000000002,
+        64.205
+      ],
+      "max": [
+        43.69,
+        29.11,
+        64.795
+      ]
+    },
+    {
+      "id": "Chair back-1000",
+      "min": [
+        43.11,
+        29.085,
+        64.71000000000001
+      ],
+      "max": [
+        43.69,
+        29.795,
+        64.81
+      ]
+    },
+    {
+      "id": "Dining tabletop-1001",
+      "min": [
+        49.0,
+        29.31,
+        56.6
+      ],
+      "max": [
+        51.0,
+        29.41,
+        58.4
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1002",
+      "min": [
+        49.81,
+        28.57,
+        57.31
+      ],
+      "max": [
+        50.19,
+        29.33,
+        57.69
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1003",
+      "min": [
+        48.31,
+        28.990000000000002,
+        57.205
+      ],
+      "max": [
+        48.89,
+        29.11,
+        57.795
+      ]
+    },
+    {
+      "id": "Chair back-1004",
+      "min": [
+        48.31,
+        29.085,
+        57.71
+      ],
+      "max": [
+        48.89,
+        29.795,
+        57.809999999999995
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1005",
+      "min": [
+        51.11,
+        28.990000000000002,
+        57.205
+      ],
+      "max": [
+        51.69,
+        29.11,
+        57.795
+      ]
+    },
+    {
+      "id": "Chair back-1006",
+      "min": [
+        51.11,
+        29.085,
+        57.71
+      ],
+      "max": [
+        51.69,
+        29.795,
+        57.809999999999995
+      ]
+    },
+    {
+      "id": "Dining tabletop-1007",
+      "min": [
+        49.0,
+        29.31,
+        60.1
+      ],
+      "max": [
+        51.0,
+        29.41,
+        61.9
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1008",
+      "min": [
+        49.81,
+        28.57,
+        60.81
+      ],
+      "max": [
+        50.19,
+        29.33,
+        61.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1009",
+      "min": [
+        48.31,
+        28.990000000000002,
+        60.705
+      ],
+      "max": [
+        48.89,
+        29.11,
+        61.295
+      ]
+    },
+    {
+      "id": "Chair back-1010",
+      "min": [
+        48.31,
+        29.085,
+        61.21
+      ],
+      "max": [
+        48.89,
+        29.795,
+        61.309999999999995
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1011",
+      "min": [
+        51.11,
+        28.990000000000002,
+        60.705
+      ],
+      "max": [
+        51.69,
+        29.11,
+        61.295
+      ]
+    },
+    {
+      "id": "Chair back-1012",
+      "min": [
+        51.11,
+        29.085,
+        61.21
+      ],
+      "max": [
+        51.69,
+        29.795,
+        61.309999999999995
+      ]
+    },
+    {
+      "id": "Dining tabletop-1013",
+      "min": [
+        49.0,
+        29.31,
+        63.6
+      ],
+      "max": [
+        51.0,
+        29.41,
+        65.4
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1014",
+      "min": [
+        49.81,
+        28.57,
+        64.31
+      ],
+      "max": [
+        50.19,
+        29.33,
+        64.69
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1015",
+      "min": [
+        48.31,
+        28.990000000000002,
+        64.205
+      ],
+      "max": [
+        48.89,
+        29.11,
+        64.795
+      ]
+    },
+    {
+      "id": "Chair back-1016",
+      "min": [
+        48.31,
+        29.085,
+        64.71000000000001
+      ],
+      "max": [
+        48.89,
+        29.795,
+        64.81
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1017",
+      "min": [
+        51.11,
+        28.990000000000002,
+        64.205
+      ],
+      "max": [
+        51.69,
+        29.11,
+        64.795
+      ]
+    },
+    {
+      "id": "Chair back-1018",
+      "min": [
+        51.11,
+        29.085,
+        64.71000000000001
+      ],
+      "max": [
+        51.69,
+        29.795,
+        64.81
+      ]
+    },
+    {
+      "id": "Kitchen partition-1019",
+      "min": [
+        42.75,
+        28.57,
+        69.41
+      ],
+      "max": [
+        53.25,
+        31.369999999999997,
+        69.59
+      ]
+    },
+    {
+      "id": "Service counter-1020",
+      "min": [
+        43.0,
+        28.57,
+        68.27499999999999
+      ],
+      "max": [
+        53.0,
+        29.57,
+        69.325
+      ]
+    },
+    {
+      "id": "Kitchen steel cabinet-1021",
+      "min": [
+        43.4,
+        28.57,
+        72.1
+      ],
+      "max": [
+        46.199999999999996,
+        29.47,
+        73.5
+      ]
+    },
+    {
+      "id": "Kitchen steel cabinet-1022",
+      "min": [
+        46.800000000000004,
+        28.57,
+        72.1
+      ],
+      "max": [
+        49.6,
+        29.47,
+        73.5
+      ]
+    },
+    {
+      "id": "Kitchen steel cabinet-1023",
+      "min": [
+        50.1,
+        28.57,
+        72.1
+      ],
+      "max": [
+        52.9,
+        29.47,
+        73.5
+      ]
+    },
+    {
+      "id": "Walk-in chiller-1024",
+      "min": [
+        38.575,
+        28.57,
+        71.35
+      ],
+      "max": [
+        39.325,
+        30.67,
+        72.65
+      ]
+    },
+    {
+      "id": "cantonese wall-1025",
+      "min": [
+        59.0,
+        28.57,
+        51.0
+      ],
+      "max": [
+        59.3,
+        34.57,
+        74.0
+      ]
+    },
+    {
+      "id": "cantonese wall-1026",
+      "min": [
+        74.69999999999999,
+        28.57,
+        51.0
+      ],
+      "max": [
+        75.0,
+        34.57,
+        74.0
+      ]
+    },
+    {
+      "id": "cantonese rear wall left-1027",
+      "min": [
+        59.300000000000004,
+        28.57,
+        73.735
+      ],
+      "max": [
+        60.6,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "cantonese rear wall right-1028",
+      "min": [
+        63.2,
+        28.57,
+        73.735
+      ],
+      "max": [
+        74.7,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "cantonese staff door lintel-1029",
+      "min": [
+        60.6,
+        31.369999999999997,
+        73.735
+      ],
+      "max": [
+        63.199999999999996,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "cantonese ceiling-1030",
+      "min": [
+        59.3,
+        34.51,
+        51.15
+      ],
+      "max": [
+        74.7,
+        34.63,
+        73.85
+      ]
+    },
+    {
+      "id": "cantonese front pier-1031",
+      "min": [
+        59.21,
+        28.57,
+        50.775
+      ],
+      "max": [
+        59.49,
+        34.57,
+        51.225
+      ]
+    },
+    {
+      "id": "cantonese front pier-1032",
+      "min": [
+        65.01,
+        28.57,
+        50.775
+      ],
+      "max": [
+        65.29,
+        34.57,
+        51.225
+      ]
+    },
+    {
+      "id": "cantonese front pier-1033",
+      "min": [
+        68.71,
+        28.57,
+        50.775
+      ],
+      "max": [
+        68.99,
+        34.57,
+        51.225
+      ]
+    },
+    {
+      "id": "cantonese front pier-1034",
+      "min": [
+        74.51,
+        28.57,
+        50.775
+      ],
+      "max": [
+        74.79,
+        34.57,
+        51.225
+      ]
+    },
+    {
+      "id": "cantonese window-1035",
+      "min": [
+        59.5,
+        28.57,
+        50.991
+      ],
+      "max": [
+        65.0,
+        33.37,
+        51.009
+      ]
+    },
+    {
+      "id": "cantonese display plinth-1036",
+      "min": [
+        59.55,
+        28.57,
+        51.425
+      ],
+      "max": [
+        64.95,
+        28.97,
+        52.575
+      ]
+    },
+    {
+      "id": "cantonese window-1037",
+      "min": [
+        69.0,
+        28.57,
+        50.991
+      ],
+      "max": [
+        74.5,
+        33.37,
+        51.009
+      ]
+    },
+    {
+      "id": "cantonese display plinth-1038",
+      "min": [
+        69.05,
+        28.57,
+        51.425
+      ],
+      "max": [
+        74.45,
+        28.97,
+        52.575
+      ]
+    },
+    {
+      "id": "cantonese sign band-1039",
+      "min": [
+        59.25,
+        33.56,
+        50.72
+      ],
+      "max": [
+        74.75,
+        34.28,
+        51.099999999999994
+      ]
+    },
+    {
+      "id": "Reception counter-1040",
+      "min": [
+        71.15,
+        28.57,
+        54.425
+      ],
+      "max": [
+        73.85,
+        29.57,
+        55.575
+      ]
+    },
+    {
+      "id": "Planter solid-1041",
+      "min": [
+        60.08,
+        28.57,
+        54.18
+      ],
+      "max": [
+        60.72,
+        29.369999999999997,
+        54.82
+      ]
+    },
+    {
+      "id": "Dining tabletop-1042",
+      "min": [
+        62.0,
+        29.31,
+        56.6
+      ],
+      "max": [
+        64.0,
+        29.41,
+        58.4
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1043",
+      "min": [
+        62.81,
+        28.57,
+        57.31
+      ],
+      "max": [
+        63.19,
+        29.33,
+        57.69
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1044",
+      "min": [
+        61.31,
+        28.990000000000002,
+        57.205
+      ],
+      "max": [
+        61.89,
+        29.11,
+        57.795
+      ]
+    },
+    {
+      "id": "Chair back-1045",
+      "min": [
+        61.31,
+        29.085,
+        57.71
+      ],
+      "max": [
+        61.89,
+        29.795,
+        57.809999999999995
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1046",
+      "min": [
+        64.11,
+        28.990000000000002,
+        57.205
+      ],
+      "max": [
+        64.69000000000001,
+        29.11,
+        57.795
+      ]
+    },
+    {
+      "id": "Chair back-1047",
+      "min": [
+        64.11,
+        29.085,
+        57.71
+      ],
+      "max": [
+        64.69000000000001,
+        29.795,
+        57.809999999999995
+      ]
+    },
+    {
+      "id": "Dining tabletop-1048",
+      "min": [
+        62.0,
+        29.31,
+        60.1
+      ],
+      "max": [
+        64.0,
+        29.41,
+        61.9
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1049",
+      "min": [
+        62.81,
+        28.57,
+        60.81
+      ],
+      "max": [
+        63.19,
+        29.33,
+        61.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1050",
+      "min": [
+        61.31,
+        28.990000000000002,
+        60.705
+      ],
+      "max": [
+        61.89,
+        29.11,
+        61.295
+      ]
+    },
+    {
+      "id": "Chair back-1051",
+      "min": [
+        61.31,
+        29.085,
+        61.21
+      ],
+      "max": [
+        61.89,
+        29.795,
+        61.309999999999995
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1052",
+      "min": [
+        64.11,
+        28.990000000000002,
+        60.705
+      ],
+      "max": [
+        64.69000000000001,
+        29.11,
+        61.295
+      ]
+    },
+    {
+      "id": "Chair back-1053",
+      "min": [
+        64.11,
+        29.085,
+        61.21
+      ],
+      "max": [
+        64.69000000000001,
+        29.795,
+        61.309999999999995
+      ]
+    },
+    {
+      "id": "Dining tabletop-1054",
+      "min": [
+        62.0,
+        29.31,
+        63.6
+      ],
+      "max": [
+        64.0,
+        29.41,
+        65.4
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1055",
+      "min": [
+        62.81,
+        28.57,
+        64.31
+      ],
+      "max": [
+        63.19,
+        29.33,
+        64.69
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1056",
+      "min": [
+        61.31,
+        28.990000000000002,
+        64.205
+      ],
+      "max": [
+        61.89,
+        29.11,
+        64.795
+      ]
+    },
+    {
+      "id": "Chair back-1057",
+      "min": [
+        61.31,
+        29.085,
+        64.71000000000001
+      ],
+      "max": [
+        61.89,
+        29.795,
+        64.81
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1058",
+      "min": [
+        64.11,
+        28.990000000000002,
+        64.205
+      ],
+      "max": [
+        64.69000000000001,
+        29.11,
+        64.795
+      ]
+    },
+    {
+      "id": "Chair back-1059",
+      "min": [
+        64.11,
+        29.085,
+        64.71000000000001
+      ],
+      "max": [
+        64.69000000000001,
+        29.795,
+        64.81
+      ]
+    },
+    {
+      "id": "Dining tabletop-1060",
+      "min": [
+        70.0,
+        29.31,
+        56.6
+      ],
+      "max": [
+        72.0,
+        29.41,
+        58.4
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1061",
+      "min": [
+        70.81,
+        28.57,
+        57.31
+      ],
+      "max": [
+        71.19,
+        29.33,
+        57.69
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1062",
+      "min": [
+        69.30999999999999,
+        28.990000000000002,
+        57.205
+      ],
+      "max": [
+        69.89,
+        29.11,
+        57.795
+      ]
+    },
+    {
+      "id": "Chair back-1063",
+      "min": [
+        69.30999999999999,
+        29.085,
+        57.71
+      ],
+      "max": [
+        69.89,
+        29.795,
+        57.809999999999995
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1064",
+      "min": [
+        72.11,
+        28.990000000000002,
+        57.205
+      ],
+      "max": [
+        72.69000000000001,
+        29.11,
+        57.795
+      ]
+    },
+    {
+      "id": "Chair back-1065",
+      "min": [
+        72.11,
+        29.085,
+        57.71
+      ],
+      "max": [
+        72.69000000000001,
+        29.795,
+        57.809999999999995
+      ]
+    },
+    {
+      "id": "Dining tabletop-1066",
+      "min": [
+        70.0,
+        29.31,
+        60.1
+      ],
+      "max": [
+        72.0,
+        29.41,
+        61.9
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1067",
+      "min": [
+        70.81,
+        28.57,
+        60.81
+      ],
+      "max": [
+        71.19,
+        29.33,
+        61.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1068",
+      "min": [
+        69.30999999999999,
+        28.990000000000002,
+        60.705
+      ],
+      "max": [
+        69.89,
+        29.11,
+        61.295
+      ]
+    },
+    {
+      "id": "Chair back-1069",
+      "min": [
+        69.30999999999999,
+        29.085,
+        61.21
+      ],
+      "max": [
+        69.89,
+        29.795,
+        61.309999999999995
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1070",
+      "min": [
+        72.11,
+        28.990000000000002,
+        60.705
+      ],
+      "max": [
+        72.69000000000001,
+        29.11,
+        61.295
+      ]
+    },
+    {
+      "id": "Chair back-1071",
+      "min": [
+        72.11,
+        29.085,
+        61.21
+      ],
+      "max": [
+        72.69000000000001,
+        29.795,
+        61.309999999999995
+      ]
+    },
+    {
+      "id": "Dining tabletop-1072",
+      "min": [
+        70.0,
+        29.31,
+        63.6
+      ],
+      "max": [
+        72.0,
+        29.41,
+        65.4
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1073",
+      "min": [
+        70.81,
+        28.57,
+        64.31
+      ],
+      "max": [
+        71.19,
+        29.33,
+        64.69
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1074",
+      "min": [
+        69.30999999999999,
+        28.990000000000002,
+        64.205
+      ],
+      "max": [
+        69.89,
+        29.11,
+        64.795
+      ]
+    },
+    {
+      "id": "Chair back-1075",
+      "min": [
+        69.30999999999999,
+        29.085,
+        64.71000000000001
+      ],
+      "max": [
+        69.89,
+        29.795,
+        64.81
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1076",
+      "min": [
+        72.11,
+        28.990000000000002,
+        64.205
+      ],
+      "max": [
+        72.69000000000001,
+        29.11,
+        64.795
+      ]
+    },
+    {
+      "id": "Chair back-1077",
+      "min": [
+        72.11,
+        29.085,
+        64.71000000000001
+      ],
+      "max": [
+        72.69000000000001,
+        29.795,
+        64.81
+      ]
+    },
+    {
+      "id": "Kitchen partition-1078",
+      "min": [
+        63.75,
+        28.57,
+        69.41
+      ],
+      "max": [
+        74.25,
+        31.369999999999997,
+        69.59
+      ]
+    },
+    {
+      "id": "Service counter-1079",
+      "min": [
+        64.0,
+        28.57,
+        68.27499999999999
+      ],
+      "max": [
+        74.0,
+        29.57,
+        69.325
+      ]
+    },
+    {
+      "id": "Kitchen steel cabinet-1080",
+      "min": [
+        64.39999999999999,
+        28.57,
+        72.1
+      ],
+      "max": [
+        67.2,
+        29.47,
+        73.5
+      ]
+    },
+    {
+      "id": "Kitchen steel cabinet-1081",
+      "min": [
+        67.8,
+        28.57,
+        72.1
+      ],
+      "max": [
+        70.60000000000001,
+        29.47,
+        73.5
+      ]
+    },
+    {
+      "id": "Kitchen steel cabinet-1082",
+      "min": [
+        71.1,
+        28.57,
+        72.1
+      ],
+      "max": [
+        73.9,
+        29.47,
+        73.5
+      ]
+    },
+    {
+      "id": "Walk-in chiller-1083",
+      "min": [
+        59.575,
+        28.57,
+        71.35
+      ],
+      "max": [
+        60.325,
+        30.67,
+        72.65
+      ]
+    },
+    {
+      "id": "seafood wall-1084",
+      "min": [
+        80.0,
+        28.57,
+        51.0
+      ],
+      "max": [
+        80.30000000000001,
+        34.57,
+        74.0
+      ]
+    },
+    {
+      "id": "seafood wall-1085",
+      "min": [
+        95.69999999999999,
+        28.57,
+        51.0
+      ],
+      "max": [
+        96.0,
+        34.57,
+        74.0
+      ]
+    },
+    {
+      "id": "seafood rear wall left-1086",
+      "min": [
+        80.3,
+        28.57,
+        73.735
+      ],
+      "max": [
+        81.60000000000001,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "seafood rear wall right-1087",
+      "min": [
+        84.2,
+        28.57,
+        73.735
+      ],
+      "max": [
+        95.7,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "seafood staff door lintel-1088",
+      "min": [
+        81.60000000000001,
+        31.369999999999997,
+        73.735
+      ],
+      "max": [
+        84.2,
+        34.57,
+        73.985
+      ]
+    },
+    {
+      "id": "seafood ceiling-1089",
+      "min": [
+        80.3,
+        34.51,
+        51.15
+      ],
+      "max": [
+        95.7,
+        34.63,
+        73.85
+      ]
+    },
+    {
+      "id": "seafood front pier-1090",
+      "min": [
+        80.21,
+        28.57,
+        50.775
+      ],
+      "max": [
+        80.49,
+        34.57,
+        51.225
+      ]
+    },
+    {
+      "id": "seafood front pier-1091",
+      "min": [
+        86.01,
+        28.57,
+        50.775
+      ],
+      "max": [
+        86.29,
+        34.57,
+        51.225
+      ]
+    },
+    {
+      "id": "seafood front pier-1092",
+      "min": [
+        89.71,
+        28.57,
+        50.775
+      ],
+      "max": [
+        89.99,
+        34.57,
+        51.225
+      ]
+    },
+    {
+      "id": "seafood front pier-1093",
+      "min": [
+        95.51,
+        28.57,
+        50.775
+      ],
+      "max": [
+        95.79,
+        34.57,
+        51.225
+      ]
+    },
+    {
+      "id": "seafood window-1094",
+      "min": [
+        80.5,
+        28.57,
+        50.991
+      ],
+      "max": [
+        86.0,
+        33.37,
+        51.009
+      ]
+    },
+    {
+      "id": "seafood display plinth-1095",
+      "min": [
+        80.55,
+        28.57,
+        51.425
+      ],
+      "max": [
+        85.95,
+        28.97,
+        52.575
+      ]
+    },
+    {
+      "id": "seafood window-1096",
+      "min": [
+        90.0,
+        28.57,
+        50.991
+      ],
+      "max": [
+        95.5,
+        33.37,
+        51.009
+      ]
+    },
+    {
+      "id": "seafood display plinth-1097",
+      "min": [
+        90.05,
+        28.57,
+        51.425
+      ],
+      "max": [
+        95.45,
+        28.97,
+        52.575
+      ]
+    },
+    {
+      "id": "seafood sign band-1098",
+      "min": [
+        80.25,
+        33.56,
+        50.72
+      ],
+      "max": [
+        95.75,
+        34.28,
+        51.099999999999994
+      ]
+    },
+    {
+      "id": "Reception counter-1099",
+      "min": [
+        92.15,
+        28.57,
+        54.425
+      ],
+      "max": [
+        94.85,
+        29.57,
+        55.575
+      ]
+    },
+    {
+      "id": "Planter solid-1100",
+      "min": [
+        81.08000000000001,
+        28.57,
+        54.18
+      ],
+      "max": [
+        81.72,
+        29.369999999999997,
+        54.82
+      ]
+    },
+    {
+      "id": "Dining tabletop-1101",
+      "min": [
+        83.0,
+        29.31,
+        56.6
+      ],
+      "max": [
+        85.0,
+        29.41,
+        58.4
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1102",
+      "min": [
+        83.81,
+        28.57,
+        57.31
+      ],
+      "max": [
+        84.19,
+        29.33,
+        57.69
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1103",
+      "min": [
+        82.30999999999999,
+        28.990000000000002,
+        57.205
+      ],
+      "max": [
+        82.89,
+        29.11,
+        57.795
+      ]
+    },
+    {
+      "id": "Chair back-1104",
+      "min": [
+        82.30999999999999,
+        29.085,
+        57.71
+      ],
+      "max": [
+        82.89,
+        29.795,
+        57.809999999999995
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1105",
+      "min": [
+        85.11,
+        28.990000000000002,
+        57.205
+      ],
+      "max": [
+        85.69000000000001,
+        29.11,
+        57.795
+      ]
+    },
+    {
+      "id": "Chair back-1106",
+      "min": [
+        85.11,
+        29.085,
+        57.71
+      ],
+      "max": [
+        85.69000000000001,
+        29.795,
+        57.809999999999995
+      ]
+    },
+    {
+      "id": "Dining tabletop-1107",
+      "min": [
+        83.0,
+        29.31,
+        60.1
+      ],
+      "max": [
+        85.0,
+        29.41,
+        61.9
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1108",
+      "min": [
+        83.81,
+        28.57,
+        60.81
+      ],
+      "max": [
+        84.19,
+        29.33,
+        61.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1109",
+      "min": [
+        82.30999999999999,
+        28.990000000000002,
+        60.705
+      ],
+      "max": [
+        82.89,
+        29.11,
+        61.295
+      ]
+    },
+    {
+      "id": "Chair back-1110",
+      "min": [
+        82.30999999999999,
+        29.085,
+        61.21
+      ],
+      "max": [
+        82.89,
+        29.795,
+        61.309999999999995
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1111",
+      "min": [
+        85.11,
+        28.990000000000002,
+        60.705
+      ],
+      "max": [
+        85.69000000000001,
+        29.11,
+        61.295
+      ]
+    },
+    {
+      "id": "Chair back-1112",
+      "min": [
+        85.11,
+        29.085,
+        61.21
+      ],
+      "max": [
+        85.69000000000001,
+        29.795,
+        61.309999999999995
+      ]
+    },
+    {
+      "id": "Dining tabletop-1113",
+      "min": [
+        83.0,
+        29.31,
+        63.6
+      ],
+      "max": [
+        85.0,
+        29.41,
+        65.4
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1114",
+      "min": [
+        83.81,
+        28.57,
+        64.31
+      ],
+      "max": [
+        84.19,
+        29.33,
+        64.69
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1115",
+      "min": [
+        82.30999999999999,
+        28.990000000000002,
+        64.205
+      ],
+      "max": [
+        82.89,
+        29.11,
+        64.795
+      ]
+    },
+    {
+      "id": "Chair back-1116",
+      "min": [
+        82.30999999999999,
+        29.085,
+        64.71000000000001
+      ],
+      "max": [
+        82.89,
+        29.795,
+        64.81
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1117",
+      "min": [
+        85.11,
+        28.990000000000002,
+        64.205
+      ],
+      "max": [
+        85.69000000000001,
+        29.11,
+        64.795
+      ]
+    },
+    {
+      "id": "Chair back-1118",
+      "min": [
+        85.11,
+        29.085,
+        64.71000000000001
+      ],
+      "max": [
+        85.69000000000001,
+        29.795,
+        64.81
+      ]
+    },
+    {
+      "id": "Dining tabletop-1119",
+      "min": [
+        91.0,
+        29.31,
+        56.6
+      ],
+      "max": [
+        93.0,
+        29.41,
+        58.4
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1120",
+      "min": [
+        91.81,
+        28.57,
+        57.31
+      ],
+      "max": [
+        92.19,
+        29.33,
+        57.69
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1121",
+      "min": [
+        90.30999999999999,
+        28.990000000000002,
+        57.205
+      ],
+      "max": [
+        90.89,
+        29.11,
+        57.795
+      ]
+    },
+    {
+      "id": "Chair back-1122",
+      "min": [
+        90.30999999999999,
+        29.085,
+        57.71
+      ],
+      "max": [
+        90.89,
+        29.795,
+        57.809999999999995
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1123",
+      "min": [
+        93.11,
+        28.990000000000002,
+        57.205
+      ],
+      "max": [
+        93.69000000000001,
+        29.11,
+        57.795
+      ]
+    },
+    {
+      "id": "Chair back-1124",
+      "min": [
+        93.11,
+        29.085,
+        57.71
+      ],
+      "max": [
+        93.69000000000001,
+        29.795,
+        57.809999999999995
+      ]
+    },
+    {
+      "id": "Dining tabletop-1125",
+      "min": [
+        91.0,
+        29.31,
+        60.1
+      ],
+      "max": [
+        93.0,
+        29.41,
+        61.9
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1126",
+      "min": [
+        91.81,
+        28.57,
+        60.81
+      ],
+      "max": [
+        92.19,
+        29.33,
+        61.19
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1127",
+      "min": [
+        90.30999999999999,
+        28.990000000000002,
+        60.705
+      ],
+      "max": [
+        90.89,
+        29.11,
+        61.295
+      ]
+    },
+    {
+      "id": "Chair back-1128",
+      "min": [
+        90.30999999999999,
+        29.085,
+        61.21
+      ],
+      "max": [
+        90.89,
+        29.795,
+        61.309999999999995
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1129",
+      "min": [
+        93.11,
+        28.990000000000002,
+        60.705
+      ],
+      "max": [
+        93.69000000000001,
+        29.11,
+        61.295
+      ]
+    },
+    {
+      "id": "Chair back-1130",
+      "min": [
+        93.11,
+        29.085,
+        61.21
+      ],
+      "max": [
+        93.69000000000001,
+        29.795,
+        61.309999999999995
+      ]
+    },
+    {
+      "id": "Dining tabletop-1131",
+      "min": [
+        91.0,
+        29.31,
+        63.6
+      ],
+      "max": [
+        93.0,
+        29.41,
+        65.4
+      ]
+    },
+    {
+      "id": "Dining table pedestal-1132",
+      "min": [
+        91.81,
+        28.57,
+        64.31
+      ],
+      "max": [
+        92.19,
+        29.33,
+        64.69
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1133",
+      "min": [
+        90.30999999999999,
+        28.990000000000002,
+        64.205
+      ],
+      "max": [
+        90.89,
+        29.11,
+        64.795
+      ]
+    },
+    {
+      "id": "Chair back-1134",
+      "min": [
+        90.30999999999999,
+        29.085,
+        64.71000000000001
+      ],
+      "max": [
+        90.89,
+        29.795,
+        64.81
+      ]
+    },
+    {
+      "id": "Upholstered chair seat-1135",
+      "min": [
+        93.11,
+        28.990000000000002,
+        64.205
+      ],
+      "max": [
+        93.69000000000001,
+        29.11,
+        64.795
+      ]
+    },
+    {
+      "id": "Chair back-1136",
+      "min": [
+        93.11,
+        29.085,
+        64.71000000000001
+      ],
+      "max": [
+        93.69000000000001,
+        29.795,
+        64.81
+      ]
+    },
+    {
+      "id": "Kitchen partition-1137",
+      "min": [
+        84.75,
+        28.57,
+        69.41
+      ],
+      "max": [
+        95.25,
+        31.369999999999997,
+        69.59
+      ]
+    },
+    {
+      "id": "Service counter-1138",
+      "min": [
+        85.0,
+        28.57,
+        68.27499999999999
+      ],
+      "max": [
+        95.0,
+        29.57,
+        69.325
+      ]
+    },
+    {
+      "id": "Kitchen steel cabinet-1139",
+      "min": [
+        85.39999999999999,
+        28.57,
+        72.1
+      ],
+      "max": [
+        88.2,
+        29.47,
+        73.5
+      ]
+    },
+    {
+      "id": "Kitchen steel cabinet-1140",
+      "min": [
+        88.8,
+        28.57,
+        72.1
+      ],
+      "max": [
+        91.60000000000001,
+        29.47,
+        73.5
+      ]
+    },
+    {
+      "id": "Kitchen steel cabinet-1141",
+      "min": [
+        92.1,
+        28.57,
+        72.1
+      ],
+      "max": [
+        94.9,
+        29.47,
+        73.5
+      ]
+    },
+    {
+      "id": "Walk-in chiller-1142",
+      "min": [
+        80.575,
+        28.57,
+        71.35
+      ],
+      "max": [
+        81.325,
+        30.67,
+        72.65
+      ]
+    },
+    {
+      "id": "Aquarium base-1143",
+      "min": [
+        93.39999999999999,
+        28.57,
+        65.3
+      ],
+      "max": [
+        95.2,
+        29.57,
+        67.89999999999999
+      ]
+    },
+    {
+      "id": "Aquarium tank-1144",
+      "min": [
+        93.39999999999999,
+        29.57,
+        65.3
+      ],
+      "max": [
+        95.2,
+        30.770000000000003,
+        67.89999999999999
+      ]
+    },
+    {
+      "id": "Restroom enclosing wall-1145",
       "min": [
         95.69999999999999,
         0.16999999999999993,
@@ -11609,7 +15320,7 @@
       ]
     },
     {
-      "id": "Restroom enclosing wall-0867",
+      "id": "Restroom enclosing wall-1146",
       "min": [
         80.0,
         0.16999999999999993,
@@ -11622,7 +15333,7 @@
       ]
     },
     {
-      "id": "Restroom back wall-0868",
+      "id": "Restroom back wall-1147",
       "min": [
         80.3,
         0.16999999999999993,
@@ -11635,7 +15346,7 @@
       ]
     },
     {
-      "id": "Restroom ceiling-0869",
+      "id": "Restroom ceiling-1148",
       "min": [
         80.3,
         3.76,
@@ -11648,7 +15359,7 @@
       ]
     },
     {
-      "id": "Restroom front wall-0870",
+      "id": "Restroom front wall-1149",
       "min": [
         89.7,
         0.16999999999999993,
@@ -11661,7 +15372,7 @@
       ]
     },
     {
-      "id": "Restroom front wall-0871",
+      "id": "Restroom front wall-1150",
       "min": [
         80.2,
         0.16999999999999993,
@@ -11674,7 +15385,7 @@
       ]
     },
     {
-      "id": "Restroom door lintel-0872",
+      "id": "Restroom door lintel-1151",
       "min": [
         86.3,
         3.3700000000000006,
@@ -11687,7 +15398,7 @@
       ]
     },
     {
-      "id": "Stone wash counter-0873",
+      "id": "Stone wash counter-1152",
       "min": [
         91.5,
         0.8450000000000001,
@@ -11700,7 +15411,7 @@
       ]
     },
     {
-      "id": "Waste bin-0874",
+      "id": "Waste bin-1153",
       "min": [
         92.27499999999999,
         0.17000000000000004,
@@ -11713,7 +15424,7 @@
       ]
     },
     {
-      "id": "Stone wash counter-0875",
+      "id": "Stone wash counter-1154",
       "min": [
         82.30000000000001,
         0.8450000000000001,
@@ -11726,7 +15437,7 @@
       ]
     },
     {
-      "id": "Waste bin-0876",
+      "id": "Waste bin-1155",
       "min": [
         83.075,
         0.17000000000000004,
@@ -11739,7 +15450,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0877",
+      "id": "Cubicle partition-1156",
       "min": [
         95.15,
         0.16999999999999993,
@@ -11752,7 +15463,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0878",
+      "id": "Cubicle partition-1157",
       "min": [
         91.75,
         0.16999999999999993,
@@ -11765,7 +15476,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0879",
+      "id": "Cubicle front jamb-1158",
       "min": [
         94.25,
         0.16999999999999993,
@@ -11778,7 +15489,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0880",
+      "id": "Cubicle front jamb-1159",
       "min": [
         91.80000000000001,
         0.16999999999999993,
@@ -11791,7 +15502,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-0881",
+      "id": "Open cubicle door-1160",
       "min": [
         92.7,
         0.16999999999999993,
@@ -11804,7 +15515,7 @@
       ]
     },
     {
-      "id": "WC cistern-0882",
+      "id": "WC cistern-1161",
       "min": [
         93.2,
         0.5800000000000001,
@@ -11817,7 +15528,7 @@
       ]
     },
     {
-      "id": "WC base collision-0883",
+      "id": "WC base collision-1162",
       "min": [
         93.21,
         0.16999999999999998,
@@ -11830,7 +15541,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0884",
+      "id": "Cubicle partition-1163",
       "min": [
         91.3,
         0.16999999999999993,
@@ -11843,7 +15554,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0885",
+      "id": "Cubicle partition-1164",
       "min": [
         88.60000000000001,
         0.16999999999999993,
@@ -11856,7 +15567,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0886",
+      "id": "Cubicle front jamb-1165",
       "min": [
         90.6,
         0.16999999999999993,
@@ -11869,7 +15580,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0887",
+      "id": "Cubicle front jamb-1166",
       "min": [
         88.65,
         0.16999999999999993,
@@ -11882,7 +15593,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-0888",
+      "id": "Open cubicle door-1167",
       "min": [
         89.35000000000001,
         0.16999999999999993,
@@ -11895,7 +15606,7 @@
       ]
     },
     {
-      "id": "WC cistern-0889",
+      "id": "WC cistern-1168",
       "min": [
         89.7,
         0.5800000000000001,
@@ -11908,7 +15619,7 @@
       ]
     },
     {
-      "id": "WC base collision-0890",
+      "id": "WC base collision-1169",
       "min": [
         89.71,
         0.16999999999999998,
@@ -11921,7 +15632,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0891",
+      "id": "Cubicle partition-1170",
       "min": [
         87.8,
         0.16999999999999993,
@@ -11934,7 +15645,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0892",
+      "id": "Cubicle partition-1171",
       "min": [
         85.10000000000001,
         0.16999999999999993,
@@ -11947,7 +15658,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0893",
+      "id": "Cubicle front jamb-1172",
       "min": [
         87.1,
         0.16999999999999993,
@@ -11960,7 +15671,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0894",
+      "id": "Cubicle front jamb-1173",
       "min": [
         85.15,
         0.16999999999999993,
@@ -11973,7 +15684,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-0895",
+      "id": "Open cubicle door-1174",
       "min": [
         85.85000000000001,
         0.16999999999999993,
@@ -11986,7 +15697,7 @@
       ]
     },
     {
-      "id": "WC cistern-0896",
+      "id": "WC cistern-1175",
       "min": [
         86.2,
         0.5800000000000001,
@@ -11999,7 +15710,7 @@
       ]
     },
     {
-      "id": "WC base collision-0897",
+      "id": "WC base collision-1176",
       "min": [
         86.21,
         0.16999999999999998,
@@ -12012,7 +15723,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0898",
+      "id": "Cubicle partition-1177",
       "min": [
         84.55,
         0.16999999999999993,
@@ -12025,7 +15736,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0899",
+      "id": "Cubicle partition-1178",
       "min": [
         81.35000000000001,
         0.16999999999999993,
@@ -12038,7 +15749,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0900",
+      "id": "Cubicle front jamb-1179",
       "min": [
         83.6,
         0.16999999999999993,
@@ -12051,7 +15762,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0901",
+      "id": "Cubicle front jamb-1180",
       "min": [
         81.4,
         0.16999999999999993,
@@ -12064,7 +15775,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-0902",
+      "id": "Open cubicle door-1181",
       "min": [
         82.35000000000001,
         0.16999999999999993,
@@ -12077,7 +15788,7 @@
       ]
     },
     {
-      "id": "WC cistern-0903",
+      "id": "WC cistern-1182",
       "min": [
         82.7,
         0.5800000000000001,
@@ -12090,7 +15801,7 @@
       ]
     },
     {
-      "id": "WC base collision-0904",
+      "id": "WC base collision-1183",
       "min": [
         82.71,
         0.16999999999999998,
@@ -12103,7 +15814,7 @@
       ]
     },
     {
-      "id": "Baby changing counter-0905",
+      "id": "Baby changing counter-1184",
       "min": [
         81.6,
         0.9700000000000001,
@@ -12116,7 +15827,7 @@
       ]
     },
     {
-      "id": "Restroom enclosing wall-0906",
+      "id": "Restroom enclosing wall-1185",
       "min": [
         95.69999999999999,
         8.17,
@@ -12129,7 +15840,7 @@
       ]
     },
     {
-      "id": "Restroom enclosing wall-0907",
+      "id": "Restroom enclosing wall-1186",
       "min": [
         80.0,
         8.17,
@@ -12142,7 +15853,7 @@
       ]
     },
     {
-      "id": "Restroom back wall-0908",
+      "id": "Restroom back wall-1187",
       "min": [
         80.3,
         8.17,
@@ -12155,7 +15866,7 @@
       ]
     },
     {
-      "id": "Restroom ceiling-0909",
+      "id": "Restroom ceiling-1188",
       "min": [
         80.3,
         11.76,
@@ -12168,7 +15879,7 @@
       ]
     },
     {
-      "id": "Restroom front wall-0910",
+      "id": "Restroom front wall-1189",
       "min": [
         89.7,
         8.17,
@@ -12181,7 +15892,7 @@
       ]
     },
     {
-      "id": "Restroom front wall-0911",
+      "id": "Restroom front wall-1190",
       "min": [
         80.2,
         8.17,
@@ -12194,7 +15905,7 @@
       ]
     },
     {
-      "id": "Restroom door lintel-0912",
+      "id": "Restroom door lintel-1191",
       "min": [
         86.3,
         11.37,
@@ -12207,7 +15918,7 @@
       ]
     },
     {
-      "id": "Stone wash counter-0913",
+      "id": "Stone wash counter-1192",
       "min": [
         91.5,
         8.844999999999999,
@@ -12220,7 +15931,7 @@
       ]
     },
     {
-      "id": "Waste bin-0914",
+      "id": "Waste bin-1193",
       "min": [
         92.27499999999999,
         8.17,
@@ -12233,7 +15944,7 @@
       ]
     },
     {
-      "id": "Stone wash counter-0915",
+      "id": "Stone wash counter-1194",
       "min": [
         82.30000000000001,
         8.844999999999999,
@@ -12246,7 +15957,7 @@
       ]
     },
     {
-      "id": "Waste bin-0916",
+      "id": "Waste bin-1195",
       "min": [
         83.075,
         8.17,
@@ -12259,7 +15970,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0917",
+      "id": "Cubicle partition-1196",
       "min": [
         95.15,
         8.17,
@@ -12272,7 +15983,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0918",
+      "id": "Cubicle partition-1197",
       "min": [
         91.75,
         8.17,
@@ -12285,7 +15996,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0919",
+      "id": "Cubicle front jamb-1198",
       "min": [
         94.25,
         8.17,
@@ -12298,7 +16009,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0920",
+      "id": "Cubicle front jamb-1199",
       "min": [
         91.80000000000001,
         8.17,
@@ -12311,7 +16022,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-0921",
+      "id": "Open cubicle door-1200",
       "min": [
         92.7,
         8.17,
@@ -12324,7 +16035,7 @@
       ]
     },
     {
-      "id": "WC cistern-0922",
+      "id": "WC cistern-1201",
       "min": [
         93.2,
         8.58,
@@ -12337,7 +16048,7 @@
       ]
     },
     {
-      "id": "WC base collision-0923",
+      "id": "WC base collision-1202",
       "min": [
         93.21,
         8.17,
@@ -12350,7 +16061,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0924",
+      "id": "Cubicle partition-1203",
       "min": [
         91.3,
         8.17,
@@ -12363,7 +16074,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0925",
+      "id": "Cubicle partition-1204",
       "min": [
         88.60000000000001,
         8.17,
@@ -12376,7 +16087,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0926",
+      "id": "Cubicle front jamb-1205",
       "min": [
         90.6,
         8.17,
@@ -12389,7 +16100,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0927",
+      "id": "Cubicle front jamb-1206",
       "min": [
         88.65,
         8.17,
@@ -12402,7 +16113,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-0928",
+      "id": "Open cubicle door-1207",
       "min": [
         89.35000000000001,
         8.17,
@@ -12415,7 +16126,7 @@
       ]
     },
     {
-      "id": "WC cistern-0929",
+      "id": "WC cistern-1208",
       "min": [
         89.7,
         8.58,
@@ -12428,7 +16139,7 @@
       ]
     },
     {
-      "id": "WC base collision-0930",
+      "id": "WC base collision-1209",
       "min": [
         89.71,
         8.17,
@@ -12441,7 +16152,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0931",
+      "id": "Cubicle partition-1210",
       "min": [
         87.8,
         8.17,
@@ -12454,7 +16165,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0932",
+      "id": "Cubicle partition-1211",
       "min": [
         85.10000000000001,
         8.17,
@@ -12467,7 +16178,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0933",
+      "id": "Cubicle front jamb-1212",
       "min": [
         87.1,
         8.17,
@@ -12480,7 +16191,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0934",
+      "id": "Cubicle front jamb-1213",
       "min": [
         85.15,
         8.17,
@@ -12493,7 +16204,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-0935",
+      "id": "Open cubicle door-1214",
       "min": [
         85.85000000000001,
         8.17,
@@ -12506,7 +16217,7 @@
       ]
     },
     {
-      "id": "WC cistern-0936",
+      "id": "WC cistern-1215",
       "min": [
         86.2,
         8.58,
@@ -12519,7 +16230,7 @@
       ]
     },
     {
-      "id": "WC base collision-0937",
+      "id": "WC base collision-1216",
       "min": [
         86.21,
         8.17,
@@ -12532,7 +16243,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0938",
+      "id": "Cubicle partition-1217",
       "min": [
         84.55,
         8.17,
@@ -12545,7 +16256,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0939",
+      "id": "Cubicle partition-1218",
       "min": [
         81.35000000000001,
         8.17,
@@ -12558,7 +16269,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0940",
+      "id": "Cubicle front jamb-1219",
       "min": [
         83.6,
         8.17,
@@ -12571,7 +16282,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0941",
+      "id": "Cubicle front jamb-1220",
       "min": [
         81.4,
         8.17,
@@ -12584,7 +16295,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-0942",
+      "id": "Open cubicle door-1221",
       "min": [
         82.35000000000001,
         8.17,
@@ -12597,7 +16308,7 @@
       ]
     },
     {
-      "id": "WC cistern-0943",
+      "id": "WC cistern-1222",
       "min": [
         82.7,
         8.58,
@@ -12610,7 +16321,7 @@
       ]
     },
     {
-      "id": "WC base collision-0944",
+      "id": "WC base collision-1223",
       "min": [
         82.71,
         8.17,
@@ -12623,7 +16334,7 @@
       ]
     },
     {
-      "id": "Baby changing counter-0945",
+      "id": "Baby changing counter-1224",
       "min": [
         81.6,
         8.97,
@@ -12636,7 +16347,7 @@
       ]
     },
     {
-      "id": "Restroom enclosing wall-0946",
+      "id": "Restroom enclosing wall-1225",
       "min": [
         95.69999999999999,
         14.969999999999999,
@@ -12649,7 +16360,7 @@
       ]
     },
     {
-      "id": "Restroom enclosing wall-0947",
+      "id": "Restroom enclosing wall-1226",
       "min": [
         80.0,
         14.969999999999999,
@@ -12662,7 +16373,7 @@
       ]
     },
     {
-      "id": "Restroom back wall-0948",
+      "id": "Restroom back wall-1227",
       "min": [
         80.3,
         14.969999999999999,
@@ -12675,7 +16386,7 @@
       ]
     },
     {
-      "id": "Restroom ceiling-0949",
+      "id": "Restroom ceiling-1228",
       "min": [
         80.3,
         18.560000000000002,
@@ -12688,7 +16399,7 @@
       ]
     },
     {
-      "id": "Restroom front wall-0950",
+      "id": "Restroom front wall-1229",
       "min": [
         89.7,
         14.969999999999999,
@@ -12701,7 +16412,7 @@
       ]
     },
     {
-      "id": "Restroom front wall-0951",
+      "id": "Restroom front wall-1230",
       "min": [
         80.2,
         14.969999999999999,
@@ -12714,7 +16425,7 @@
       ]
     },
     {
-      "id": "Restroom door lintel-0952",
+      "id": "Restroom door lintel-1231",
       "min": [
         86.3,
         18.17,
@@ -12727,7 +16438,7 @@
       ]
     },
     {
-      "id": "Stone wash counter-0953",
+      "id": "Stone wash counter-1232",
       "min": [
         91.5,
         15.645,
@@ -12740,7 +16451,7 @@
       ]
     },
     {
-      "id": "Waste bin-0954",
+      "id": "Waste bin-1233",
       "min": [
         92.27499999999999,
         14.97,
@@ -12753,7 +16464,7 @@
       ]
     },
     {
-      "id": "Stone wash counter-0955",
+      "id": "Stone wash counter-1234",
       "min": [
         82.30000000000001,
         15.645,
@@ -12766,7 +16477,7 @@
       ]
     },
     {
-      "id": "Waste bin-0956",
+      "id": "Waste bin-1235",
       "min": [
         83.075,
         14.97,
@@ -12779,7 +16490,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0957",
+      "id": "Cubicle partition-1236",
       "min": [
         95.15,
         14.970000000000002,
@@ -12792,7 +16503,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0958",
+      "id": "Cubicle partition-1237",
       "min": [
         91.75,
         14.970000000000002,
@@ -12805,7 +16516,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0959",
+      "id": "Cubicle front jamb-1238",
       "min": [
         94.25,
         14.970000000000002,
@@ -12818,7 +16529,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0960",
+      "id": "Cubicle front jamb-1239",
       "min": [
         91.80000000000001,
         14.970000000000002,
@@ -12831,7 +16542,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-0961",
+      "id": "Open cubicle door-1240",
       "min": [
         92.7,
         14.97,
@@ -12844,7 +16555,7 @@
       ]
     },
     {
-      "id": "WC cistern-0962",
+      "id": "WC cistern-1241",
       "min": [
         93.2,
         15.38,
@@ -12857,7 +16568,7 @@
       ]
     },
     {
-      "id": "WC base collision-0963",
+      "id": "WC base collision-1242",
       "min": [
         93.21,
         14.97,
@@ -12870,7 +16581,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0964",
+      "id": "Cubicle partition-1243",
       "min": [
         91.3,
         14.970000000000002,
@@ -12883,7 +16594,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0965",
+      "id": "Cubicle partition-1244",
       "min": [
         88.60000000000001,
         14.970000000000002,
@@ -12896,7 +16607,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0966",
+      "id": "Cubicle front jamb-1245",
       "min": [
         90.6,
         14.970000000000002,
@@ -12909,7 +16620,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0967",
+      "id": "Cubicle front jamb-1246",
       "min": [
         88.65,
         14.970000000000002,
@@ -12922,7 +16633,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-0968",
+      "id": "Open cubicle door-1247",
       "min": [
         89.35000000000001,
         14.97,
@@ -12935,7 +16646,7 @@
       ]
     },
     {
-      "id": "WC cistern-0969",
+      "id": "WC cistern-1248",
       "min": [
         89.7,
         15.38,
@@ -12948,7 +16659,7 @@
       ]
     },
     {
-      "id": "WC base collision-0970",
+      "id": "WC base collision-1249",
       "min": [
         89.71,
         14.97,
@@ -12961,7 +16672,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0971",
+      "id": "Cubicle partition-1250",
       "min": [
         87.8,
         14.970000000000002,
@@ -12974,7 +16685,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0972",
+      "id": "Cubicle partition-1251",
       "min": [
         85.10000000000001,
         14.970000000000002,
@@ -12987,7 +16698,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0973",
+      "id": "Cubicle front jamb-1252",
       "min": [
         87.1,
         14.970000000000002,
@@ -13000,7 +16711,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0974",
+      "id": "Cubicle front jamb-1253",
       "min": [
         85.15,
         14.970000000000002,
@@ -13013,7 +16724,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-0975",
+      "id": "Open cubicle door-1254",
       "min": [
         85.85000000000001,
         14.97,
@@ -13026,7 +16737,7 @@
       ]
     },
     {
-      "id": "WC cistern-0976",
+      "id": "WC cistern-1255",
       "min": [
         86.2,
         15.38,
@@ -13039,7 +16750,7 @@
       ]
     },
     {
-      "id": "WC base collision-0977",
+      "id": "WC base collision-1256",
       "min": [
         86.21,
         14.97,
@@ -13052,7 +16763,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0978",
+      "id": "Cubicle partition-1257",
       "min": [
         84.55,
         14.970000000000002,
@@ -13065,7 +16776,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0979",
+      "id": "Cubicle partition-1258",
       "min": [
         81.35000000000001,
         14.970000000000002,
@@ -13078,7 +16789,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0980",
+      "id": "Cubicle front jamb-1259",
       "min": [
         83.6,
         14.970000000000002,
@@ -13091,7 +16802,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0981",
+      "id": "Cubicle front jamb-1260",
       "min": [
         81.4,
         14.970000000000002,
@@ -13104,7 +16815,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-0982",
+      "id": "Open cubicle door-1261",
       "min": [
         82.35000000000001,
         14.97,
@@ -13117,7 +16828,7 @@
       ]
     },
     {
-      "id": "WC cistern-0983",
+      "id": "WC cistern-1262",
       "min": [
         82.7,
         15.38,
@@ -13130,7 +16841,7 @@
       ]
     },
     {
-      "id": "WC base collision-0984",
+      "id": "WC base collision-1263",
       "min": [
         82.71,
         14.97,
@@ -13143,7 +16854,7 @@
       ]
     },
     {
-      "id": "Baby changing counter-0985",
+      "id": "Baby changing counter-1264",
       "min": [
         81.6,
         15.770000000000001,
@@ -13156,7 +16867,7 @@
       ]
     },
     {
-      "id": "Restroom enclosing wall-0986",
+      "id": "Restroom enclosing wall-1265",
       "min": [
         95.69999999999999,
         21.77,
@@ -13169,7 +16880,7 @@
       ]
     },
     {
-      "id": "Restroom enclosing wall-0987",
+      "id": "Restroom enclosing wall-1266",
       "min": [
         80.0,
         21.77,
@@ -13182,7 +16893,7 @@
       ]
     },
     {
-      "id": "Restroom back wall-0988",
+      "id": "Restroom back wall-1267",
       "min": [
         80.3,
         21.77,
@@ -13195,7 +16906,7 @@
       ]
     },
     {
-      "id": "Restroom ceiling-0989",
+      "id": "Restroom ceiling-1268",
       "min": [
         80.3,
         25.36,
@@ -13208,7 +16919,7 @@
       ]
     },
     {
-      "id": "Restroom front wall-0990",
+      "id": "Restroom front wall-1269",
       "min": [
         89.7,
         21.77,
@@ -13221,7 +16932,7 @@
       ]
     },
     {
-      "id": "Restroom front wall-0991",
+      "id": "Restroom front wall-1270",
       "min": [
         80.2,
         21.77,
@@ -13234,7 +16945,7 @@
       ]
     },
     {
-      "id": "Restroom door lintel-0992",
+      "id": "Restroom door lintel-1271",
       "min": [
         86.3,
         24.97,
@@ -13247,7 +16958,7 @@
       ]
     },
     {
-      "id": "Stone wash counter-0993",
+      "id": "Stone wash counter-1272",
       "min": [
         91.5,
         22.445,
@@ -13260,7 +16971,7 @@
       ]
     },
     {
-      "id": "Waste bin-0994",
+      "id": "Waste bin-1273",
       "min": [
         92.27499999999999,
         21.77,
@@ -13273,7 +16984,7 @@
       ]
     },
     {
-      "id": "Stone wash counter-0995",
+      "id": "Stone wash counter-1274",
       "min": [
         82.30000000000001,
         22.445,
@@ -13286,7 +16997,7 @@
       ]
     },
     {
-      "id": "Waste bin-0996",
+      "id": "Waste bin-1275",
       "min": [
         83.075,
         21.77,
@@ -13299,7 +17010,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0997",
+      "id": "Cubicle partition-1276",
       "min": [
         95.15,
         21.77,
@@ -13312,7 +17023,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-0998",
+      "id": "Cubicle partition-1277",
       "min": [
         91.75,
         21.77,
@@ -13325,7 +17036,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-0999",
+      "id": "Cubicle front jamb-1278",
       "min": [
         94.25,
         21.77,
@@ -13338,7 +17049,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1000",
+      "id": "Cubicle front jamb-1279",
       "min": [
         91.80000000000001,
         21.77,
@@ -13351,7 +17062,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-1001",
+      "id": "Open cubicle door-1280",
       "min": [
         92.7,
         21.77,
@@ -13364,7 +17075,7 @@
       ]
     },
     {
-      "id": "WC cistern-1002",
+      "id": "WC cistern-1281",
       "min": [
         93.2,
         22.18,
@@ -13377,7 +17088,7 @@
       ]
     },
     {
-      "id": "WC base collision-1003",
+      "id": "WC base collision-1282",
       "min": [
         93.21,
         21.77,
@@ -13390,7 +17101,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1004",
+      "id": "Cubicle partition-1283",
       "min": [
         91.3,
         21.77,
@@ -13403,7 +17114,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1005",
+      "id": "Cubicle partition-1284",
       "min": [
         88.60000000000001,
         21.77,
@@ -13416,7 +17127,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1006",
+      "id": "Cubicle front jamb-1285",
       "min": [
         90.6,
         21.77,
@@ -13429,7 +17140,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1007",
+      "id": "Cubicle front jamb-1286",
       "min": [
         88.65,
         21.77,
@@ -13442,7 +17153,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-1008",
+      "id": "Open cubicle door-1287",
       "min": [
         89.35000000000001,
         21.77,
@@ -13455,7 +17166,7 @@
       ]
     },
     {
-      "id": "WC cistern-1009",
+      "id": "WC cistern-1288",
       "min": [
         89.7,
         22.18,
@@ -13468,7 +17179,7 @@
       ]
     },
     {
-      "id": "WC base collision-1010",
+      "id": "WC base collision-1289",
       "min": [
         89.71,
         21.77,
@@ -13481,7 +17192,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1011",
+      "id": "Cubicle partition-1290",
       "min": [
         87.8,
         21.77,
@@ -13494,7 +17205,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1012",
+      "id": "Cubicle partition-1291",
       "min": [
         85.10000000000001,
         21.77,
@@ -13507,7 +17218,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1013",
+      "id": "Cubicle front jamb-1292",
       "min": [
         87.1,
         21.77,
@@ -13520,7 +17231,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1014",
+      "id": "Cubicle front jamb-1293",
       "min": [
         85.15,
         21.77,
@@ -13533,7 +17244,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-1015",
+      "id": "Open cubicle door-1294",
       "min": [
         85.85000000000001,
         21.77,
@@ -13546,7 +17257,7 @@
       ]
     },
     {
-      "id": "WC cistern-1016",
+      "id": "WC cistern-1295",
       "min": [
         86.2,
         22.18,
@@ -13559,7 +17270,7 @@
       ]
     },
     {
-      "id": "WC base collision-1017",
+      "id": "WC base collision-1296",
       "min": [
         86.21,
         21.77,
@@ -13572,7 +17283,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1018",
+      "id": "Cubicle partition-1297",
       "min": [
         84.55,
         21.77,
@@ -13585,7 +17296,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1019",
+      "id": "Cubicle partition-1298",
       "min": [
         81.35000000000001,
         21.77,
@@ -13598,7 +17309,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1020",
+      "id": "Cubicle front jamb-1299",
       "min": [
         83.6,
         21.77,
@@ -13611,7 +17322,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1021",
+      "id": "Cubicle front jamb-1300",
       "min": [
         81.4,
         21.77,
@@ -13624,7 +17335,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-1022",
+      "id": "Open cubicle door-1301",
       "min": [
         82.35000000000001,
         21.77,
@@ -13637,7 +17348,7 @@
       ]
     },
     {
-      "id": "WC cistern-1023",
+      "id": "WC cistern-1302",
       "min": [
         82.7,
         22.18,
@@ -13650,7 +17361,7 @@
       ]
     },
     {
-      "id": "WC base collision-1024",
+      "id": "WC base collision-1303",
       "min": [
         82.71,
         21.77,
@@ -13663,7 +17374,7 @@
       ]
     },
     {
-      "id": "Baby changing counter-1025",
+      "id": "Baby changing counter-1304",
       "min": [
         81.6,
         22.57,
@@ -13676,7 +17387,7 @@
       ]
     },
     {
-      "id": "Restroom enclosing wall-1026",
+      "id": "Restroom enclosing wall-1305",
       "min": [
         95.69999999999999,
         28.57,
@@ -13689,7 +17400,7 @@
       ]
     },
     {
-      "id": "Restroom enclosing wall-1027",
+      "id": "Restroom enclosing wall-1306",
       "min": [
         80.0,
         28.57,
@@ -13702,7 +17413,7 @@
       ]
     },
     {
-      "id": "Restroom back wall-1028",
+      "id": "Restroom back wall-1307",
       "min": [
         80.3,
         28.57,
@@ -13715,7 +17426,7 @@
       ]
     },
     {
-      "id": "Restroom ceiling-1029",
+      "id": "Restroom ceiling-1308",
       "min": [
         80.3,
         32.16,
@@ -13728,7 +17439,7 @@
       ]
     },
     {
-      "id": "Restroom front wall-1030",
+      "id": "Restroom front wall-1309",
       "min": [
         89.7,
         28.57,
@@ -13741,7 +17452,7 @@
       ]
     },
     {
-      "id": "Restroom front wall-1031",
+      "id": "Restroom front wall-1310",
       "min": [
         80.2,
         28.57,
@@ -13754,7 +17465,7 @@
       ]
     },
     {
-      "id": "Restroom door lintel-1032",
+      "id": "Restroom door lintel-1311",
       "min": [
         86.3,
         31.770000000000003,
@@ -13767,7 +17478,7 @@
       ]
     },
     {
-      "id": "Stone wash counter-1033",
+      "id": "Stone wash counter-1312",
       "min": [
         91.5,
         29.245,
@@ -13780,7 +17491,7 @@
       ]
     },
     {
-      "id": "Waste bin-1034",
+      "id": "Waste bin-1313",
       "min": [
         92.27499999999999,
         28.57,
@@ -13793,7 +17504,7 @@
       ]
     },
     {
-      "id": "Stone wash counter-1035",
+      "id": "Stone wash counter-1314",
       "min": [
         82.30000000000001,
         29.245,
@@ -13806,7 +17517,7 @@
       ]
     },
     {
-      "id": "Waste bin-1036",
+      "id": "Waste bin-1315",
       "min": [
         83.075,
         28.57,
@@ -13819,7 +17530,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1037",
+      "id": "Cubicle partition-1316",
       "min": [
         95.15,
         28.57,
@@ -13832,7 +17543,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1038",
+      "id": "Cubicle partition-1317",
       "min": [
         91.75,
         28.57,
@@ -13845,7 +17556,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1039",
+      "id": "Cubicle front jamb-1318",
       "min": [
         94.25,
         28.57,
@@ -13858,7 +17569,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1040",
+      "id": "Cubicle front jamb-1319",
       "min": [
         91.80000000000001,
         28.57,
@@ -13871,7 +17582,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-1041",
+      "id": "Open cubicle door-1320",
       "min": [
         92.7,
         28.57,
@@ -13884,7 +17595,7 @@
       ]
     },
     {
-      "id": "WC cistern-1042",
+      "id": "WC cistern-1321",
       "min": [
         93.2,
         28.98,
@@ -13897,7 +17608,7 @@
       ]
     },
     {
-      "id": "WC base collision-1043",
+      "id": "WC base collision-1322",
       "min": [
         93.21,
         28.57,
@@ -13910,7 +17621,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1044",
+      "id": "Cubicle partition-1323",
       "min": [
         91.3,
         28.57,
@@ -13923,7 +17634,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1045",
+      "id": "Cubicle partition-1324",
       "min": [
         88.60000000000001,
         28.57,
@@ -13936,7 +17647,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1046",
+      "id": "Cubicle front jamb-1325",
       "min": [
         90.6,
         28.57,
@@ -13949,7 +17660,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1047",
+      "id": "Cubicle front jamb-1326",
       "min": [
         88.65,
         28.57,
@@ -13962,7 +17673,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-1048",
+      "id": "Open cubicle door-1327",
       "min": [
         89.35000000000001,
         28.57,
@@ -13975,7 +17686,7 @@
       ]
     },
     {
-      "id": "WC cistern-1049",
+      "id": "WC cistern-1328",
       "min": [
         89.7,
         28.98,
@@ -13988,7 +17699,7 @@
       ]
     },
     {
-      "id": "WC base collision-1050",
+      "id": "WC base collision-1329",
       "min": [
         89.71,
         28.57,
@@ -14001,7 +17712,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1051",
+      "id": "Cubicle partition-1330",
       "min": [
         87.8,
         28.57,
@@ -14014,7 +17725,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1052",
+      "id": "Cubicle partition-1331",
       "min": [
         85.10000000000001,
         28.57,
@@ -14027,7 +17738,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1053",
+      "id": "Cubicle front jamb-1332",
       "min": [
         87.1,
         28.57,
@@ -14040,7 +17751,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1054",
+      "id": "Cubicle front jamb-1333",
       "min": [
         85.15,
         28.57,
@@ -14053,7 +17764,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-1055",
+      "id": "Open cubicle door-1334",
       "min": [
         85.85000000000001,
         28.57,
@@ -14066,7 +17777,7 @@
       ]
     },
     {
-      "id": "WC cistern-1056",
+      "id": "WC cistern-1335",
       "min": [
         86.2,
         28.98,
@@ -14079,7 +17790,7 @@
       ]
     },
     {
-      "id": "WC base collision-1057",
+      "id": "WC base collision-1336",
       "min": [
         86.21,
         28.57,
@@ -14092,7 +17803,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1058",
+      "id": "Cubicle partition-1337",
       "min": [
         84.55,
         28.57,
@@ -14105,7 +17816,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1059",
+      "id": "Cubicle partition-1338",
       "min": [
         81.35000000000001,
         28.57,
@@ -14118,7 +17829,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1060",
+      "id": "Cubicle front jamb-1339",
       "min": [
         83.6,
         28.57,
@@ -14131,7 +17842,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1061",
+      "id": "Cubicle front jamb-1340",
       "min": [
         81.4,
         28.57,
@@ -14144,7 +17855,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-1062",
+      "id": "Open cubicle door-1341",
       "min": [
         82.35000000000001,
         28.57,
@@ -14157,7 +17868,7 @@
       ]
     },
     {
-      "id": "WC cistern-1063",
+      "id": "WC cistern-1342",
       "min": [
         82.7,
         28.98,
@@ -14170,7 +17881,7 @@
       ]
     },
     {
-      "id": "WC base collision-1064",
+      "id": "WC base collision-1343",
       "min": [
         82.71,
         28.57,
@@ -14183,7 +17894,7 @@
       ]
     },
     {
-      "id": "Baby changing counter-1065",
+      "id": "Baby changing counter-1344",
       "min": [
         81.6,
         29.37,
@@ -14196,7 +17907,7 @@
       ]
     },
     {
-      "id": "Restroom enclosing wall-1066",
+      "id": "Restroom enclosing wall-1345",
       "min": [
         95.69999999999999,
         35.37,
@@ -14204,12 +17915,12 @@
       ],
       "max": [
         96.0,
-        41.87,
+        51.37,
         -51.0
       ]
     },
     {
-      "id": "Restroom enclosing wall-1067",
+      "id": "Restroom enclosing wall-1346",
       "min": [
         80.0,
         35.37,
@@ -14217,12 +17928,12 @@
       ],
       "max": [
         80.30000000000001,
-        41.87,
+        51.37,
         -51.0
       ]
     },
     {
-      "id": "Restroom back wall-1068",
+      "id": "Restroom back wall-1347",
       "min": [
         80.3,
         35.37,
@@ -14230,12 +17941,12 @@
       ],
       "max": [
         95.7,
-        41.87,
+        51.37,
         -73.725
       ]
     },
     {
-      "id": "Restroom ceiling-1069",
+      "id": "Restroom ceiling-1348",
       "min": [
         80.3,
         38.959999999999994,
@@ -14248,7 +17959,7 @@
       ]
     },
     {
-      "id": "Restroom front wall-1070",
+      "id": "Restroom front wall-1349",
       "min": [
         89.7,
         35.37,
@@ -14256,12 +17967,12 @@
       ],
       "max": [
         95.8,
-        41.87,
+        51.37,
         -50.875
       ]
     },
     {
-      "id": "Restroom front wall-1071",
+      "id": "Restroom front wall-1350",
       "min": [
         80.2,
         35.37,
@@ -14269,12 +17980,12 @@
       ],
       "max": [
         86.3,
-        41.87,
+        51.37,
         -50.875
       ]
     },
     {
-      "id": "Restroom door lintel-1072",
+      "id": "Restroom door lintel-1351",
       "min": [
         86.3,
         38.57,
@@ -14282,12 +17993,12 @@
       ],
       "max": [
         89.7,
-        41.87,
+        51.37,
         -50.875
       ]
     },
     {
-      "id": "Stone wash counter-1073",
+      "id": "Stone wash counter-1352",
       "min": [
         91.5,
         36.044999999999995,
@@ -14300,7 +18011,7 @@
       ]
     },
     {
-      "id": "Waste bin-1074",
+      "id": "Waste bin-1353",
       "min": [
         92.27499999999999,
         35.37,
@@ -14313,7 +18024,7 @@
       ]
     },
     {
-      "id": "Stone wash counter-1075",
+      "id": "Stone wash counter-1354",
       "min": [
         82.30000000000001,
         36.044999999999995,
@@ -14326,7 +18037,7 @@
       ]
     },
     {
-      "id": "Waste bin-1076",
+      "id": "Waste bin-1355",
       "min": [
         83.075,
         35.37,
@@ -14339,7 +18050,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1077",
+      "id": "Cubicle partition-1356",
       "min": [
         95.15,
         35.37,
@@ -14352,7 +18063,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1078",
+      "id": "Cubicle partition-1357",
       "min": [
         91.75,
         35.37,
@@ -14365,7 +18076,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1079",
+      "id": "Cubicle front jamb-1358",
       "min": [
         94.25,
         35.37,
@@ -14378,7 +18089,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1080",
+      "id": "Cubicle front jamb-1359",
       "min": [
         91.80000000000001,
         35.37,
@@ -14391,7 +18102,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-1081",
+      "id": "Open cubicle door-1360",
       "min": [
         92.7,
         35.37,
@@ -14404,7 +18115,7 @@
       ]
     },
     {
-      "id": "WC cistern-1082",
+      "id": "WC cistern-1361",
       "min": [
         93.2,
         35.78,
@@ -14417,7 +18128,7 @@
       ]
     },
     {
-      "id": "WC base collision-1083",
+      "id": "WC base collision-1362",
       "min": [
         93.21,
         35.37,
@@ -14430,7 +18141,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1084",
+      "id": "Cubicle partition-1363",
       "min": [
         91.3,
         35.37,
@@ -14443,7 +18154,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1085",
+      "id": "Cubicle partition-1364",
       "min": [
         88.60000000000001,
         35.37,
@@ -14456,7 +18167,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1086",
+      "id": "Cubicle front jamb-1365",
       "min": [
         90.6,
         35.37,
@@ -14469,7 +18180,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1087",
+      "id": "Cubicle front jamb-1366",
       "min": [
         88.65,
         35.37,
@@ -14482,7 +18193,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-1088",
+      "id": "Open cubicle door-1367",
       "min": [
         89.35000000000001,
         35.37,
@@ -14495,7 +18206,7 @@
       ]
     },
     {
-      "id": "WC cistern-1089",
+      "id": "WC cistern-1368",
       "min": [
         89.7,
         35.78,
@@ -14508,7 +18219,7 @@
       ]
     },
     {
-      "id": "WC base collision-1090",
+      "id": "WC base collision-1369",
       "min": [
         89.71,
         35.37,
@@ -14521,7 +18232,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1091",
+      "id": "Cubicle partition-1370",
       "min": [
         87.8,
         35.37,
@@ -14534,7 +18245,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1092",
+      "id": "Cubicle partition-1371",
       "min": [
         85.10000000000001,
         35.37,
@@ -14547,7 +18258,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1093",
+      "id": "Cubicle front jamb-1372",
       "min": [
         87.1,
         35.37,
@@ -14560,7 +18271,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1094",
+      "id": "Cubicle front jamb-1373",
       "min": [
         85.15,
         35.37,
@@ -14573,7 +18284,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-1095",
+      "id": "Open cubicle door-1374",
       "min": [
         85.85000000000001,
         35.37,
@@ -14586,7 +18297,7 @@
       ]
     },
     {
-      "id": "WC cistern-1096",
+      "id": "WC cistern-1375",
       "min": [
         86.2,
         35.78,
@@ -14599,7 +18310,7 @@
       ]
     },
     {
-      "id": "WC base collision-1097",
+      "id": "WC base collision-1376",
       "min": [
         86.21,
         35.37,
@@ -14612,7 +18323,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1098",
+      "id": "Cubicle partition-1377",
       "min": [
         84.55,
         35.37,
@@ -14625,7 +18336,7 @@
       ]
     },
     {
-      "id": "Cubicle partition-1099",
+      "id": "Cubicle partition-1378",
       "min": [
         81.35000000000001,
         35.37,
@@ -14638,7 +18349,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1100",
+      "id": "Cubicle front jamb-1379",
       "min": [
         83.6,
         35.37,
@@ -14651,7 +18362,7 @@
       ]
     },
     {
-      "id": "Cubicle front jamb-1101",
+      "id": "Cubicle front jamb-1380",
       "min": [
         81.4,
         35.37,
@@ -14664,7 +18375,7 @@
       ]
     },
     {
-      "id": "Open cubicle door-1102",
+      "id": "Open cubicle door-1381",
       "min": [
         82.35000000000001,
         35.37,
@@ -14677,7 +18388,7 @@
       ]
     },
     {
-      "id": "WC cistern-1103",
+      "id": "WC cistern-1382",
       "min": [
         82.7,
         35.78,
@@ -14690,7 +18401,7 @@
       ]
     },
     {
-      "id": "WC base collision-1104",
+      "id": "WC base collision-1383",
       "min": [
         82.71,
         35.37,
@@ -14703,7 +18414,7 @@
       ]
     },
     {
-      "id": "Baby changing counter-1105",
+      "id": "Baby changing counter-1384",
       "min": [
         81.6,
         36.17,
@@ -14717,5 +18428,5 @@
     }
   ],
   "meshes": 25,
-  "triangles": 1132860
+  "triangles": 1357360
 }

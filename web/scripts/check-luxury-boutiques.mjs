@@ -10,8 +10,8 @@ const spatial=read('../app/world-client/mall-spatial-plan.json');
 const shell=read('../public/assets/3d/ampliworld/GC-MALL-002/mall-manifest.json');
 const fit=read('../public/assets/3d/ampliworld/GC-MALL-FITOUT-001/fitout-manifest.json');
 assert.deepEqual(new Set(fit.boutiques.map(s=>s.id)),new Set(plan.shops.map(s=>s.id)));
-assert.equal(plan.shops.length,14);
-assert.equal(fit.boutiques.length,15);
+assert.equal(plan.shops.length,19);
+assert.equal(fit.boutiques.length,20);
 assert.deepEqual(fit.boutiques.find(s=>s.id==='tiffany').inventory,['smile arc necklaces','solitaire rings','diamond stud earrings']);
 for(const room of fit.boutiques.filter(r=>r.level)){
   assert.ok(room.inventory.length>=3,room.label+' has modeled contents');
@@ -50,4 +50,4 @@ for(const wc of fit.restrooms){
     assert.equal(fit.colliders.some(b=>wc.centerX>b.min[0]-.35&&wc.centerX<b.max[0]+.35&&z>b.min[2]-.35&&z<b.max[2]+.35&&b.max[1]>wc.floorY+.29&&b.min[1]<wc.floorY+2.08),false,'Restroom entrance and central aisle remain clear');
   }
 }
-console.log('PASS: 14 distinct businesses / 15 interiors, Tiffany merchandise, nine floor-aware map arrivals, duplex openings, stairs and private lift.');
+console.log('PASS: 19 distinct businesses / 20 interiors, Tiffany merchandise, 14 floor-aware shop arrivals, duplex openings, stairs and private lift.');

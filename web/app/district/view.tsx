@@ -30,6 +30,7 @@ import { CIVIC_COLLIDERS } from '../world-client/civic-registry';
 import { CivicPlaces } from '../world-client/civic-places';
 import { MallElevators } from '../world-client/mall-elevators';
 import { MallFitout, MALL_FITOUT_COLLIDERS, mallFitoutLocation } from '../world-client/mall-fitout';
+import {MallLeisure,MALL_LEISURE_COLLIDERS,mallLeisureLocation} from '../world-client/mall-leisure';
 import {
   createMallLifts,
   LIFT_STATIC_SOLIDS,
@@ -275,8 +276,8 @@ export function DistrictClient() {
   const [liftNotice, setLiftNotice] = useState('走入电梯轿厢后选择楼层');
   const nearbyLift = liftCars.find(
     (c) =>
-      Math.abs(position[0] - c.x) < 1.5 &&
-      Math.abs(position[1] - c.z) < 7 &&
+      Math.abs(position[0] - c.x) < c.width / 2 + .3 &&
+      Math.abs(position[1] - c.z) < c.depth / 2 + 4.5 &&
       Math.abs(playerFloor.current - nearestMallLevel(playerFloor.current).y) <
         0.5,
   );
@@ -304,7 +305,7 @@ export function DistrictClient() {
   const mallWalkGround = useCallback(
     (x: number, z: number, y = 0) => {
       const cab = liftCars.find(
-        (c) => Math.abs(x - c.x) < 1.35 && Math.abs(z - c.z) < 2.4,
+        (c) => Math.abs(x - c.x) < c.width / 2 && Math.abs(z - c.z) < c.depth / 2 + .05,
       );
       return cab && Math.abs(cab.y - y) < 1
         ? cab.y
@@ -362,6 +363,7 @@ export function DistrictClient() {
       ...[
         ...CIVIC_COLLIDERS,
         ...GARAGE_COLLIDERS,
+        ...MALL_LEISURE_COLLIDERS,
         ...COMMUNITY_COLLIDERS,
         ...housingColliders(cellX * 1000, cellZ * 1000, openGates),
         ...METROPOLITAN_COLLIDERS,
@@ -687,6 +689,7 @@ export function DistrictClient() {
                 <>
                   <AssetIsland name="mall"><Mall /></AssetIsland>
                   <AssetIsland name="mall interior"><MallFitout /></AssetIsland>
+                  <AssetIsland name="mall leisure"><MallLeisure /></AssetIsland>
                   <CivicPlaces
                     x={housingX}
                     z={housingZ}
@@ -1111,7 +1114,7 @@ export function DistrictClient() {
                 ? `已停入 ${parkedGarageBay(activeReport)!.id} · E 下车`
                 : vehicleMessage
               : walking
-                ? mallFitoutLocation(position[0],position[1],playerFloor.current)??districtLocation(position[0], position[1])
+                ? mallLeisureLocation(position[0],position[1],playerFloor.current)??mallFitoutLocation(position[0],position[1],playerFloor.current)??districtLocation(position[0], position[1])
                 : '俯瞰不会改变角色位置 · 返回继续原地行走'}
           </small>
         </div>

@@ -11,6 +11,7 @@ import { amusementGroundHeight } from '../world-client/amusement-park';
 import mallInterior from '../../public/assets/3d/ampliworld/GC-MALL-002/mall-manifest.json';
 import {escalatorHeight} from '../world-client/mall-escalators.mjs';
 import {boutiqueStairHeight} from '../world-client/mall-luxury-circulation';
+import {cinemaGroundHeight} from '../world-client/mall-cinema-surface';
 // New metre-space block. City origin and asset transforms are data, not mesh JSX.
 export const DISTRICT = {
   id: 'GC-GARDENS-B01',
@@ -84,6 +85,8 @@ export const DISTRICT = {
 
 // Surface heights from the exported street kit, not a flat offset above every surface.
 export function districtGroundHeight(x: number, z: number, currentY = 0) {
+  const cinemaY=cinemaGroundHeight(x,z+188,currentY);
+  if(cinemaY!==undefined)return cinemaY;
   const boutiqueY=boutiqueStairHeight(x,z+188,currentY);
   if(boutiqueY!==undefined)return boutiqueY;
   const metroY = metroGroundHeight(x, z, currentY);
@@ -92,7 +95,7 @@ export function districtGroundHeight(x: number, z: number, currentY = 0) {
   if (parkY !== undefined) return parkY;
   const movingFloor=escalatorHeight(x,z+188,currentY);
   if(movingFloor!==undefined)return movingFloor;
-  if (currentY >= -.5 && Math.abs(x) <= 112.5 && Math.abs(z+188) <= 90) {
+  if (currentY >= -.5 && Math.abs(x) <= 190 && Math.abs(z+188) <= 104) {
     let support: number | undefined;
     for (const p of mallInterior.surfaces)
       if (x>=p.min[0] && x<=p.max[0] && z+188>=p.min[1] && z+188<=p.max[1] && p.y<=currentY+.29)

@@ -5,10 +5,14 @@
     {"id":"L3","y":14.97,"clearHeight":6.0},
     {"id":"L4","y":21.77,"clearHeight":6.0},
     {"id":"L5","y":28.57,"clearHeight":6.0},
-    {"id":"L6","y":35.37,"clearHeight":6.5}
+    {"id":"L6","y":35.37,"clearHeight":16.0}
   ],
-  "roofY":42.77,
-  "shaftTop":47.0,
+  "footprint":{"length":380,"width":170},
+  "roofY":52.37,
+  "shaftTop":57.0,
   "shaftBottom":-26.0,
-  "restrooms":{"centerX":88,"doorZ":-51,"levels":["L1","L2","L3","L4","L5","L6"]}
+  "restrooms":{"centerX":88,"doorZ":-51,"levels":["L1","L2","L3","L4","L5","L6"]},
+  "serviceLift":{"id":"SERVICE","x":60,"z":-98,"front":1,"color":"#cba04c","width":6.8,"depth":8.8,"cabHeight":4.2,"shaftWidth":8,"shaftDepth":10},
+  "arcade":{"level":"L6","roomCenters":[46,67,88],"min":[38,51],"max":[96,74],"entry":[67,55]},
+  "cinema":{"level":"L6","minX":-184,"maxX":-125,"centersZ":[-62,-31,0,31,62],"halfWidth":14,"rows":12,"rowDepth":3,"rowRise":0.3,"seatStartX":-174,"rearStairMinX":-138,"rearStairMaxX":-126}
 }

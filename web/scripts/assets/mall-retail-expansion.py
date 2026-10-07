@@ -6,6 +6,7 @@ FLOORS={f['id']:f['y'] for f in SPATIAL['floors']}
 finish('Toy yellow',(.95,.64,.025),.34)
 finish('Toy blue',(.025,.21,.64),.35)
 INVENTORY={}
+RESTAURANTS={'hotpot','grill','sushi','noodles','steak','cantonese','seafood'}
 
 def chair(x,y,z,mat='Walnut'):
     box('Upholstered chair seat',mat,x,y+.48,z,.58,.12,.59,True,.075)
@@ -52,10 +53,15 @@ def brick(x,y,z,w=2,d=2,mat='Toy yellow',scale=.13):
 
 def shell(shop,y):
     x=shop['centerX'];kind=shop['id'];h=next(f['clearHeight'] for f in SPATIAL['floors'] if f['y']==y)
-    accent={'vancleef':'Sage upholstery','givenchy':'Black marble','lululemon':'Burgundy','lego':'Toy yellow','gym':'Ink','hotpot':'Cartier lacquer','grill':'Walnut','sushi':'Walnut','noodles':'Warm porcelain'}[kind]
+    accent={'vancleef':'Sage upholstery','givenchy':'Black marble','lululemon':'Burgundy','lego':'Toy yellow','gym':'Ink','hotpot':'Cartier lacquer','grill':'Walnut','sushi':'Walnut','noodles':'Warm porcelain','lukfook':'Bronze','chowtaifook':'Cartier lacquer','steak':'Walnut','cantonese':'Sage upholstery','seafood':'Toy blue'}[kind]
     wall='White marble' if kind=='givenchy' else 'Ivory plaster'
     for dx in [-7.85,7.85]:box(kind+' wall',wall,x+dx,y+h/2,62.5,.30,h,23,True)
-    box(kind+' back wall',accent,x,y+h/2,73.86,15.4,h,.25,True)
+    if kind in RESTAURANTS:
+        box(kind+' rear wall left',accent,x-7.05,y+h/2,73.86,1.3,h,.25,True)
+        box(kind+' rear wall right',accent,x+1.95,y+h/2,73.86,11.5,h,.25,True)
+        box(kind+' staff door lintel',accent,x-5.1,y+(h+2.8)/2,73.86,2.6,h-2.8,.25,True)
+        label('STAFF / SERVICE CORRIDOR',x-5.1,y+2.95,73.66,.17,'Bronze')
+    else:box(kind+' back wall',accent,x,y+h/2,73.86,15.4,h,.25,True)
     box(kind+' floor','Black marble' if kind in ['givenchy','gym'] else 'Travertine',x,y+.009,62.5,15.4,.018,22.7)
     box(kind+' ceiling',wall,x,y+h,62.5,15.4,.12,22.7,True)
     for dx in [-7.65,-1.85,1.85,7.65]:box(kind+' front pier',accent,x+dx,y+h/2,51,.28,h,.45,True)
@@ -140,7 +146,7 @@ def restaurant(shop,y):
             box('Dining wall framed panel','Walnut',x+side*7.53,y+2.30,zz,.13,1.6,2.2)
             box('Dining textured panel','Sage upholstery' if kind=='sushi' else 'Burgundy' if kind=='hotpot' else 'Warm porcelain',x+side*7.43,y+2.3,zz,.08,1.42,2.02)
             for k in range(5):box('Decorative timber slat','Walnut',x+side*7.35,y+2.3,zz-.8+k*.4,.08,1.3,.045)
-    for zz in [54.5,71.5]:
+    for zz in [54.5]:
         cylinder('Dining planter','Travertine',x-6.6,y+.4,zz,.42,.8)
         box('Planter solid','Travertine',x-6.6,y+.4,zz,.64,.8,.64,True)
         plant(x-6.6,y+.8,zz,.65)
@@ -161,6 +167,21 @@ def restaurant(shop,y):
                 ceiling=next(f['clearHeight'] for f in SPATIAL['floors'] if f['y']==y)
                 cylinder('Extraction duct','Chrome',x+dx,y+(ceiling+2.54)/2,zz,.13,ceiling-2.54)
                 for n in [-.2,.1]:box('Grilled meat','Burgundy',x+dx+n,y+.928,zz,.18,.03,.30,False,.04)
+            elif kind=='steak':
+                cylinder('Steak dinner plate','Warm porcelain',x+dx,y+.86,zz,.38,.04)
+                orb('Grilled steak','Walnut',x+dx,y+.92,zz,.27,.05,.17)
+                for k in range(5):box('Steak grill mark','Ink',x+dx-.18+k*.09,y+.975,zz,.018,.01,.27,False,0)
+                for side in [-.72,.72]:
+                    cylinder('Wineglass stem','Chrome',x+dx+side,y+1.0,zz,.012,.26)
+                    orb('Wineglass bowl','Display crystal',x+dx+side,y+1.19,zz,.09,.13,.09)
+            elif kind=='cantonese':
+                for offset in [-.48,0,.48]:
+                    cylinder('Bamboo dim sum basket','Walnut',x+dx+offset,y+.94,zz,.20,.16)
+                    for k in [-.07,.07]:orb('Dim sum dumpling','Warm porcelain',x+dx+offset+k,y+1.04,zz,.065,.07,.065)
+                orb('Porcelain teapot','Warm porcelain',x+dx,y+1.0,zz+.5,.13,.12,.13)
+            elif kind=='seafood':
+                cylinder('Seafood platter','Warm porcelain',x+dx,y+.86,zz,.40,.05)
+                for k in range(4):orb('Shellfish','Bronze',x+dx-.22+k*.15,y+.92,zz,.07,.045,.11)
             else:crockery(x+dx,y+.86,zz,kind=='noodles')
             for s in [-1,1]:
                 cylinder('Side dish','Warm porcelain',x+dx+s*.65,y+.86,zz+.45,.16,.035)
@@ -173,6 +194,16 @@ def restaurant(shop,y):
         box('Kitchen steel cabinet','Chrome',x+dx,y+.45,72.8,2.8,.9,1.4,True)
         cylinder('Kitchen burner','Ink',x+dx,y+.93,72.8,.32,.035)
     box('Extraction canopy','Chrome',x+2,y+2.95,72.6,10,.45,1.7)
+    box('Walk-in chiller','Chrome',x-7.05,y+1.05,72,.75,2.1,1.3,True)
+    box('Kitchen wash basin','Ink',x+5.5,y+.92,72.8,1.15,.04,.85)
+    curve_tube('Kitchen tap','Chrome',[(x+5.7,y+.93,73),(x+5.7,y+1.35,73),(x+5.4,y+1.35,72.8)],.025)
+    for dx in [-2,0,2]:
+        box('Storage shelf','Chrome',x+dx,y+2.0,73.4,1.8,.065,.55)
+        box('Ingredient crate','Walnut',x+dx,y+2.20,73.4,.70,.35,.42)
+    if kind=='seafood':
+        box('Aquarium base','Ink',x+6.3,y+.5,66.6,1.8,1,2.6,True)
+        box('Aquarium tank','Display crystal',x+6.3,y+1.6,66.6,1.8,1.2,2.6,True)
+        for k in range(6):orb('Aquarium fish','Bronze',x+6.3+(k%2-.5)*.6,y+1.5+(k%3)*.15,65.7+k*.35,.17,.07,.06)
     if kind=='sushi':
         box('Sushi glass display','Display crystal',x+2,y+1.3,68.7,8,.4,.65)
         for n in range(7):
@@ -186,7 +217,7 @@ def restaurant(shop,y):
         label('NOODLE BOWLS  $8  /  DUMPLINGS  $5',x,y+2.7,69.35,.27,'Ink')
         label('ILLUSTRATIVE MENU',x,y+2.35,69.35,.16,'Ink')
         for n in range(5):crockery(x+n-1,y+1.1,68.7,True)
-    INVENTORY[kind]={'hotpot':['divided hot pots','induction hobs','vegetable dishes','open kitchen'],'grill':['table grills','extraction hoods','meat plates','open kitchen'],'sushi':['sushi counter','display case','paper lanterns','kitchen'],'noodles':['noodle bowls','menu board','affordable seating','kitchen']}[kind]
+    INVENTORY[kind]={'hotpot':['divided hot pots','induction hobs','vegetable dishes','walk-in kitchen'],'grill':['table grills','extraction hoods','meat plates','walk-in kitchen'],'sushi':['sushi counter','display case','paper lanterns','walk-in kitchen'],'noodles':['noodle bowls','menu board','affordable seating','walk-in kitchen'],'steak':['steak plates','wineglasses','timber dining','walk-in kitchen'],'cantonese':['dim sum baskets','teapots','jade-toned dining','walk-in kitchen'],'seafood':['aquarium','seafood platters','walk-in kitchen']}[kind]
 
 def gym(shop,y):
     x=shop['centerX']
@@ -214,9 +245,16 @@ for shop in PLAN['shops']:
     if shop.get('fitout')!='retail-expansion':continue
     for level in shop['levels']:
         y=FLOORS[level];shell(shop,y);kind=shop['id']
-        if kind=='vancleef':jewelry_salon(shop,y)
+        if kind in ['vancleef','lukfook','chowtaifook']:
+            jewelry_salon(shop,y)
+            if kind!='vancleef':
+                for dx in [-3.5,3.5]:
+                    for k in range(5):loop('Gold bangle','Bronze',shop['centerX']+dx+(k-2)*.16,y+1.17,59,.065,.012)
+                    jewelry(shop['centerX']+dx,y+1.05,59.4)
+                INVENTORY[kind]=['gold bangles','necklaces','bridal jewelry cases','consultation tables']
         elif kind in ['givenchy','lululemon']:fashion(shop,y,kind=='lululemon')
         elif kind=='lego':toy_shop(shop,y)
         elif kind=='gym':gym(shop,y)
         else:restaurant(shop,y)
         BRAND_ROOMS.append({'id':kind,'label':shop['label'],'centerX':shop['centerX'],'doorZ':51,'floorY':y,'level':level,'theme':shop['theme'],'clearDoorMeters':3.4,'light':shop['light'],'inventory':INVENTORY[kind]})
+        compact_scene()

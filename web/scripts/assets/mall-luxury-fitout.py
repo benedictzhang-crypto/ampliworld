@@ -262,6 +262,7 @@ BRAND_ROOMS=[]
 for shop in PLAN['shops']:
     if shop.get('fitout')=='retail-expansion':continue
     for level in shop['levels']:BRAND_ROOMS.append(fit_shop(shop,next(f['y'] for f in SPATIAL['floors'] if f['id']==level)))
+    compact_scene()
 
 # Gucci stair is a real staircase through an actual L2 slab opening.
 s=PLAN['stairs'];step_d=(s['max'][1]-s['min'][1])/s['steps'];step_h=(s['high']-s['low'])/s['steps'];cx=(s['min'][0]+s['max'][0])/2

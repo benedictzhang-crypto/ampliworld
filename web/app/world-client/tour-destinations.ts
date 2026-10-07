@@ -56,6 +56,11 @@ export const TOUR_DESTINATIONS:readonly TourDestination[]=[
   destination('GC-MALL-GUCCI','Gucci · Duplex Flagship','Concept boutique · internal stairs and private lift to L2',-54,-133,-54,-133,true),
   destination('GC-MALL-MONCLER','Moncler · Outerwear Gallery','Concept boutique · L1 quilted jackets',46,-133,46,-133,true),
   destination('GC-MALL-CHLOE','Chloé · Fashion Salon','Concept boutique · L1 leather goods',67,-133,67,-133,true),
+  {...destination('GC-MALL-ARCADE','Aurea Playlab · L6','Arcade coin pusher claw racing basketball fishing 电玩城',67,-133,67,-133,true),arrivalY:spatial.floors[5].y},
+  ...spatial.cinema.centersZ.map((z,i)=>({...destination('GC-MALL-CINEMA-'+(i+1),['IMAX-style Grand Screen','Dolby-style Immersive','Cinema Hall 3','Cinema Hall 4','Cinema Hall 5'][i]+' · L6','Cinema auditorium 电影院',-121,z-188,-121,z-188,true),arrivalY:spatial.floors[5].y})),
+  {...destination('GC-MALL-SERVICE','Staff freight lift · B1','Staff freight service elevator 员工货梯',60,-279,60,-279,true),arrivalY:-7.2},
+  {...destination('GC-MALL-B1-WEST','B1 Market · Future retail','Basement commercial reserve 地下商业',-140,-168,-140,-168,true),arrivalY:-7.2},
+  {...destination('GC-MALL-B1-EAST','B1 Events · Future retail','Basement commercial reserve 地下商业',140,-168,140,-168,true),arrivalY:-7.2},
   ...newMallShops,...washrooms,...civic,...services,...operations,...subcenters]
   .filter(d=>Math.abs(d.arrivalX)<9900&&Math.abs(d.arrivalZ)<14900&&districtGroundHeight(d.arrivalX,d.arrivalZ)>-.1)
   .filter(d=>!allVisibleSolids.some(c=>d.arrivalX>c.min[0]-.4&&d.arrivalX<c.max[0]+.4&&

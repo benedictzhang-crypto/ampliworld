@@ -58,8 +58,8 @@ function car(x,z,y,level,index){
   cars.push({id,type:tall?'SUV':'sedan',position:[x,y,z],yaw:0,dimensions:[W,H,L],level,levelY:y,original:true});
 }
 for(let li=0;li<ys.length;li++){
-  const y=ys[li],level=`B${li+1}`,ceiling=y+5.6,levelStart=bays.length;
-  levels.push({id:level,index:li,level:li+1,floorY:y,levelY:y,ceilingY:ceiling,ceilingUndersideY:ceiling,structuralClearance:5.6,minimumServicesClearance:4.8,bayCount:li===0?152:216,parkingType:li===0?'VIP':'STANDARD',elevatorGroups:4,elevatorCars:16});
+  const y=ys[li],level=`B${li+1}`,clearance=li===0?6.8:5.6,ceiling=y+clearance,levelStart=bays.length;
+  levels.push({id:level,index:li,level:li+1,floorY:y,levelY:y,ceilingY:ceiling,ceilingUndersideY:ceiling,structuralClearance:clearance,minimumServicesClearance:4.8,bayCount:li===0?152:216,parkingType:li===0?'VIP':'STANDARD',elevatorGroups:4,elevatorCars:16});
   // Explicit rectangle subdivision preserves the helical shaft and B1 entry void.
   const xs=[-104,-82,-70,18,30,46,74,110,114],zs=[-85,-81,-77,-76,-13,59,60.5,65.5,70];
   for(let ix=0;ix<xs.length-1;ix++)for(let iz=0;iz<zs.length-1;iz++){
@@ -72,9 +72,18 @@ for(let li=0;li<ys.length;li++){
   slab(`${level}-west-helix-landing`,38,-52,61,-38,y,level);
   solid(`${level}-landing-slab`,[38,y-.24,-52],[61,y,-38],{level,levelY:y,kind:'landing-slab'});
   // Structural perimeter walls avoid both the side entry and the helix corridor.
-  box('white',-103.8,y+2.8,-7.5,.4,5.6,155,true,`${level}-west-wall`);
-  box('white',5,y+2.8,-84.8,218,5.6,.4,true,`${level}-north-wall`);
-  box('white',113.8,y+2.8,li===0?-13: -7.5,.4,5.6,li===0?144:155,true,`${level}-east-wall`);
+  if(li===0){
+    for(const [a,b]of [[-85,-10],[10,70]])box('white',-103.8,y+clearance/2,(a+b)/2,.4,clearance,b-a,true,`${level}-west-portal-wall`);
+  }else box('white',-103.8,y+2.8,-7.5,.4,5.6,155,true,`${level}-west-wall`);
+  box('white',-24,y+2.8,-84.8,160,5.6,.4,true,`${level}-north-wall-west`);
+  box('white',89,y+2.8,-84.8,50,5.6,.4,true,`${level}-north-wall-east`);
+  slab(`${level}-staff-connection`,56,-93.6,64,-84.5,y,level);
+  for(const sx of [56,64])box('concrete',sx,y+2.2,-88.75,.18,4.4,8.5,true,`${level}-staff-corridor-wall`);
+  box('concrete',60,y+4.5,-88.75,8,.2,8.5,true,`${level}-staff-corridor-ceiling`);
+  label('STAFF / FREIGHT',60,y+3.3,-84.5,.42);
+  if(li===0){
+    for(const [a,b]of [[-85,-10],[10,59]])box('white',113.8,y+clearance/2,(a+b)/2,.4,clearance,b-a,true,`${level}-east-portal-wall`);
+  }else box('white',113.8,y+2.8,-7.5,.4,5.6,155,true,`${level}-east-wall`);
   if(li===0)box('white',-15,y+2.8,69.8,178,5.6,.4,true,`${level}-south-wall`);
   else box('white',5,y+2.8,69.8,218,5.6,.4,true,`${level}-south-wall`);
   // Floor-edge guards leave the entire fourteen-metre west landing open.
@@ -130,6 +139,21 @@ for(let li=0;li<ys.length;li++){
   }
 }
 // B1 cleared food/activity block: a continuous public room, not parked cars with labels.
+// Entire B1 footprint: two generous future retail wings plus the south service
+// strip. The existing central VIP parking/food/ramp areas remain distinct.
+for(const [x0,z0,x1,z1,name]of [[-190,-85,-104,85,'WEST MARKET'],[114,-85,190,85,'EAST EVENTS'],[-104,70,114,85,'SOUTH SERVICE']]){
+ const y=-7.2;slab('B1-reserve-'+name,x0,z0,x1,z1,y,'B1');
+ box('white',(x0+x1)/2,-.24,(z0+z1)/2,x1-x0,.32,z1-z0,true,'B1-retail-ceiling');
+ for(let x=x0+9;x<x1-5;x+=18)for(let z=z0+10;z<z1-5;z+=25){
+   box('concrete',x,y+3.4,z,.65,6.8,.65,true,'B1-retail-column');
+   box('light',x+3,y+6.45,z,8,.06,.35);
+ }
+ for(let z=z0+2;z<z1;z+=4)box('concrete',(x0+x1)/2,y+.009,z,x1-x0,.018,.018);
+ label(name+' / FUTURE RETAIL', (x0+x1)/2,y+.035,0,1,0,true,'gold');
+}
+for(const sx of [-190,190])box('concrete',sx,-3.8,0,.4,6.8,170,true,'B1-expanded-side-wall');
+for(const [a,b]of [[-190,-104],[114,190]])box('concrete',(a+b)/2,-3.8,-85,b-a,6.8,.4,true,'B1-expanded-north-wall');
+for(const [a,b]of [[-190,114],[127,190]])box('concrete',(a+b)/2,-3.8,85,b-a,6.8,.4,true,'B1-expanded-south-wall');
 {
   const y=-7.2;
   box('white',-72.5,y+.012,-37,53,.024,74);
@@ -219,7 +243,7 @@ for(const g of elevatorGroups)for(const r of surfaces){
 const scene=new T.Group();scene.name='GC-MALL-GARAGE-002';let triangles=0;
 for(const [m,list]of Object.entries(buckets)){const g=mergeVertices(mergeGeometries(list,false));g.computeBoundingBox();g.computeBoundingSphere();triangles+=(g.index?g.index.count:g.attributes.position.count)/3;const mesh=new T.Mesh(g,materials[m]);mesh.name=`GarageV2-${m}`;mesh.receiveShadow=true;scene.add(mesh);}
 const bounds=new T.Box3().setFromObject(scene),bin=await new GLTFExporter().parseAsync(scene,{binary:true});
-if(bin.byteLength>8000000)throw new Error(`Garage exceeds8MB:${bin.byteLength}`);
+if(bin.byteLength>10000000)throw new Error(`Expanded B1 / garage exceeds10MB:${bin.byteLength}`);
 await writeFile(join(out,'garage.glb'),Buffer.from(bin));
 const manifest={id:'GC-MALL-GARAGE-002',name:'Golden Gallery Four-level Garage',nameZh:'鎏金广场四层地下停车场',version:3,units:'meters',file:'garage.glb',coordinateSystem:'Mall-local XZ, absolute Y; world offset[0,0,-188]',worldOffset:[0,0,-188],bounds:{min:bounds.min.toArray(),max:bounds.max.toArray()},floorY:-7.2,levels,helix,entryRamp,elevatorGroups,zones,foodZone,colliders,surfaces,bays,cars,lightAnchors,lighting:{anchors:lightAnchors.map(a=>a.position),warmColor:0xffdfab,requiresRuntimeLights:true},entry:[114.5,66],entrance:[114.5,66],entryY:-4.2,portal:{axis:'x',x:114.5,zMin:62,zMax:70,floorY:-4.2,directionIntoGarage:'-X'},reservedConcourse:{min:[114.5,-132],max:[126.5,60],geometryExcluded:true},rampThroat:{min:[115,72],max:[126,108],floorAndCeilingExcluded:true},structuralClearanceMeters:5.6,minimumServicesClearanceMeters:4.8,triangles,bytes:bin.byteLength,materialDrawCalls:scene.children.length,stats:{levels:4,bays:bays.length,vipBays:152,standardBays:648,cars:cars.length,emptyBays:bays.length-cars.length,elevatorGroups:4,elevatorCars:16},provenance:{type:'original-procedural',author:'AmpliWorld',externalImages:[],externalMeshes:[],vehicleBrands:[]},limitations:['Static display cars; parking and camera physics are supplied by the consuming scene.','Entry vestibule/external descent retained by parent; all old garage faces must be replaced, not overlaid.','Consumer must use level-aware floors and exact helical/entry-ramp height queries; flat floor surfaces deliberately exclude the shaft.','Helix inner safety rail remains continuous; outer rail opens only at the west landings.']};
 await writeFile(join(out,'garage-manifest.json'),JSON.stringify(manifest,null,2)+'\n');

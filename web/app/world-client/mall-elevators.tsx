@@ -17,7 +17,7 @@ export function MallElevators({cars,carrier}:{cars:MallLift[];carrier:React.RefO
         const door=doors.current[i*MALL_LEVELS.length+j];
         if(door) {
           const open=Math.abs(c.y-l.y)<.01?c.door:0;
-          door.children.forEach((leaf,k)=>{leaf.position.x=(k===0?-1:1)*(.68+1.36*open)});
+          door.children.forEach((leaf,k)=>{leaf.position.x=(k===0?-1:1)*(c.width/4+c.width/2*open)});
         }
       });
       if(carrier.current.carId===c.id) {
@@ -40,12 +40,16 @@ export function MallElevators({cars,carrier}:{cars:MallLift[];carrier:React.RefO
     </group>)}
     {cars.map((c,i)=><group key={c.id}>
       <group ref={o=>{moving.current[i]=o}} position={[c.x,c.y,c.z]}>
-        <mesh position={[0,-.06,0]}><boxGeometry args={[2.7,.12,4.7]}/><meshStandardMaterial color="#dad3c4"/></mesh>
-        <mesh position={[0,3.08,0]}><boxGeometry args={[2.7,.12,4.7]}/><meshStandardMaterial color="#fff2d6" emissive="#fff2d6" emissiveIntensity={.8}/></mesh>
-        <mesh position={[0,1.5,-c.group.front*2.25]}><boxGeometry args={[2.6,3,.12]}/><meshStandardMaterial color="#8aadb4" metalness={.75} roughness={.18}/></mesh>
+        <mesh position={[0,-.06,0]}><boxGeometry args={[c.width,.12,c.depth]}/><meshStandardMaterial color="#dad3c4"/></mesh>
+        <mesh position={[0,c.cabHeight,0]}><boxGeometry args={[c.width,.12,c.depth]}/><meshStandardMaterial color="#fff2d6" emissive="#fff2d6" emissiveIntensity={.35}/></mesh>
+        <mesh position={[0,c.cabHeight/2,-c.group.front*(c.depth/2-.1)]}><boxGeometry args={[c.width,c.cabHeight,.08]}/><meshPhysicalMaterial color="#b3dde3" transparent opacity={c.id==='SERVICE'?.5:.18} depthWrite={false} roughness={.08} metalness={.12}/></mesh>
+        {[-1,1].map(s=><group key={s}>
+          <mesh position={[s*(c.width/2-.05),c.cabHeight/2,0]}><boxGeometry args={[.06,c.cabHeight,c.depth]}/><meshPhysicalMaterial color="#c9e3e5" transparent opacity={.18} depthWrite={false} roughness={.08}/></mesh>
+          <mesh position={[s*(c.width/2-.05),1.1,0]}><boxGeometry args={[.055,.065,c.depth-.2]}/><meshStandardMaterial color="#bca66b" metalness={.85} roughness={.18}/></mesh>
+        </group>)}
       </group>
-      {c.levels.map((l,j)=><group key={l.id} ref={o=>{doors.current[i*MALL_LEVELS.length+j]=o}} position={[c.x,l.y+1.55,c.z+c.group.front*2.45]}>
-        {[-1,1].map(s=><mesh key={s} position={[s*.68,0,0]}><boxGeometry args={[1.35,3.1,.14]}/><meshStandardMaterial color="#99aeb3" metalness={.75} roughness={.25}/></mesh>)}
+      {c.levels.map((l,j)=><group key={l.id} ref={o=>{doors.current[i*MALL_LEVELS.length+j]=o}} position={[c.x,l.y+c.cabHeight/2,c.z+c.group.front*(c.depth/2+.1)]}>
+        {[-1,1].map(s=><mesh key={s} position={[s*c.width/4,0,0]}><boxGeometry args={[c.width/2,c.cabHeight,.14]}/><meshPhysicalMaterial color="#99bcc3" transparent opacity={c.id==='SERVICE'?.85:.25} depthWrite={false} metalness={.25} roughness={.15}/></mesh>)}
       </group>)}
     </group>)}
   </group>;

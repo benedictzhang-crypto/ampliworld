@@ -22,16 +22,35 @@ does not mean 600 km² of detailed, continuously simulated city.
 
 ## Where the project stands
 
+### A larger, extensible mall with operational vertical circulation — 7 October 2026
+
+Aurea Galleria now has a 380 × 170 m main enclosure, future tenant reserves in
+both wings, and a full B1 commercial envelope with 6.8 m structural clearance.
+The original 800 parking bays remain across B1–B4. L6 has a 16 m structural
+volume for five physically separate auditoria (1,080 modeled seats), alongside
+an arcade with 24 cabinets across eight machine types. A large staff/freight
+elevator connects eleven levels from B4 to the roof; public cabs and doors use
+transparent glass. Detailed restaurant kitchens connect to rear service routes.
+Gold-jewelry concepts, steak, Cantonese dim sum and seafood add to the retail mix.
+
+These are inspectable spatial prototypes, not a certified cinema, functioning
+arcade game, building-code approval or complete food/logistics simulator.
+Cinema screens show original test patterns. IMAX/Dolby-style names describe
+concepts, not affiliation or certification. Reserved areas are explicitly left
+available for future uses. See [layout and limitations](docs/MALL_EXPANSION_LAYOUT.md).
+The new regression suite checks actual support heights, auditorium step routes,
+kitchen exits, freight approaches and map discovery, not just named records.
+
 ### Merchandise, dining and multi-floor arrivals — 7 October 2026
 
 The mall now uses one shared elevation contract for its shell, interiors,
 escalators, elevators and map arrivals. Clear heights are 7.1 m on L1,
-6 m on L2–L5 and 6.5 m on L6. Every retail floor has a north-gallery restroom
+6 m on L2–L5; the later cinema expansion raises L6 to 16 m. Every retail floor has a north-gallery restroom
 suite with six basins, four private cubicles and a changing counter; these
 replace generic rooms instead of overlapping them. Tests cover six washroom
-arrivals and clear entry routes as well as 178 continuous lift routes.
+arrivals and clear entry routes as well as 189 continuous lift routes including freight.
 
-The mall now has fifteen detailed interiors across fourteen businesses. Tiffany
+The mall now has twenty detailed retail/dining interiors across nineteen businesses. Tiffany
 cases contain smile-arc necklaces, solitaire rings and paired diamond studs.
 Nine replacement rooms add Van Cleef & Arpels, Givenchy, lululemon, LEGO,
 a fitness studio and four distinct dining concepts: hot pot, barbecue, sushi
@@ -43,7 +62,7 @@ retailers or photoreal replicas.
 Map arrivals now carry floor elevations for L3/L4/L5 rather than dropping every
 visitor onto L1. Tests cover named destinations, supporting floors, clear door
 and aisle paths, the existing Gucci duplex and elevator routes. The content
-budget is 26 shared material batches and one million triangles for the fit-out,
+budget is 26 shared material batches and 1.6 million triangles for the retail fit-out,
 not a measured whole-city FPS guarantee. Purchasing, restaurant ordering,
 exercise interactions and new-store economic-agent assignments remain unfinished.
 

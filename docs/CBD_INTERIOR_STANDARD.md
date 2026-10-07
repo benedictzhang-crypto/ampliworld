@@ -1,5 +1,11 @@
 # CBD interior quality gate
 
+The latest mall expansion is documented in `MALL_EXPANSION_LAYOUT.md`:
+380 × 170 m, twenty detailed retail/dining interiors, six restrooms, a separate
+five-hall cinema/arcade asset, and a full B1 commercial reserve. The current
+retail-fitout cap is 26 material batches / 1.6 million triangles. L6's cinema
+volume is 16 m clear; earlier dimensions in this checkpoint are historical.
+
 The mall's fourteen detailed businesses (fifteen room interiors) are a quality sample,
 not a photorealism claim or a finished CBD. Original geometry remains editable
 in Blender; the web client displays exported GLB assets at metre scale.

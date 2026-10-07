@@ -3,27 +3,27 @@
   "name": "Aurea Galleria Campus",
   "units": "metres",
   "stories": 6,
-  "height": 46.77000045776367,
+  "height": 56.7400016784668,
   "mainBuildingFootprint": [
-    225,
-    180
+    380,
+    170
   ],
   "courtyard": [
     90,
     70
   ],
   "asset": "mall-lod0.glb",
-  "bytes": 22113604,
-  "triangles": 356388,
+  "bytes": 22379588,
+  "triangles": 358716,
   "bounds": {
     "min": [
-      -114.56999969482422,
+      -192.07000732421875,
       -4.420000076293945,
       -100.42500305175781
     ],
     "max": [
-      192.5,
-      46.77000045776367,
+      280,
+      56.7400016784668,
       121
     ]
   },
@@ -67,7 +67,7 @@
   ],
   "roof": {
     "id": "ROOF",
-    "y": 42.77,
+    "y": 52.37,
     "walkable": true
   },
   "liftGroups": [
@@ -656,7 +656,7 @@
     },
     {
       "id": "L2-shop-7",
-      "label": "Moncler",
+      "label": "LUKFOOK JEWELLERY",
       "level": "L2",
       "floorY": 8.17,
       "position": [
@@ -672,8 +672,8 @@
         51
       ],
       "open": true,
-      "interior": "walk-in furnished room",
-      "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
+      "interior": "Blender brand-specific fit-out",
+      "commercialStatus": "Illustrative concept; no affiliation or tenancy claimed"
     },
     {
       "id": "L2-shop-8",
@@ -698,7 +698,7 @@
     },
     {
       "id": "L2-shop-9",
-      "label": "Chopard",
+      "label": "CHOW TAI FOOK",
       "level": "L2",
       "floorY": 8.17,
       "position": [
@@ -714,8 +714,8 @@
         51
       ],
       "open": true,
-      "interior": "walk-in furnished room",
-      "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
+      "interior": "Blender brand-specific fit-out",
+      "commercialStatus": "Illustrative concept; no affiliation or tenancy claimed"
     },
     {
       "id": "L2-shop-10",
@@ -1660,6 +1660,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -97.25,
+          -74
+        ],
+        "accessAisle": [
+          -97.25,
+          -69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -1681,6 +1691,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -55.25,
+          -74
+        ],
+        "accessAisle": [
+          -55.25,
+          -69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -1702,6 +1722,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -34.25,
+          -74
+        ],
+        "accessAisle": [
+          -34.25,
+          -69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -1723,6 +1753,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -13.25,
+          -74
+        ],
+        "accessAisle": [
+          -13.25,
+          -69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -1744,6 +1784,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          44.75,
+          -74
+        ],
+        "accessAisle": [
+          44.75,
+          -69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -1765,6 +1815,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          65.75,
+          -74
+        ],
+        "accessAisle": [
+          65.75,
+          -69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -1874,7 +1934,7 @@
     },
     {
       "id": "L5-shop-11",
-      "label": "Sky Kitchen",
+      "label": "AUREA STEAKHOUSE",
       "level": "L5",
       "floorY": 28.57,
       "position": [
@@ -1890,12 +1950,12 @@
         51
       ],
       "open": true,
-      "interior": "walk-in furnished room",
-      "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
+      "interior": "Blender brand-specific fit-out",
+      "commercialStatus": "Illustrative concept; no affiliation or tenancy claimed"
     },
     {
       "id": "L5-shop-12",
-      "label": "Tea Workshop",
+      "label": "JADE GARDEN DINING",
       "level": "L5",
       "floorY": 28.57,
       "position": [
@@ -1911,12 +1971,12 @@
         51
       ],
       "open": true,
-      "interior": "walk-in furnished room",
-      "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
+      "interior": "Blender brand-specific fit-out",
+      "commercialStatus": "Illustrative concept; no affiliation or tenancy claimed"
     },
     {
       "id": "L5-shop-13",
-      "label": "Dessert Atelier",
+      "label": "TIDAL HOUSE",
       "level": "L5",
       "floorY": 28.57,
       "position": [
@@ -1932,8 +1992,8 @@
         51
       ],
       "open": true,
-      "interior": "walk-in furnished room",
-      "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
+      "interior": "Blender brand-specific fit-out",
+      "commercialStatus": "Illustrative concept; no affiliation or tenancy claimed"
     },
     {
       "id": "L5-shop-14",
@@ -1954,6 +2014,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -93,
+          -18.75
+        ],
+        "accessAisle": [
+          -88,
+          -18.75
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -1975,6 +2045,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -93,
+          21.25
+        ],
+        "accessAisle": [
+          -88,
+          21.25
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -1996,6 +2076,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          93,
+          -21.25
+        ],
+        "accessAisle": [
+          88,
+          -21.25
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -2017,6 +2107,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          93,
+          18.75
+        ],
+        "accessAisle": [
+          88,
+          18.75
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -2038,6 +2138,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -97.25,
+          -74
+        ],
+        "accessAisle": [
+          -97.25,
+          -69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -2059,6 +2169,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -55.25,
+          -74
+        ],
+        "accessAisle": [
+          -55.25,
+          -69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -2080,6 +2200,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -34.25,
+          -74
+        ],
+        "accessAisle": [
+          -34.25,
+          -69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -2101,6 +2231,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -13.25,
+          -74
+        ],
+        "accessAisle": [
+          -13.25,
+          -69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -2122,6 +2262,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          44.75,
+          -74
+        ],
+        "accessAisle": [
+          44.75,
+          -69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -2185,6 +2335,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -94.75,
+          74
+        ],
+        "accessAisle": [
+          -94.75,
+          69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -2206,6 +2366,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -52.75,
+          74
+        ],
+        "accessAisle": [
+          -52.75,
+          69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -2248,11 +2418,21 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -10.750000000000004,
+          74
+        ],
+        "accessAisle": [
+          -10.750000000000002,
+          69
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
       "id": "L6-shop-11",
-      "label": "Private Dining",
+      "label": "AUREA PLAYLAB",
       "level": "L6",
       "floorY": 35.37,
       "position": [
@@ -2268,12 +2448,11 @@
         51
       ],
       "open": true,
-      "interior": "walk-in furnished room",
-      "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
+      "interior": "Connected Blender arcade hall"
     },
     {
       "id": "L6-shop-12",
-      "label": "Art Kitchen",
+      "label": "AUREA PLAYLAB",
       "level": "L6",
       "floorY": 35.37,
       "position": [
@@ -2289,12 +2468,11 @@
         51
       ],
       "open": true,
-      "interior": "walk-in furnished room",
-      "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
+      "interior": "Connected Blender arcade hall"
     },
     {
       "id": "L6-shop-13",
-      "label": "Evening Bar",
+      "label": "AUREA PLAYLAB",
       "level": "L6",
       "floorY": 35.37,
       "position": [
@@ -2310,8 +2488,7 @@
         51
       ],
       "open": true,
-      "interior": "walk-in furnished room",
-      "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
+      "interior": "Connected Blender arcade hall"
     },
     {
       "id": "L6-shop-14",
@@ -2332,6 +2509,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -93,
+          -18.75
+        ],
+        "accessAisle": [
+          -88,
+          -18.75
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -2353,6 +2540,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          -93,
+          21.25
+        ],
+        "accessAisle": [
+          -88,
+          21.25
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -2374,6 +2571,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          93,
+          -21.25
+        ],
+        "accessAisle": [
+          88,
+          -21.25
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     },
     {
@@ -2395,6 +2602,16 @@
       ],
       "open": true,
       "interior": "walk-in furnished room",
+      "kitchen": {
+        "staffDoor": [
+          93,
+          18.75
+        ],
+        "accessAisle": [
+          88,
+          18.75
+        ]
+      },
       "commercialStatus": "Illustrative name text only; no affiliation or live tenancy claimed"
     }
   ],
@@ -2402,9 +2619,9 @@
     {
       "id": "L1-plate-0",
       "min": [
-        -112.5,
+        -190,
         0,
-        -90
+        -85
       ],
       "max": [
         -82,
@@ -2417,7 +2634,7 @@
       "min": [
         -70,
         0,
-        -90
+        -85
       ],
       "max": [
         18,
@@ -2430,10 +2647,10 @@
       "min": [
         30,
         0,
-        -90
+        -85
       ],
       "max": [
-        112.5,
+        190,
         0.17,
         -35
       ]
@@ -2443,7 +2660,7 @@
       "min": [
         18,
         0,
-        -90
+        -85
       ],
       "max": [
         30,
@@ -2469,7 +2686,7 @@
       "min": [
         -82,
         0,
-        -90
+        -85
       ],
       "max": [
         -70,
@@ -2493,14 +2710,14 @@
     {
       "id": "L1-plate-7",
       "min": [
-        -112.5,
+        -190,
         0,
         35
       ],
       "max": [
         -82,
         0.17,
-        90
+        85
       ]
     },
     {
@@ -2513,7 +2730,7 @@
       "max": [
         18,
         0.17,
-        90
+        85
       ]
     },
     {
@@ -2524,46 +2741,46 @@
         35
       ],
       "max": [
-        112.5,
+        114,
         0.17,
-        90
+        85
       ]
     },
     {
       "id": "L1-plate-10",
       "min": [
-        18,
+        127,
         0,
         35
       ],
       "max": [
-        30,
+        190,
         0.17,
-        60.5
+        85
       ]
     },
     {
       "id": "L1-plate-11",
       "min": [
-        18,
+        114,
         0,
-        65.5
+        35
       ],
       "max": [
-        30,
+        127,
         0.17,
-        90
+        59.5
       ]
     },
     {
       "id": "L1-plate-12",
       "min": [
-        -82,
+        18,
         0,
         35
       ],
       "max": [
-        -70,
+        30,
         0.17,
         60.5
       ]
@@ -2571,6 +2788,32 @@
     {
       "id": "L1-plate-13",
       "min": [
+        18,
+        0,
+        65.5
+      ],
+      "max": [
+        30,
+        0.17,
+        85
+      ]
+    },
+    {
+      "id": "L1-plate-14",
+      "min": [
+        -82,
+        0,
+        35
+      ],
+      "max": [
+        -70,
+        0.17,
+        60.5
+      ]
+    },
+    {
+      "id": "L1-plate-15",
+      "min": [
         -82,
         0,
         65.5
@@ -2578,13 +2821,13 @@
       "max": [
         -70,
         0.17,
-        90
+        85
       ]
     },
     {
-      "id": "L1-plate-14",
+      "id": "L1-plate-16",
       "min": [
-        -112.5,
+        -190,
         0,
         -35
       ],
@@ -2595,14 +2838,14 @@
       ]
     },
     {
-      "id": "L1-plate-15",
+      "id": "L1-plate-17",
       "min": [
         45,
         0,
         -35
       ],
       "max": [
-        112.5,
+        190,
         0.17,
         35
       ]
@@ -2610,9 +2853,9 @@
     {
       "id": "L2-plate-0",
       "min": [
-        -112.5,
+        -190,
         7.6899999999999995,
-        -90
+        -85
       ],
       "max": [
         -82,
@@ -2625,7 +2868,7 @@
       "min": [
         -70,
         7.6899999999999995,
-        -90
+        -85
       ],
       "max": [
         18,
@@ -2638,10 +2881,10 @@
       "min": [
         30,
         7.6899999999999995,
-        -90
+        -85
       ],
       "max": [
-        112.5,
+        190,
         8.17,
         -35
       ]
@@ -2651,7 +2894,7 @@
       "min": [
         18,
         7.6899999999999995,
-        -90
+        -85
       ],
       "max": [
         30,
@@ -2677,7 +2920,7 @@
       "min": [
         -82,
         7.6899999999999995,
-        -90
+        -85
       ],
       "max": [
         -70,
@@ -2701,14 +2944,14 @@
     {
       "id": "L2-plate-7",
       "min": [
-        -112.5,
+        -190,
         7.6899999999999995,
         35
       ],
       "max": [
         -82,
         8.17,
-        90
+        85
       ]
     },
     {
@@ -2721,7 +2964,7 @@
       "max": [
         -60.699999999999996,
         8.17,
-        90
+        85
       ]
     },
     {
@@ -2734,7 +2977,7 @@
       "max": [
         -50.959999999999994,
         8.17,
-        90
+        85
       ]
     },
     {
@@ -2747,7 +2990,7 @@
       "max": [
         17.999999999999996,
         8.17,
-        90
+        85
       ]
     },
     {
@@ -2773,7 +3016,7 @@
       "max": [
         -48.04,
         8.17,
-        90
+        85
       ]
     },
     {
@@ -2799,7 +3042,7 @@
       "max": [
         -57.3,
         8.17,
-        90
+        85
       ]
     },
     {
@@ -2810,9 +3053,9 @@
         35
       ],
       "max": [
-        112.5,
+        190,
         8.17,
-        90
+        85
       ]
     },
     {
@@ -2838,7 +3081,7 @@
       "max": [
         30,
         8.17,
-        90
+        85
       ]
     },
     {
@@ -2864,13 +3107,13 @@
       "max": [
         -70,
         8.17,
-        90
+        85
       ]
     },
     {
       "id": "L2-plate-20",
       "min": [
-        -112.5,
+        -190,
         7.6899999999999995,
         -35
       ],
@@ -2896,12 +3139,12 @@
     {
       "id": "L2-plate-22",
       "min": [
-        58.199999999999996,
+        58.19999999999999,
         7.6899999999999995,
         -35
       ],
       "max": [
-        112.5,
+        190,
         8.17,
         35
       ]
@@ -2935,9 +3178,9 @@
     {
       "id": "L3-plate-0",
       "min": [
-        -112.5,
+        -190,
         14.49,
-        -90
+        -85
       ],
       "max": [
         -82,
@@ -2950,7 +3193,7 @@
       "min": [
         -70,
         14.49,
-        -90
+        -85
       ],
       "max": [
         18,
@@ -2963,10 +3206,10 @@
       "min": [
         30,
         14.49,
-        -90
+        -85
       ],
       "max": [
-        112.5,
+        190,
         14.97,
         -35
       ]
@@ -2976,7 +3219,7 @@
       "min": [
         18,
         14.49,
-        -90
+        -85
       ],
       "max": [
         30,
@@ -3002,7 +3245,7 @@
       "min": [
         -82,
         14.49,
-        -90
+        -85
       ],
       "max": [
         -70,
@@ -3026,14 +3269,14 @@
     {
       "id": "L3-plate-7",
       "min": [
-        -112.5,
+        -190,
         14.49,
         35
       ],
       "max": [
         -82,
         14.97,
-        90
+        85
       ]
     },
     {
@@ -3046,7 +3289,7 @@
       "max": [
         18,
         14.97,
-        90
+        85
       ]
     },
     {
@@ -3057,9 +3300,9 @@
         35
       ],
       "max": [
-        112.5,
+        190,
         14.97,
-        90
+        85
       ]
     },
     {
@@ -3085,7 +3328,7 @@
       "max": [
         30,
         14.97,
-        90
+        85
       ]
     },
     {
@@ -3111,13 +3354,13 @@
       "max": [
         -70,
         14.97,
-        90
+        85
       ]
     },
     {
       "id": "L3-plate-14",
       "min": [
-        -112.5,
+        -190,
         14.49,
         -35
       ],
@@ -3143,12 +3386,12 @@
     {
       "id": "L3-plate-16",
       "min": [
-        58.199999999999996,
+        58.19999999999999,
         14.49,
         -35
       ],
       "max": [
-        112.5,
+        190,
         14.97,
         35
       ]
@@ -3182,9 +3425,9 @@
     {
       "id": "L4-plate-0",
       "min": [
-        -112.5,
+        -190,
         21.290000000000003,
-        -90
+        -85
       ],
       "max": [
         -82,
@@ -3197,7 +3440,7 @@
       "min": [
         -70,
         21.290000000000003,
-        -90
+        -85
       ],
       "max": [
         18,
@@ -3210,10 +3453,10 @@
       "min": [
         30,
         21.290000000000003,
-        -90
+        -85
       ],
       "max": [
-        112.5,
+        190,
         21.77,
         -35
       ]
@@ -3223,7 +3466,7 @@
       "min": [
         18,
         21.290000000000003,
-        -90
+        -85
       ],
       "max": [
         30,
@@ -3249,7 +3492,7 @@
       "min": [
         -82,
         21.290000000000003,
-        -90
+        -85
       ],
       "max": [
         -70,
@@ -3273,14 +3516,14 @@
     {
       "id": "L4-plate-7",
       "min": [
-        -112.5,
+        -190,
         21.290000000000003,
         35
       ],
       "max": [
         -82,
         21.77,
-        90
+        85
       ]
     },
     {
@@ -3293,7 +3536,7 @@
       "max": [
         18,
         21.77,
-        90
+        85
       ]
     },
     {
@@ -3304,9 +3547,9 @@
         35
       ],
       "max": [
-        112.5,
+        190,
         21.77,
-        90
+        85
       ]
     },
     {
@@ -3332,7 +3575,7 @@
       "max": [
         30,
         21.77,
-        90
+        85
       ]
     },
     {
@@ -3358,13 +3601,13 @@
       "max": [
         -70,
         21.77,
-        90
+        85
       ]
     },
     {
       "id": "L4-plate-14",
       "min": [
-        -112.5,
+        -190,
         21.290000000000003,
         -35
       ],
@@ -3390,12 +3633,12 @@
     {
       "id": "L4-plate-16",
       "min": [
-        58.199999999999996,
+        58.19999999999999,
         21.290000000000003,
         -35
       ],
       "max": [
-        112.5,
+        190,
         21.77,
         35
       ]
@@ -3429,9 +3672,9 @@
     {
       "id": "L5-plate-0",
       "min": [
-        -112.5,
+        -190,
         28.090000000000003,
-        -90
+        -85
       ],
       "max": [
         -82,
@@ -3444,7 +3687,7 @@
       "min": [
         -70,
         28.090000000000003,
-        -90
+        -85
       ],
       "max": [
         18,
@@ -3457,10 +3700,10 @@
       "min": [
         30,
         28.090000000000003,
-        -90
+        -85
       ],
       "max": [
-        112.5,
+        190,
         28.57,
         -35
       ]
@@ -3470,7 +3713,7 @@
       "min": [
         18,
         28.090000000000003,
-        -90
+        -85
       ],
       "max": [
         30,
@@ -3496,7 +3739,7 @@
       "min": [
         -82,
         28.090000000000003,
-        -90
+        -85
       ],
       "max": [
         -70,
@@ -3520,14 +3763,14 @@
     {
       "id": "L5-plate-7",
       "min": [
-        -112.5,
+        -190,
         28.090000000000003,
         35
       ],
       "max": [
         -82,
         28.57,
-        90
+        85
       ]
     },
     {
@@ -3540,7 +3783,7 @@
       "max": [
         18,
         28.57,
-        90
+        85
       ]
     },
     {
@@ -3551,9 +3794,9 @@
         35
       ],
       "max": [
-        112.5,
+        190,
         28.57,
-        90
+        85
       ]
     },
     {
@@ -3579,7 +3822,7 @@
       "max": [
         30,
         28.57,
-        90
+        85
       ]
     },
     {
@@ -3605,13 +3848,13 @@
       "max": [
         -70,
         28.57,
-        90
+        85
       ]
     },
     {
       "id": "L5-plate-14",
       "min": [
-        -112.5,
+        -190,
         28.090000000000003,
         -35
       ],
@@ -3637,12 +3880,12 @@
     {
       "id": "L5-plate-16",
       "min": [
-        58.199999999999996,
+        58.19999999999999,
         28.090000000000003,
         -35
       ],
       "max": [
-        112.5,
+        190,
         28.57,
         35
       ]
@@ -3676,9 +3919,9 @@
     {
       "id": "L6-plate-0",
       "min": [
-        -112.5,
+        -190,
         34.88999999999999,
-        -90
+        -85
       ],
       "max": [
         -82,
@@ -3691,7 +3934,7 @@
       "min": [
         -70,
         34.88999999999999,
-        -90
+        -85
       ],
       "max": [
         18,
@@ -3704,10 +3947,10 @@
       "min": [
         30,
         34.88999999999999,
-        -90
+        -85
       ],
       "max": [
-        112.5,
+        190,
         35.37,
         -35
       ]
@@ -3717,7 +3960,7 @@
       "min": [
         18,
         34.88999999999999,
-        -90
+        -85
       ],
       "max": [
         30,
@@ -3743,7 +3986,7 @@
       "min": [
         -82,
         34.88999999999999,
-        -90
+        -85
       ],
       "max": [
         -70,
@@ -3767,14 +4010,14 @@
     {
       "id": "L6-plate-7",
       "min": [
-        -112.5,
+        -190,
         34.88999999999999,
         35
       ],
       "max": [
         -82,
         35.37,
-        90
+        85
       ]
     },
     {
@@ -3787,7 +4030,7 @@
       "max": [
         18,
         35.37,
-        90
+        85
       ]
     },
     {
@@ -3798,9 +4041,9 @@
         35
       ],
       "max": [
-        112.5,
+        190,
         35.37,
-        90
+        85
       ]
     },
     {
@@ -3826,7 +4069,7 @@
       "max": [
         30,
         35.37,
-        90
+        85
       ]
     },
     {
@@ -3852,13 +4095,13 @@
       "max": [
         -70,
         35.37,
-        90
+        85
       ]
     },
     {
       "id": "L6-plate-14",
       "min": [
-        -112.5,
+        -190,
         34.88999999999999,
         -35
       ],
@@ -3884,12 +4127,12 @@
     {
       "id": "L6-plate-16",
       "min": [
-        58.199999999999996,
+        58.19999999999999,
         34.88999999999999,
         -35
       ],
       "max": [
-        112.5,
+        190,
         35.37,
         35
       ]
@@ -3923,13 +4166,13 @@
     {
       "id": "ROOF-plate-0",
       "min": [
-        -112.5,
-        42.27,
-        -90
+        -190,
+        51.87,
+        -85
       ],
       "max": [
         -82,
-        42.77,
+        52.37,
         -35
       ]
     },
@@ -3937,12 +4180,12 @@
       "id": "ROOF-plate-1",
       "min": [
         -70,
-        42.27,
-        -90
+        51.87,
+        -85
       ],
       "max": [
         18,
-        42.77,
+        52.37,
         -35
       ]
     },
@@ -3950,12 +4193,12 @@
       "id": "ROOF-plate-2",
       "min": [
         30,
-        42.27,
-        -90
+        51.87,
+        -85
       ],
       "max": [
-        112.5,
-        42.77,
+        190,
+        52.37,
         -35
       ]
     },
@@ -3963,12 +4206,12 @@
       "id": "ROOF-plate-3",
       "min": [
         18,
-        42.27,
-        -90
+        51.87,
+        -85
       ],
       "max": [
         30,
-        42.77,
+        52.37,
         -81
       ]
     },
@@ -3976,12 +4219,12 @@
       "id": "ROOF-plate-4",
       "min": [
         18,
-        42.27,
+        51.87,
         -76
       ],
       "max": [
         30,
-        42.77,
+        52.37,
         -35
       ]
     },
@@ -3989,12 +4232,12 @@
       "id": "ROOF-plate-5",
       "min": [
         -82,
-        42.27,
-        -90
+        51.87,
+        -85
       ],
       "max": [
         -70,
-        42.77,
+        52.37,
         -81
       ]
     },
@@ -4002,64 +4245,64 @@
       "id": "ROOF-plate-6",
       "min": [
         -82,
-        42.27,
+        51.87,
         -76
       ],
       "max": [
         -70,
-        42.77,
+        52.37,
         -35
       ]
     },
     {
       "id": "ROOF-plate-7",
       "min": [
-        -112.5,
-        42.27,
+        -190,
+        51.87,
         35
       ],
       "max": [
         -82,
-        42.77,
-        90
+        52.37,
+        85
       ]
     },
     {
       "id": "ROOF-plate-8",
       "min": [
         -70,
-        42.27,
+        51.87,
         35
       ],
       "max": [
         18,
-        42.77,
-        90
+        52.37,
+        85
       ]
     },
     {
       "id": "ROOF-plate-9",
       "min": [
         30,
-        42.27,
+        51.87,
         35
       ],
       "max": [
-        112.5,
-        42.77,
-        90
+        190,
+        52.37,
+        85
       ]
     },
     {
       "id": "ROOF-plate-10",
       "min": [
         18,
-        42.27,
+        51.87,
         35
       ],
       "max": [
         30,
-        42.77,
+        52.37,
         60.5
       ]
     },
@@ -4067,25 +4310,25 @@
       "id": "ROOF-plate-11",
       "min": [
         18,
-        42.27,
+        51.87,
         65.5
       ],
       "max": [
         30,
-        42.77,
-        90
+        52.37,
+        85
       ]
     },
     {
       "id": "ROOF-plate-12",
       "min": [
         -82,
-        42.27,
+        51.87,
         35
       ],
       "max": [
         -70,
-        42.77,
+        52.37,
         60.5
       ]
     },
@@ -4093,25 +4336,25 @@
       "id": "ROOF-plate-13",
       "min": [
         -82,
-        42.27,
+        51.87,
         65.5
       ],
       "max": [
         -70,
-        42.77,
-        90
+        52.37,
+        85
       ]
     },
     {
       "id": "ROOF-plate-14",
       "min": [
-        -112.5,
-        42.27,
+        -190,
+        51.87,
         -35
       ],
       "max": [
         -45,
-        42.77,
+        52.37,
         35
       ]
     },
@@ -4119,12 +4362,12 @@
       "id": "ROOF-plate-15",
       "min": [
         45,
-        42.27,
+        51.87,
         -35
       ],
       "max": [
-        112.5,
-        42.77,
+        190,
+        52.37,
         35
       ]
     },
@@ -22865,12 +23108,12 @@
       "id": "atrium-5-N",
       "min": [
         -45,
-        42.77,
+        52.37,
         -35.18
       ],
       "max": [
         45,
-        43.93,
+        53.529999999999994,
         -35.059999999999995
       ]
     },
@@ -22878,12 +23121,12 @@
       "id": "atrium-5-S",
       "min": [
         -45,
-        42.77,
+        52.37,
         35.059999999999995
       ],
       "max": [
         45,
-        43.93,
+        53.529999999999994,
         35.18
       ]
     },
@@ -22891,12 +23134,12 @@
       "id": "atrium-5-W",
       "min": [
         -45.18,
-        42.77,
+        52.37,
         -35
       ],
       "max": [
         -45.059999999999995,
-        43.93,
+        53.529999999999994,
         35
       ]
     },
@@ -22904,26 +23147,26 @@
       "id": "atrium-5-E",
       "min": [
         45.059999999999995,
-        42.77,
+        52.37,
         -35
       ],
       "max": [
         45.18,
-        43.93,
+        53.529999999999994,
         35
       ]
     },
     {
-      "id": "facade-0-z-1--112.5",
+      "id": "facade-0-z-1--190",
       "min": [
-        -112.5,
+        -190,
         0.16999999999999993,
-        -89.98
+        -84.98
       ],
       "max": [
         -8,
         7.6899999999999995,
-        -89.82000000000001
+        -84.82000000000001
       ]
     },
     {
@@ -22931,23 +23174,36 @@
       "min": [
         8,
         0.16999999999999993,
-        -89.98
+        -84.98
       ],
       "max": [
-        112.5,
+        56,
         7.6899999999999995,
-        -89.82000000000001
+        -84.82000000000001
       ]
     },
     {
-      "id": "facade-0-x-1--90",
+      "id": "facade-0-z-1-64",
       "min": [
-        -112.48,
+        64,
         0.16999999999999993,
-        -90
+        -84.98
       ],
       "max": [
-        -112.32000000000001,
+        190,
+        7.6899999999999995,
+        -84.82000000000001
+      ]
+    },
+    {
+      "id": "facade-0-x-1--85",
+      "min": [
+        -189.98000000000002,
+        0.16999999999999993,
+        -85
+      ],
+      "max": [
+        -189.82,
         7.6899999999999995,
         -8
       ]
@@ -22955,27 +23211,27 @@
     {
       "id": "facade-0-x-1-8",
       "min": [
-        -112.48,
+        -189.98000000000002,
         0.16999999999999993,
         8
       ],
       "max": [
-        -112.32000000000001,
+        -189.82,
         7.6899999999999995,
-        90
+        85
       ]
     },
     {
-      "id": "facade-0-z1--112.5",
+      "id": "facade-0-z1--190",
       "min": [
-        -112.5,
+        -190,
         0.16999999999999993,
-        89.82000000000001
+        84.82000000000001
       ],
       "max": [
         -8,
         7.6899999999999995,
-        89.98
+        84.98
       ]
     },
     {
@@ -22983,23 +23239,36 @@
       "min": [
         8,
         0.16999999999999993,
-        89.82000000000001
+        84.82000000000001
       ],
       "max": [
-        112.5,
+        114,
         7.6899999999999995,
-        89.98
+        84.98
       ]
     },
     {
-      "id": "facade-0-x1--90",
+      "id": "facade-0-z1-127",
       "min": [
-        112.32000000000001,
+        127,
         0.16999999999999993,
-        -90
+        84.82000000000001
       ],
       "max": [
-        112.48,
+        190,
+        7.6899999999999995,
+        84.98
+      ]
+    },
+    {
+      "id": "facade-0-x1--85",
+      "min": [
+        189.82,
+        0.16999999999999993,
+        -85
+      ],
+      "max": [
+        189.98000000000002,
         7.6899999999999995,
         -8
       ]
@@ -23007,14 +23276,14 @@
     {
       "id": "facade-0-x1-8",
       "min": [
-        112.32000000000001,
+        189.82,
         0.16999999999999993,
         8
       ],
       "max": [
-        112.48,
+        189.98000000000002,
         7.6899999999999995,
-        90
+        85
       ]
     },
     {
@@ -23226,55 +23495,68 @@
       ]
     },
     {
-      "id": "facade-1-z-1--112.5",
+      "id": "facade-1-z-1--190",
       "min": [
-        -112.5,
+        -190,
         8.17,
-        -89.98
+        -84.98
       ],
       "max": [
-        112.5,
+        56,
         14.49,
-        -89.82000000000001
+        -84.82000000000001
       ]
     },
     {
-      "id": "facade-1-x-1--90",
+      "id": "facade-1-z-1-64",
       "min": [
-        -112.48,
+        64,
         8.17,
-        -90
+        -84.98
       ],
       "max": [
-        -112.32000000000001,
+        190,
         14.49,
-        90
+        -84.82000000000001
       ]
     },
     {
-      "id": "facade-1-z1--112.5",
+      "id": "facade-1-x-1--85",
       "min": [
-        -112.5,
+        -189.98000000000002,
         8.17,
-        89.82000000000001
+        -85
       ],
       "max": [
-        112.5,
+        -189.82,
         14.49,
-        89.98
+        85
       ]
     },
     {
-      "id": "facade-1-x1--90",
+      "id": "facade-1-z1--190",
       "min": [
-        112.32000000000001,
+        -190,
         8.17,
-        -90
+        84.82000000000001
       ],
       "max": [
-        112.48,
+        190,
         14.49,
-        90
+        84.98
+      ]
+    },
+    {
+      "id": "facade-1-x1--85",
+      "min": [
+        189.82,
+        8.17,
+        -85
+      ],
+      "max": [
+        189.98000000000002,
+        14.49,
+        85
       ]
     },
     {
@@ -23486,55 +23768,68 @@
       ]
     },
     {
-      "id": "facade-2-z-1--112.5",
+      "id": "facade-2-z-1--190",
       "min": [
-        -112.5,
+        -190,
         14.969999999999999,
-        -89.98
+        -84.98
       ],
       "max": [
-        112.5,
+        56,
         21.29,
-        -89.82000000000001
+        -84.82000000000001
       ]
     },
     {
-      "id": "facade-2-x-1--90",
+      "id": "facade-2-z-1-64",
       "min": [
-        -112.48,
+        64,
         14.969999999999999,
-        -90
+        -84.98
       ],
       "max": [
-        -112.32000000000001,
+        190,
         21.29,
-        90
+        -84.82000000000001
       ]
     },
     {
-      "id": "facade-2-z1--112.5",
+      "id": "facade-2-x-1--85",
       "min": [
-        -112.5,
+        -189.98000000000002,
         14.969999999999999,
-        89.82000000000001
+        -85
       ],
       "max": [
-        112.5,
+        -189.82,
         21.29,
-        89.98
+        85
       ]
     },
     {
-      "id": "facade-2-x1--90",
+      "id": "facade-2-z1--190",
       "min": [
-        112.32000000000001,
+        -190,
         14.969999999999999,
-        -90
+        84.82000000000001
       ],
       "max": [
-        112.48,
+        190,
         21.29,
-        90
+        84.98
+      ]
+    },
+    {
+      "id": "facade-2-x1--85",
+      "min": [
+        189.82,
+        14.969999999999999,
+        -85
+      ],
+      "max": [
+        189.98000000000002,
+        21.29,
+        85
       ]
     },
     {
@@ -23746,55 +24041,68 @@
       ]
     },
     {
-      "id": "facade-3-z-1--112.5",
+      "id": "facade-3-z-1--190",
       "min": [
-        -112.5,
+        -190,
         21.77,
-        -89.98
+        -84.98
       ],
       "max": [
-        112.5,
+        56,
         28.09,
-        -89.82000000000001
+        -84.82000000000001
       ]
     },
     {
-      "id": "facade-3-x-1--90",
+      "id": "facade-3-z-1-64",
       "min": [
-        -112.48,
+        64,
         21.77,
-        -90
+        -84.98
       ],
       "max": [
-        -112.32000000000001,
+        190,
         28.09,
-        90
+        -84.82000000000001
       ]
     },
     {
-      "id": "facade-3-z1--112.5",
+      "id": "facade-3-x-1--85",
       "min": [
-        -112.5,
+        -189.98000000000002,
         21.77,
-        89.82000000000001
+        -85
       ],
       "max": [
-        112.5,
+        -189.82,
         28.09,
-        89.98
+        85
       ]
     },
     {
-      "id": "facade-3-x1--90",
+      "id": "facade-3-z1--190",
       "min": [
-        112.32000000000001,
+        -190,
         21.77,
-        -90
+        84.82000000000001
       ],
       "max": [
-        112.48,
+        190,
         28.09,
-        90
+        84.98
+      ]
+    },
+    {
+      "id": "facade-3-x1--85",
+      "min": [
+        189.82,
+        21.77,
+        -85
+      ],
+      "max": [
+        189.98000000000002,
+        28.09,
+        85
       ]
     },
     {
@@ -24006,55 +24314,68 @@
       ]
     },
     {
-      "id": "facade-4-z-1--112.5",
+      "id": "facade-4-z-1--190",
       "min": [
-        -112.5,
+        -190,
         28.57,
-        -89.98
+        -84.98
       ],
       "max": [
-        112.5,
+        56,
         34.89,
-        -89.82000000000001
+        -84.82000000000001
       ]
     },
     {
-      "id": "facade-4-x-1--90",
+      "id": "facade-4-z-1-64",
       "min": [
-        -112.48,
+        64,
         28.57,
-        -90
+        -84.98
       ],
       "max": [
-        -112.32000000000001,
+        190,
         34.89,
-        90
+        -84.82000000000001
       ]
     },
     {
-      "id": "facade-4-z1--112.5",
+      "id": "facade-4-x-1--85",
       "min": [
-        -112.5,
+        -189.98000000000002,
         28.57,
-        89.82000000000001
+        -85
       ],
       "max": [
-        112.5,
+        -189.82,
         34.89,
-        89.98
+        85
       ]
     },
     {
-      "id": "facade-4-x1--90",
+      "id": "facade-4-z1--190",
       "min": [
-        112.32000000000001,
+        -190,
         28.57,
-        -90
+        84.82000000000001
       ],
       "max": [
-        112.48,
+        190,
         34.89,
-        90
+        84.98
+      ]
+    },
+    {
+      "id": "facade-4-x1--85",
+      "min": [
+        189.82,
+        28.57,
+        -85
+      ],
+      "max": [
+        189.98000000000002,
+        34.89,
+        85
       ]
     },
     {
@@ -24266,55 +24587,68 @@
       ]
     },
     {
-      "id": "facade-5-z-1--112.5",
+      "id": "facade-5-z-1--190",
       "min": [
-        -112.5,
+        -190,
         35.37,
-        -89.98
+        -84.98
       ],
       "max": [
-        112.5,
-        42.27,
-        -89.82000000000001
+        56,
+        51.87,
+        -84.82000000000001
       ]
     },
     {
-      "id": "facade-5-x-1--90",
+      "id": "facade-5-z-1-64",
       "min": [
-        -112.48,
+        64,
         35.37,
-        -90
+        -84.98
       ],
       "max": [
-        -112.32000000000001,
-        42.27,
-        90
+        190,
+        51.87,
+        -84.82000000000001
       ]
     },
     {
-      "id": "facade-5-z1--112.5",
+      "id": "facade-5-x-1--85",
       "min": [
-        -112.5,
+        -189.98000000000002,
         35.37,
-        89.82000000000001
+        -85
       ],
       "max": [
-        112.5,
-        42.27,
-        89.98
+        -189.82,
+        51.87,
+        85
       ]
     },
     {
-      "id": "facade-5-x1--90",
+      "id": "facade-5-z1--190",
       "min": [
-        112.32000000000001,
+        -190,
         35.37,
-        -90
+        84.82000000000001
       ],
       "max": [
-        112.48,
-        42.27,
-        90
+        190,
+        51.87,
+        84.98
+      ]
+    },
+    {
+      "id": "facade-5-x1--85",
+      "min": [
+        189.82,
+        35.37,
+        -85
+      ],
+      "max": [
+        189.98000000000002,
+        51.87,
+        85
       ]
     },
     {
@@ -24326,7 +24660,7 @@
       ],
       "max": [
         -106.7,
-        42.27,
+        51.87,
         -83.7
       ]
     },
@@ -24339,7 +24673,7 @@
       ],
       "max": [
         -106.7,
-        42.27,
+        51.87,
         -29.7
       ]
     },
@@ -24352,7 +24686,7 @@
       ],
       "max": [
         -106.7,
-        42.27,
+        51.87,
         30.3
       ]
     },
@@ -24365,7 +24699,7 @@
       ],
       "max": [
         -106.7,
-        42.27,
+        51.87,
         84.3
       ]
     },
@@ -24378,7 +24712,7 @@
       ],
       "max": [
         -61.7,
-        42.27,
+        51.87,
         -83.7
       ]
     },
@@ -24391,7 +24725,7 @@
       ],
       "max": [
         -61.7,
-        42.27,
+        51.87,
         -29.7
       ]
     },
@@ -24404,7 +24738,7 @@
       ],
       "max": [
         -61.7,
-        42.27,
+        51.87,
         30.3
       ]
     },
@@ -24417,7 +24751,7 @@
       ],
       "max": [
         -61.7,
-        42.27,
+        51.87,
         84.3
       ]
     },
@@ -24430,7 +24764,7 @@
       ],
       "max": [
         62.3,
-        42.27,
+        51.87,
         -83.7
       ]
     },
@@ -24443,7 +24777,7 @@
       ],
       "max": [
         62.3,
-        42.27,
+        51.87,
         -29.7
       ]
     },
@@ -24456,7 +24790,7 @@
       ],
       "max": [
         62.3,
-        42.27,
+        51.87,
         30.3
       ]
     },
@@ -24469,7 +24803,7 @@
       ],
       "max": [
         62.3,
-        42.27,
+        51.87,
         84.3
       ]
     },
@@ -24482,7 +24816,7 @@
       ],
       "max": [
         107.3,
-        42.27,
+        51.87,
         -83.7
       ]
     },
@@ -24495,7 +24829,7 @@
       ],
       "max": [
         107.3,
-        42.27,
+        51.87,
         -29.7
       ]
     },
@@ -24508,7 +24842,7 @@
       ],
       "max": [
         107.3,
-        42.27,
+        51.87,
         30.3
       ]
     },
@@ -24521,7 +24855,7 @@
       ],
       "max": [
         107.3,
-        42.27,
+        51.87,
         84.3
       ]
     },
@@ -26603,266 +26937,6 @@
         73,
         9.540000000000001,
         -66.3
-      ]
-    },
-    {
-      "id": "L2-shop-7-back",
-      "min": [
-        -104,
-        8.17,
-        73.91
-      ],
-      "max": [
-        -88,
-        14.17,
-        74.09
-      ]
-    },
-    {
-      "id": "L2-shop-7-side-1",
-      "min": [
-        -88.08,
-        8.17,
-        51
-      ],
-      "max": [
-        -87.92,
-        14.17,
-        74
-      ]
-    },
-    {
-      "id": "L2-shop-7-side1",
-      "min": [
-        -104.08,
-        8.17,
-        51
-      ],
-      "max": [
-        -103.92,
-        14.17,
-        74
-      ]
-    },
-    {
-      "id": "L2-shop-7-window-1",
-      "min": [
-        -94.30000000000001,
-        8.17,
-        50.95
-      ],
-      "max": [
-        -88,
-        13.47,
-        51.05
-      ]
-    },
-    {
-      "id": "L2-shop-7-jamb-1",
-      "min": [
-        -94.31,
-        8.170000000000002,
-        50.885
-      ],
-      "max": [
-        -94.21000000000001,
-        13.57,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L2-shop-7-window1",
-      "min": [
-        -104,
-        8.17,
-        50.95
-      ],
-      "max": [
-        -97.69999999999999,
-        13.47,
-        51.05
-      ]
-    },
-    {
-      "id": "L2-shop-7-jamb1",
-      "min": [
-        -97.78999999999999,
-        8.170000000000002,
-        50.885
-      ],
-      "max": [
-        -97.69,
-        13.57,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L2-shop-7-header",
-      "min": [
-        -104,
-        13.47,
-        50.875
-      ],
-      "max": [
-        -88,
-        14.17,
-        51.125
-      ]
-    },
-    {
-      "id": "L2-shop-7-display",
-      "min": [
-        -94,
-        8.27,
-        57
-      ],
-      "max": [
-        -90,
-        9.370000000000001,
-        59
-      ]
-    },
-    {
-      "id": "L2-shop-7-desk",
-      "min": [
-        -102,
-        8.24,
-        66.3
-      ],
-      "max": [
-        -98,
-        9.540000000000001,
-        67.7
-      ]
-    },
-    {
-      "id": "L2-shop-9-back",
-      "min": [
-        -41,
-        8.17,
-        73.91
-      ],
-      "max": [
-        -25,
-        14.17,
-        74.09
-      ]
-    },
-    {
-      "id": "L2-shop-9-side-1",
-      "min": [
-        -25.080000000000002,
-        8.17,
-        51
-      ],
-      "max": [
-        -24.919999999999998,
-        14.17,
-        74
-      ]
-    },
-    {
-      "id": "L2-shop-9-side1",
-      "min": [
-        -41.08,
-        8.17,
-        51
-      ],
-      "max": [
-        -40.92,
-        14.17,
-        74
-      ]
-    },
-    {
-      "id": "L2-shop-9-window-1",
-      "min": [
-        -31.299999999999997,
-        8.17,
-        50.95
-      ],
-      "max": [
-        -25,
-        13.47,
-        51.05
-      ]
-    },
-    {
-      "id": "L2-shop-9-jamb-1",
-      "min": [
-        -31.310000000000002,
-        8.170000000000002,
-        50.885
-      ],
-      "max": [
-        -31.21,
-        13.57,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L2-shop-9-window1",
-      "min": [
-        -41,
-        8.17,
-        50.95
-      ],
-      "max": [
-        -34.7,
-        13.47,
-        51.05
-      ]
-    },
-    {
-      "id": "L2-shop-9-jamb1",
-      "min": [
-        -34.79,
-        8.170000000000002,
-        50.885
-      ],
-      "max": [
-        -34.690000000000005,
-        13.57,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L2-shop-9-header",
-      "min": [
-        -41,
-        13.47,
-        50.875
-      ],
-      "max": [
-        -25,
-        14.17,
-        51.125
-      ]
-    },
-    {
-      "id": "L2-shop-9-display",
-      "min": [
-        -31,
-        8.27,
-        57
-      ],
-      "max": [
-        -27,
-        9.370000000000001,
-        59
-      ]
-    },
-    {
-      "id": "L2-shop-9-desk",
-      "min": [
-        -39,
-        8.24,
-        66.3
-      ],
-      "max": [
-        -35,
-        9.540000000000001,
-        67.7
       ]
     },
     {
@@ -32066,14 +32140,40 @@
       ]
     },
     {
-      "id": "L5-shop-0-back",
+      "id": "L5-shop-0-rear-left",
       "min": [
         -104,
         28.57,
         -74.09
       ],
       "max": [
+        -98.5,
+        34.57,
+        -73.91
+      ]
+    },
+    {
+      "id": "L5-shop-0-rear-right",
+      "min": [
+        -96,
+        28.57,
+        -74.09
+      ],
+      "max": [
         -88,
+        34.57,
+        -73.91
+      ]
+    },
+    {
+      "id": "L5-shop-0-rear-lintel",
+      "min": [
+        -98.5,
+        31.270000000000003,
+        -74.09
+      ],
+      "max": [
+        -96,
         34.57,
         -73.91
       ]
@@ -32508,14 +32608,79 @@
       ]
     },
     {
-      "id": "L5-shop-1-back",
+      "id": "L5-shop-0-kitchen-pass",
+      "min": [
+        -96.55,
+        28.57,
+        -67.55
+      ],
+      "max": [
+        -89.05,
+        29.67,
+        -66.45
+      ]
+    },
+    {
+      "id": "L5-shop-0-kitchen-prep",
+      "min": [
+        -94.5,
+        28.57,
+        -72.65
+      ],
+      "max": [
+        -89.5,
+        29.53,
+        -71.35
+      ]
+    },
+    {
+      "id": "L5-shop-0-kitchen-chiller",
+      "min": [
+        -103.35,
+        28.57,
+        -72.7
+      ],
+      "max": [
+        -101.65,
+        30.770000000000003,
+        -71.3
+      ]
+    },
+    {
+      "id": "L5-shop-1-rear-left",
       "min": [
         -62,
         28.57,
         -74.09
       ],
       "max": [
+        -56.5,
+        34.57,
+        -73.91
+      ]
+    },
+    {
+      "id": "L5-shop-1-rear-right",
+      "min": [
+        -54,
+        28.57,
+        -74.09
+      ],
+      "max": [
         -46,
+        34.57,
+        -73.91
+      ]
+    },
+    {
+      "id": "L5-shop-1-rear-lintel",
+      "min": [
+        -56.5,
+        31.270000000000003,
+        -74.09
+      ],
+      "max": [
+        -54,
         34.57,
         -73.91
       ]
@@ -32950,14 +33115,79 @@
       ]
     },
     {
-      "id": "L5-shop-2-back",
+      "id": "L5-shop-1-kitchen-pass",
+      "min": [
+        -54.55,
+        28.57,
+        -67.55
+      ],
+      "max": [
+        -47.05,
+        29.67,
+        -66.45
+      ]
+    },
+    {
+      "id": "L5-shop-1-kitchen-prep",
+      "min": [
+        -52.5,
+        28.57,
+        -72.65
+      ],
+      "max": [
+        -47.5,
+        29.53,
+        -71.35
+      ]
+    },
+    {
+      "id": "L5-shop-1-kitchen-chiller",
+      "min": [
+        -61.35,
+        28.57,
+        -72.7
+      ],
+      "max": [
+        -59.65,
+        30.770000000000003,
+        -71.3
+      ]
+    },
+    {
+      "id": "L5-shop-2-rear-left",
       "min": [
         -41,
         28.57,
         -74.09
       ],
       "max": [
+        -35.5,
+        34.57,
+        -73.91
+      ]
+    },
+    {
+      "id": "L5-shop-2-rear-right",
+      "min": [
+        -33,
+        28.57,
+        -74.09
+      ],
+      "max": [
         -25,
+        34.57,
+        -73.91
+      ]
+    },
+    {
+      "id": "L5-shop-2-rear-lintel",
+      "min": [
+        -35.5,
+        31.270000000000003,
+        -74.09
+      ],
+      "max": [
+        -33,
         34.57,
         -73.91
       ]
@@ -33392,14 +33622,79 @@
       ]
     },
     {
-      "id": "L5-shop-3-back",
+      "id": "L5-shop-2-kitchen-pass",
+      "min": [
+        -33.55,
+        28.57,
+        -67.55
+      ],
+      "max": [
+        -26.05,
+        29.67,
+        -66.45
+      ]
+    },
+    {
+      "id": "L5-shop-2-kitchen-prep",
+      "min": [
+        -31.5,
+        28.57,
+        -72.65
+      ],
+      "max": [
+        -26.5,
+        29.53,
+        -71.35
+      ]
+    },
+    {
+      "id": "L5-shop-2-kitchen-chiller",
+      "min": [
+        -40.35,
+        28.57,
+        -72.7
+      ],
+      "max": [
+        -38.65,
+        30.770000000000003,
+        -71.3
+      ]
+    },
+    {
+      "id": "L5-shop-3-rear-left",
       "min": [
         -20,
         28.57,
         -74.09
       ],
       "max": [
+        -14.5,
+        34.57,
+        -73.91
+      ]
+    },
+    {
+      "id": "L5-shop-3-rear-right",
+      "min": [
+        -12,
+        28.57,
+        -74.09
+      ],
+      "max": [
         -4,
+        34.57,
+        -73.91
+      ]
+    },
+    {
+      "id": "L5-shop-3-rear-lintel",
+      "min": [
+        -14.5,
+        31.270000000000003,
+        -74.09
+      ],
+      "max": [
+        -12,
         34.57,
         -73.91
       ]
@@ -33834,14 +34129,79 @@
       ]
     },
     {
-      "id": "L5-shop-4-back",
+      "id": "L5-shop-3-kitchen-pass",
+      "min": [
+        -12.55,
+        28.57,
+        -67.55
+      ],
+      "max": [
+        -5.050000000000001,
+        29.67,
+        -66.45
+      ]
+    },
+    {
+      "id": "L5-shop-3-kitchen-prep",
+      "min": [
+        -10.5,
+        28.57,
+        -72.65
+      ],
+      "max": [
+        -5.5,
+        29.53,
+        -71.35
+      ]
+    },
+    {
+      "id": "L5-shop-3-kitchen-chiller",
+      "min": [
+        -19.35,
+        28.57,
+        -72.7
+      ],
+      "max": [
+        -17.65,
+        30.770000000000003,
+        -71.3
+      ]
+    },
+    {
+      "id": "L5-shop-4-rear-left",
       "min": [
         38,
         28.57,
         -74.09
       ],
       "max": [
+        43.5,
+        34.57,
+        -73.91
+      ]
+    },
+    {
+      "id": "L5-shop-4-rear-right",
+      "min": [
+        46,
+        28.57,
+        -74.09
+      ],
+      "max": [
         54,
+        34.57,
+        -73.91
+      ]
+    },
+    {
+      "id": "L5-shop-4-rear-lintel",
+      "min": [
+        43.5,
+        31.270000000000003,
+        -74.09
+      ],
+      "max": [
+        46,
         34.57,
         -73.91
       ]
@@ -34276,14 +34636,79 @@
       ]
     },
     {
-      "id": "L5-shop-5-back",
+      "id": "L5-shop-4-kitchen-pass",
+      "min": [
+        45.45,
+        28.57,
+        -67.55
+      ],
+      "max": [
+        52.95,
+        29.67,
+        -66.45
+      ]
+    },
+    {
+      "id": "L5-shop-4-kitchen-prep",
+      "min": [
+        47.5,
+        28.57,
+        -72.65
+      ],
+      "max": [
+        52.5,
+        29.53,
+        -71.35
+      ]
+    },
+    {
+      "id": "L5-shop-4-kitchen-chiller",
+      "min": [
+        38.65,
+        28.57,
+        -72.7
+      ],
+      "max": [
+        40.35,
+        30.770000000000003,
+        -71.3
+      ]
+    },
+    {
+      "id": "L5-shop-5-rear-left",
       "min": [
         59,
         28.57,
         -74.09
       ],
       "max": [
+        64.5,
+        34.57,
+        -73.91
+      ]
+    },
+    {
+      "id": "L5-shop-5-rear-right",
+      "min": [
+        67,
+        28.57,
+        -74.09
+      ],
+      "max": [
         75,
+        34.57,
+        -73.91
+      ]
+    },
+    {
+      "id": "L5-shop-5-rear-lintel",
+      "min": [
+        64.5,
+        31.270000000000003,
+        -74.09
+      ],
+      "max": [
+        67,
         34.57,
         -73.91
       ]
@@ -34718,1333 +35143,59 @@
       ]
     },
     {
-      "id": "L5-shop-11-back",
+      "id": "L5-shop-5-kitchen-pass",
       "min": [
-        38,
+        66.45,
         28.57,
-        73.91
+        -67.55
       ],
       "max": [
-        54,
+        73.95,
+        29.67,
+        -66.45
+      ]
+    },
+    {
+      "id": "L5-shop-5-kitchen-prep",
+      "min": [
+        68.5,
+        28.57,
+        -72.65
+      ],
+      "max": [
+        73.5,
+        29.53,
+        -71.35
+      ]
+    },
+    {
+      "id": "L5-shop-5-kitchen-chiller",
+      "min": [
+        59.65,
+        28.57,
+        -72.7
+      ],
+      "max": [
+        61.35,
+        30.770000000000003,
+        -71.3
+      ]
+    },
+    {
+      "id": "L5-shop-14-rear-left",
+      "min": [
+        -93.09,
+        28.57,
+        -17.5
+      ],
+      "max": [
+        -92.91,
         34.57,
-        74.09
+        -12.000000000000002
       ]
     },
     {
-      "id": "L5-shop-11-side-1",
-      "min": [
-        53.92,
-        28.57,
-        51
-      ],
-      "max": [
-        54.08,
-        34.57,
-        74
-      ]
-    },
-    {
-      "id": "L5-shop-11-side1",
-      "min": [
-        37.92,
-        28.57,
-        51
-      ],
-      "max": [
-        38.08,
-        34.57,
-        74
-      ]
-    },
-    {
-      "id": "L5-shop-11-window-1",
-      "min": [
-        47.7,
-        28.57,
-        50.95
-      ],
-      "max": [
-        54,
-        33.87,
-        51.05
-      ]
-    },
-    {
-      "id": "L5-shop-11-jamb-1",
-      "min": [
-        47.690000000000005,
-        28.57,
-        50.885
-      ],
-      "max": [
-        47.79,
-        33.97,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L5-shop-11-window1",
-      "min": [
-        38,
-        28.57,
-        50.95
-      ],
-      "max": [
-        44.3,
-        33.87,
-        51.05
-      ]
-    },
-    {
-      "id": "L5-shop-11-jamb1",
-      "min": [
-        44.21,
-        28.57,
-        50.885
-      ],
-      "max": [
-        44.309999999999995,
-        33.97,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L5-shop-11-header",
-      "min": [
-        38,
-        33.87,
-        50.875
-      ],
-      "max": [
-        54,
-        34.57,
-        51.125
-      ]
-    },
-    {
-      "id": "L5-shop-11-display",
-      "min": [
-        48,
-        28.669999999999998,
-        57
-      ],
-      "max": [
-        52,
-        29.77,
-        59
-      ]
-    },
-    {
-      "id": "L5-shop-11-desk",
-      "min": [
-        40,
-        28.64,
-        66.3
-      ],
-      "max": [
-        44,
-        29.939999999999998,
-        67.7
-      ]
-    },
-    {
-      "id": "L5-shop-11-table--4--6",
-      "min": [
-        49,
-        29.310000000000002,
-        56
-      ],
-      "max": [
-        51,
-        29.43,
-        58
-      ]
-    },
-    {
-      "id": "L5-shop-11-leg--4--6",
-      "min": [
-        49.91,
-        28.57,
-        56.91
-      ],
-      "max": [
-        50.09,
-        29.369999999999997,
-        57.09
-      ]
-    },
-    {
-      "id": "L5-shop-11-seat--4--6--1.5",
-      "min": [
-        51.175,
-        28.96,
-        56.65
-      ],
-      "max": [
-        51.825,
-        29.119999999999997,
-        57.35
-      ]
-    },
-    {
-      "id": "L5-shop-11-seatback--4--6--1.5",
-      "min": [
-        51.175,
-        29.085,
-        56.63
-      ],
-      "max": [
-        51.825,
-        29.735,
-        56.77
-      ]
-    },
-    {
-      "id": "L5-shop-11-seat--4--6-1.5",
-      "min": [
-        48.175,
-        28.96,
-        56.65
-      ],
-      "max": [
-        48.825,
-        29.119999999999997,
-        57.35
-      ]
-    },
-    {
-      "id": "L5-shop-11-seatback--4--6-1.5",
-      "min": [
-        48.175,
-        29.085,
-        56.63
-      ],
-      "max": [
-        48.825,
-        29.735,
-        56.77
-      ]
-    },
-    {
-      "id": "L5-shop-11-table--4--12",
-      "min": [
-        49,
-        29.310000000000002,
-        62
-      ],
-      "max": [
-        51,
-        29.43,
-        64
-      ]
-    },
-    {
-      "id": "L5-shop-11-leg--4--12",
-      "min": [
-        49.91,
-        28.57,
-        62.91
-      ],
-      "max": [
-        50.09,
-        29.369999999999997,
-        63.09
-      ]
-    },
-    {
-      "id": "L5-shop-11-seat--4--12--1.5",
-      "min": [
-        51.175,
-        28.96,
-        62.65
-      ],
-      "max": [
-        51.825,
-        29.119999999999997,
-        63.35
-      ]
-    },
-    {
-      "id": "L5-shop-11-seatback--4--12--1.5",
-      "min": [
-        51.175,
-        29.085,
-        62.63
-      ],
-      "max": [
-        51.825,
-        29.735,
-        62.77
-      ]
-    },
-    {
-      "id": "L5-shop-11-seat--4--12-1.5",
-      "min": [
-        48.175,
-        28.96,
-        62.65
-      ],
-      "max": [
-        48.825,
-        29.119999999999997,
-        63.35
-      ]
-    },
-    {
-      "id": "L5-shop-11-seatback--4--12-1.5",
-      "min": [
-        48.175,
-        29.085,
-        62.63
-      ],
-      "max": [
-        48.825,
-        29.735,
-        62.77
-      ]
-    },
-    {
-      "id": "L5-shop-11-table-4--6",
-      "min": [
-        41,
-        29.310000000000002,
-        56
-      ],
-      "max": [
-        43,
-        29.43,
-        58
-      ]
-    },
-    {
-      "id": "L5-shop-11-leg-4--6",
-      "min": [
-        41.91,
-        28.57,
-        56.91
-      ],
-      "max": [
-        42.09,
-        29.369999999999997,
-        57.09
-      ]
-    },
-    {
-      "id": "L5-shop-11-seat-4--6--1.5",
-      "min": [
-        43.175,
-        28.96,
-        56.65
-      ],
-      "max": [
-        43.825,
-        29.119999999999997,
-        57.35
-      ]
-    },
-    {
-      "id": "L5-shop-11-seatback-4--6--1.5",
-      "min": [
-        43.175,
-        29.085,
-        56.63
-      ],
-      "max": [
-        43.825,
-        29.735,
-        56.77
-      ]
-    },
-    {
-      "id": "L5-shop-11-seat-4--6-1.5",
-      "min": [
-        40.175,
-        28.96,
-        56.65
-      ],
-      "max": [
-        40.825,
-        29.119999999999997,
-        57.35
-      ]
-    },
-    {
-      "id": "L5-shop-11-seatback-4--6-1.5",
-      "min": [
-        40.175,
-        29.085,
-        56.63
-      ],
-      "max": [
-        40.825,
-        29.735,
-        56.77
-      ]
-    },
-    {
-      "id": "L5-shop-11-table-4--12",
-      "min": [
-        41,
-        29.310000000000002,
-        62
-      ],
-      "max": [
-        43,
-        29.43,
-        64
-      ]
-    },
-    {
-      "id": "L5-shop-11-leg-4--12",
-      "min": [
-        41.91,
-        28.57,
-        62.91
-      ],
-      "max": [
-        42.09,
-        29.369999999999997,
-        63.09
-      ]
-    },
-    {
-      "id": "L5-shop-11-seat-4--12--1.5",
-      "min": [
-        43.175,
-        28.96,
-        62.65
-      ],
-      "max": [
-        43.825,
-        29.119999999999997,
-        63.35
-      ]
-    },
-    {
-      "id": "L5-shop-11-seatback-4--12--1.5",
-      "min": [
-        43.175,
-        29.085,
-        62.63
-      ],
-      "max": [
-        43.825,
-        29.735,
-        62.77
-      ]
-    },
-    {
-      "id": "L5-shop-11-seat-4--12-1.5",
-      "min": [
-        40.175,
-        28.96,
-        62.65
-      ],
-      "max": [
-        40.825,
-        29.119999999999997,
-        63.35
-      ]
-    },
-    {
-      "id": "L5-shop-11-seatback-4--12-1.5",
-      "min": [
-        40.175,
-        29.085,
-        62.63
-      ],
-      "max": [
-        40.825,
-        29.735,
-        62.77
-      ]
-    },
-    {
-      "id": "L5-shop-12-back",
-      "min": [
-        59,
-        28.57,
-        73.91
-      ],
-      "max": [
-        75,
-        34.57,
-        74.09
-      ]
-    },
-    {
-      "id": "L5-shop-12-side-1",
-      "min": [
-        74.92,
-        28.57,
-        51
-      ],
-      "max": [
-        75.08,
-        34.57,
-        74
-      ]
-    },
-    {
-      "id": "L5-shop-12-side1",
-      "min": [
-        58.92,
-        28.57,
-        51
-      ],
-      "max": [
-        59.08,
-        34.57,
-        74
-      ]
-    },
-    {
-      "id": "L5-shop-12-window-1",
-      "min": [
-        68.69999999999999,
-        28.57,
-        50.95
-      ],
-      "max": [
-        75,
-        33.87,
-        51.05
-      ]
-    },
-    {
-      "id": "L5-shop-12-jamb-1",
-      "min": [
-        68.69,
-        28.57,
-        50.885
-      ],
-      "max": [
-        68.78999999999999,
-        33.97,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L5-shop-12-window1",
-      "min": [
-        59,
-        28.57,
-        50.95
-      ],
-      "max": [
-        65.3,
-        33.87,
-        51.05
-      ]
-    },
-    {
-      "id": "L5-shop-12-jamb1",
-      "min": [
-        65.21000000000001,
-        28.57,
-        50.885
-      ],
-      "max": [
-        65.31,
-        33.97,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L5-shop-12-header",
-      "min": [
-        59,
-        33.87,
-        50.875
-      ],
-      "max": [
-        75,
-        34.57,
-        51.125
-      ]
-    },
-    {
-      "id": "L5-shop-12-display",
-      "min": [
-        69,
-        28.669999999999998,
-        57
-      ],
-      "max": [
-        73,
-        29.77,
-        59
-      ]
-    },
-    {
-      "id": "L5-shop-12-desk",
-      "min": [
-        61,
-        28.64,
-        66.3
-      ],
-      "max": [
-        65,
-        29.939999999999998,
-        67.7
-      ]
-    },
-    {
-      "id": "L5-shop-12-table--4--6",
-      "min": [
-        70,
-        29.310000000000002,
-        56
-      ],
-      "max": [
-        72,
-        29.43,
-        58
-      ]
-    },
-    {
-      "id": "L5-shop-12-leg--4--6",
-      "min": [
-        70.91,
-        28.57,
-        56.91
-      ],
-      "max": [
-        71.09,
-        29.369999999999997,
-        57.09
-      ]
-    },
-    {
-      "id": "L5-shop-12-seat--4--6--1.5",
-      "min": [
-        72.175,
-        28.96,
-        56.65
-      ],
-      "max": [
-        72.825,
-        29.119999999999997,
-        57.35
-      ]
-    },
-    {
-      "id": "L5-shop-12-seatback--4--6--1.5",
-      "min": [
-        72.175,
-        29.085,
-        56.63
-      ],
-      "max": [
-        72.825,
-        29.735,
-        56.77
-      ]
-    },
-    {
-      "id": "L5-shop-12-seat--4--6-1.5",
-      "min": [
-        69.175,
-        28.96,
-        56.65
-      ],
-      "max": [
-        69.825,
-        29.119999999999997,
-        57.35
-      ]
-    },
-    {
-      "id": "L5-shop-12-seatback--4--6-1.5",
-      "min": [
-        69.175,
-        29.085,
-        56.63
-      ],
-      "max": [
-        69.825,
-        29.735,
-        56.77
-      ]
-    },
-    {
-      "id": "L5-shop-12-table--4--12",
-      "min": [
-        70,
-        29.310000000000002,
-        62
-      ],
-      "max": [
-        72,
-        29.43,
-        64
-      ]
-    },
-    {
-      "id": "L5-shop-12-leg--4--12",
-      "min": [
-        70.91,
-        28.57,
-        62.91
-      ],
-      "max": [
-        71.09,
-        29.369999999999997,
-        63.09
-      ]
-    },
-    {
-      "id": "L5-shop-12-seat--4--12--1.5",
-      "min": [
-        72.175,
-        28.96,
-        62.65
-      ],
-      "max": [
-        72.825,
-        29.119999999999997,
-        63.35
-      ]
-    },
-    {
-      "id": "L5-shop-12-seatback--4--12--1.5",
-      "min": [
-        72.175,
-        29.085,
-        62.63
-      ],
-      "max": [
-        72.825,
-        29.735,
-        62.77
-      ]
-    },
-    {
-      "id": "L5-shop-12-seat--4--12-1.5",
-      "min": [
-        69.175,
-        28.96,
-        62.65
-      ],
-      "max": [
-        69.825,
-        29.119999999999997,
-        63.35
-      ]
-    },
-    {
-      "id": "L5-shop-12-seatback--4--12-1.5",
-      "min": [
-        69.175,
-        29.085,
-        62.63
-      ],
-      "max": [
-        69.825,
-        29.735,
-        62.77
-      ]
-    },
-    {
-      "id": "L5-shop-12-table-4--6",
-      "min": [
-        62,
-        29.310000000000002,
-        56
-      ],
-      "max": [
-        64,
-        29.43,
-        58
-      ]
-    },
-    {
-      "id": "L5-shop-12-leg-4--6",
-      "min": [
-        62.91,
-        28.57,
-        56.91
-      ],
-      "max": [
-        63.09,
-        29.369999999999997,
-        57.09
-      ]
-    },
-    {
-      "id": "L5-shop-12-seat-4--6--1.5",
-      "min": [
-        64.175,
-        28.96,
-        56.65
-      ],
-      "max": [
-        64.825,
-        29.119999999999997,
-        57.35
-      ]
-    },
-    {
-      "id": "L5-shop-12-seatback-4--6--1.5",
-      "min": [
-        64.175,
-        29.085,
-        56.63
-      ],
-      "max": [
-        64.825,
-        29.735,
-        56.77
-      ]
-    },
-    {
-      "id": "L5-shop-12-seat-4--6-1.5",
-      "min": [
-        61.175,
-        28.96,
-        56.65
-      ],
-      "max": [
-        61.825,
-        29.119999999999997,
-        57.35
-      ]
-    },
-    {
-      "id": "L5-shop-12-seatback-4--6-1.5",
-      "min": [
-        61.175,
-        29.085,
-        56.63
-      ],
-      "max": [
-        61.825,
-        29.735,
-        56.77
-      ]
-    },
-    {
-      "id": "L5-shop-12-table-4--12",
-      "min": [
-        62,
-        29.310000000000002,
-        62
-      ],
-      "max": [
-        64,
-        29.43,
-        64
-      ]
-    },
-    {
-      "id": "L5-shop-12-leg-4--12",
-      "min": [
-        62.91,
-        28.57,
-        62.91
-      ],
-      "max": [
-        63.09,
-        29.369999999999997,
-        63.09
-      ]
-    },
-    {
-      "id": "L5-shop-12-seat-4--12--1.5",
-      "min": [
-        64.175,
-        28.96,
-        62.65
-      ],
-      "max": [
-        64.825,
-        29.119999999999997,
-        63.35
-      ]
-    },
-    {
-      "id": "L5-shop-12-seatback-4--12--1.5",
-      "min": [
-        64.175,
-        29.085,
-        62.63
-      ],
-      "max": [
-        64.825,
-        29.735,
-        62.77
-      ]
-    },
-    {
-      "id": "L5-shop-12-seat-4--12-1.5",
-      "min": [
-        61.175,
-        28.96,
-        62.65
-      ],
-      "max": [
-        61.825,
-        29.119999999999997,
-        63.35
-      ]
-    },
-    {
-      "id": "L5-shop-12-seatback-4--12-1.5",
-      "min": [
-        61.175,
-        29.085,
-        62.63
-      ],
-      "max": [
-        61.825,
-        29.735,
-        62.77
-      ]
-    },
-    {
-      "id": "L5-shop-13-back",
-      "min": [
-        80,
-        28.57,
-        73.91
-      ],
-      "max": [
-        96,
-        34.57,
-        74.09
-      ]
-    },
-    {
-      "id": "L5-shop-13-side-1",
-      "min": [
-        95.92,
-        28.57,
-        51
-      ],
-      "max": [
-        96.08,
-        34.57,
-        74
-      ]
-    },
-    {
-      "id": "L5-shop-13-side1",
-      "min": [
-        79.92,
-        28.57,
-        51
-      ],
-      "max": [
-        80.08,
-        34.57,
-        74
-      ]
-    },
-    {
-      "id": "L5-shop-13-window-1",
-      "min": [
-        89.69999999999999,
-        28.57,
-        50.95
-      ],
-      "max": [
-        96,
-        33.87,
-        51.05
-      ]
-    },
-    {
-      "id": "L5-shop-13-jamb-1",
-      "min": [
-        89.69,
-        28.57,
-        50.885
-      ],
-      "max": [
-        89.78999999999999,
-        33.97,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L5-shop-13-window1",
-      "min": [
-        80,
-        28.57,
-        50.95
-      ],
-      "max": [
-        86.30000000000001,
-        33.87,
-        51.05
-      ]
-    },
-    {
-      "id": "L5-shop-13-jamb1",
-      "min": [
-        86.21000000000001,
-        28.57,
-        50.885
-      ],
-      "max": [
-        86.31,
-        33.97,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L5-shop-13-header",
-      "min": [
-        80,
-        33.87,
-        50.875
-      ],
-      "max": [
-        96,
-        34.57,
-        51.125
-      ]
-    },
-    {
-      "id": "L5-shop-13-display",
-      "min": [
-        90,
-        28.669999999999998,
-        57
-      ],
-      "max": [
-        94,
-        29.77,
-        59
-      ]
-    },
-    {
-      "id": "L5-shop-13-desk",
-      "min": [
-        82,
-        28.64,
-        66.3
-      ],
-      "max": [
-        86,
-        29.939999999999998,
-        67.7
-      ]
-    },
-    {
-      "id": "L5-shop-13-table--4--6",
-      "min": [
-        91,
-        29.310000000000002,
-        56
-      ],
-      "max": [
-        93,
-        29.43,
-        58
-      ]
-    },
-    {
-      "id": "L5-shop-13-leg--4--6",
-      "min": [
-        91.91,
-        28.57,
-        56.91
-      ],
-      "max": [
-        92.09,
-        29.369999999999997,
-        57.09
-      ]
-    },
-    {
-      "id": "L5-shop-13-seat--4--6--1.5",
-      "min": [
-        93.175,
-        28.96,
-        56.65
-      ],
-      "max": [
-        93.825,
-        29.119999999999997,
-        57.35
-      ]
-    },
-    {
-      "id": "L5-shop-13-seatback--4--6--1.5",
-      "min": [
-        93.175,
-        29.085,
-        56.63
-      ],
-      "max": [
-        93.825,
-        29.735,
-        56.77
-      ]
-    },
-    {
-      "id": "L5-shop-13-seat--4--6-1.5",
-      "min": [
-        90.175,
-        28.96,
-        56.65
-      ],
-      "max": [
-        90.825,
-        29.119999999999997,
-        57.35
-      ]
-    },
-    {
-      "id": "L5-shop-13-seatback--4--6-1.5",
-      "min": [
-        90.175,
-        29.085,
-        56.63
-      ],
-      "max": [
-        90.825,
-        29.735,
-        56.77
-      ]
-    },
-    {
-      "id": "L5-shop-13-table--4--12",
-      "min": [
-        91,
-        29.310000000000002,
-        62
-      ],
-      "max": [
-        93,
-        29.43,
-        64
-      ]
-    },
-    {
-      "id": "L5-shop-13-leg--4--12",
-      "min": [
-        91.91,
-        28.57,
-        62.91
-      ],
-      "max": [
-        92.09,
-        29.369999999999997,
-        63.09
-      ]
-    },
-    {
-      "id": "L5-shop-13-seat--4--12--1.5",
-      "min": [
-        93.175,
-        28.96,
-        62.65
-      ],
-      "max": [
-        93.825,
-        29.119999999999997,
-        63.35
-      ]
-    },
-    {
-      "id": "L5-shop-13-seatback--4--12--1.5",
-      "min": [
-        93.175,
-        29.085,
-        62.63
-      ],
-      "max": [
-        93.825,
-        29.735,
-        62.77
-      ]
-    },
-    {
-      "id": "L5-shop-13-seat--4--12-1.5",
-      "min": [
-        90.175,
-        28.96,
-        62.65
-      ],
-      "max": [
-        90.825,
-        29.119999999999997,
-        63.35
-      ]
-    },
-    {
-      "id": "L5-shop-13-seatback--4--12-1.5",
-      "min": [
-        90.175,
-        29.085,
-        62.63
-      ],
-      "max": [
-        90.825,
-        29.735,
-        62.77
-      ]
-    },
-    {
-      "id": "L5-shop-13-table-4--6",
-      "min": [
-        83,
-        29.310000000000002,
-        56
-      ],
-      "max": [
-        85,
-        29.43,
-        58
-      ]
-    },
-    {
-      "id": "L5-shop-13-leg-4--6",
-      "min": [
-        83.91,
-        28.57,
-        56.91
-      ],
-      "max": [
-        84.09,
-        29.369999999999997,
-        57.09
-      ]
-    },
-    {
-      "id": "L5-shop-13-seat-4--6--1.5",
-      "min": [
-        85.175,
-        28.96,
-        56.65
-      ],
-      "max": [
-        85.825,
-        29.119999999999997,
-        57.35
-      ]
-    },
-    {
-      "id": "L5-shop-13-seatback-4--6--1.5",
-      "min": [
-        85.175,
-        29.085,
-        56.63
-      ],
-      "max": [
-        85.825,
-        29.735,
-        56.77
-      ]
-    },
-    {
-      "id": "L5-shop-13-seat-4--6-1.5",
-      "min": [
-        82.175,
-        28.96,
-        56.65
-      ],
-      "max": [
-        82.825,
-        29.119999999999997,
-        57.35
-      ]
-    },
-    {
-      "id": "L5-shop-13-seatback-4--6-1.5",
-      "min": [
-        82.175,
-        29.085,
-        56.63
-      ],
-      "max": [
-        82.825,
-        29.735,
-        56.77
-      ]
-    },
-    {
-      "id": "L5-shop-13-table-4--12",
-      "min": [
-        83,
-        29.310000000000002,
-        62
-      ],
-      "max": [
-        85,
-        29.43,
-        64
-      ]
-    },
-    {
-      "id": "L5-shop-13-leg-4--12",
-      "min": [
-        83.91,
-        28.57,
-        62.91
-      ],
-      "max": [
-        84.09,
-        29.369999999999997,
-        63.09
-      ]
-    },
-    {
-      "id": "L5-shop-13-seat-4--12--1.5",
-      "min": [
-        85.175,
-        28.96,
-        62.65
-      ],
-      "max": [
-        85.825,
-        29.119999999999997,
-        63.35
-      ]
-    },
-    {
-      "id": "L5-shop-13-seatback-4--12--1.5",
-      "min": [
-        85.175,
-        29.085,
-        62.63
-      ],
-      "max": [
-        85.825,
-        29.735,
-        62.77
-      ]
-    },
-    {
-      "id": "L5-shop-13-seat-4--12-1.5",
-      "min": [
-        82.175,
-        28.96,
-        62.65
-      ],
-      "max": [
-        82.825,
-        29.119999999999997,
-        63.35
-      ]
-    },
-    {
-      "id": "L5-shop-13-seatback-4--12-1.5",
-      "min": [
-        82.175,
-        29.085,
-        62.63
-      ],
-      "max": [
-        82.825,
-        29.735,
-        62.77
-      ]
-    },
-    {
-      "id": "L5-shop-14-back",
+      "id": "L5-shop-14-rear-right",
       "min": [
         -93.09,
         28.57,
@@ -36053,7 +35204,20 @@
       "max": [
         -92.91,
         34.57,
-        -12
+        -20
+      ]
+    },
+    {
+      "id": "L5-shop-14-rear-lintel",
+      "min": [
+        -93.09,
+        31.270000000000003,
+        -20
+      ],
+      "max": [
+        -92.91,
+        34.57,
+        -17.5
       ]
     },
     {
@@ -36486,16 +35650,81 @@
       ]
     },
     {
-      "id": "L5-shop-15-back",
+      "id": "L5-shop-14-kitchen-pass",
+      "min": [
+        -86.55,
+        28.57,
+        -26.95
+      ],
+      "max": [
+        -85.45,
+        29.67,
+        -19.45
+      ]
+    },
+    {
+      "id": "L5-shop-14-kitchen-prep",
+      "min": [
+        -91.65,
+        28.57,
+        -26.5
+      ],
+      "max": [
+        -90.35,
+        29.53,
+        -21.5
+      ]
+    },
+    {
+      "id": "L5-shop-14-kitchen-chiller",
+      "min": [
+        -91.7,
+        28.57,
+        -14.350000000000001
+      ],
+      "max": [
+        -90.3,
+        30.770000000000003,
+        -12.650000000000002
+      ]
+    },
+    {
+      "id": "L5-shop-15-rear-left",
       "min": [
         -93.09,
         28.57,
-        12
+        22.5
       ],
       "max": [
         -92.91,
         34.57,
         28
+      ]
+    },
+    {
+      "id": "L5-shop-15-rear-right",
+      "min": [
+        -93.09,
+        28.57,
+        11.999999999999998
+      ],
+      "max": [
+        -92.91,
+        34.57,
+        20
+      ]
+    },
+    {
+      "id": "L5-shop-15-rear-lintel",
+      "min": [
+        -93.09,
+        31.270000000000003,
+        20
+      ],
+      "max": [
+        -92.91,
+        34.57,
+        22.5
       ]
     },
     {
@@ -36928,7 +36157,46 @@
       ]
     },
     {
-      "id": "L5-shop-16-back",
+      "id": "L5-shop-15-kitchen-pass",
+      "min": [
+        -86.55,
+        28.57,
+        13.05
+      ],
+      "max": [
+        -85.45,
+        29.67,
+        20.55
+      ]
+    },
+    {
+      "id": "L5-shop-15-kitchen-prep",
+      "min": [
+        -91.65,
+        28.57,
+        13.499999999999998
+      ],
+      "max": [
+        -90.35,
+        29.53,
+        18.5
+      ]
+    },
+    {
+      "id": "L5-shop-15-kitchen-chiller",
+      "min": [
+        -91.7,
+        28.57,
+        25.65
+      ],
+      "max": [
+        -90.3,
+        30.770000000000003,
+        27.35
+      ]
+    },
+    {
+      "id": "L5-shop-16-rear-left",
       "min": [
         92.91,
         28.57,
@@ -36937,7 +36205,33 @@
       "max": [
         93.09,
         34.57,
+        -22.5
+      ]
+    },
+    {
+      "id": "L5-shop-16-rear-right",
+      "min": [
+        92.91,
+        28.57,
+        -20
+      ],
+      "max": [
+        93.09,
+        34.57,
         -12
+      ]
+    },
+    {
+      "id": "L5-shop-16-rear-lintel",
+      "min": [
+        92.91,
+        31.270000000000003,
+        -22.5
+      ],
+      "max": [
+        93.09,
+        34.57,
+        -20
       ]
     },
     {
@@ -37370,16 +36664,81 @@
       ]
     },
     {
-      "id": "L5-shop-17-back",
+      "id": "L5-shop-16-kitchen-pass",
+      "min": [
+        85.45,
+        28.57,
+        -20.55
+      ],
+      "max": [
+        86.55,
+        29.67,
+        -13.05
+      ]
+    },
+    {
+      "id": "L5-shop-16-kitchen-prep",
+      "min": [
+        90.35,
+        28.57,
+        -18.5
+      ],
+      "max": [
+        91.65,
+        29.53,
+        -13.5
+      ]
+    },
+    {
+      "id": "L5-shop-16-kitchen-chiller",
+      "min": [
+        90.3,
+        28.57,
+        -27.35
+      ],
+      "max": [
+        91.7,
+        30.770000000000003,
+        -25.65
+      ]
+    },
+    {
+      "id": "L5-shop-17-rear-left",
       "min": [
         92.91,
         28.57,
-        12
+        11.999999999999998
+      ],
+      "max": [
+        93.09,
+        34.57,
+        17.5
+      ]
+    },
+    {
+      "id": "L5-shop-17-rear-right",
+      "min": [
+        92.91,
+        28.57,
+        20
       ],
       "max": [
         93.09,
         34.57,
         28
+      ]
+    },
+    {
+      "id": "L5-shop-17-rear-lintel",
+      "min": [
+        92.91,
+        31.270000000000003,
+        17.5
+      ],
+      "max": [
+        93.09,
+        34.57,
+        20
       ]
     },
     {
@@ -37812,15 +37171,80 @@
       ]
     },
     {
-      "id": "L6-shop-0-back",
+      "id": "L5-shop-17-kitchen-pass",
+      "min": [
+        85.45,
+        28.57,
+        19.45
+      ],
+      "max": [
+        86.55,
+        29.67,
+        26.95
+      ]
+    },
+    {
+      "id": "L5-shop-17-kitchen-prep",
+      "min": [
+        90.35,
+        28.57,
+        21.5
+      ],
+      "max": [
+        91.65,
+        29.53,
+        26.5
+      ]
+    },
+    {
+      "id": "L5-shop-17-kitchen-chiller",
+      "min": [
+        90.3,
+        28.57,
+        12.649999999999999
+      ],
+      "max": [
+        91.7,
+        30.770000000000003,
+        14.349999999999998
+      ]
+    },
+    {
+      "id": "L6-shop-0-rear-left",
       "min": [
         -104,
         35.37,
         -74.09
       ],
       "max": [
+        -98.5,
+        51.37,
+        -73.91
+      ]
+    },
+    {
+      "id": "L6-shop-0-rear-right",
+      "min": [
+        -96,
+        35.37,
+        -74.09
+      ],
+      "max": [
         -88,
-        41.87,
+        51.37,
+        -73.91
+      ]
+    },
+    {
+      "id": "L6-shop-0-rear-lintel",
+      "min": [
+        -98.5,
+        38.07,
+        -74.09
+      ],
+      "max": [
+        -96,
+        51.37,
         -73.91
       ]
     },
@@ -37833,7 +37257,7 @@
       ],
       "max": [
         -103.92,
-        41.87,
+        51.37,
         -51
       ]
     },
@@ -37846,7 +37270,7 @@
       ],
       "max": [
         -87.92,
-        41.87,
+        51.37,
         -51
       ]
     },
@@ -37859,7 +37283,7 @@
       ],
       "max": [
         -97.69999999999999,
-        41.169999999999995,
+        50.669999999999995,
         -50.95
       ]
     },
@@ -37872,7 +37296,7 @@
       ],
       "max": [
         -97.69,
-        41.27,
+        50.77,
         -50.885
       ]
     },
@@ -37885,7 +37309,7 @@
       ],
       "max": [
         -88,
-        41.169999999999995,
+        50.669999999999995,
         -50.95
       ]
     },
@@ -37898,7 +37322,7 @@
       ],
       "max": [
         -94.21000000000001,
-        41.27,
+        50.77,
         -50.885
       ]
     },
@@ -37906,12 +37330,12 @@
       "id": "L6-shop-0-header",
       "min": [
         -104,
-        41.169999999999995,
+        50.669999999999995,
         -51.125
       ],
       "max": [
         -88,
-        41.87,
+        51.37,
         -50.875
       ]
     },
@@ -38254,15 +37678,80 @@
       ]
     },
     {
-      "id": "L6-shop-1-back",
+      "id": "L6-shop-0-kitchen-pass",
+      "min": [
+        -96.55,
+        35.37,
+        -67.55
+      ],
+      "max": [
+        -89.05,
+        36.46999999999999,
+        -66.45
+      ]
+    },
+    {
+      "id": "L6-shop-0-kitchen-prep",
+      "min": [
+        -94.5,
+        35.37,
+        -72.65
+      ],
+      "max": [
+        -89.5,
+        36.32999999999999,
+        -71.35
+      ]
+    },
+    {
+      "id": "L6-shop-0-kitchen-chiller",
+      "min": [
+        -103.35,
+        35.37,
+        -72.7
+      ],
+      "max": [
+        -101.65,
+        37.57,
+        -71.3
+      ]
+    },
+    {
+      "id": "L6-shop-1-rear-left",
       "min": [
         -62,
         35.37,
         -74.09
       ],
       "max": [
+        -56.5,
+        51.37,
+        -73.91
+      ]
+    },
+    {
+      "id": "L6-shop-1-rear-right",
+      "min": [
+        -54,
+        35.37,
+        -74.09
+      ],
+      "max": [
         -46,
-        41.87,
+        51.37,
+        -73.91
+      ]
+    },
+    {
+      "id": "L6-shop-1-rear-lintel",
+      "min": [
+        -56.5,
+        38.07,
+        -74.09
+      ],
+      "max": [
+        -54,
+        51.37,
         -73.91
       ]
     },
@@ -38275,7 +37764,7 @@
       ],
       "max": [
         -61.92,
-        41.87,
+        51.37,
         -51
       ]
     },
@@ -38288,7 +37777,7 @@
       ],
       "max": [
         -45.92,
-        41.87,
+        51.37,
         -51
       ]
     },
@@ -38301,7 +37790,7 @@
       ],
       "max": [
         -55.7,
-        41.169999999999995,
+        50.669999999999995,
         -50.95
       ]
     },
@@ -38314,7 +37803,7 @@
       ],
       "max": [
         -55.690000000000005,
-        41.27,
+        50.77,
         -50.885
       ]
     },
@@ -38327,7 +37816,7 @@
       ],
       "max": [
         -46,
-        41.169999999999995,
+        50.669999999999995,
         -50.95
       ]
     },
@@ -38340,7 +37829,7 @@
       ],
       "max": [
         -52.21,
-        41.27,
+        50.77,
         -50.885
       ]
     },
@@ -38348,12 +37837,12 @@
       "id": "L6-shop-1-header",
       "min": [
         -62,
-        41.169999999999995,
+        50.669999999999995,
         -51.125
       ],
       "max": [
         -46,
-        41.87,
+        51.37,
         -50.875
       ]
     },
@@ -38696,15 +38185,80 @@
       ]
     },
     {
-      "id": "L6-shop-2-back",
+      "id": "L6-shop-1-kitchen-pass",
+      "min": [
+        -54.55,
+        35.37,
+        -67.55
+      ],
+      "max": [
+        -47.05,
+        36.46999999999999,
+        -66.45
+      ]
+    },
+    {
+      "id": "L6-shop-1-kitchen-prep",
+      "min": [
+        -52.5,
+        35.37,
+        -72.65
+      ],
+      "max": [
+        -47.5,
+        36.32999999999999,
+        -71.35
+      ]
+    },
+    {
+      "id": "L6-shop-1-kitchen-chiller",
+      "min": [
+        -61.35,
+        35.37,
+        -72.7
+      ],
+      "max": [
+        -59.65,
+        37.57,
+        -71.3
+      ]
+    },
+    {
+      "id": "L6-shop-2-rear-left",
       "min": [
         -41,
         35.37,
         -74.09
       ],
       "max": [
+        -35.5,
+        51.37,
+        -73.91
+      ]
+    },
+    {
+      "id": "L6-shop-2-rear-right",
+      "min": [
+        -33,
+        35.37,
+        -74.09
+      ],
+      "max": [
         -25,
-        41.87,
+        51.37,
+        -73.91
+      ]
+    },
+    {
+      "id": "L6-shop-2-rear-lintel",
+      "min": [
+        -35.5,
+        38.07,
+        -74.09
+      ],
+      "max": [
+        -33,
+        51.37,
         -73.91
       ]
     },
@@ -38717,7 +38271,7 @@
       ],
       "max": [
         -40.92,
-        41.87,
+        51.37,
         -51
       ]
     },
@@ -38730,7 +38284,7 @@
       ],
       "max": [
         -24.92,
-        41.87,
+        51.37,
         -51
       ]
     },
@@ -38743,7 +38297,7 @@
       ],
       "max": [
         -34.7,
-        41.169999999999995,
+        50.669999999999995,
         -50.95
       ]
     },
@@ -38756,7 +38310,7 @@
       ],
       "max": [
         -34.690000000000005,
-        41.27,
+        50.77,
         -50.885
       ]
     },
@@ -38769,7 +38323,7 @@
       ],
       "max": [
         -25,
-        41.169999999999995,
+        50.669999999999995,
         -50.95
       ]
     },
@@ -38782,7 +38336,7 @@
       ],
       "max": [
         -31.21,
-        41.27,
+        50.77,
         -50.885
       ]
     },
@@ -38790,12 +38344,12 @@
       "id": "L6-shop-2-header",
       "min": [
         -41,
-        41.169999999999995,
+        50.669999999999995,
         -51.125
       ],
       "max": [
         -25,
-        41.87,
+        51.37,
         -50.875
       ]
     },
@@ -39138,15 +38692,80 @@
       ]
     },
     {
-      "id": "L6-shop-3-back",
+      "id": "L6-shop-2-kitchen-pass",
+      "min": [
+        -33.55,
+        35.37,
+        -67.55
+      ],
+      "max": [
+        -26.05,
+        36.46999999999999,
+        -66.45
+      ]
+    },
+    {
+      "id": "L6-shop-2-kitchen-prep",
+      "min": [
+        -31.5,
+        35.37,
+        -72.65
+      ],
+      "max": [
+        -26.5,
+        36.32999999999999,
+        -71.35
+      ]
+    },
+    {
+      "id": "L6-shop-2-kitchen-chiller",
+      "min": [
+        -40.35,
+        35.37,
+        -72.7
+      ],
+      "max": [
+        -38.65,
+        37.57,
+        -71.3
+      ]
+    },
+    {
+      "id": "L6-shop-3-rear-left",
       "min": [
         -20,
         35.37,
         -74.09
       ],
       "max": [
+        -14.5,
+        51.37,
+        -73.91
+      ]
+    },
+    {
+      "id": "L6-shop-3-rear-right",
+      "min": [
+        -12,
+        35.37,
+        -74.09
+      ],
+      "max": [
         -4,
-        41.87,
+        51.37,
+        -73.91
+      ]
+    },
+    {
+      "id": "L6-shop-3-rear-lintel",
+      "min": [
+        -14.5,
+        38.07,
+        -74.09
+      ],
+      "max": [
+        -12,
+        51.37,
         -73.91
       ]
     },
@@ -39159,7 +38778,7 @@
       ],
       "max": [
         -19.92,
-        41.87,
+        51.37,
         -51
       ]
     },
@@ -39172,7 +38791,7 @@
       ],
       "max": [
         -3.92,
-        41.87,
+        51.37,
         -51
       ]
     },
@@ -39185,7 +38804,7 @@
       ],
       "max": [
         -13.700000000000001,
-        41.169999999999995,
+        50.669999999999995,
         -50.95
       ]
     },
@@ -39198,7 +38817,7 @@
       ],
       "max": [
         -13.69,
-        41.27,
+        50.77,
         -50.885
       ]
     },
@@ -39211,7 +38830,7 @@
       ],
       "max": [
         -4,
-        41.169999999999995,
+        50.669999999999995,
         -50.95
       ]
     },
@@ -39224,7 +38843,7 @@
       ],
       "max": [
         -10.209999999999999,
-        41.27,
+        50.77,
         -50.885
       ]
     },
@@ -39232,12 +38851,12 @@
       "id": "L6-shop-3-header",
       "min": [
         -20,
-        41.169999999999995,
+        50.669999999999995,
         -51.125
       ],
       "max": [
         -4,
-        41.87,
+        51.37,
         -50.875
       ]
     },
@@ -39580,15 +39199,80 @@
       ]
     },
     {
-      "id": "L6-shop-4-back",
+      "id": "L6-shop-3-kitchen-pass",
+      "min": [
+        -12.55,
+        35.37,
+        -67.55
+      ],
+      "max": [
+        -5.050000000000001,
+        36.46999999999999,
+        -66.45
+      ]
+    },
+    {
+      "id": "L6-shop-3-kitchen-prep",
+      "min": [
+        -10.5,
+        35.37,
+        -72.65
+      ],
+      "max": [
+        -5.5,
+        36.32999999999999,
+        -71.35
+      ]
+    },
+    {
+      "id": "L6-shop-3-kitchen-chiller",
+      "min": [
+        -19.35,
+        35.37,
+        -72.7
+      ],
+      "max": [
+        -17.65,
+        37.57,
+        -71.3
+      ]
+    },
+    {
+      "id": "L6-shop-4-rear-left",
       "min": [
         38,
         35.37,
         -74.09
       ],
       "max": [
+        43.5,
+        51.37,
+        -73.91
+      ]
+    },
+    {
+      "id": "L6-shop-4-rear-right",
+      "min": [
+        46,
+        35.37,
+        -74.09
+      ],
+      "max": [
         54,
-        41.87,
+        51.37,
+        -73.91
+      ]
+    },
+    {
+      "id": "L6-shop-4-rear-lintel",
+      "min": [
+        43.5,
+        38.07,
+        -74.09
+      ],
+      "max": [
+        46,
+        51.37,
         -73.91
       ]
     },
@@ -39601,7 +39285,7 @@
       ],
       "max": [
         38.08,
-        41.87,
+        51.37,
         -51
       ]
     },
@@ -39614,7 +39298,7 @@
       ],
       "max": [
         54.08,
-        41.87,
+        51.37,
         -51
       ]
     },
@@ -39627,7 +39311,7 @@
       ],
       "max": [
         44.3,
-        41.169999999999995,
+        50.669999999999995,
         -50.95
       ]
     },
@@ -39640,7 +39324,7 @@
       ],
       "max": [
         44.309999999999995,
-        41.27,
+        50.77,
         -50.885
       ]
     },
@@ -39653,7 +39337,7 @@
       ],
       "max": [
         54,
-        41.169999999999995,
+        50.669999999999995,
         -50.95
       ]
     },
@@ -39666,7 +39350,7 @@
       ],
       "max": [
         47.79,
-        41.27,
+        50.77,
         -50.885
       ]
     },
@@ -39674,12 +39358,12 @@
       "id": "L6-shop-4-header",
       "min": [
         38,
-        41.169999999999995,
+        50.669999999999995,
         -51.125
       ],
       "max": [
         54,
-        41.87,
+        51.37,
         -50.875
       ]
     },
@@ -40022,6 +39706,45 @@
       ]
     },
     {
+      "id": "L6-shop-4-kitchen-pass",
+      "min": [
+        45.45,
+        35.37,
+        -67.55
+      ],
+      "max": [
+        52.95,
+        36.46999999999999,
+        -66.45
+      ]
+    },
+    {
+      "id": "L6-shop-4-kitchen-prep",
+      "min": [
+        47.5,
+        35.37,
+        -72.65
+      ],
+      "max": [
+        52.5,
+        36.32999999999999,
+        -71.35
+      ]
+    },
+    {
+      "id": "L6-shop-4-kitchen-chiller",
+      "min": [
+        38.65,
+        35.37,
+        -72.7
+      ],
+      "max": [
+        40.35,
+        37.57,
+        -71.3
+      ]
+    },
+    {
       "id": "L6-shop-5-back",
       "min": [
         59,
@@ -40030,7 +39753,7 @@
       ],
       "max": [
         75,
-        41.87,
+        51.37,
         -73.91
       ]
     },
@@ -40043,7 +39766,7 @@
       ],
       "max": [
         59.08,
-        41.87,
+        51.37,
         -51
       ]
     },
@@ -40056,7 +39779,7 @@
       ],
       "max": [
         75.08,
-        41.87,
+        51.37,
         -51
       ]
     },
@@ -40069,7 +39792,7 @@
       ],
       "max": [
         65.3,
-        41.169999999999995,
+        50.669999999999995,
         -50.95
       ]
     },
@@ -40082,7 +39805,7 @@
       ],
       "max": [
         65.31,
-        41.27,
+        50.77,
         -50.885
       ]
     },
@@ -40095,7 +39818,7 @@
       ],
       "max": [
         75,
-        41.169999999999995,
+        50.669999999999995,
         -50.95
       ]
     },
@@ -40108,7 +39831,7 @@
       ],
       "max": [
         68.78999999999999,
-        41.27,
+        50.77,
         -50.885
       ]
     },
@@ -40116,12 +39839,12 @@
       "id": "L6-shop-5-header",
       "min": [
         59,
-        41.169999999999995,
+        50.669999999999995,
         -51.125
       ],
       "max": [
         75,
-        41.87,
+        51.37,
         -50.875
       ]
     },
@@ -40464,15 +40187,41 @@
       ]
     },
     {
-      "id": "L6-shop-7-back",
+      "id": "L6-shop-7-rear-left",
+      "min": [
+        -93.5,
+        35.37,
+        73.91
+      ],
+      "max": [
+        -88,
+        51.37,
+        74.09
+      ]
+    },
+    {
+      "id": "L6-shop-7-rear-right",
       "min": [
         -104,
         35.37,
         73.91
       ],
       "max": [
-        -88,
-        41.87,
+        -96,
+        51.37,
+        74.09
+      ]
+    },
+    {
+      "id": "L6-shop-7-rear-lintel",
+      "min": [
+        -96,
+        38.07,
+        73.91
+      ],
+      "max": [
+        -93.5,
+        51.37,
         74.09
       ]
     },
@@ -40485,7 +40234,7 @@
       ],
       "max": [
         -87.92,
-        41.87,
+        51.37,
         74
       ]
     },
@@ -40498,7 +40247,7 @@
       ],
       "max": [
         -103.92,
-        41.87,
+        51.37,
         74
       ]
     },
@@ -40511,7 +40260,7 @@
       ],
       "max": [
         -88,
-        41.169999999999995,
+        50.669999999999995,
         51.05
       ]
     },
@@ -40524,7 +40273,7 @@
       ],
       "max": [
         -94.21000000000001,
-        41.27,
+        50.77,
         51.035000000000004
       ]
     },
@@ -40537,7 +40286,7 @@
       ],
       "max": [
         -97.69999999999999,
-        41.169999999999995,
+        50.669999999999995,
         51.05
       ]
     },
@@ -40550,7 +40299,7 @@
       ],
       "max": [
         -97.69,
-        41.27,
+        50.77,
         51.035000000000004
       ]
     },
@@ -40558,12 +40307,12 @@
       "id": "L6-shop-7-header",
       "min": [
         -104,
-        41.169999999999995,
+        50.669999999999995,
         50.875
       ],
       "max": [
         -88,
-        41.87,
+        51.37,
         51.125
       ]
     },
@@ -40906,15 +40655,80 @@
       ]
     },
     {
-      "id": "L6-shop-8-back",
+      "id": "L6-shop-7-kitchen-pass",
+      "min": [
+        -102.95,
+        35.37,
+        66.45
+      ],
+      "max": [
+        -95.45,
+        36.46999999999999,
+        67.55
+      ]
+    },
+    {
+      "id": "L6-shop-7-kitchen-prep",
+      "min": [
+        -102.5,
+        35.37,
+        71.35
+      ],
+      "max": [
+        -97.5,
+        36.32999999999999,
+        72.65
+      ]
+    },
+    {
+      "id": "L6-shop-7-kitchen-chiller",
+      "min": [
+        -90.35,
+        35.37,
+        71.3
+      ],
+      "max": [
+        -88.65,
+        37.57,
+        72.7
+      ]
+    },
+    {
+      "id": "L6-shop-8-rear-left",
+      "min": [
+        -51.5,
+        35.37,
+        73.91
+      ],
+      "max": [
+        -46,
+        51.37,
+        74.09
+      ]
+    },
+    {
+      "id": "L6-shop-8-rear-right",
       "min": [
         -62,
         35.37,
         73.91
       ],
       "max": [
-        -46,
-        41.87,
+        -54,
+        51.37,
+        74.09
+      ]
+    },
+    {
+      "id": "L6-shop-8-rear-lintel",
+      "min": [
+        -54,
+        38.07,
+        73.91
+      ],
+      "max": [
+        -51.5,
+        51.37,
         74.09
       ]
     },
@@ -40927,7 +40741,7 @@
       ],
       "max": [
         -45.92,
-        41.87,
+        51.37,
         74
       ]
     },
@@ -40940,7 +40754,7 @@
       ],
       "max": [
         -61.92,
-        41.87,
+        51.37,
         74
       ]
     },
@@ -40953,7 +40767,7 @@
       ],
       "max": [
         -46,
-        41.169999999999995,
+        50.669999999999995,
         51.05
       ]
     },
@@ -40966,7 +40780,7 @@
       ],
       "max": [
         -52.21,
-        41.27,
+        50.77,
         51.035000000000004
       ]
     },
@@ -40979,7 +40793,7 @@
       ],
       "max": [
         -55.7,
-        41.169999999999995,
+        50.669999999999995,
         51.05
       ]
     },
@@ -40992,7 +40806,7 @@
       ],
       "max": [
         -55.690000000000005,
-        41.27,
+        50.77,
         51.035000000000004
       ]
     },
@@ -41000,12 +40814,12 @@
       "id": "L6-shop-8-header",
       "min": [
         -62,
-        41.169999999999995,
+        50.669999999999995,
         50.875
       ],
       "max": [
         -46,
-        41.87,
+        51.37,
         51.125
       ]
     },
@@ -41348,6 +41162,45 @@
       ]
     },
     {
+      "id": "L6-shop-8-kitchen-pass",
+      "min": [
+        -60.95,
+        35.37,
+        66.45
+      ],
+      "max": [
+        -53.45,
+        36.46999999999999,
+        67.55
+      ]
+    },
+    {
+      "id": "L6-shop-8-kitchen-prep",
+      "min": [
+        -60.5,
+        35.37,
+        71.35
+      ],
+      "max": [
+        -55.5,
+        36.32999999999999,
+        72.65
+      ]
+    },
+    {
+      "id": "L6-shop-8-kitchen-chiller",
+      "min": [
+        -48.35,
+        35.37,
+        71.3
+      ],
+      "max": [
+        -46.65,
+        37.57,
+        72.7
+      ]
+    },
+    {
       "id": "L6-shop-9-back",
       "min": [
         -41,
@@ -41356,7 +41209,7 @@
       ],
       "max": [
         -25,
-        41.87,
+        51.37,
         74.09
       ]
     },
@@ -41369,7 +41222,7 @@
       ],
       "max": [
         -24.919999999999998,
-        41.87,
+        51.37,
         74
       ]
     },
@@ -41382,7 +41235,7 @@
       ],
       "max": [
         -40.92,
-        41.87,
+        51.37,
         74
       ]
     },
@@ -41395,7 +41248,7 @@
       ],
       "max": [
         -25,
-        41.169999999999995,
+        50.669999999999995,
         51.05
       ]
     },
@@ -41408,7 +41261,7 @@
       ],
       "max": [
         -31.21,
-        41.27,
+        50.77,
         51.035000000000004
       ]
     },
@@ -41421,7 +41274,7 @@
       ],
       "max": [
         -34.7,
-        41.169999999999995,
+        50.669999999999995,
         51.05
       ]
     },
@@ -41434,7 +41287,7 @@
       ],
       "max": [
         -34.690000000000005,
-        41.27,
+        50.77,
         51.035000000000004
       ]
     },
@@ -41442,12 +41295,12 @@
       "id": "L6-shop-9-header",
       "min": [
         -41,
-        41.169999999999995,
+        50.669999999999995,
         50.875
       ],
       "max": [
         -25,
-        41.87,
+        51.37,
         51.125
       ]
     },
@@ -41790,15 +41643,41 @@
       ]
     },
     {
-      "id": "L6-shop-10-back",
+      "id": "L6-shop-10-rear-left",
+      "min": [
+        -9.500000000000004,
+        35.37,
+        73.91
+      ],
+      "max": [
+        -4.000000000000003,
+        51.37,
+        74.09
+      ]
+    },
+    {
+      "id": "L6-shop-10-rear-right",
       "min": [
         -20.000000000000004,
         35.37,
         73.91
       ],
       "max": [
-        -4.0000000000000036,
-        41.87,
+        -12.000000000000004,
+        51.37,
+        74.09
+      ]
+    },
+    {
+      "id": "L6-shop-10-rear-lintel",
+      "min": [
+        -12.000000000000004,
+        38.07,
+        73.91
+      ],
+      "max": [
+        -9.500000000000004,
+        51.37,
         74.09
       ]
     },
@@ -41811,7 +41690,7 @@
       ],
       "max": [
         -3.9200000000000004,
-        41.87,
+        51.37,
         74
       ]
     },
@@ -41824,7 +41703,7 @@
       ],
       "max": [
         -19.919999999999998,
-        41.87,
+        51.37,
         74
       ]
     },
@@ -41837,7 +41716,7 @@
       ],
       "max": [
         -4,
-        41.169999999999995,
+        50.669999999999995,
         51.05
       ]
     },
@@ -41850,7 +41729,7 @@
       ],
       "max": [
         -10.209999999999999,
-        41.27,
+        50.77,
         51.035000000000004
       ]
     },
@@ -41863,7 +41742,7 @@
       ],
       "max": [
         -13.700000000000001,
-        41.169999999999995,
+        50.669999999999995,
         51.05
       ]
     },
@@ -41876,7 +41755,7 @@
       ],
       "max": [
         -13.69,
-        41.27,
+        50.77,
         51.035000000000004
       ]
     },
@@ -41884,12 +41763,12 @@
       "id": "L6-shop-10-header",
       "min": [
         -20,
-        41.169999999999995,
+        50.669999999999995,
         50.875
       ],
       "max": [
         -4,
-        41.87,
+        51.37,
         51.125
       ]
     },
@@ -42232,1333 +42111,59 @@
       ]
     },
     {
-      "id": "L6-shop-11-back",
+      "id": "L6-shop-10-kitchen-pass",
       "min": [
-        38,
+        -18.950000000000003,
         35.37,
-        73.91
+        66.45
       ],
       "max": [
-        54,
-        41.87,
-        74.09
+        -11.450000000000001,
+        36.46999999999999,
+        67.55
       ]
     },
     {
-      "id": "L6-shop-11-side-1",
+      "id": "L6-shop-10-kitchen-prep",
       "min": [
-        53.92,
+        -18.500000000000004,
         35.37,
-        51
+        71.35
       ],
       "max": [
-        54.08,
-        41.87,
-        74
+        -13.500000000000004,
+        36.32999999999999,
+        72.65
       ]
     },
     {
-      "id": "L6-shop-11-side1",
+      "id": "L6-shop-10-kitchen-chiller",
       "min": [
-        37.92,
+        -6.350000000000003,
         35.37,
-        51
+        71.3
       ],
       "max": [
-        38.08,
-        41.87,
-        74
+        -4.650000000000002,
+        37.57,
+        72.7
       ]
     },
     {
-      "id": "L6-shop-11-window-1",
+      "id": "L6-shop-14-rear-left",
       "min": [
-        47.7,
+        -93.09,
         35.37,
-        50.95
+        -17.5
       ],
       "max": [
-        54,
-        41.169999999999995,
-        51.05
+        -92.91,
+        51.37,
+        -12.000000000000002
       ]
     },
     {
-      "id": "L6-shop-11-jamb-1",
-      "min": [
-        47.690000000000005,
-        35.37,
-        50.885
-      ],
-      "max": [
-        47.79,
-        41.27,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L6-shop-11-window1",
-      "min": [
-        38,
-        35.37,
-        50.95
-      ],
-      "max": [
-        44.3,
-        41.169999999999995,
-        51.05
-      ]
-    },
-    {
-      "id": "L6-shop-11-jamb1",
-      "min": [
-        44.21,
-        35.37,
-        50.885
-      ],
-      "max": [
-        44.309999999999995,
-        41.27,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L6-shop-11-header",
-      "min": [
-        38,
-        41.169999999999995,
-        50.875
-      ],
-      "max": [
-        54,
-        41.87,
-        51.125
-      ]
-    },
-    {
-      "id": "L6-shop-11-display",
-      "min": [
-        48,
-        35.47,
-        57
-      ],
-      "max": [
-        52,
-        36.56999999999999,
-        59
-      ]
-    },
-    {
-      "id": "L6-shop-11-desk",
-      "min": [
-        40,
-        35.44,
-        66.3
-      ],
-      "max": [
-        44,
-        36.739999999999995,
-        67.7
-      ]
-    },
-    {
-      "id": "L6-shop-11-table--4--6",
-      "min": [
-        49,
-        36.10999999999999,
-        56
-      ],
-      "max": [
-        51,
-        36.23,
-        58
-      ]
-    },
-    {
-      "id": "L6-shop-11-leg--4--6",
-      "min": [
-        49.91,
-        35.37,
-        56.91
-      ],
-      "max": [
-        50.09,
-        36.169999999999995,
-        57.09
-      ]
-    },
-    {
-      "id": "L6-shop-11-seat--4--6--1.5",
-      "min": [
-        51.175,
-        35.76,
-        56.65
-      ],
-      "max": [
-        51.825,
-        35.919999999999995,
-        57.35
-      ]
-    },
-    {
-      "id": "L6-shop-11-seatback--4--6--1.5",
-      "min": [
-        51.175,
-        35.885,
-        56.63
-      ],
-      "max": [
-        51.825,
-        36.535000000000004,
-        56.77
-      ]
-    },
-    {
-      "id": "L6-shop-11-seat--4--6-1.5",
-      "min": [
-        48.175,
-        35.76,
-        56.65
-      ],
-      "max": [
-        48.825,
-        35.919999999999995,
-        57.35
-      ]
-    },
-    {
-      "id": "L6-shop-11-seatback--4--6-1.5",
-      "min": [
-        48.175,
-        35.885,
-        56.63
-      ],
-      "max": [
-        48.825,
-        36.535000000000004,
-        56.77
-      ]
-    },
-    {
-      "id": "L6-shop-11-table--4--12",
-      "min": [
-        49,
-        36.10999999999999,
-        62
-      ],
-      "max": [
-        51,
-        36.23,
-        64
-      ]
-    },
-    {
-      "id": "L6-shop-11-leg--4--12",
-      "min": [
-        49.91,
-        35.37,
-        62.91
-      ],
-      "max": [
-        50.09,
-        36.169999999999995,
-        63.09
-      ]
-    },
-    {
-      "id": "L6-shop-11-seat--4--12--1.5",
-      "min": [
-        51.175,
-        35.76,
-        62.65
-      ],
-      "max": [
-        51.825,
-        35.919999999999995,
-        63.35
-      ]
-    },
-    {
-      "id": "L6-shop-11-seatback--4--12--1.5",
-      "min": [
-        51.175,
-        35.885,
-        62.63
-      ],
-      "max": [
-        51.825,
-        36.535000000000004,
-        62.77
-      ]
-    },
-    {
-      "id": "L6-shop-11-seat--4--12-1.5",
-      "min": [
-        48.175,
-        35.76,
-        62.65
-      ],
-      "max": [
-        48.825,
-        35.919999999999995,
-        63.35
-      ]
-    },
-    {
-      "id": "L6-shop-11-seatback--4--12-1.5",
-      "min": [
-        48.175,
-        35.885,
-        62.63
-      ],
-      "max": [
-        48.825,
-        36.535000000000004,
-        62.77
-      ]
-    },
-    {
-      "id": "L6-shop-11-table-4--6",
-      "min": [
-        41,
-        36.10999999999999,
-        56
-      ],
-      "max": [
-        43,
-        36.23,
-        58
-      ]
-    },
-    {
-      "id": "L6-shop-11-leg-4--6",
-      "min": [
-        41.91,
-        35.37,
-        56.91
-      ],
-      "max": [
-        42.09,
-        36.169999999999995,
-        57.09
-      ]
-    },
-    {
-      "id": "L6-shop-11-seat-4--6--1.5",
-      "min": [
-        43.175,
-        35.76,
-        56.65
-      ],
-      "max": [
-        43.825,
-        35.919999999999995,
-        57.35
-      ]
-    },
-    {
-      "id": "L6-shop-11-seatback-4--6--1.5",
-      "min": [
-        43.175,
-        35.885,
-        56.63
-      ],
-      "max": [
-        43.825,
-        36.535000000000004,
-        56.77
-      ]
-    },
-    {
-      "id": "L6-shop-11-seat-4--6-1.5",
-      "min": [
-        40.175,
-        35.76,
-        56.65
-      ],
-      "max": [
-        40.825,
-        35.919999999999995,
-        57.35
-      ]
-    },
-    {
-      "id": "L6-shop-11-seatback-4--6-1.5",
-      "min": [
-        40.175,
-        35.885,
-        56.63
-      ],
-      "max": [
-        40.825,
-        36.535000000000004,
-        56.77
-      ]
-    },
-    {
-      "id": "L6-shop-11-table-4--12",
-      "min": [
-        41,
-        36.10999999999999,
-        62
-      ],
-      "max": [
-        43,
-        36.23,
-        64
-      ]
-    },
-    {
-      "id": "L6-shop-11-leg-4--12",
-      "min": [
-        41.91,
-        35.37,
-        62.91
-      ],
-      "max": [
-        42.09,
-        36.169999999999995,
-        63.09
-      ]
-    },
-    {
-      "id": "L6-shop-11-seat-4--12--1.5",
-      "min": [
-        43.175,
-        35.76,
-        62.65
-      ],
-      "max": [
-        43.825,
-        35.919999999999995,
-        63.35
-      ]
-    },
-    {
-      "id": "L6-shop-11-seatback-4--12--1.5",
-      "min": [
-        43.175,
-        35.885,
-        62.63
-      ],
-      "max": [
-        43.825,
-        36.535000000000004,
-        62.77
-      ]
-    },
-    {
-      "id": "L6-shop-11-seat-4--12-1.5",
-      "min": [
-        40.175,
-        35.76,
-        62.65
-      ],
-      "max": [
-        40.825,
-        35.919999999999995,
-        63.35
-      ]
-    },
-    {
-      "id": "L6-shop-11-seatback-4--12-1.5",
-      "min": [
-        40.175,
-        35.885,
-        62.63
-      ],
-      "max": [
-        40.825,
-        36.535000000000004,
-        62.77
-      ]
-    },
-    {
-      "id": "L6-shop-12-back",
-      "min": [
-        59,
-        35.37,
-        73.91
-      ],
-      "max": [
-        75,
-        41.87,
-        74.09
-      ]
-    },
-    {
-      "id": "L6-shop-12-side-1",
-      "min": [
-        74.92,
-        35.37,
-        51
-      ],
-      "max": [
-        75.08,
-        41.87,
-        74
-      ]
-    },
-    {
-      "id": "L6-shop-12-side1",
-      "min": [
-        58.92,
-        35.37,
-        51
-      ],
-      "max": [
-        59.08,
-        41.87,
-        74
-      ]
-    },
-    {
-      "id": "L6-shop-12-window-1",
-      "min": [
-        68.69999999999999,
-        35.37,
-        50.95
-      ],
-      "max": [
-        75,
-        41.169999999999995,
-        51.05
-      ]
-    },
-    {
-      "id": "L6-shop-12-jamb-1",
-      "min": [
-        68.69,
-        35.37,
-        50.885
-      ],
-      "max": [
-        68.78999999999999,
-        41.27,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L6-shop-12-window1",
-      "min": [
-        59,
-        35.37,
-        50.95
-      ],
-      "max": [
-        65.3,
-        41.169999999999995,
-        51.05
-      ]
-    },
-    {
-      "id": "L6-shop-12-jamb1",
-      "min": [
-        65.21000000000001,
-        35.37,
-        50.885
-      ],
-      "max": [
-        65.31,
-        41.27,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L6-shop-12-header",
-      "min": [
-        59,
-        41.169999999999995,
-        50.875
-      ],
-      "max": [
-        75,
-        41.87,
-        51.125
-      ]
-    },
-    {
-      "id": "L6-shop-12-display",
-      "min": [
-        69,
-        35.47,
-        57
-      ],
-      "max": [
-        73,
-        36.56999999999999,
-        59
-      ]
-    },
-    {
-      "id": "L6-shop-12-desk",
-      "min": [
-        61,
-        35.44,
-        66.3
-      ],
-      "max": [
-        65,
-        36.739999999999995,
-        67.7
-      ]
-    },
-    {
-      "id": "L6-shop-12-table--4--6",
-      "min": [
-        70,
-        36.10999999999999,
-        56
-      ],
-      "max": [
-        72,
-        36.23,
-        58
-      ]
-    },
-    {
-      "id": "L6-shop-12-leg--4--6",
-      "min": [
-        70.91,
-        35.37,
-        56.91
-      ],
-      "max": [
-        71.09,
-        36.169999999999995,
-        57.09
-      ]
-    },
-    {
-      "id": "L6-shop-12-seat--4--6--1.5",
-      "min": [
-        72.175,
-        35.76,
-        56.65
-      ],
-      "max": [
-        72.825,
-        35.919999999999995,
-        57.35
-      ]
-    },
-    {
-      "id": "L6-shop-12-seatback--4--6--1.5",
-      "min": [
-        72.175,
-        35.885,
-        56.63
-      ],
-      "max": [
-        72.825,
-        36.535000000000004,
-        56.77
-      ]
-    },
-    {
-      "id": "L6-shop-12-seat--4--6-1.5",
-      "min": [
-        69.175,
-        35.76,
-        56.65
-      ],
-      "max": [
-        69.825,
-        35.919999999999995,
-        57.35
-      ]
-    },
-    {
-      "id": "L6-shop-12-seatback--4--6-1.5",
-      "min": [
-        69.175,
-        35.885,
-        56.63
-      ],
-      "max": [
-        69.825,
-        36.535000000000004,
-        56.77
-      ]
-    },
-    {
-      "id": "L6-shop-12-table--4--12",
-      "min": [
-        70,
-        36.10999999999999,
-        62
-      ],
-      "max": [
-        72,
-        36.23,
-        64
-      ]
-    },
-    {
-      "id": "L6-shop-12-leg--4--12",
-      "min": [
-        70.91,
-        35.37,
-        62.91
-      ],
-      "max": [
-        71.09,
-        36.169999999999995,
-        63.09
-      ]
-    },
-    {
-      "id": "L6-shop-12-seat--4--12--1.5",
-      "min": [
-        72.175,
-        35.76,
-        62.65
-      ],
-      "max": [
-        72.825,
-        35.919999999999995,
-        63.35
-      ]
-    },
-    {
-      "id": "L6-shop-12-seatback--4--12--1.5",
-      "min": [
-        72.175,
-        35.885,
-        62.63
-      ],
-      "max": [
-        72.825,
-        36.535000000000004,
-        62.77
-      ]
-    },
-    {
-      "id": "L6-shop-12-seat--4--12-1.5",
-      "min": [
-        69.175,
-        35.76,
-        62.65
-      ],
-      "max": [
-        69.825,
-        35.919999999999995,
-        63.35
-      ]
-    },
-    {
-      "id": "L6-shop-12-seatback--4--12-1.5",
-      "min": [
-        69.175,
-        35.885,
-        62.63
-      ],
-      "max": [
-        69.825,
-        36.535000000000004,
-        62.77
-      ]
-    },
-    {
-      "id": "L6-shop-12-table-4--6",
-      "min": [
-        62,
-        36.10999999999999,
-        56
-      ],
-      "max": [
-        64,
-        36.23,
-        58
-      ]
-    },
-    {
-      "id": "L6-shop-12-leg-4--6",
-      "min": [
-        62.91,
-        35.37,
-        56.91
-      ],
-      "max": [
-        63.09,
-        36.169999999999995,
-        57.09
-      ]
-    },
-    {
-      "id": "L6-shop-12-seat-4--6--1.5",
-      "min": [
-        64.175,
-        35.76,
-        56.65
-      ],
-      "max": [
-        64.825,
-        35.919999999999995,
-        57.35
-      ]
-    },
-    {
-      "id": "L6-shop-12-seatback-4--6--1.5",
-      "min": [
-        64.175,
-        35.885,
-        56.63
-      ],
-      "max": [
-        64.825,
-        36.535000000000004,
-        56.77
-      ]
-    },
-    {
-      "id": "L6-shop-12-seat-4--6-1.5",
-      "min": [
-        61.175,
-        35.76,
-        56.65
-      ],
-      "max": [
-        61.825,
-        35.919999999999995,
-        57.35
-      ]
-    },
-    {
-      "id": "L6-shop-12-seatback-4--6-1.5",
-      "min": [
-        61.175,
-        35.885,
-        56.63
-      ],
-      "max": [
-        61.825,
-        36.535000000000004,
-        56.77
-      ]
-    },
-    {
-      "id": "L6-shop-12-table-4--12",
-      "min": [
-        62,
-        36.10999999999999,
-        62
-      ],
-      "max": [
-        64,
-        36.23,
-        64
-      ]
-    },
-    {
-      "id": "L6-shop-12-leg-4--12",
-      "min": [
-        62.91,
-        35.37,
-        62.91
-      ],
-      "max": [
-        63.09,
-        36.169999999999995,
-        63.09
-      ]
-    },
-    {
-      "id": "L6-shop-12-seat-4--12--1.5",
-      "min": [
-        64.175,
-        35.76,
-        62.65
-      ],
-      "max": [
-        64.825,
-        35.919999999999995,
-        63.35
-      ]
-    },
-    {
-      "id": "L6-shop-12-seatback-4--12--1.5",
-      "min": [
-        64.175,
-        35.885,
-        62.63
-      ],
-      "max": [
-        64.825,
-        36.535000000000004,
-        62.77
-      ]
-    },
-    {
-      "id": "L6-shop-12-seat-4--12-1.5",
-      "min": [
-        61.175,
-        35.76,
-        62.65
-      ],
-      "max": [
-        61.825,
-        35.919999999999995,
-        63.35
-      ]
-    },
-    {
-      "id": "L6-shop-12-seatback-4--12-1.5",
-      "min": [
-        61.175,
-        35.885,
-        62.63
-      ],
-      "max": [
-        61.825,
-        36.535000000000004,
-        62.77
-      ]
-    },
-    {
-      "id": "L6-shop-13-back",
-      "min": [
-        80,
-        35.37,
-        73.91
-      ],
-      "max": [
-        96,
-        41.87,
-        74.09
-      ]
-    },
-    {
-      "id": "L6-shop-13-side-1",
-      "min": [
-        95.92,
-        35.37,
-        51
-      ],
-      "max": [
-        96.08,
-        41.87,
-        74
-      ]
-    },
-    {
-      "id": "L6-shop-13-side1",
-      "min": [
-        79.92,
-        35.37,
-        51
-      ],
-      "max": [
-        80.08,
-        41.87,
-        74
-      ]
-    },
-    {
-      "id": "L6-shop-13-window-1",
-      "min": [
-        89.69999999999999,
-        35.37,
-        50.95
-      ],
-      "max": [
-        96,
-        41.169999999999995,
-        51.05
-      ]
-    },
-    {
-      "id": "L6-shop-13-jamb-1",
-      "min": [
-        89.69,
-        35.37,
-        50.885
-      ],
-      "max": [
-        89.78999999999999,
-        41.27,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L6-shop-13-window1",
-      "min": [
-        80,
-        35.37,
-        50.95
-      ],
-      "max": [
-        86.30000000000001,
-        41.169999999999995,
-        51.05
-      ]
-    },
-    {
-      "id": "L6-shop-13-jamb1",
-      "min": [
-        86.21000000000001,
-        35.37,
-        50.885
-      ],
-      "max": [
-        86.31,
-        41.27,
-        51.035000000000004
-      ]
-    },
-    {
-      "id": "L6-shop-13-header",
-      "min": [
-        80,
-        41.169999999999995,
-        50.875
-      ],
-      "max": [
-        96,
-        41.87,
-        51.125
-      ]
-    },
-    {
-      "id": "L6-shop-13-display",
-      "min": [
-        90,
-        35.47,
-        57
-      ],
-      "max": [
-        94,
-        36.56999999999999,
-        59
-      ]
-    },
-    {
-      "id": "L6-shop-13-desk",
-      "min": [
-        82,
-        35.44,
-        66.3
-      ],
-      "max": [
-        86,
-        36.739999999999995,
-        67.7
-      ]
-    },
-    {
-      "id": "L6-shop-13-table--4--6",
-      "min": [
-        91,
-        36.10999999999999,
-        56
-      ],
-      "max": [
-        93,
-        36.23,
-        58
-      ]
-    },
-    {
-      "id": "L6-shop-13-leg--4--6",
-      "min": [
-        91.91,
-        35.37,
-        56.91
-      ],
-      "max": [
-        92.09,
-        36.169999999999995,
-        57.09
-      ]
-    },
-    {
-      "id": "L6-shop-13-seat--4--6--1.5",
-      "min": [
-        93.175,
-        35.76,
-        56.65
-      ],
-      "max": [
-        93.825,
-        35.919999999999995,
-        57.35
-      ]
-    },
-    {
-      "id": "L6-shop-13-seatback--4--6--1.5",
-      "min": [
-        93.175,
-        35.885,
-        56.63
-      ],
-      "max": [
-        93.825,
-        36.535000000000004,
-        56.77
-      ]
-    },
-    {
-      "id": "L6-shop-13-seat--4--6-1.5",
-      "min": [
-        90.175,
-        35.76,
-        56.65
-      ],
-      "max": [
-        90.825,
-        35.919999999999995,
-        57.35
-      ]
-    },
-    {
-      "id": "L6-shop-13-seatback--4--6-1.5",
-      "min": [
-        90.175,
-        35.885,
-        56.63
-      ],
-      "max": [
-        90.825,
-        36.535000000000004,
-        56.77
-      ]
-    },
-    {
-      "id": "L6-shop-13-table--4--12",
-      "min": [
-        91,
-        36.10999999999999,
-        62
-      ],
-      "max": [
-        93,
-        36.23,
-        64
-      ]
-    },
-    {
-      "id": "L6-shop-13-leg--4--12",
-      "min": [
-        91.91,
-        35.37,
-        62.91
-      ],
-      "max": [
-        92.09,
-        36.169999999999995,
-        63.09
-      ]
-    },
-    {
-      "id": "L6-shop-13-seat--4--12--1.5",
-      "min": [
-        93.175,
-        35.76,
-        62.65
-      ],
-      "max": [
-        93.825,
-        35.919999999999995,
-        63.35
-      ]
-    },
-    {
-      "id": "L6-shop-13-seatback--4--12--1.5",
-      "min": [
-        93.175,
-        35.885,
-        62.63
-      ],
-      "max": [
-        93.825,
-        36.535000000000004,
-        62.77
-      ]
-    },
-    {
-      "id": "L6-shop-13-seat--4--12-1.5",
-      "min": [
-        90.175,
-        35.76,
-        62.65
-      ],
-      "max": [
-        90.825,
-        35.919999999999995,
-        63.35
-      ]
-    },
-    {
-      "id": "L6-shop-13-seatback--4--12-1.5",
-      "min": [
-        90.175,
-        35.885,
-        62.63
-      ],
-      "max": [
-        90.825,
-        36.535000000000004,
-        62.77
-      ]
-    },
-    {
-      "id": "L6-shop-13-table-4--6",
-      "min": [
-        83,
-        36.10999999999999,
-        56
-      ],
-      "max": [
-        85,
-        36.23,
-        58
-      ]
-    },
-    {
-      "id": "L6-shop-13-leg-4--6",
-      "min": [
-        83.91,
-        35.37,
-        56.91
-      ],
-      "max": [
-        84.09,
-        36.169999999999995,
-        57.09
-      ]
-    },
-    {
-      "id": "L6-shop-13-seat-4--6--1.5",
-      "min": [
-        85.175,
-        35.76,
-        56.65
-      ],
-      "max": [
-        85.825,
-        35.919999999999995,
-        57.35
-      ]
-    },
-    {
-      "id": "L6-shop-13-seatback-4--6--1.5",
-      "min": [
-        85.175,
-        35.885,
-        56.63
-      ],
-      "max": [
-        85.825,
-        36.535000000000004,
-        56.77
-      ]
-    },
-    {
-      "id": "L6-shop-13-seat-4--6-1.5",
-      "min": [
-        82.175,
-        35.76,
-        56.65
-      ],
-      "max": [
-        82.825,
-        35.919999999999995,
-        57.35
-      ]
-    },
-    {
-      "id": "L6-shop-13-seatback-4--6-1.5",
-      "min": [
-        82.175,
-        35.885,
-        56.63
-      ],
-      "max": [
-        82.825,
-        36.535000000000004,
-        56.77
-      ]
-    },
-    {
-      "id": "L6-shop-13-table-4--12",
-      "min": [
-        83,
-        36.10999999999999,
-        62
-      ],
-      "max": [
-        85,
-        36.23,
-        64
-      ]
-    },
-    {
-      "id": "L6-shop-13-leg-4--12",
-      "min": [
-        83.91,
-        35.37,
-        62.91
-      ],
-      "max": [
-        84.09,
-        36.169999999999995,
-        63.09
-      ]
-    },
-    {
-      "id": "L6-shop-13-seat-4--12--1.5",
-      "min": [
-        85.175,
-        35.76,
-        62.65
-      ],
-      "max": [
-        85.825,
-        35.919999999999995,
-        63.35
-      ]
-    },
-    {
-      "id": "L6-shop-13-seatback-4--12--1.5",
-      "min": [
-        85.175,
-        35.885,
-        62.63
-      ],
-      "max": [
-        85.825,
-        36.535000000000004,
-        62.77
-      ]
-    },
-    {
-      "id": "L6-shop-13-seat-4--12-1.5",
-      "min": [
-        82.175,
-        35.76,
-        62.65
-      ],
-      "max": [
-        82.825,
-        35.919999999999995,
-        63.35
-      ]
-    },
-    {
-      "id": "L6-shop-13-seatback-4--12-1.5",
-      "min": [
-        82.175,
-        35.885,
-        62.63
-      ],
-      "max": [
-        82.825,
-        36.535000000000004,
-        62.77
-      ]
-    },
-    {
-      "id": "L6-shop-14-back",
+      "id": "L6-shop-14-rear-right",
       "min": [
         -93.09,
         35.37,
@@ -43566,8 +42171,21 @@
       ],
       "max": [
         -92.91,
-        41.87,
-        -12
+        51.37,
+        -20
+      ]
+    },
+    {
+      "id": "L6-shop-14-rear-lintel",
+      "min": [
+        -93.09,
+        38.07,
+        -20
+      ],
+      "max": [
+        -92.91,
+        51.37,
+        -17.5
       ]
     },
     {
@@ -43579,7 +42197,7 @@
       ],
       "max": [
         -70,
-        41.87,
+        51.37,
         -11.92
       ]
     },
@@ -43592,7 +42210,7 @@
       ],
       "max": [
         -70,
-        41.87,
+        51.37,
         -27.919999999999998
       ]
     },
@@ -43605,7 +42223,7 @@
       ],
       "max": [
         -69.95,
-        41.169999999999995,
+        50.669999999999995,
         -12
       ]
     },
@@ -43618,7 +42236,7 @@
       ],
       "max": [
         -69.88499999999999,
-        41.27,
+        50.77,
         -18.21
       ]
     },
@@ -43631,7 +42249,7 @@
       ],
       "max": [
         -69.95,
-        41.169999999999995,
+        50.669999999999995,
         -21.700000000000003
       ]
     },
@@ -43644,7 +42262,7 @@
       ],
       "max": [
         -69.88499999999999,
-        41.27,
+        50.77,
         -21.689999999999998
       ]
     },
@@ -43652,12 +42270,12 @@
       "id": "L6-shop-14-header",
       "min": [
         -70.125,
-        41.169999999999995,
+        50.669999999999995,
         -28
       ],
       "max": [
         -69.875,
-        41.87,
+        51.37,
         -12
       ]
     },
@@ -44000,16 +42618,81 @@
       ]
     },
     {
-      "id": "L6-shop-15-back",
+      "id": "L6-shop-14-kitchen-pass",
+      "min": [
+        -86.55,
+        35.37,
+        -26.95
+      ],
+      "max": [
+        -85.45,
+        36.46999999999999,
+        -19.45
+      ]
+    },
+    {
+      "id": "L6-shop-14-kitchen-prep",
+      "min": [
+        -91.65,
+        35.37,
+        -26.5
+      ],
+      "max": [
+        -90.35,
+        36.32999999999999,
+        -21.5
+      ]
+    },
+    {
+      "id": "L6-shop-14-kitchen-chiller",
+      "min": [
+        -91.7,
+        35.37,
+        -14.350000000000001
+      ],
+      "max": [
+        -90.3,
+        37.57,
+        -12.650000000000002
+      ]
+    },
+    {
+      "id": "L6-shop-15-rear-left",
       "min": [
         -93.09,
         35.37,
-        12
+        22.5
       ],
       "max": [
         -92.91,
-        41.87,
+        51.37,
         28
+      ]
+    },
+    {
+      "id": "L6-shop-15-rear-right",
+      "min": [
+        -93.09,
+        35.37,
+        11.999999999999998
+      ],
+      "max": [
+        -92.91,
+        51.37,
+        20
+      ]
+    },
+    {
+      "id": "L6-shop-15-rear-lintel",
+      "min": [
+        -93.09,
+        38.07,
+        20
+      ],
+      "max": [
+        -92.91,
+        51.37,
+        22.5
       ]
     },
     {
@@ -44021,7 +42704,7 @@
       ],
       "max": [
         -70,
-        41.87,
+        51.37,
         28.080000000000002
       ]
     },
@@ -44034,7 +42717,7 @@
       ],
       "max": [
         -70,
-        41.87,
+        51.37,
         12.08
       ]
     },
@@ -44047,7 +42730,7 @@
       ],
       "max": [
         -69.95,
-        41.169999999999995,
+        50.669999999999995,
         28
       ]
     },
@@ -44060,7 +42743,7 @@
       ],
       "max": [
         -69.88499999999999,
-        41.27,
+        50.77,
         21.79
       ]
     },
@@ -44073,7 +42756,7 @@
       ],
       "max": [
         -69.95,
-        41.169999999999995,
+        50.669999999999995,
         18.3
       ]
     },
@@ -44086,7 +42769,7 @@
       ],
       "max": [
         -69.88499999999999,
-        41.27,
+        50.77,
         18.310000000000002
       ]
     },
@@ -44094,12 +42777,12 @@
       "id": "L6-shop-15-header",
       "min": [
         -70.125,
-        41.169999999999995,
+        50.669999999999995,
         12
       ],
       "max": [
         -69.875,
-        41.87,
+        51.37,
         28
       ]
     },
@@ -44442,7 +43125,46 @@
       ]
     },
     {
-      "id": "L6-shop-16-back",
+      "id": "L6-shop-15-kitchen-pass",
+      "min": [
+        -86.55,
+        35.37,
+        13.05
+      ],
+      "max": [
+        -85.45,
+        36.46999999999999,
+        20.55
+      ]
+    },
+    {
+      "id": "L6-shop-15-kitchen-prep",
+      "min": [
+        -91.65,
+        35.37,
+        13.499999999999998
+      ],
+      "max": [
+        -90.35,
+        36.32999999999999,
+        18.5
+      ]
+    },
+    {
+      "id": "L6-shop-15-kitchen-chiller",
+      "min": [
+        -91.7,
+        35.37,
+        25.65
+      ],
+      "max": [
+        -90.3,
+        37.57,
+        27.35
+      ]
+    },
+    {
+      "id": "L6-shop-16-rear-left",
       "min": [
         92.91,
         35.37,
@@ -44450,8 +43172,34 @@
       ],
       "max": [
         93.09,
-        41.87,
+        51.37,
+        -22.5
+      ]
+    },
+    {
+      "id": "L6-shop-16-rear-right",
+      "min": [
+        92.91,
+        35.37,
+        -20
+      ],
+      "max": [
+        93.09,
+        51.37,
         -12
+      ]
+    },
+    {
+      "id": "L6-shop-16-rear-lintel",
+      "min": [
+        92.91,
+        38.07,
+        -22.5
+      ],
+      "max": [
+        93.09,
+        51.37,
+        -20
       ]
     },
     {
@@ -44463,7 +43211,7 @@
       ],
       "max": [
         93,
-        41.87,
+        51.37,
         -27.919999999999998
       ]
     },
@@ -44476,7 +43224,7 @@
       ],
       "max": [
         93,
-        41.87,
+        51.37,
         -11.92
       ]
     },
@@ -44489,7 +43237,7 @@
       ],
       "max": [
         70.05,
-        41.169999999999995,
+        50.669999999999995,
         -21.700000000000003
       ]
     },
@@ -44502,7 +43250,7 @@
       ],
       "max": [
         70.035,
-        41.27,
+        50.77,
         -21.689999999999998
       ]
     },
@@ -44515,7 +43263,7 @@
       ],
       "max": [
         70.05,
-        41.169999999999995,
+        50.669999999999995,
         -12
       ]
     },
@@ -44528,7 +43276,7 @@
       ],
       "max": [
         70.035,
-        41.27,
+        50.77,
         -18.21
       ]
     },
@@ -44536,12 +43284,12 @@
       "id": "L6-shop-16-header",
       "min": [
         69.875,
-        41.169999999999995,
+        50.669999999999995,
         -28
       ],
       "max": [
         70.125,
-        41.87,
+        51.37,
         -12
       ]
     },
@@ -44884,16 +43632,81 @@
       ]
     },
     {
-      "id": "L6-shop-17-back",
+      "id": "L6-shop-16-kitchen-pass",
+      "min": [
+        85.45,
+        35.37,
+        -20.55
+      ],
+      "max": [
+        86.55,
+        36.46999999999999,
+        -13.05
+      ]
+    },
+    {
+      "id": "L6-shop-16-kitchen-prep",
+      "min": [
+        90.35,
+        35.37,
+        -18.5
+      ],
+      "max": [
+        91.65,
+        36.32999999999999,
+        -13.5
+      ]
+    },
+    {
+      "id": "L6-shop-16-kitchen-chiller",
+      "min": [
+        90.3,
+        35.37,
+        -27.35
+      ],
+      "max": [
+        91.7,
+        37.57,
+        -25.65
+      ]
+    },
+    {
+      "id": "L6-shop-17-rear-left",
       "min": [
         92.91,
         35.37,
-        12
+        11.999999999999998
       ],
       "max": [
         93.09,
-        41.87,
+        51.37,
+        17.5
+      ]
+    },
+    {
+      "id": "L6-shop-17-rear-right",
+      "min": [
+        92.91,
+        35.37,
+        20
+      ],
+      "max": [
+        93.09,
+        51.37,
         28
+      ]
+    },
+    {
+      "id": "L6-shop-17-rear-lintel",
+      "min": [
+        92.91,
+        38.07,
+        17.5
+      ],
+      "max": [
+        93.09,
+        51.37,
+        20
       ]
     },
     {
@@ -44905,7 +43718,7 @@
       ],
       "max": [
         93,
-        41.87,
+        51.37,
         12.08
       ]
     },
@@ -44918,7 +43731,7 @@
       ],
       "max": [
         93,
-        41.87,
+        51.37,
         28.080000000000002
       ]
     },
@@ -44931,7 +43744,7 @@
       ],
       "max": [
         70.05,
-        41.169999999999995,
+        50.669999999999995,
         18.3
       ]
     },
@@ -44944,7 +43757,7 @@
       ],
       "max": [
         70.035,
-        41.27,
+        50.77,
         18.310000000000002
       ]
     },
@@ -44957,7 +43770,7 @@
       ],
       "max": [
         70.05,
-        41.169999999999995,
+        50.669999999999995,
         28
       ]
     },
@@ -44970,7 +43783,7 @@
       ],
       "max": [
         70.035,
-        41.27,
+        50.77,
         21.79
       ]
     },
@@ -44978,12 +43791,12 @@
       "id": "L6-shop-17-header",
       "min": [
         69.875,
-        41.169999999999995,
+        50.669999999999995,
         12
       ],
       "max": [
         70.125,
-        41.87,
+        51.37,
         28
       ]
     },
@@ -45326,6 +44139,45 @@
       ]
     },
     {
+      "id": "L6-shop-17-kitchen-pass",
+      "min": [
+        85.45,
+        35.37,
+        19.45
+      ],
+      "max": [
+        86.55,
+        36.46999999999999,
+        26.95
+      ]
+    },
+    {
+      "id": "L6-shop-17-kitchen-prep",
+      "min": [
+        90.35,
+        35.37,
+        21.5
+      ],
+      "max": [
+        91.65,
+        36.32999999999999,
+        26.5
+      ]
+    },
+    {
+      "id": "L6-shop-17-kitchen-chiller",
+      "min": [
+        90.3,
+        35.37,
+        12.649999999999999
+      ],
+      "max": [
+        91.7,
+        37.57,
+        14.349999999999998
+      ]
+    },
+    {
       "id": "garden--27--19",
       "min": [
         -39.5,
@@ -45443,67 +44295,67 @@
       ]
     },
     {
-      "id": "roof-edge-z-89.5",
+      "id": "roof-edge-z-84.5",
       "min": [
-        -112,
-        42.77,
-        -89.575
+        -189.5,
+        52.37,
+        -84.575
       ],
       "max": [
-        112,
-        43.93,
-        -89.425
+        189.5,
+        53.529999999999994,
+        -84.425
       ]
     },
     {
-      "id": "roof-edge-z89.5",
+      "id": "roof-edge-z84.5",
       "min": [
-        -112,
-        42.77,
-        89.425
+        -189.5,
+        52.37,
+        84.425
       ],
       "max": [
-        112,
-        43.93,
-        89.575
+        189.5,
+        53.529999999999994,
+        84.575
       ]
     },
     {
-      "id": "roof-edge-x-112",
+      "id": "roof-edge-x-189.5",
       "min": [
-        -112.075,
-        42.77,
-        -89.5
+        -189.575,
+        52.37,
+        -84.5
       ],
       "max": [
-        -111.925,
-        43.93,
-        89.5
+        -189.425,
+        53.529999999999994,
+        84.5
       ]
     },
     {
-      "id": "roof-edge-x112",
+      "id": "roof-edge-x189.5",
       "min": [
-        111.925,
-        42.77,
-        -89.5
+        189.425,
+        52.37,
+        -84.5
       ],
       "max": [
-        112.075,
-        43.93,
-        89.5
+        189.575,
+        53.529999999999994,
+        84.5
       ]
     },
     {
       "id": "roof-planter--103--64",
       "min": [
         -106.5,
-        42.77,
+        52.37,
         -68.5
       ],
       "max": [
         -99.5,
-        43.63,
+        53.23,
         -59.5
       ]
     },
@@ -45511,12 +44363,12 @@
       "id": "roof-planter--103--20",
       "min": [
         -106.5,
-        42.77,
+        52.37,
         -24.5
       ],
       "max": [
         -99.5,
-        43.63,
+        53.23,
         -15.5
       ]
     },
@@ -45524,12 +44376,12 @@
       "id": "roof-planter--103-20",
       "min": [
         -106.5,
-        42.77,
+        52.37,
         15.5
       ],
       "max": [
         -99.5,
-        43.63,
+        53.23,
         24.5
       ]
     },
@@ -45537,12 +44389,12 @@
       "id": "roof-planter--103-64",
       "min": [
         -106.5,
-        42.77,
+        52.37,
         59.5
       ],
       "max": [
         -99.5,
-        43.63,
+        53.23,
         68.5
       ]
     },
@@ -45550,12 +44402,12 @@
       "id": "roof-planter-103--64",
       "min": [
         99.5,
-        42.77,
+        52.37,
         -68.5
       ],
       "max": [
         106.5,
-        43.63,
+        53.23,
         -59.5
       ]
     },
@@ -45563,12 +44415,12 @@
       "id": "roof-planter-103--20",
       "min": [
         99.5,
-        42.77,
+        52.37,
         -24.5
       ],
       "max": [
         106.5,
-        43.63,
+        53.23,
         -15.5
       ]
     },
@@ -45576,12 +44428,12 @@
       "id": "roof-planter-103-20",
       "min": [
         99.5,
-        42.77,
+        52.37,
         15.5
       ],
       "max": [
         106.5,
-        43.63,
+        53.23,
         24.5
       ]
     },
@@ -45589,12 +44441,12 @@
       "id": "roof-planter-103-64",
       "min": [
         99.5,
-        42.77,
+        52.37,
         59.5
       ],
       "max": [
         106.5,
-        43.63,
+        53.23,
         68.5
       ]
     },
@@ -45602,12 +44454,12 @@
       "id": "roof-bench--20--43",
       "min": [
         -23.5,
-        43.145,
+        52.745,
         -43.6
       ],
       "max": [
         -16.5,
-        43.395,
+        52.995,
         -42.4
       ]
     },
@@ -45615,12 +44467,12 @@
       "id": "roof-bench-0--43",
       "min": [
         -3.5,
-        43.145,
+        52.745,
         -43.6
       ],
       "max": [
         3.5,
-        43.395,
+        52.995,
         -42.4
       ]
     },
@@ -45628,12 +44480,12 @@
       "id": "roof-bench-45--43",
       "min": [
         41.5,
-        43.145,
+        52.745,
         -43.6
       ],
       "max": [
         48.5,
-        43.395,
+        52.995,
         -42.4
       ]
     },
@@ -45641,12 +44493,12 @@
       "id": "roof-bench--20-43",
       "min": [
         -23.5,
-        43.145,
+        52.745,
         42.4
       ],
       "max": [
         -16.5,
-        43.395,
+        52.995,
         43.6
       ]
     },
@@ -45654,12 +44506,12 @@
       "id": "roof-bench-0-43",
       "min": [
         -3.5,
-        43.145,
+        52.745,
         42.4
       ],
       "max": [
         3.5,
-        43.395,
+        52.995,
         43.6
       ]
     },
@@ -45667,12 +44519,12 @@
       "id": "roof-bench-45-43",
       "min": [
         41.5,
-        43.145,
+        52.745,
         42.4
       ],
       "max": [
         48.5,
-        43.395,
+        52.995,
         43.6
       ]
     },
@@ -45680,12 +44532,12 @@
       "id": "pergola--1--40",
       "min": [
         -40.075,
-        42.77,
+        52.37,
         -84.075
       ],
       "max": [
         -39.925,
-        45.970000000000006,
+        55.57,
         -83.925
       ]
     },
@@ -45693,12 +44545,12 @@
       "id": "pergola--1-40",
       "min": [
         39.925,
-        42.77,
+        52.37,
         -84.075
       ],
       "max": [
         40.075,
-        45.970000000000006,
+        55.57,
         -83.925
       ]
     },
@@ -45706,12 +44558,12 @@
       "id": "pergola-1--40",
       "min": [
         -40.075,
-        42.77,
+        52.37,
         83.925
       ],
       "max": [
         -39.925,
-        45.970000000000006,
+        55.57,
         84.075
       ]
     },
@@ -45719,12 +44571,12 @@
       "id": "pergola-1-40",
       "min": [
         39.925,
-        42.77,
+        52.37,
         83.925
       ],
       "max": [
         40.075,
-        45.970000000000006,
+        55.57,
         84.075
       ]
     },
@@ -45874,12 +44726,12 @@
     {
       "id": "service-yard-base",
       "min": [
-        127,
+        217,
         0,
         -48
       ],
       "max": [
-        190,
+        280,
         0.17,
         70
       ]
@@ -45887,12 +44739,12 @@
     {
       "id": "loading-dock--42",
       "min": [
-        129,
+        219,
         0.16999999999999993,
         -47.5
       ],
       "max": [
-        141,
+        231,
         1.27,
         -36.5
       ]
@@ -45900,12 +44752,12 @@
     {
       "id": "truck-cargo--42",
       "min": [
-        145,
+        235,
         0.40000000000000013,
         -43.4
       ],
       "max": [
-        155,
+        245,
         4.3,
         -40.6
       ]
@@ -45913,12 +44765,12 @@
     {
       "id": "truck-cab--42",
       "min": [
-        155.2,
+        245.2,
         0.28,
         -43.325
       ],
       "max": [
-        158.8,
+        248.8,
         2.88,
         -40.675
       ]
@@ -45926,12 +44778,12 @@
     {
       "id": "loading-dock--20",
       "min": [
-        129,
+        219,
         0.16999999999999993,
         -25.5
       ],
       "max": [
-        141,
+        231,
         1.27,
         -14.5
       ]
@@ -45939,12 +44791,12 @@
     {
       "id": "truck-cargo--20",
       "min": [
-        145,
+        235,
         0.40000000000000013,
         -21.4
       ],
       "max": [
-        155,
+        245,
         4.3,
         -18.6
       ]
@@ -45952,12 +44804,12 @@
     {
       "id": "truck-cab--20",
       "min": [
-        155.2,
+        245.2,
         0.28,
         -21.325
       ],
       "max": [
-        158.8,
+        248.8,
         2.88,
         -18.675
       ]
@@ -45965,12 +44817,12 @@
     {
       "id": "loading-dock-2",
       "min": [
-        129,
+        219,
         0.16999999999999993,
         -3.5
       ],
       "max": [
-        141,
+        231,
         1.27,
         7.5
       ]
@@ -45978,12 +44830,12 @@
     {
       "id": "truck-cargo-2",
       "min": [
-        145,
+        235,
         0.40000000000000013,
         0.6000000000000001
       ],
       "max": [
-        155,
+        245,
         4.3,
         3.4
       ]
@@ -45991,12 +44843,12 @@
     {
       "id": "truck-cab-2",
       "min": [
-        155.2,
+        245.2,
         0.28,
         0.675
       ],
       "max": [
-        158.8,
+        248.8,
         2.88,
         3.325
       ]
@@ -46004,12 +44856,12 @@
     {
       "id": "service-equipment--37",
       "min": [
-        181,
+        271,
         0.19999999999999996,
         -42
       ],
       "max": [
-        187,
+        277,
         3.4000000000000004,
         -32
       ]
@@ -46017,12 +44869,12 @@
     {
       "id": "service-equipment--15",
       "min": [
-        181,
+        271,
         0.19999999999999996,
         -20
       ],
       "max": [
-        187,
+        277,
         3.4000000000000004,
         -10
       ]
@@ -46030,14 +44882,40 @@
     {
       "id": "service-equipment-9",
       "min": [
-        181,
+        271,
         0.19999999999999996,
         4
       ],
       "max": [
-        187,
+        277,
         3.4000000000000004,
         14
+      ]
+    },
+    {
+      "id": "expanded-front-apron--190",
+      "min": [
+        -190,
+        0,
+        85
+      ],
+      "max": [
+        114,
+        0.16,
+        104
+      ]
+    },
+    {
+      "id": "expanded-front-apron-127",
+      "min": [
+        127,
+        0,
+        85
+      ],
+      "max": [
+        190,
+        0.16,
+        104
       ]
     },
     {
@@ -46045,12 +44923,12 @@
       "min": [
         -102.35,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         -101.65,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46058,12 +44936,12 @@
       "min": [
         -90.35,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         -89.65,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46071,12 +44949,12 @@
       "min": [
         -78.35,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         -77.65,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46084,12 +44962,12 @@
       "min": [
         -66.35,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         -65.65,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46097,12 +44975,12 @@
       "min": [
         -54.35,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         -53.65,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46110,12 +44988,12 @@
       "min": [
         -42.35,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         -41.65,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46123,12 +45001,12 @@
       "min": [
         -30.35,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         -29.65,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46136,12 +45014,12 @@
       "min": [
         -18.35,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         -17.65,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46149,12 +45027,12 @@
       "min": [
         17.65,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         18.35,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46162,12 +45040,12 @@
       "min": [
         29.65,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         30.35,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46175,12 +45053,12 @@
       "min": [
         41.65,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         42.35,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46188,12 +45066,12 @@
       "min": [
         53.65,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         54.35,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46201,12 +45079,12 @@
       "min": [
         65.65,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         66.35,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46214,12 +45092,12 @@
       "min": [
         77.65,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         78.35,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46227,12 +45105,12 @@
       "min": [
         89.65,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         90.35,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46240,12 +45118,12 @@
       "min": [
         101.65,
         0.1499999999999999,
-        -90.7
+        -85.7
       ],
       "max": [
         102.35,
         5.550000000000001,
-        -89.8
+        -84.8
       ]
     },
     {
@@ -46253,12 +45131,12 @@
       "min": [
         -102.35,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         -101.65,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46266,12 +45144,12 @@
       "min": [
         -90.35,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         -89.65,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46279,12 +45157,12 @@
       "min": [
         -78.35,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         -77.65,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46292,12 +45170,12 @@
       "min": [
         -66.35,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         -65.65,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46305,12 +45183,12 @@
       "min": [
         -54.35,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         -53.65,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46318,12 +45196,12 @@
       "min": [
         -42.35,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         -41.65,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46331,12 +45209,12 @@
       "min": [
         -30.35,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         -29.65,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46344,12 +45222,12 @@
       "min": [
         -18.35,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         -17.65,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46357,12 +45235,12 @@
       "min": [
         17.65,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         18.35,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46370,12 +45248,12 @@
       "min": [
         29.65,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         30.35,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46383,12 +45261,12 @@
       "min": [
         41.65,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         42.35,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46396,12 +45274,12 @@
       "min": [
         53.65,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         54.35,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46409,12 +45287,12 @@
       "min": [
         65.65,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         66.35,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46422,12 +45300,12 @@
       "min": [
         77.65,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         78.35,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46435,12 +45313,12 @@
       "min": [
         89.65,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         90.35,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46448,12 +45326,12 @@
       "min": [
         101.65,
         0.1499999999999999,
-        89.8
+        84.8
       ],
       "max": [
         102.35,
         5.550000000000001,
-        90.7
+        85.7
       ]
     },
     {
@@ -46708,12 +45586,12 @@
       "min": [
         -32.8,
         0.16999999999999998,
-        86.4
+        82.4
       ],
       "max": [
         -27.2,
         1.07,
-        87.6
+        83.6
       ]
     },
     {
@@ -46721,12 +45599,12 @@
       "min": [
         -56.8,
         0.16999999999999998,
-        86.4
+        82.4
       ],
       "max": [
         -51.2,
         1.07,
-        87.6
+        83.6
       ]
     },
     {
@@ -46734,12 +45612,12 @@
       "min": [
         -80.8,
         0.16999999999999998,
-        86.4
+        82.4
       ],
       "max": [
         -75.2,
         1.07,
-        87.6
+        83.6
       ]
     },
     {
@@ -46747,12 +45625,12 @@
       "min": [
         -104.8,
         0.16999999999999998,
-        86.4
+        82.4
       ],
       "max": [
         -99.2,
         1.07,
-        87.6
+        83.6
       ]
     },
     {
@@ -46760,12 +45638,12 @@
       "min": [
         27.2,
         0.16999999999999998,
-        86.4
+        82.4
       ],
       "max": [
         32.8,
         1.07,
-        87.6
+        83.6
       ]
     },
     {
@@ -46773,12 +45651,12 @@
       "min": [
         51.2,
         0.16999999999999998,
-        86.4
+        82.4
       ],
       "max": [
         56.8,
         1.07,
-        87.6
+        83.6
       ]
     },
     {
@@ -46786,12 +45664,12 @@
       "min": [
         75.2,
         0.16999999999999998,
-        86.4
+        82.4
       ],
       "max": [
         80.8,
         1.07,
-        87.6
+        83.6
       ]
     },
     {
@@ -46799,12 +45677,12 @@
       "min": [
         99.2,
         0.16999999999999998,
-        86.4
+        82.4
       ],
       "max": [
         104.8,
         1.07,
-        87.6
+        83.6
       ]
     },
     {
@@ -46858,14 +45736,287 @@
         3.8,
         98.15
       ]
+    },
+    {
+      "id": "service-bridge-L1",
+      "min": [
+        56,
+        -0.06999999999999998,
+        -93.6
+      ],
+      "max": [
+        64,
+        0.17,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-L1-56",
+      "min": [
+        55.91,
+        0.16999999999999993,
+        -93
+      ],
+      "max": [
+        56.09,
+        4.37,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-L1-64",
+      "min": [
+        63.91,
+        0.16999999999999993,
+        -93
+      ],
+      "max": [
+        64.09,
+        4.37,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-L2",
+      "min": [
+        56,
+        7.930000000000001,
+        -93.6
+      ],
+      "max": [
+        64,
+        8.17,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-L2-56",
+      "min": [
+        55.91,
+        8.17,
+        -93
+      ],
+      "max": [
+        56.09,
+        12.37,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-L2-64",
+      "min": [
+        63.91,
+        8.17,
+        -93
+      ],
+      "max": [
+        64.09,
+        12.37,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-L3",
+      "min": [
+        56,
+        14.730000000000002,
+        -93.6
+      ],
+      "max": [
+        64,
+        14.97,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-L3-56",
+      "min": [
+        55.91,
+        14.97,
+        -93
+      ],
+      "max": [
+        56.09,
+        19.17,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-L3-64",
+      "min": [
+        63.91,
+        14.97,
+        -93
+      ],
+      "max": [
+        64.09,
+        19.17,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-L4",
+      "min": [
+        56,
+        21.529999999999998,
+        -93.6
+      ],
+      "max": [
+        64,
+        21.77,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-L4-56",
+      "min": [
+        55.91,
+        21.77,
+        -93
+      ],
+      "max": [
+        56.09,
+        25.970000000000002,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-L4-64",
+      "min": [
+        63.91,
+        21.77,
+        -93
+      ],
+      "max": [
+        64.09,
+        25.970000000000002,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-L5",
+      "min": [
+        56,
+        28.33,
+        -93.6
+      ],
+      "max": [
+        64,
+        28.57,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-L5-56",
+      "min": [
+        55.91,
+        28.57,
+        -93
+      ],
+      "max": [
+        56.09,
+        32.77,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-L5-64",
+      "min": [
+        63.91,
+        28.57,
+        -93
+      ],
+      "max": [
+        64.09,
+        32.77,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-L6",
+      "min": [
+        56,
+        35.13,
+        -93.6
+      ],
+      "max": [
+        64,
+        35.37,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-L6-56",
+      "min": [
+        55.91,
+        35.37,
+        -93
+      ],
+      "max": [
+        56.09,
+        39.57,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-L6-64",
+      "min": [
+        63.91,
+        35.37,
+        -93
+      ],
+      "max": [
+        64.09,
+        39.57,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-ROOF",
+      "min": [
+        56,
+        52.13,
+        -93.6
+      ],
+      "max": [
+        64,
+        52.37,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-ROOF-56",
+      "min": [
+        55.91,
+        52.37,
+        -93
+      ],
+      "max": [
+        56.09,
+        56.57,
+        -85
+      ]
+    },
+    {
+      "id": "service-bridge-wall-ROOF-64",
+      "min": [
+        63.91,
+        52.37,
+        -93
+      ],
+      "max": [
+        64.09,
+        56.57,
+        -85
+      ]
     }
   ],
   "surfaces": [
     {
       "id": "L1-plate-0",
       "min": [
-        -112.5,
-        -90
+        -190,
+        -85
       ],
       "max": [
         -82,
@@ -46878,7 +46029,7 @@
       "id": "L1-plate-1",
       "min": [
         -70,
-        -90
+        -85
       ],
       "max": [
         18,
@@ -46891,10 +46042,10 @@
       "id": "L1-plate-2",
       "min": [
         30,
-        -90
+        -85
       ],
       "max": [
-        112.5,
+        190,
         -35
       ],
       "y": 0.17,
@@ -46904,7 +46055,7 @@
       "id": "L1-plate-3",
       "min": [
         18,
-        -90
+        -85
       ],
       "max": [
         30,
@@ -46930,7 +46081,7 @@
       "id": "L1-plate-5",
       "min": [
         -82,
-        -90
+        -85
       ],
       "max": [
         -70,
@@ -46955,12 +46106,12 @@
     {
       "id": "L1-plate-7",
       "min": [
-        -112.5,
+        -190,
         35
       ],
       "max": [
         -82,
-        90
+        85
       ],
       "y": 0.17,
       "level": "L1"
@@ -46973,7 +46124,7 @@
       ],
       "max": [
         18,
-        90
+        85
       ],
       "y": 0.17,
       "level": "L1"
@@ -46985,8 +46136,8 @@
         35
       ],
       "max": [
-        112.5,
-        90
+        114,
+        85
       ],
       "y": 0.17,
       "level": "L1"
@@ -46994,12 +46145,12 @@
     {
       "id": "L1-plate-10",
       "min": [
-        18,
+        127,
         35
       ],
       "max": [
-        30,
-        60.5
+        190,
+        85
       ],
       "y": 0.17,
       "level": "L1"
@@ -47007,12 +46158,12 @@
     {
       "id": "L1-plate-11",
       "min": [
-        18,
-        65.5
+        114,
+        35
       ],
       "max": [
-        30,
-        90
+        127,
+        59.5
       ],
       "y": 0.17,
       "level": "L1"
@@ -47020,11 +46171,11 @@
     {
       "id": "L1-plate-12",
       "min": [
-        -82,
+        18,
         35
       ],
       "max": [
-        -70,
+        30,
         60.5
       ],
       "y": 0.17,
@@ -47033,12 +46184,12 @@
     {
       "id": "L1-plate-13",
       "min": [
-        -82,
+        18,
         65.5
       ],
       "max": [
-        -70,
-        90
+        30,
+        85
       ],
       "y": 0.17,
       "level": "L1"
@@ -47046,7 +46197,33 @@
     {
       "id": "L1-plate-14",
       "min": [
-        -112.5,
+        -82,
+        35
+      ],
+      "max": [
+        -70,
+        60.5
+      ],
+      "y": 0.17,
+      "level": "L1"
+    },
+    {
+      "id": "L1-plate-15",
+      "min": [
+        -82,
+        65.5
+      ],
+      "max": [
+        -70,
+        85
+      ],
+      "y": 0.17,
+      "level": "L1"
+    },
+    {
+      "id": "L1-plate-16",
+      "min": [
+        -190,
         -35
       ],
       "max": [
@@ -47057,13 +46234,13 @@
       "level": "L1"
     },
     {
-      "id": "L1-plate-15",
+      "id": "L1-plate-17",
       "min": [
         45,
         -35
       ],
       "max": [
-        112.5,
+        190,
         35
       ],
       "y": 0.17,
@@ -47072,8 +46249,8 @@
     {
       "id": "L2-plate-0",
       "min": [
-        -112.5,
-        -90
+        -190,
+        -85
       ],
       "max": [
         -82,
@@ -47086,7 +46263,7 @@
       "id": "L2-plate-1",
       "min": [
         -70,
-        -90
+        -85
       ],
       "max": [
         18,
@@ -47099,10 +46276,10 @@
       "id": "L2-plate-2",
       "min": [
         30,
-        -90
+        -85
       ],
       "max": [
-        112.5,
+        190,
         -35
       ],
       "y": 8.17,
@@ -47112,7 +46289,7 @@
       "id": "L2-plate-3",
       "min": [
         18,
-        -90
+        -85
       ],
       "max": [
         30,
@@ -47138,7 +46315,7 @@
       "id": "L2-plate-5",
       "min": [
         -82,
-        -90
+        -85
       ],
       "max": [
         -70,
@@ -47163,12 +46340,12 @@
     {
       "id": "L2-plate-7",
       "min": [
-        -112.5,
+        -190,
         35
       ],
       "max": [
         -82,
-        90
+        85
       ],
       "y": 8.17,
       "level": "L2"
@@ -47181,7 +46358,7 @@
       ],
       "max": [
         -60.7,
-        90
+        85
       ],
       "y": 8.17,
       "level": "L2"
@@ -47194,7 +46371,7 @@
       ],
       "max": [
         -50.96,
-        90
+        85
       ],
       "y": 8.17,
       "level": "L2"
@@ -47207,7 +46384,7 @@
       ],
       "max": [
         18,
-        90
+        85
       ],
       "y": 8.17,
       "level": "L2"
@@ -47233,7 +46410,7 @@
       ],
       "max": [
         -48.04,
-        90
+        85
       ],
       "y": 8.17,
       "level": "L2"
@@ -47259,7 +46436,7 @@
       ],
       "max": [
         -57.3,
-        90
+        85
       ],
       "y": 8.17,
       "level": "L2"
@@ -47271,8 +46448,8 @@
         35
       ],
       "max": [
-        112.5,
-        90
+        190,
+        85
       ],
       "y": 8.17,
       "level": "L2"
@@ -47298,7 +46475,7 @@
       ],
       "max": [
         30,
-        90
+        85
       ],
       "y": 8.17,
       "level": "L2"
@@ -47324,7 +46501,7 @@
       ],
       "max": [
         -70,
-        90
+        85
       ],
       "y": 8.17,
       "level": "L2"
@@ -47332,7 +46509,7 @@
     {
       "id": "L2-plate-20",
       "min": [
-        -112.5,
+        -190,
         -35
       ],
       "max": [
@@ -47362,7 +46539,7 @@
         -35
       ],
       "max": [
-        112.5,
+        190,
         35
       ],
       "y": 8.17,
@@ -47397,8 +46574,8 @@
     {
       "id": "L3-plate-0",
       "min": [
-        -112.5,
-        -90
+        -190,
+        -85
       ],
       "max": [
         -82,
@@ -47411,7 +46588,7 @@
       "id": "L3-plate-1",
       "min": [
         -70,
-        -90
+        -85
       ],
       "max": [
         18,
@@ -47424,10 +46601,10 @@
       "id": "L3-plate-2",
       "min": [
         30,
-        -90
+        -85
       ],
       "max": [
-        112.5,
+        190,
         -35
       ],
       "y": 14.97,
@@ -47437,7 +46614,7 @@
       "id": "L3-plate-3",
       "min": [
         18,
-        -90
+        -85
       ],
       "max": [
         30,
@@ -47463,7 +46640,7 @@
       "id": "L3-plate-5",
       "min": [
         -82,
-        -90
+        -85
       ],
       "max": [
         -70,
@@ -47488,12 +46665,12 @@
     {
       "id": "L3-plate-7",
       "min": [
-        -112.5,
+        -190,
         35
       ],
       "max": [
         -82,
-        90
+        85
       ],
       "y": 14.97,
       "level": "L3"
@@ -47506,7 +46683,7 @@
       ],
       "max": [
         18,
-        90
+        85
       ],
       "y": 14.97,
       "level": "L3"
@@ -47518,8 +46695,8 @@
         35
       ],
       "max": [
-        112.5,
-        90
+        190,
+        85
       ],
       "y": 14.97,
       "level": "L3"
@@ -47545,7 +46722,7 @@
       ],
       "max": [
         30,
-        90
+        85
       ],
       "y": 14.97,
       "level": "L3"
@@ -47571,7 +46748,7 @@
       ],
       "max": [
         -70,
-        90
+        85
       ],
       "y": 14.97,
       "level": "L3"
@@ -47579,7 +46756,7 @@
     {
       "id": "L3-plate-14",
       "min": [
-        -112.5,
+        -190,
         -35
       ],
       "max": [
@@ -47609,7 +46786,7 @@
         -35
       ],
       "max": [
-        112.5,
+        190,
         35
       ],
       "y": 14.97,
@@ -47644,8 +46821,8 @@
     {
       "id": "L4-plate-0",
       "min": [
-        -112.5,
-        -90
+        -190,
+        -85
       ],
       "max": [
         -82,
@@ -47658,7 +46835,7 @@
       "id": "L4-plate-1",
       "min": [
         -70,
-        -90
+        -85
       ],
       "max": [
         18,
@@ -47671,10 +46848,10 @@
       "id": "L4-plate-2",
       "min": [
         30,
-        -90
+        -85
       ],
       "max": [
-        112.5,
+        190,
         -35
       ],
       "y": 21.77,
@@ -47684,7 +46861,7 @@
       "id": "L4-plate-3",
       "min": [
         18,
-        -90
+        -85
       ],
       "max": [
         30,
@@ -47710,7 +46887,7 @@
       "id": "L4-plate-5",
       "min": [
         -82,
-        -90
+        -85
       ],
       "max": [
         -70,
@@ -47735,12 +46912,12 @@
     {
       "id": "L4-plate-7",
       "min": [
-        -112.5,
+        -190,
         35
       ],
       "max": [
         -82,
-        90
+        85
       ],
       "y": 21.77,
       "level": "L4"
@@ -47753,7 +46930,7 @@
       ],
       "max": [
         18,
-        90
+        85
       ],
       "y": 21.77,
       "level": "L4"
@@ -47765,8 +46942,8 @@
         35
       ],
       "max": [
-        112.5,
-        90
+        190,
+        85
       ],
       "y": 21.77,
       "level": "L4"
@@ -47792,7 +46969,7 @@
       ],
       "max": [
         30,
-        90
+        85
       ],
       "y": 21.77,
       "level": "L4"
@@ -47818,7 +46995,7 @@
       ],
       "max": [
         -70,
-        90
+        85
       ],
       "y": 21.77,
       "level": "L4"
@@ -47826,7 +47003,7 @@
     {
       "id": "L4-plate-14",
       "min": [
-        -112.5,
+        -190,
         -35
       ],
       "max": [
@@ -47856,7 +47033,7 @@
         -35
       ],
       "max": [
-        112.5,
+        190,
         35
       ],
       "y": 21.77,
@@ -47891,8 +47068,8 @@
     {
       "id": "L5-plate-0",
       "min": [
-        -112.5,
-        -90
+        -190,
+        -85
       ],
       "max": [
         -82,
@@ -47905,7 +47082,7 @@
       "id": "L5-plate-1",
       "min": [
         -70,
-        -90
+        -85
       ],
       "max": [
         18,
@@ -47918,10 +47095,10 @@
       "id": "L5-plate-2",
       "min": [
         30,
-        -90
+        -85
       ],
       "max": [
-        112.5,
+        190,
         -35
       ],
       "y": 28.57,
@@ -47931,7 +47108,7 @@
       "id": "L5-plate-3",
       "min": [
         18,
-        -90
+        -85
       ],
       "max": [
         30,
@@ -47957,7 +47134,7 @@
       "id": "L5-plate-5",
       "min": [
         -82,
-        -90
+        -85
       ],
       "max": [
         -70,
@@ -47982,12 +47159,12 @@
     {
       "id": "L5-plate-7",
       "min": [
-        -112.5,
+        -190,
         35
       ],
       "max": [
         -82,
-        90
+        85
       ],
       "y": 28.57,
       "level": "L5"
@@ -48000,7 +47177,7 @@
       ],
       "max": [
         18,
-        90
+        85
       ],
       "y": 28.57,
       "level": "L5"
@@ -48012,8 +47189,8 @@
         35
       ],
       "max": [
-        112.5,
-        90
+        190,
+        85
       ],
       "y": 28.57,
       "level": "L5"
@@ -48039,7 +47216,7 @@
       ],
       "max": [
         30,
-        90
+        85
       ],
       "y": 28.57,
       "level": "L5"
@@ -48065,7 +47242,7 @@
       ],
       "max": [
         -70,
-        90
+        85
       ],
       "y": 28.57,
       "level": "L5"
@@ -48073,7 +47250,7 @@
     {
       "id": "L5-plate-14",
       "min": [
-        -112.5,
+        -190,
         -35
       ],
       "max": [
@@ -48103,7 +47280,7 @@
         -35
       ],
       "max": [
-        112.5,
+        190,
         35
       ],
       "y": 28.57,
@@ -48138,8 +47315,8 @@
     {
       "id": "L6-plate-0",
       "min": [
-        -112.5,
-        -90
+        -190,
+        -85
       ],
       "max": [
         -82,
@@ -48152,7 +47329,7 @@
       "id": "L6-plate-1",
       "min": [
         -70,
-        -90
+        -85
       ],
       "max": [
         18,
@@ -48165,10 +47342,10 @@
       "id": "L6-plate-2",
       "min": [
         30,
-        -90
+        -85
       ],
       "max": [
-        112.5,
+        190,
         -35
       ],
       "y": 35.37,
@@ -48178,7 +47355,7 @@
       "id": "L6-plate-3",
       "min": [
         18,
-        -90
+        -85
       ],
       "max": [
         30,
@@ -48204,7 +47381,7 @@
       "id": "L6-plate-5",
       "min": [
         -82,
-        -90
+        -85
       ],
       "max": [
         -70,
@@ -48229,12 +47406,12 @@
     {
       "id": "L6-plate-7",
       "min": [
-        -112.5,
+        -190,
         35
       ],
       "max": [
         -82,
-        90
+        85
       ],
       "y": 35.37,
       "level": "L6"
@@ -48247,7 +47424,7 @@
       ],
       "max": [
         18,
-        90
+        85
       ],
       "y": 35.37,
       "level": "L6"
@@ -48259,8 +47436,8 @@
         35
       ],
       "max": [
-        112.5,
-        90
+        190,
+        85
       ],
       "y": 35.37,
       "level": "L6"
@@ -48286,7 +47463,7 @@
       ],
       "max": [
         30,
-        90
+        85
       ],
       "y": 35.37,
       "level": "L6"
@@ -48312,7 +47489,7 @@
       ],
       "max": [
         -70,
-        90
+        85
       ],
       "y": 35.37,
       "level": "L6"
@@ -48320,7 +47497,7 @@
     {
       "id": "L6-plate-14",
       "min": [
-        -112.5,
+        -190,
         -35
       ],
       "max": [
@@ -48350,7 +47527,7 @@
         -35
       ],
       "max": [
-        112.5,
+        190,
         35
       ],
       "y": 35.37,
@@ -48385,53 +47562,53 @@
     {
       "id": "ROOF-plate-0",
       "min": [
-        -112.5,
-        -90
+        -190,
+        -85
       ],
       "max": [
         -82,
         -35
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
       "id": "ROOF-plate-1",
       "min": [
         -70,
-        -90
+        -85
       ],
       "max": [
         18,
         -35
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
       "id": "ROOF-plate-2",
       "min": [
         30,
-        -90
+        -85
       ],
       "max": [
-        112.5,
+        190,
         -35
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
       "id": "ROOF-plate-3",
       "min": [
         18,
-        -90
+        -85
       ],
       "max": [
         30,
         -81
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
@@ -48444,20 +47621,20 @@
         30,
         -35
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
       "id": "ROOF-plate-5",
       "min": [
         -82,
-        -90
+        -85
       ],
       "max": [
         -70,
         -81
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
@@ -48470,20 +47647,20 @@
         -70,
         -35
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
       "id": "ROOF-plate-7",
       "min": [
-        -112.5,
+        -190,
         35
       ],
       "max": [
         -82,
-        90
+        85
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
@@ -48494,9 +47671,9 @@
       ],
       "max": [
         18,
-        90
+        85
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
@@ -48506,10 +47683,10 @@
         35
       ],
       "max": [
-        112.5,
-        90
+        190,
+        85
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
@@ -48522,7 +47699,7 @@
         30,
         60.5
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
@@ -48533,9 +47710,9 @@
       ],
       "max": [
         30,
-        90
+        85
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
@@ -48548,7 +47725,7 @@
         -70,
         60.5
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
@@ -48559,22 +47736,22 @@
       ],
       "max": [
         -70,
-        90
+        85
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
       "id": "ROOF-plate-14",
       "min": [
-        -112.5,
+        -190,
         -35
       ],
       "max": [
         -45,
         35
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
@@ -48584,10 +47761,10 @@
         -35
       ],
       "max": [
-        112.5,
+        190,
         35
       ],
-      "y": 42.77,
+      "y": 52.37,
       "level": "ROOF"
     },
     {
@@ -48866,14 +48043,38 @@
     {
       "id": "service-yard",
       "min": [
-        127,
+        217,
         -48
       ],
       "max": [
-        190,
+        280,
         70
       ],
       "y": 0.17
+    },
+    {
+      "id": "expanded-front-apron--190",
+      "min": [
+        -190,
+        85
+      ],
+      "max": [
+        114,
+        104
+      ],
+      "y": 0.16
+    },
+    {
+      "id": "expanded-front-apron-127",
+      "min": [
+        127,
+        85
+      ],
+      "max": [
+        190,
+        104
+      ],
+      "y": 0.16
     },
     {
       "id": "front-forecourt",
@@ -48886,6 +48087,97 @@
         104
       ],
       "y": 0.16
+    },
+    {
+      "id": "service-bridge-L1",
+      "min": [
+        56,
+        -93.6
+      ],
+      "max": [
+        64,
+        -85
+      ],
+      "y": 0.17,
+      "level": "L1"
+    },
+    {
+      "id": "service-bridge-L2",
+      "min": [
+        56,
+        -93.6
+      ],
+      "max": [
+        64,
+        -85
+      ],
+      "y": 8.17,
+      "level": "L2"
+    },
+    {
+      "id": "service-bridge-L3",
+      "min": [
+        56,
+        -93.6
+      ],
+      "max": [
+        64,
+        -85
+      ],
+      "y": 14.97,
+      "level": "L3"
+    },
+    {
+      "id": "service-bridge-L4",
+      "min": [
+        56,
+        -93.6
+      ],
+      "max": [
+        64,
+        -85
+      ],
+      "y": 21.77,
+      "level": "L4"
+    },
+    {
+      "id": "service-bridge-L5",
+      "min": [
+        56,
+        -93.6
+      ],
+      "max": [
+        64,
+        -85
+      ],
+      "y": 28.57,
+      "level": "L5"
+    },
+    {
+      "id": "service-bridge-L6",
+      "min": [
+        56,
+        -93.6
+      ],
+      "max": [
+        64,
+        -85
+      ],
+      "y": 35.37,
+      "level": "L6"
+    },
+    {
+      "id": "service-bridge-ROOF",
+      "min": [
+        56,
+        -93.6
+      ],
+      "max": [
+        64,
+        -85
+      ],
+      "y": 52.37,
+      "level": "ROOF"
     }
   ],
   "parking": {
@@ -48894,11 +48186,11 @@
     "truckLoadingBays": 3,
     "serviceYard": {
       "min": [
-        127,
+        217,
         -48
       ],
       "max": [
-        190,
+        280,
         70
       ]
     },
@@ -48922,20 +48214,20 @@
     [
       0,
       0.17,
-      90
+      85
     ],
     [
       0,
       0.17,
-      -90
+      -85
     ],
     [
-      -112.5,
+      -190,
       0.17,
       0
     ],
     [
-      112.5,
+      190,
       0.17,
       0
     ]

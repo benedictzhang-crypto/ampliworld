@@ -5,7 +5,7 @@ import {districtGroundHeight} from '../app/district/registry.ts';
 const read=p=>JSON.parse(readFileSync(new URL('../public/assets/3d/ampliworld/'+p,import.meta.url),'utf8'));
 const mall=read('GC-MALL-002/mall-manifest.json'),garage=read('GC-MALL-GARAGE-002/garage-manifest.json');
 assert.equal(mall.shops.length,108);assert.equal(mall.parking.bays,0);assert.equal(mall.parking.truckLoadingBays,3);
-const cars=createMallLifts();assert.equal(cars.length,17);
+const cars=createMallLifts();assert.equal(cars.length,18);
 for(const c of cars){
  for(const level of c.levels){
   assert.ok(requestMallLift(c,level.y));
@@ -31,4 +31,4 @@ for(const level of garage.levels)assert.equal(new Set(garage.bays.filter(b=>b.le
 assert.ok(LIFT_STATIC_SOLIDS.length>0);
 const privateCab=cars.find(c=>c.id==='GUCCI');
 assert.equal(requestMallLift(privateCab,11.28),false,'Private cab cannot go to a floor without a shaft');
-console.log(JSON.stringify({status:'passed',publicElevators:16,privateElevators:1,continuousCabRoutes:178,shops:108,garageBays:800,fourZonesEachLevel:true}));
+console.log(JSON.stringify({status:'passed',publicElevators:16,privateElevators:1,freightElevators:1,continuousCabRoutes:189,shops:108,garageBays:800,fourZonesEachLevel:true}));

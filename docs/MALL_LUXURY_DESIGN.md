@@ -1,5 +1,13 @@
 # Aurea luxury gallery — concept interiors
 
+Latest expansion: see [Mall expansion layout](MALL_EXPANSION_LAYOUT.md) for the
+380 × 170 m enclosure, full B1, five cinemas, arcade and rear freight route.
+There are now twenty detailed interiors across nineteen businesses; the
+retail budget is 26 material batches / 1.6 million triangles. L6 structural
+clearance is now 16 m and roof elevation 52.37 m, superseding the earlier
+6.5 m / 42.77 m measurements below. New gold stores are Lukfook and Chow Tai
+Fook concepts; new dining includes steak, Cantonese and seafood.
+
 These are original game-world interpretations using illustrative brand names,
 not official stores, licensed products, tenancy confirmations or exact replicas.
 

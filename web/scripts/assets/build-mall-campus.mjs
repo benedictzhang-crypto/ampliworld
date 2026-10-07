@@ -25,14 +25,14 @@ for (const [key,color,metalness,roughness] of [
 ]) materials[key]=new T.MeshStandardMaterial({name:key,color,metalness,roughness});
 materials.light.emissive=new T.Color(0xffca78); materials.light.emissiveIntensity=.6;
 materials.glass=new T.MeshStandardMaterial({name:'Architectural clear glazing',color:0xc3dce0,transparent:true,opacity:.18,roughness:.1,metalness:.05,side:T.DoubleSide,depthWrite:false});
-const buckets={}, colliders=[], surfaces=[], shops=[];
-function add(g,m,x=0,y=0,z=0,ry=0){g.rotateY(ry);g.translate(x,y,z);if(g.index)g=g.toNonIndexed();delete g.attributes.uv;(buckets[m]??=[]).push(g);}
+const buckets={}, colliders=[], surfaces=[], shops=[];let offsetX=0;
+function add(g,m,x=0,y=0,z=0,ry=0){g.rotateY(ry);g.translate(x+offsetX,y,z);if(g.index)g=g.toNonIndexed();delete g.attributes.uv;(buckets[m]??=[]).push(g);}
 function box(m,x,y,z,w,h,d,ry=0){add(new T.BoxGeometry(w,h,d),m,x,y,z,ry);}
-function solid(id,min,max){colliders.push({id,min,max});}
+function solid(id,min,max){colliders.push({id,min:[min[0]+offsetX,min[1],min[2]],max:[max[0]+offsetX,max[1],max[2]]});}
 function block(id,m,x,y,z,w,h,d){box(m,x,y,z,w,h,d);solid(id,[x-w/2,y-h/2,z-d/2],[x+w/2,y+h/2,z+d/2]);}
 const font=new FontLoader().parse(fontJson);
 function text3d(label,x,y,z,size,ry=0){const g=new TextGeometry(label,{font,size,depth:.025,curveSegments:2,bevelEnabled:false});g.computeBoundingBox();g.translate(-(g.boundingBox.max.x-g.boundingBox.min.x)/2,0,0);add(g,'gold',x,y,z,ry);}
-const W=225,D=180,IW=90,ID=70;
+const W=spatial.footprint.length,D=spatial.footprint.width,IW=90,ID=70;
 const FLOOR_Y=spatial.floors.map(f=>f.y);
 const ROOF_Y=spatial.roofY;
 const liftGroups=[
@@ -43,7 +43,7 @@ const liftGroups=[
 ];
 // Rectangle subtraction avoids hidden solid floor across an elevator shaft.
 function subtract(r,h){const x0=Math.max(r[0],h.min[0]),z0=Math.max(r[1],h.min[1]),x1=Math.min(r[2],h.max[0]),z1=Math.min(r[3],h.max[1]);if(x1<=x0||z1<=z0)return[r];return [[r[0],r[1],x0,r[3]],[x1,r[1],r[2],r[3]],[x0,r[1],x1,z0],[x0,z1,x1,r[3]]].filter(a=>a[2]-a[0]>.001&&a[3]-a[1]>.001);}
-function plate(level,y,thickness){let rs=[[-112.5,-90,112.5,-35],[-112.5,35,112.5,90],[-112.5,-35,-45,35],[45,-35,112.5,35]];for(const h of [...liftGroups,...(level!=='L1'&&level!=='ROOF'?[ESCALATOR_OPENING]:[]),...(level==='L2'?[luxury.stairs,luxury.lift]:[])])rs=rs.flatMap(r=>subtract(r,h));rs.forEach((r,i)=>{const id=`${level}-plate-${i}`;block(id,'ivory',(r[0]+r[2])/2,y-thickness/2,(r[1]+r[3])/2,r[2]-r[0],thickness,r[3]-r[1]);surfaces.push({id,min:[r[0],r[1]],max:[r[2],r[3]],y,level});});}
+function plate(level,y,thickness){let rs=[[-W/2,-D/2,W/2,-35],[-W/2,35,W/2,D/2],[-W/2,-35,-45,35],[45,-35,W/2,35]];for(const h of [...liftGroups,...(level==='L1'?[{min:[114,59.5],max:[127,D/2]}]:[]),...(level!=='L1'&&level!=='ROOF'?[ESCALATOR_OPENING]:[]),...(level==='L2'?[luxury.stairs,luxury.lift]:[])])rs=rs.flatMap(r=>subtract(r,h));rs.forEach((r,i)=>{const id=`${level}-plate-${i}`;block(id,'ivory',(r[0]+r[2])/2,y-thickness/2,(r[1]+r[3])/2,r[2]-r[0],thickness,r[3]-r[1]);surfaces.push({id,min:[r[0],r[1]],max:[r[2],r[3]],y,level});});}
 FLOOR_Y.forEach((y,i)=>plate('L'+(i+1),y,i===0?.17:.48));plate('ROOF',ROOF_Y,.5);
 for(const e of ESCALATORS){
  const n=70,dz=(e.maxZ-e.minZ)/n,dy=(e.high-e.low)/n;
@@ -73,13 +73,15 @@ for(const [f,y] of [...FLOOR_Y.slice(1),ROOF_Y].entries()){
 for(let f=0;f<6;f++){
  const y=FLOOR_Y[f], top=f===5?ROOF_Y-.5:FLOOR_Y[f+1]-.48,h=top-y;
  for(const s of [-1,1]){
-  const ns=f===0?[[-112.5,-8],[8,112.5]]:[[-112.5,112.5]];
-  for(const [a,b] of ns)block(`facade-${f}-z${s}-${a}`,'glass',(a+b)/2,y+h/2,s*89.9,b-a,h,.16);
-  const ew=f===0?[[-90,-8],[8,90]]:[[-90,90]];
-  for(const [a,b] of ew)block(`facade-${f}-x${s}-${a}`,'glass',s*112.4,y+h/2,(a+b)/2,.16,h,b-a);
-  for(let x=-108;x<=108;x+=12)box('gold',x,y+h/2,s*89.85,.14,h,.24);
-  for(let z=-84;z<=84;z+=12)box('gold',s*112.35,y+h/2,z,.24,h,.14);
-  box('gold',0,top-.1,s*90,225,.18,.4);box('gold',s*112.5,top-.1,0,.4,.18,180);
+  let ns=f===0?[[-W/2,-8],[8,W/2]]:[[-W/2,W/2]];
+  if(s===1&&f===0)ns=ns.flatMap(([a,b])=>[[a,Math.min(b,114)],[Math.max(a,127),b]].filter(([lo,hi])=>hi>lo));
+  if(s===-1)ns=ns.flatMap(([a,b])=>[[a,Math.min(b,56)],[Math.max(a,64),b]].filter(([lo,hi])=>hi>lo));
+  for(const [a,b] of ns)block(`facade-${f}-z${s}-${a}`,'glass',(a+b)/2,y+h/2,s*(D/2-.1),b-a,h,.16);
+  const ew=f===0?[[-D/2,-8],[8,D/2]]:[[-D/2,D/2]];
+  for(const [a,b] of ew)block(`facade-${f}-x${s}-${a}`,'glass',s*(W/2-.1),y+h/2,(a+b)/2,.16,h,b-a);
+  for(let x=-W/2+6;x<W/2;x+=12)box('gold',x,y+h/2,s*(D/2-.15),.14,h,.24);
+  for(let z=-D/2+6;z<D/2;z+=12)box('gold',s*(W/2-.15),y+h/2,z,.24,h,.14);
+  box('gold',0,top-.1,s*D/2,W,.18,.4);box('gold',s*W/2,top-.1,0,.4,.18,D);
  }
  // Slender load-bearing columns, outside galleries' principal circulation axes.
  for(const x of [-107,-62,62,107])for(const z of [-84,-30,30,84])block(`column-${f}-${x}-${z}`,'stone',x,y+h/2,z,.6,h,.6);
@@ -96,6 +98,9 @@ const brands=[
 ];
 function room(label,x,z,ry,f,index){
  const y=FLOOR_Y[f],c=Math.cos(ry),s=Math.sin(ry),w=16,depth=23,h=spatial.floors[f].clearHeight,id=`L${f+1}-shop-${index}`;
+ if(f===5&&z===51&&spatial.arcade.roomCenters.includes(x)){
+  shops.push({id,label:'AUREA PLAYLAB',level:'L6',floorY:y,position:[x,y,z],rotationY:ry,doorWidth:3.4,door:[x,y,z],open:true,interior:'Connected Blender arcade hall'});return;
+ }
  if(z===spatial.restrooms.doorZ&&x===spatial.restrooms.centerX){
   shops.push({id,label:'RESTROOMS',level:'L'+(f+1),floorY:y,position:[x,y,z],rotationY:ry,doorWidth:3.4,door:[x,y,z],open:true,interior:'Blender washroom suite',function:'public-restroom'});
   return;
@@ -107,7 +112,14 @@ function room(label,x,z,ry,f,index){
  }
  const pt=(u,v)=>[x+u*c+v*s,z-u*s+v*c];
  const b=(key,m,u,yy,v,ww,hh,dd,collision=true)=>{const p=pt(u,v);box(m,p[0],y+yy,p[1],ww,hh,dd,ry);if(collision){const ex=Math.abs(c)*ww/2+Math.abs(s)*dd/2,ez=Math.abs(s)*ww/2+Math.abs(c)*dd/2;solid(id+'-'+key,[p[0]-ex,y+yy-hh/2,p[1]-ez],[p[0]+ex,y+yy+hh/2,p[1]+ez]);}};
- b('back','ivory',0,h/2,-depth,w,h,.18);for(const side of [-1,1])b('side'+side,'stone',side*w/2,h/2,-depth/2,.16,h,depth);
+ const kitchen=f>=4&&!/Cinema|Arcade/.test(label);
+ if(kitchen){
+  // Real staff door opens onto the rear circulation ring, not a painted door.
+  b('rear-left','ivory',-5.25,h/2,-depth,5.5,h,.18);
+  b('rear-right','ivory',4,h/2,-depth,8,h,.18);
+  b('rear-lintel','ivory',-1.25,(h+2.7)/2,-depth,2.5,h-2.7,.18);
+ }else b('back','ivory',0,h/2,-depth,w,h,.18);
+ for(const side of [-1,1])b('side'+side,'stone',side*w/2,h/2,-depth/2,.16,h,depth);
  // Real 3.4m open doorway; no full-width invisible display collider.
  for(const side of [-1,1]){b('window'+side,'glass',side*4.85,(h-.7)/2,0,6.3,h-.7,.10);b('jamb'+side,'gold',side*1.74,(h-.6)/2,.04,.10,h-.6,.15);}
  b('header','ivory',0,h-.35,0,w,.7,.25);b('sign-light','light',0,h-.73,-.2,12,.04,.25,false);
@@ -125,8 +137,16 @@ function room(label,x,z,ry,f,index){
  else {
   for(const u of [-4,4])for(const v of [-6,-12]){b(`table-${u}-${v}`,'wood',u,.8,v,2,.12,2);b(`leg-${u}-${v}`,'gold',u,.4,v,.18,.8,.18);for(const du of [-1.5,1.5]){b(`seat-${u}-${v}-${du}`,'leather',u+du,.47,v,.65,.16,.7);b(`seatback-${u}-${v}-${du}`,'leather',u+du,.84,v+.3,.65,.65,.14);}}
   if(/Cinema/.test(label)){b('screen','dark',0,2.05,-depth+.14,10,2.7,.10,false);b('screenlight','light',0,2.05,-depth+.21,8.7,1.9,.035,false);}
+  if(kitchen){
+   b('kitchen-pass','wood',3.2,.55,-16,7.5,1.1,1.1);
+   b('kitchen-prep','stone',4,.48,-21,5,.96,1.3);
+   b('kitchen-sink','dark',4,.98,-21,1.2,.06,.85,false);
+   b('kitchen-chiller','dark',-6.5,1.1,-21,1.7,2.2,1.4);
+   for(const u of [2,3.5,5])b('hob-'+u,'dark',u,1.01,-21,.7,.04,.7,false);
+   b('kitchen-hood','gold',4,2.8,-21,5.2,.35,1.5,false);
+  }
  }
- shops.push({id,label,level:'L'+(f+1),floorY:y,position:[x,y,z],rotationY:ry,doorWidth:3.4,door:[x,y,z],open:true,interior:'walk-in furnished room',commercialStatus:'Illustrative name text only; no affiliation or live tenancy claimed'});
+ shops.push({id,label,level:'L'+(f+1),floorY:y,position:[x,y,z],rotationY:ry,doorWidth:3.4,door:[x,y,z],open:true,interior:'walk-in furnished room',...(kitchen?{kitchen:{staffDoor:[...pt(-1.25,-23)],accessAisle:[...pt(-1.25,-18)]}}:{}),commercialStatus:'Illustrative name text only; no affiliation or live tenancy claimed'});
 }
 const centers=[-96,-54,-33,-12,46,67,88];
 for(let f=0;f<6;f++){let n=0;for(const z of [-51,51])for(const x of centers)room(brands[f][n%14],x,z,z<0?0:Math.PI,f,n++);
@@ -142,8 +162,8 @@ for(const x of [-27,27])for(const z of [-19,19]){
 }
 box('water',0,.185,0,7,.02,7);solid('garden-basin',[-3.5,.17,-3.5],[3.5,.35,3.5]);add(new T.TorusKnotGeometry(1.8,.24,48,8),'gold',0,2.8,0);
 // Roof promenade, balustrades, shaded benches and modest planted beds.
-for(const z of [-89.5,89.5])rail('roof-edge-z'+z,0,z,224,.15,ROOF_Y);
-for(const x of [-112,112])rail('roof-edge-x'+x,x,0,.15,179,ROOF_Y);
+for(const z of [-D/2+.5,D/2-.5])rail('roof-edge-z'+z,0,z,W-1,.15,ROOF_Y);
+for(const x of [-W/2+.5,W/2-.5])rail('roof-edge-x'+x,x,0,.15,D-1,ROOF_Y);
 for(const x of [-103,103])for(const z of [-64,-20,20,64]){block(`roof-planter-${x}-${z}`,'stone',x,ROOF_Y+.43,z,7,.86,9);box('leaf',x,ROOF_Y+.87,z,6.6,.05,8.6);add(new T.IcosahedronGeometry(1.7,1),'leaf',x,ROOF_Y+2.3,z);}
 for(const z of [-43,43])for(const x of [-20,0,45])block(`roof-bench-${x}-${z}`,'wood',x,ROOF_Y+.5,z,7,.25,1.2);
 for(const s of [-1,1]){for(const x of [-40,40])block(`pergola-${s}-${x}`,'gold',x,ROOF_Y+1.6,s*84,.15,3.2,.15);for(let x=-40;x<=40;x+=4)box('wood',x,ROOF_Y+3.22,s*81,.18,.16,8);}
@@ -152,7 +172,8 @@ text3d('ROOF PROMENADE',0,ROOF_Y+1.5,87,.75);
 const keepRampGeometry=(g,m,x=0,y=0,z=0,ry=0)=>{g.rotateY(ry);g.translate(x,y,z);g.computeBoundingBox();const b=g.boundingBox;if(b.min.x>=113.8&&b.max.x<=127.1&&b.min.z>=59.5&&b.max.z<=109.1)add(g,m);};
 const rampParking=buildParking(T,keepRampGeometry,(m,x,y,z,w,h,d,ry=0)=>keepRampGeometry(new T.BoxGeometry(w,h,d),m,x,y,z,ry),(id,min,max)=>{if(id.startsWith('ramp-')||id.startsWith('b1-'))solid(id,min,max);},(label,x,y,z,size,ry=0)=>{if(x>113&&x<128&&z>=59.5)text3d(label,x,y,z,size,ry);});
 // Service campus: no customer bay striping/cars. South 18m turning apron remains empty.
-block('service-yard-base','stone',158.5,.085,11,63,.17,118);surfaces.push({id:'service-yard',min:[127,-48],max:[190,70],y:.17});
+offsetX=90;
+block('service-yard-base','stone',158.5,.085,11,63,.17,118);surfaces.push({id:'service-yard',min:[217,-48],max:[280,70],y:.17});
 for(const z of [-42,-20,2]){
  block('loading-dock-'+z,'ivory',135,.72,z,12,1.1,11);
  for(const dz of [-5,5])box('gold',147,.182,z+dz,17,.02,.13);
@@ -166,6 +187,11 @@ for(const z of [-42,-20,2]){
 for(const z of [-37,-15,9]){block('service-equipment-'+z,'dark',184,1.8,z,6,3.2,10);for(const dz of [-3,0,3]){add(new T.CylinderGeometry(1.1,1.1,.14,16),'stone',184,3.47,z+dz);box('gold',184,2.2,z+dz,6.03,.10,.13);}}
 for(const x of [133,187])for(const z of [-45,32]){add(new T.CylinderGeometry(.085,.085,6,8),'dark',x,3.17,z);box('light',x,6.18,z,2,.08,1);}
 text3d('SERVICE / LOADING ONLY',158,3.5,47,.8);text3d('B1 PARKING VIA RAMP',159,1.65,68,.58);
+offsetX=0;
+for(const [a,b] of [[-190,114],[127,190]]){
+ block('expanded-front-apron-'+a,'stone',(a+b)/2,.08,94.5,b-a,.16,19);
+ surfaces.push({id:'expanded-front-apron-'+a,min:[a,85],max:[b,104],y:.16});
+}
 // Original forecourt and approach lanes, maintaining the existing ramp throat gap.
 box('ivory',0,.08,98,225,.16,12);surfaces.push({id:'front-forecourt',min:[-112.5,92],max:[112.5,104],y:.16});
 box('stone',.75,.035,113,226.5,.07,16);box('stone',159.75,.035,113,65.5,.07,16);box('stone',120.5,.085,114.5,13,.17,13);
@@ -173,19 +199,19 @@ for(const z of [-91,91]){box('gold',0,5.6,z,18,.2,7);box('light',0,5.45,z,16,.08
 // Deep facade ribbons are physical geometry with open ground-level portals.
 for(const side of [-1,1])for(let f=1;f<=6;f++){
  const y=f===6?ROOF_Y:FLOOR_Y[f];
- for(let x=-108;x<=108;x+=6){const depth=1.4+.8*Math.cos(x/23+f*.65);
-  box('ivory',x,y-.12,side*(90+depth/2),6.05,.48,depth);
-  box('gold',x,y-.39,side*(90+depth),6.05,.08,.14);
+ for(let x=-W/2+3;x<W/2;x+=6){const depth=1.4+.8*Math.cos(x/23+f*.65);
+  box('ivory',x,y-.12,side*(D/2+depth/2),6.05,.48,depth);
+  box('gold',x,y-.39,side*(D/2+depth),6.05,.08,.14);
  }
  for(let z=-84;z<=84;z+=6){const depth=1.3+.7*Math.cos(z/20+f*.65);
-  box('ivory',side*(112.5+depth/2),y-.12,z,depth,.48,6.05);
-  box('gold',side*(112.5+depth),y-.39,z,.14,.08,6.05);
+  box('ivory',side*(W/2+depth/2),y-.12,z,depth,.48,6.05);
+  box('gold',side*(W/2+depth),y-.39,z,.14,.08,6.05);
  }
 }
 for(const s of [-1,1])for(let x=-102;x<=102;x+=12){
  if(Math.abs(x)<9)continue; // Preserve the full 16m entrance opening.
- block(`facade-pier-${s}-${x}`,'ivory',x,2.85,s*90.25,.7,5.4,.9);
- box('light',x+.42,2.9,s*90.75,.06,4.7,.07);
+ block(`facade-pier-${s}-${x}`,'ivory',x,2.85,s*85.25,.7,5.4,.9);
+ box('light',x+.42,2.9,s*85.75,.06,4.7,.07);
 }
 for(const s of [-1,1]){
  for(let x=-14;x<=14;x+=2)box('gold',x,6.25,s*94,.14,.26,10);
@@ -210,10 +236,10 @@ box('gold',0,11.34,94,33,.14,4.4);
 text3d('AUREA',0,9.1,95.55,1.65);
 // Warm shopfront displays give the arrival facade depth at walking height.
 for(const s of [-1,1])for(const x of [30,54,78,102]){
- box('wood',s*x,2.6,84.8,8,4.7,.25);
- box('light',s*x,4.85,87,7.8,.08,4.3);
- block(`arrival-display-${s}-${x}`,'stone',s*x, .62,87,5.6,.9,1.2);
- merchandise(T,add,box,x===30?'handbag':x===54?'necklace':x===78?'watch':'shoe-pair',s*x,1.08,87,0);
+ box('wood',s*x,2.6,80.8,8,4.7,.25);
+ box('light',s*x,4.85,83,7.8,.08,4.3);
+ block(`arrival-display-${s}-${x}`,'stone',s*x, .62,83,5.6,.9,1.2);
+ merchandise(T,add,box,x===30?'handbag':x===54?'necklace':x===78?'watch':'shoe-pair',s*x,1.08,83,0);
 }
 // Small layered trees sit within the existing planters, clear of the entrance route.
 for(const x of [-28,28,-68,68]){
@@ -224,8 +250,17 @@ for(const x of [-28,28,-68,68]){
  }
 }
 const scene=new T.Scene();scene.name='GC-MALL-002_Six_Level_Walkable_Galleries';let triangles=0;
+// Rear service tower is outside the retail plates. Enclosed bridges have real
+// support at every level; no shaft floor is placed beneath the moving cab.
+for(const [level,y] of [...FLOOR_Y.map((y,i)=>['L'+(i+1),y]),['ROOF',ROOF_Y]]){
+ block('service-bridge-'+level,'stone',60,y-.12,-89.3,8,.24,8.6);
+ surfaces.push({id:'service-bridge-'+level,min:[56,-93.6],max:[64,-85],y,level});
+ for(const x of [56,64])block('service-bridge-wall-'+level+'-'+x,'stone',x,y+2.1,-89,.18,4.2,8);
+ box('ivory',60,y+4.28,-89,8,.18,8);
+ text3d('STAFF / FREIGHT',60,y+3.4,-84.7,.40);
+}
 for(const [m,parts]of Object.entries(buckets)){const g=mergeVertices(mergeGeometries(parts),1e-5);const mesh=new T.Mesh(g,materials[m]);mesh.name='mall_'+m;mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);triangles+=(g.index?.count??g.attributes.position.count)/3;}
 scene.updateMatrixWorld(true);const bounds=new T.Box3().setFromObject(scene);
 await mkdir(out,{recursive:true});const binary=await new GLTFExporter().parseAsync(scene,{binary:true});await writeFile(new URL('mall-lod0.glb',out),new Uint8Array(binary));
-const manifest={id:'GC-MALL-002',name:'Aurea Galleria Campus',units:'metres',stories:6,height:bounds.max.y,mainBuildingFootprint:[W,D],courtyard:[IW,ID],asset:'mall-lod0.glb',bytes:binary.byteLength,triangles,bounds:{min:bounds.min.toArray(),max:bounds.max.toArray()},floors:FLOOR_Y.map((y,i)=>({id:'L'+(i+1),y,walkable:true,theme:i<2?'luxury and lifestyle':i<4?'technology, outdoor and accessible fashion':'tea, dining, cinema and arcade rooms'})),roof:{id:'ROOF',y:ROOF_Y,walkable:true},liftGroups:liftGroups.map(g=>({...g,cars:4,runtime:true})),shops,colliders,surfaces,parking:{bays:0,cars:0,truckLoadingBays:3,serviceYard:{min:[127,-48],max:[190,70]},ramp:rampParking.ramp},indoorEntrances:[[0,.17,90],[0,.17,-90],[-112.5,.17,0],[112.5,.17,0]],status:'Six furnished walk-in retail levels and roof promenade; elevator movement and B1 food/VIP are separate runtime/garage components',provenance:'Original procedural geometry. Brand names are ordinary illustrative text, not official logos, endorsements, tenancy confirmations or Michelin awards.',limitations:['Shop merchandise is illustrative; no purchasing or trading system.','Cinema/arcade rooms contain static furnishings/screens, not playable media.','Lift openings require the separate runtime shaft/door/cab system before public traversal.']};
+const manifest={id:'GC-MALL-002',name:'Aurea Galleria Campus',units:'metres',stories:6,height:bounds.max.y,mainBuildingFootprint:[W,D],courtyard:[IW,ID],asset:'mall-lod0.glb',bytes:binary.byteLength,triangles,bounds:{min:bounds.min.toArray(),max:bounds.max.toArray()},floors:FLOOR_Y.map((y,i)=>({id:'L'+(i+1),y,walkable:true,theme:i<2?'luxury and lifestyle':i<4?'technology, outdoor and accessible fashion':'tea, dining, cinema and arcade rooms'})),roof:{id:'ROOF',y:ROOF_Y,walkable:true},liftGroups:liftGroups.map(g=>({...g,cars:4,runtime:true})),shops,colliders,surfaces,parking:{bays:0,cars:0,truckLoadingBays:3,serviceYard:{min:[217,-48],max:[280,70]},ramp:rampParking.ramp},indoorEntrances:[[0,.17,85],[0,.17,-85],[-190,.17,0],[190,.17,0]],status:'Six furnished walk-in retail levels and roof promenade; elevator movement and B1 food/VIP are separate runtime/garage components',provenance:'Original procedural geometry. Brand names are ordinary illustrative text, not official logos, endorsements, tenancy confirmations or Michelin awards.',limitations:['Shop merchandise is illustrative; no purchasing or trading system.','Cinema/arcade rooms contain static furnishings/screens, not playable media.','Lift openings require the separate runtime shaft/door/cab system before public traversal.']};
 await writeFile(new URL('mall-manifest.json',out),JSON.stringify(manifest,null,2));await writeFile(new URL('FONT-LICENSE.txt',out),fontJson.original_font_information.license_description);console.log(JSON.stringify({triangles,bytes:binary.byteLength,shops:shops.length,surfaces:surfaces.length,colliders:colliders.length,liftGroups:liftGroups.length}));

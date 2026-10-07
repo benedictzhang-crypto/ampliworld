@@ -25,7 +25,7 @@ for(const z of [-43,43])for(let x=-106;x<=106;x+=.25)assert.equal(blocked(x,z),f
 for(const shop of shell.shops.filter(s=>s.level==='L1'))assert.equal(blocked(shop.door[0],shop.door[2]),false,'Shop doorway clear');
 for(const g of shell.liftGroups)for(const b of fit.colliders)assert.ok(!(b.min[0]<g.max[0]&&b.max[0]>g.min[0]&&b.min[2]<g.max[1]&&b.max[2]>g.min[1]),'Lift well clear');
 assert.ok(fit.meshes<=26,'Shop interiors and six restrooms share at most 26 material batches');
-assert.ok(fit.triangles<=1200000,'Merchandise, shops and six restroom suites stay within content budget');
+assert.ok(fit.triangles<=1600000,'Twenty interiors and six restroom suites stay within content budget');
 assert.ok(fit.colliders.length>=30);
 assert.equal(new Set(fit.colliders.map(c=>c.id)).size,fit.colliders.length,'Collider identifiers are unique');
 for(const shopX of [-96,-54,-33,46,67])for(const side of [-1,1]){
@@ -34,7 +34,7 @@ for(const shopX of [-96,-54,-33,46,67])for(const side of [-1,1]){
   for(const b of fit.colliders){const hit=ray.intersectBox(new Box3(new Vector3(...b.min),new Vector3(...b.max)),new Vector3());if(hit)nearest=Math.min(nearest,hit.distanceTo(ray.origin));}
   assert.ok(nearest<8,'Camera meets the room wall or cabinetry');
 }
-assert.equal(fit.boutiques.length,15);
+assert.equal(fit.boutiques.length,20);
 const blockedL2=(x,z)=>fit.colliders.some(b=>x>b.min[0]-.35&&x<b.max[0]+.35&&z>b.min[2]-.35&&z<b.max[2]+.35&&b.max[1]>spatial.floors[1].y+.29&&b.min[1]<spatial.floors[1].y+2.08);
 for(let z=-34;z<=34;z+=.25)assert.equal(blockedL2(-53,z),false,'L2 west lounge keeps through route clear');
 for(const z of [-43,43])for(let x=-106;x<=106;x+=.25)assert.equal(blockedL2(x,z),false,'L2 gallery clear');
