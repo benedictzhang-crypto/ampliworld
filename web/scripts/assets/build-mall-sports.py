@@ -22,7 +22,7 @@ def ball(name,x,y,z,r=.12):
     bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=8,radius=r,location=(x,-z,y));bpy.context.object.name=name;bpy.context.object.data.materials.append(materials['Sport orange'])
 def label(s,x,y,z,size=.5,side=False):
     text(s,x,y,z,size,True)
-    if side:bpy.context.object.rotation_euler.z=math.pi/2
+    if side:bpy.context.object.rotation_euler.z=-math.pi/2
 def shoe(x,y,z,mat):
     box('Sculpted shoe sole','Sport white',x,y,z,.31,.055,.64,False,.026)
     box('Trainer toe',mat,x,y+.105,z+.12,.28,.17,.34,False,.07)
