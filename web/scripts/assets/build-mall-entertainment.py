@@ -194,11 +194,13 @@ for floor in SPATIAL['floors']:
             box('Gallery planted island','Travertine',x,y+.48,z+(-4 if z<0 else 4),2.6,.96,1.2,True,.1)
             plant(x,y+.97,z+(-4 if z<0 else 4),1.1)
     for x in ([145,177] if floor['id']=='L6' else [-176,-144,145,177]):
+        if floor['id']=='L1' and x>125:continue # Leased by sports anchors.
         for z in [-57,0,57]:
             box('Wing planter','Travertine',x,y+.55,z,3,1.1,2.2,True,.12);plant(x,y+1.1,z,1.4)
             box('Wing seat','Walnut',x,y+.5,z+2.1,3,.3,.8,True,.08)
     # Physical tile joints and bay markers define room for future tenants.
     for x in [-150,150]:
+        if floor['id']=='L1' and x>125:continue
         if x<0 and floor['id']=='L6':continue
         for z in [-66,-22,22,66]:
             box('Reserved bay floor inset','Travertine',x,y+.006,z,60,.012,34,False,0)

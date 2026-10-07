@@ -22,6 +22,16 @@ does not mean 600 km² of detailed, continuously simulated city.
 
 ## Where the project stands
 
+### Sports anchors in the mall east wing — 7 October 2026
+
+L1 now has three large Blender-authored concept stores: a NIKE-labeled retail
+half court enclosed in collision-bearing glass, a multi-sport equipment hall,
+and a golf store with a walkable rolling putting landscape. The green's runtime
+support follows the exported triangles. Public galleries and B1 reservations
+remain open. These are physical retail/experience models, not official brand
+partnerships or finished ball-sport minigames. See the
+[sports-wing layout and limits](docs/MALL_SPORTS_WING.md).
+
 ### A larger, extensible mall with operational vertical circulation — 7 October 2026
 
 Aurea Galleria now has a 380 × 170 m main enclosure, future tenant reserves in

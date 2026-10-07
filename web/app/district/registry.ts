@@ -12,6 +12,7 @@ import mallInterior from '../../public/assets/3d/ampliworld/GC-MALL-002/mall-man
 import {escalatorHeight} from '../world-client/mall-escalators.mjs';
 import {boutiqueStairHeight} from '../world-client/mall-luxury-circulation';
 import {cinemaGroundHeight} from '../world-client/mall-cinema-surface';
+import {sportsGroundHeight} from '../world-client/mall-sports-surface';
 // New metre-space block. City origin and asset transforms are data, not mesh JSX.
 export const DISTRICT = {
   id: 'GC-GARDENS-B01',
@@ -85,6 +86,8 @@ export const DISTRICT = {
 
 // Surface heights from the exported street kit, not a flat offset above every surface.
 export function districtGroundHeight(x: number, z: number, currentY = 0) {
+  const sportsY=sportsGroundHeight(x,z+188,currentY);
+  if(sportsY!==undefined)return sportsY;
   const cinemaY=cinemaGroundHeight(x,z+188,currentY);
   if(cinemaY!==undefined)return cinemaY;
   const boutiqueY=boutiqueStairHeight(x,z+188,currentY);

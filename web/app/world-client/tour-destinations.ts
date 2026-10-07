@@ -7,6 +7,7 @@ import {CITY_SERVICE_COLLIDERS} from './city-service-buildings';
 import {CITY_OPERATION_COLLIDERS} from './city-operations';
 import mallPlan from './mall-luxury-plan.json';
 import spatial from './mall-spatial-plan.json';
+import sports from './mall-sports-plan.json';
 
 export type TourDestination={id:string;name:string;kind:string;x:number;z:number;arrivalX:number;arrivalZ:number;arrivalY?:number;featured:boolean;searchText:string};
 const destination=(id:string,name:string,kind:string,x:number,z:number,arrivalX:number,arrivalZ:number,featured=false):TourDestination=>
@@ -61,6 +62,7 @@ export const TOUR_DESTINATIONS:readonly TourDestination[]=[
   {...destination('GC-MALL-SERVICE','Staff freight lift · B1','Staff freight service elevator 员工货梯',60,-279,60,-279,true),arrivalY:-7.2},
   {...destination('GC-MALL-B1-WEST','B1 Market · Future retail','Basement commercial reserve 地下商业',-140,-168,-140,-168,true),arrivalY:-7.2},
   {...destination('GC-MALL-B1-EAST','B1 Events · Future retail','Basement commercial reserve 地下商业',140,-168,140,-168,true),arrivalY:-7.2},
+  ...sports.shops.map(s=>({...destination('GC-MALL-'+s.id,s.name+' · L1',s.theme,s.entry[0],s.entry[1]-188,s.entry[0],s.entry[1]-188,true),arrivalY:sports.floorY})),
   ...newMallShops,...washrooms,...civic,...services,...operations,...subcenters]
   .filter(d=>Math.abs(d.arrivalX)<9900&&Math.abs(d.arrivalZ)<14900&&districtGroundHeight(d.arrivalX,d.arrivalZ)>-.1)
   .filter(d=>!allVisibleSolids.some(c=>d.arrivalX>c.min[0]-.4&&d.arrivalX<c.max[0]+.4&&

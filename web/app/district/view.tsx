@@ -31,6 +31,7 @@ import { CivicPlaces } from '../world-client/civic-places';
 import { MallElevators } from '../world-client/mall-elevators';
 import { MallFitout, MALL_FITOUT_COLLIDERS, mallFitoutLocation } from '../world-client/mall-fitout';
 import {MallLeisure,MALL_LEISURE_COLLIDERS,mallLeisureLocation} from '../world-client/mall-leisure';
+import {MallSports,MALL_SPORTS_COLLIDERS,mallSportsLocation} from '../world-client/mall-sports';
 import {
   createMallLifts,
   LIFT_STATIC_SOLIDS,
@@ -364,6 +365,7 @@ export function DistrictClient() {
         ...CIVIC_COLLIDERS,
         ...GARAGE_COLLIDERS,
         ...MALL_LEISURE_COLLIDERS,
+        ...MALL_SPORTS_COLLIDERS,
         ...COMMUNITY_COLLIDERS,
         ...housingColliders(cellX * 1000, cellZ * 1000, openGates),
         ...METROPOLITAN_COLLIDERS,
@@ -690,6 +692,7 @@ export function DistrictClient() {
                   <AssetIsland name="mall"><Mall /></AssetIsland>
                   <AssetIsland name="mall interior"><MallFitout /></AssetIsland>
                   <AssetIsland name="mall leisure"><MallLeisure /></AssetIsland>
+                  <AssetIsland name="mall sports"><MallSports /></AssetIsland>
                   <CivicPlaces
                     x={housingX}
                     z={housingZ}
@@ -1114,7 +1117,7 @@ export function DistrictClient() {
                 ? `已停入 ${parkedGarageBay(activeReport)!.id} · E 下车`
                 : vehicleMessage
               : walking
-                ? mallLeisureLocation(position[0],position[1],playerFloor.current)??mallFitoutLocation(position[0],position[1],playerFloor.current)??districtLocation(position[0], position[1])
+                ? mallSportsLocation(position[0],position[1],playerFloor.current)??mallLeisureLocation(position[0],position[1],playerFloor.current)??mallFitoutLocation(position[0],position[1],playerFloor.current)??districtLocation(position[0], position[1])
                 : '俯瞰不会改变角色位置 · 返回继续原地行走'}
           </small>
         </div>

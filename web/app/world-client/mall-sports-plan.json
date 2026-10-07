@@ -1,0 +1,10 @@
+{
+  "level":"L1", "floorY":0.17, "origin":[0,0,-188],
+  "shops":[
+    {"id":"NIKE-COURT","name":"NIKE · Court Concept","min":[126,-78],"max":[186,-26],"entry":[128,-42],"theme":"basketball footwear apparel glass half court"},
+    {"id":"SPORTS-HALL","name":"Aurea Sports Hall","min":[126,-18],"max":[186,24],"entry":[128,3],"theme":"multi-sport equipment clothing tennis cycling hiking swimming"},
+    {"id":"GOLF-GARDEN","name":"Contour Golf Garden","min":[126,32],"max":[186,78],"entry":[128,55],"theme":"indoor golf rolling putting green golf clubs apparel"}
+  ],
+  "court":{"min":[150,-70],"max":[165,-56],"glassMin":[147,-74],"glassMax":[169,-52],"door":[158,-52],"clearHeight":6.6},
+  "green":{"min":[142,42],"max":[179,69],"maxRise":0.65,"step":0.5}
+}
