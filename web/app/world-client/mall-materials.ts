@@ -13,7 +13,7 @@ export function useMallMaterials(source:Group){
     });
     scene.traverse(o=>{
       if(!(o instanceof Mesh))return;
-      const replace=(m:MeshStandardMaterial)=>/Architectural clear glazing|^Glass$|^Tenant glass$/i.test(m.name)?glass:m;
+      const replace=(m:MeshStandardMaterial)=>/Architectural clear glazing|^(?:.*::)?(?:Glass|Tenant glass)$/i.test(m.name)?glass:m;
       o.material=Array.isArray(o.material)?o.material.map(replace):replace(o.material);
     });
     return {scene,glass};

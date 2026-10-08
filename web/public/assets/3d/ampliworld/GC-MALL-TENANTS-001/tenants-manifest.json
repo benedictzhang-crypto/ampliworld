@@ -20,6 +20,9 @@
         0.1,
         0.05
       ],
+      "unitId": "AUR-L1-MCDONALDS",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/mcdonalds.glb",
       "floorY": 0.17,
       "entry": [
         -177,
@@ -30,7 +33,9 @@
         -177,
         0.17,
         -47.0
-      ]
+      ],
+      "meshes": 12,
+      "triangles": 33536
     },
     {
       "id": "starbucks",
@@ -46,6 +51,9 @@
         0.27,
         0.18
       ],
+      "unitId": "AUR-L1-STARBUCKS",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/starbucks.glb",
       "floorY": 0.17,
       "entry": [
         -153,
@@ -56,7 +64,9 @@
         -153,
         0.17,
         -47.0
-      ]
+      ],
+      "meshes": 11,
+      "triangles": 42404
     },
     {
       "id": "richard-mille",
@@ -72,6 +82,9 @@
         0.18,
         0.21
       ],
+      "unitId": "AUR-L1-RICHARD-MILLE",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/richard-mille.glb",
       "floorY": 0.17,
       "entry": [
         -129,
@@ -82,7 +95,9 @@
         -129,
         0.17,
         -47.0
-      ]
+      ],
+      "meshes": 10,
+      "triangles": 57312
     },
     {
       "id": "bookhouse",
@@ -98,6 +113,9 @@
         0.16,
         0.085
       ],
+      "unitId": "AUR-L1-BOOKHOUSE",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/bookhouse.glb",
       "floorY": 0.17,
       "entry": [
         -153,
@@ -108,7 +126,9 @@
         -153,
         0.17,
         28.0
-      ]
+      ],
+      "meshes": 13,
+      "triangles": 164228
     },
     {
       "id": "chanel-tailoring",
@@ -124,6 +144,9 @@
         0.1,
         0.11
       ],
+      "unitId": "AUR-L2-CHANEL-TAILORING",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/chanel-tailoring.glb",
       "floorY": 8.17,
       "entry": [
         -177,
@@ -134,7 +157,9 @@
         -177,
         8.17,
         -47.0
-      ]
+      ],
+      "meshes": 17,
+      "triangles": 37264
     },
     {
       "id": "sephora",
@@ -150,6 +175,9 @@
         0.1,
         0.12
       ],
+      "unitId": "AUR-L2-SEPHORA",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/sephora.glb",
       "floorY": 8.17,
       "entry": [
         -153,
@@ -160,7 +188,9 @@
         -153,
         8.17,
         -47.0
-      ]
+      ],
+      "meshes": 11,
+      "triangles": 33112
     },
     {
       "id": "loewe",
@@ -176,6 +206,9 @@
         0.42,
         0.27
       ],
+      "unitId": "AUR-L2-LOEWE",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/loewe.glb",
       "floorY": 8.17,
       "entry": [
         -129,
@@ -186,7 +219,9 @@
         -129,
         8.17,
         -47.0
-      ]
+      ],
+      "meshes": 14,
+      "triangles": 55964
     },
     {
       "id": "balenciaga",
@@ -202,6 +237,9 @@
         0.28,
         0.29
       ],
+      "unitId": "AUR-L2-BALENCIAGA",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/balenciaga.glb",
       "floorY": 8.17,
       "entry": [
         -177,
@@ -212,7 +250,9 @@
         -177,
         8.17,
         47.0
-      ]
+      ],
+      "meshes": 17,
+      "triangles": 34976
     },
     {
       "id": "dior",
@@ -228,6 +268,9 @@
         0.55,
         0.52
       ],
+      "unitId": "AUR-L2-DIOR",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/dior.glb",
       "floorY": 8.17,
       "entry": [
         -153,
@@ -238,7 +281,9 @@
         -153,
         8.17,
         47.0
-      ]
+      ],
+      "meshes": 17,
+      "triangles": 34500
     },
     {
       "id": "hermes",
@@ -254,6 +299,9 @@
         0.28,
         0.075
       ],
+      "unitId": "AUR-L2-HERMES",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/hermes.glb",
       "floorY": 8.17,
       "entry": [
         -129,
@@ -264,7 +312,9 @@
         -129,
         8.17,
         47.0
-      ]
+      ],
+      "meshes": 14,
+      "triangles": 56472
     },
     {
       "id": "apple",
@@ -280,6 +330,9 @@
         0.77,
         0.78
       ],
+      "unitId": "AUR-L2-APPLE",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/apple.glb",
       "floorY": 8.17,
       "entry": [
         155,
@@ -290,7 +343,9 @@
         155,
         8.17,
         -29.0
-      ]
+      ],
+      "meshes": 11,
+      "triangles": 62524
     },
     {
       "id": "piglet",
@@ -306,6 +361,9 @@
         0.37,
         0.37
       ],
+      "unitId": "AUR-L2-PIGLET",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/piglet.glb",
       "floorY": 8.17,
       "entry": [
         155,
@@ -316,7 +374,9 @@
         155,
         8.17,
         29.0
-      ]
+      ],
+      "meshes": 11,
+      "triangles": 64120
     },
     {
       "id": "hifi",
@@ -332,6 +392,9 @@
         0.16,
         0.13
       ],
+      "unitId": "AUR-L3-HIFI",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/hifi.glb",
       "floorY": 14.97,
       "entry": [
         -153,
@@ -342,7 +405,9 @@
         -153,
         14.97,
         -29.0
-      ]
+      ],
+      "meshes": 12,
+      "triangles": 35880
     },
     {
       "id": "furniture",
@@ -358,6 +423,9 @@
         0.53,
         0.4
       ],
+      "unitId": "AUR-L3-FURNITURE",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/furniture.glb",
       "floorY": 14.97,
       "entry": [
         -153,
@@ -368,7 +436,9 @@
         -153,
         14.97,
         29.0
-      ]
+      ],
+      "meshes": 12,
+      "triangles": 35148
     },
     {
       "id": "healthy",
@@ -384,6 +454,9 @@
         0.37,
         0.22
       ],
+      "unitId": "AUR-B1-HEALTHY",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/healthy.glb",
       "floorY": -7.2,
       "entry": [
         -155,
@@ -394,7 +467,9 @@
         -155,
         -7.2,
         -29.0
-      ]
+      ],
+      "meshes": 11,
+      "triangles": 49352
     },
     {
       "id": "moleskine",
@@ -410,6 +485,9 @@
         0.2,
         0.18
       ],
+      "unitId": "AUR-B1-MOLESKINE",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/moleskine.glb",
       "floorY": -7.2,
       "entry": [
         -172,
@@ -420,7 +498,9 @@
         -172,
         -7.2,
         23.5
-      ]
+      ],
+      "meshes": 11,
+      "triangles": 37328
     },
     {
       "id": "chocolate",
@@ -436,6 +516,9 @@
         0.1,
         0.06
       ],
+      "unitId": "AUR-B1-CHOCOLATE",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/chocolate.glb",
       "floorY": -7.2,
       "entry": [
         -138,
@@ -446,7 +529,9 @@
         -138,
         -7.2,
         23.5
-      ]
+      ],
+      "meshes": 12,
+      "triangles": 110604
     },
     {
       "id": "auto-gallery",
@@ -462,6 +547,9 @@
         0.24,
         0.27
       ],
+      "unitId": "AUR-L3-AUTO-GALLERY",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/auto-gallery.glb",
       "floorY": 14.97,
       "entry": [
         155,
@@ -472,7 +560,9 @@
         155,
         14.97,
         -29.0
-      ]
+      ],
+      "meshes": 15,
+      "triangles": 46724
     },
     {
       "id": "shoe-salon",
@@ -488,6 +578,9 @@
         0.3,
         0.21
       ],
+      "unitId": "AUR-L3-SHOE-SALON",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/shoe-salon.glb",
       "floorY": 14.97,
       "entry": [
         155,
@@ -498,7 +591,9 @@
         155,
         14.97,
         29.0
-      ]
+      ],
+      "meshes": 16,
+      "triangles": 48104
     },
     {
       "id": "alterations",
@@ -514,6 +609,9 @@
         0.25,
         0.18
       ],
+      "unitId": "AUR-L4-ALTERATIONS",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/alterations.glb",
       "floorY": 21.77,
       "entry": [
         -177,
@@ -524,7 +622,9 @@
         -177,
         21.77,
         -47.0
-      ]
+      ],
+      "meshes": 12,
+      "triangles": 25916
     },
     {
       "id": "watch-care",
@@ -540,6 +640,9 @@
         0.25,
         0.28
       ],
+      "unitId": "AUR-L4-WATCH-CARE",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/watch-care.glb",
       "floorY": 21.77,
       "entry": [
         -153,
@@ -550,7 +653,9 @@
         -153,
         21.77,
         -47.0
-      ]
+      ],
+      "meshes": 11,
+      "triangles": 21928
     },
     {
       "id": "concierge",
@@ -566,6 +671,9 @@
         0.34,
         0.25
       ],
+      "unitId": "AUR-L4-CONCIERGE",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/concierge.glb",
       "floorY": 21.77,
       "entry": [
         -129,
@@ -576,7 +684,9 @@
         -129,
         21.77,
         -47.0
-      ]
+      ],
+      "meshes": 12,
+      "triangles": 26168
     },
     {
       "id": "member-lounge",
@@ -592,6 +702,9 @@
         0.29,
         0.26
       ],
+      "unitId": "AUR-L4-MEMBER-LOUNGE",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/member-lounge.glb",
       "floorY": 21.77,
       "entry": [
         -171,
@@ -602,7 +715,9 @@
         -171,
         21.77,
         29.0
-      ]
+      ],
+      "meshes": 12,
+      "triangles": 25356
     },
     {
       "id": "personal-styling",
@@ -618,6 +733,9 @@
         0.37,
         0.33
       ],
+      "unitId": "AUR-L4-PERSONAL-STYLING",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/personal-styling.glb",
       "floorY": 21.77,
       "entry": [
         -135,
@@ -628,7 +746,9 @@
         -135,
         21.77,
         29.0
-      ]
+      ],
+      "meshes": 12,
+      "triangles": 27492
     },
     {
       "id": "beauty-spa",
@@ -644,6 +764,9 @@
         0.51,
         0.39
       ],
+      "unitId": "AUR-L4-BEAUTY-SPA",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/beauty-spa.glb",
       "floorY": 21.77,
       "entry": [
         155,
@@ -654,7 +777,9 @@
         155,
         21.77,
         -29.0
-      ]
+      ],
+      "meshes": 12,
+      "triangles": 26716
     },
     {
       "id": "culture-gallery",
@@ -670,6 +795,9 @@
         0.61,
         0.53
       ],
+      "unitId": "AUR-L4-CULTURE-GALLERY",
+      "revision": 2,
+      "asset": "/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/culture-gallery.glb",
       "floorY": 21.77,
       "entry": [
         155,
@@ -680,7 +808,9 @@
         155,
         21.77,
         29.0
-      ]
+      ],
+      "meshes": 12,
+      "triangles": 18080
     }
   ],
   "fixtures": [
@@ -2423,7 +2553,59 @@
       ]
     },
     {
-      "id": "Tenant side sephora-0092",
+      "id": "Upholstered seat-0092",
+      "min": [
+        -184.8,
+        8.39,
+        -56.5
+      ],
+      "max": [
+        -181.2,
+        8.870000000000001,
+        -55.5
+      ]
+    },
+    {
+      "id": "Window display base-0093",
+      "min": [
+        -185.0,
+        8.17,
+        -49.2
+      ],
+      "max": [
+        -181.0,
+        8.49,
+        -46.8
+      ]
+    },
+    {
+      "id": "Upholstered seat-0094",
+      "min": [
+        -172.8,
+        8.39,
+        -56.5
+      ],
+      "max": [
+        -169.2,
+        8.870000000000001,
+        -55.5
+      ]
+    },
+    {
+      "id": "Window display base-0095",
+      "min": [
+        -173.0,
+        8.17,
+        -49.2
+      ],
+      "max": [
+        -169.0,
+        8.49,
+        -46.8
+      ]
+    },
+    {
+      "id": "Tenant side sephora-0096",
       "min": [
         -163.08,
         8.17,
@@ -2436,7 +2618,7 @@
       ]
     },
     {
-      "id": "Tenant side sephora-0093",
+      "id": "Tenant side sephora-0097",
       "min": [
         -143.08,
         8.17,
@@ -2449,7 +2631,7 @@
       ]
     },
     {
-      "id": "Tenant back sephora-0094",
+      "id": "Tenant back sephora-0098",
       "min": [
         -163.0,
         8.17,
@@ -2462,7 +2644,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0095",
+      "id": "Storefront glass-0099",
       "min": [
         -163.0,
         8.17,
@@ -2475,7 +2657,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0096",
+      "id": "Storefront glass-0100",
       "min": [
         -151.0,
         8.17,
@@ -2488,7 +2670,7 @@
       ]
     },
     {
-      "id": "Store fascia-0097",
+      "id": "Store fascia-0101",
       "min": [
         -163.0,
         12.02,
@@ -2501,7 +2683,7 @@
       ]
     },
     {
-      "id": "Retail display base-0098",
+      "id": "Retail display base-0102",
       "min": [
         -161.9,
         8.17,
@@ -2514,7 +2696,7 @@
       ]
     },
     {
-      "id": "Retail display base-0099",
+      "id": "Retail display base-0103",
       "min": [
         -161.9,
         8.17,
@@ -2527,7 +2709,7 @@
       ]
     },
     {
-      "id": "Retail display base-0100",
+      "id": "Retail display base-0104",
       "min": [
         -149.1,
         8.17,
@@ -2540,7 +2722,7 @@
       ]
     },
     {
-      "id": "Retail display base-0101",
+      "id": "Retail display base-0105",
       "min": [
         -149.1,
         8.17,
@@ -2553,7 +2735,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0102",
+      "id": "Cashier desk-0106",
       "min": [
         -151.0,
         8.17,
@@ -2566,7 +2748,7 @@
       ]
     },
     {
-      "id": "Tenant side loewe-0103",
+      "id": "Tenant side loewe-0107",
       "min": [
         -139.08,
         8.17,
@@ -2579,7 +2761,7 @@
       ]
     },
     {
-      "id": "Tenant side loewe-0104",
+      "id": "Tenant side loewe-0108",
       "min": [
         -119.08,
         8.17,
@@ -2592,7 +2774,7 @@
       ]
     },
     {
-      "id": "Tenant back loewe-0105",
+      "id": "Tenant back loewe-0109",
       "min": [
         -139.0,
         8.17,
@@ -2605,7 +2787,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0106",
+      "id": "Storefront glass-0110",
       "min": [
         -139.0,
         8.17,
@@ -2618,7 +2800,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0107",
+      "id": "Storefront glass-0111",
       "min": [
         -127.0,
         8.17,
@@ -2631,7 +2813,7 @@
       ]
     },
     {
-      "id": "Store fascia-0108",
+      "id": "Store fascia-0112",
       "min": [
         -139.0,
         12.02,
@@ -2644,7 +2826,7 @@
       ]
     },
     {
-      "id": "Retail display base-0109",
+      "id": "Retail display base-0113",
       "min": [
         -137.9,
         8.17,
@@ -2657,7 +2839,7 @@
       ]
     },
     {
-      "id": "Retail display base-0110",
+      "id": "Retail display base-0114",
       "min": [
         -137.9,
         8.17,
@@ -2670,7 +2852,7 @@
       ]
     },
     {
-      "id": "Retail display base-0111",
+      "id": "Retail display base-0115",
       "min": [
         -125.1,
         8.17,
@@ -2683,7 +2865,7 @@
       ]
     },
     {
-      "id": "Retail display base-0112",
+      "id": "Retail display base-0116",
       "min": [
         -125.1,
         8.17,
@@ -2696,7 +2878,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0113",
+      "id": "Cashier desk-0117",
       "min": [
         -127.0,
         8.17,
@@ -2709,7 +2891,59 @@
       ]
     },
     {
-      "id": "Tenant side balenciaga-0114",
+      "id": "Upholstered seat-0118",
+      "min": [
+        -136.8,
+        8.39,
+        -56.5
+      ],
+      "max": [
+        -133.2,
+        8.870000000000001,
+        -55.5
+      ]
+    },
+    {
+      "id": "Window display base-0119",
+      "min": [
+        -137.0,
+        8.17,
+        -49.2
+      ],
+      "max": [
+        -133.0,
+        8.49,
+        -46.8
+      ]
+    },
+    {
+      "id": "Upholstered seat-0120",
+      "min": [
+        -124.8,
+        8.39,
+        -56.5
+      ],
+      "max": [
+        -121.2,
+        8.870000000000001,
+        -55.5
+      ]
+    },
+    {
+      "id": "Window display base-0121",
+      "min": [
+        -125.0,
+        8.17,
+        -49.2
+      ],
+      "max": [
+        -121.0,
+        8.49,
+        -46.8
+      ]
+    },
+    {
+      "id": "Tenant side balenciaga-0122",
       "min": [
         -187.08,
         8.17,
@@ -2722,7 +2956,7 @@
       ]
     },
     {
-      "id": "Tenant side balenciaga-0115",
+      "id": "Tenant side balenciaga-0123",
       "min": [
         -167.08,
         8.17,
@@ -2735,7 +2969,7 @@
       ]
     },
     {
-      "id": "Tenant back balenciaga-0116",
+      "id": "Tenant back balenciaga-0124",
       "min": [
         -187.0,
         8.17,
@@ -2748,7 +2982,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0117",
+      "id": "Storefront glass-0125",
       "min": [
         -187.0,
         8.17,
@@ -2761,7 +2995,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0118",
+      "id": "Storefront glass-0126",
       "min": [
         -175.0,
         8.17,
@@ -2774,7 +3008,7 @@
       ]
     },
     {
-      "id": "Store fascia-0119",
+      "id": "Store fascia-0127",
       "min": [
         -187.0,
         12.02,
@@ -2787,7 +3021,7 @@
       ]
     },
     {
-      "id": "Retail display base-0120",
+      "id": "Retail display base-0128",
       "min": [
         -185.9,
         8.17,
@@ -2800,7 +3034,7 @@
       ]
     },
     {
-      "id": "Retail display base-0121",
+      "id": "Retail display base-0129",
       "min": [
         -185.9,
         8.17,
@@ -2813,7 +3047,7 @@
       ]
     },
     {
-      "id": "Retail display base-0122",
+      "id": "Retail display base-0130",
       "min": [
         -173.1,
         8.17,
@@ -2826,7 +3060,7 @@
       ]
     },
     {
-      "id": "Retail display base-0123",
+      "id": "Retail display base-0131",
       "min": [
         -173.1,
         8.17,
@@ -2839,7 +3073,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0124",
+      "id": "Cashier desk-0132",
       "min": [
         -175.0,
         8.17,
@@ -2852,7 +3086,59 @@
       ]
     },
     {
-      "id": "Tenant side dior-0125",
+      "id": "Upholstered seat-0133",
+      "min": [
+        -184.8,
+        8.39,
+        67.5
+      ],
+      "max": [
+        -181.2,
+        8.870000000000001,
+        68.5
+      ]
+    },
+    {
+      "id": "Window display base-0134",
+      "min": [
+        -185.0,
+        8.17,
+        46.8
+      ],
+      "max": [
+        -181.0,
+        8.49,
+        49.2
+      ]
+    },
+    {
+      "id": "Upholstered seat-0135",
+      "min": [
+        -172.8,
+        8.39,
+        67.5
+      ],
+      "max": [
+        -169.2,
+        8.870000000000001,
+        68.5
+      ]
+    },
+    {
+      "id": "Window display base-0136",
+      "min": [
+        -173.0,
+        8.17,
+        46.8
+      ],
+      "max": [
+        -169.0,
+        8.49,
+        49.2
+      ]
+    },
+    {
+      "id": "Tenant side dior-0137",
       "min": [
         -163.08,
         8.17,
@@ -2865,7 +3151,7 @@
       ]
     },
     {
-      "id": "Tenant side dior-0126",
+      "id": "Tenant side dior-0138",
       "min": [
         -143.08,
         8.17,
@@ -2878,7 +3164,7 @@
       ]
     },
     {
-      "id": "Tenant back dior-0127",
+      "id": "Tenant back dior-0139",
       "min": [
         -163.0,
         8.17,
@@ -2891,7 +3177,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0128",
+      "id": "Storefront glass-0140",
       "min": [
         -163.0,
         8.17,
@@ -2904,7 +3190,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0129",
+      "id": "Storefront glass-0141",
       "min": [
         -151.0,
         8.17,
@@ -2917,7 +3203,7 @@
       ]
     },
     {
-      "id": "Store fascia-0130",
+      "id": "Store fascia-0142",
       "min": [
         -163.0,
         12.02,
@@ -2930,7 +3216,7 @@
       ]
     },
     {
-      "id": "Retail display base-0131",
+      "id": "Retail display base-0143",
       "min": [
         -161.9,
         8.17,
@@ -2943,7 +3229,7 @@
       ]
     },
     {
-      "id": "Retail display base-0132",
+      "id": "Retail display base-0144",
       "min": [
         -161.9,
         8.17,
@@ -2956,7 +3242,7 @@
       ]
     },
     {
-      "id": "Retail display base-0133",
+      "id": "Retail display base-0145",
       "min": [
         -149.1,
         8.17,
@@ -2969,7 +3255,7 @@
       ]
     },
     {
-      "id": "Retail display base-0134",
+      "id": "Retail display base-0146",
       "min": [
         -149.1,
         8.17,
@@ -2982,7 +3268,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0135",
+      "id": "Cashier desk-0147",
       "min": [
         -151.0,
         8.17,
@@ -2995,7 +3281,59 @@
       ]
     },
     {
-      "id": "Tenant side hermes-0136",
+      "id": "Upholstered seat-0148",
+      "min": [
+        -160.8,
+        8.39,
+        67.5
+      ],
+      "max": [
+        -157.2,
+        8.870000000000001,
+        68.5
+      ]
+    },
+    {
+      "id": "Window display base-0149",
+      "min": [
+        -161.0,
+        8.17,
+        46.8
+      ],
+      "max": [
+        -157.0,
+        8.49,
+        49.2
+      ]
+    },
+    {
+      "id": "Upholstered seat-0150",
+      "min": [
+        -148.8,
+        8.39,
+        67.5
+      ],
+      "max": [
+        -145.2,
+        8.870000000000001,
+        68.5
+      ]
+    },
+    {
+      "id": "Window display base-0151",
+      "min": [
+        -149.0,
+        8.17,
+        46.8
+      ],
+      "max": [
+        -145.0,
+        8.49,
+        49.2
+      ]
+    },
+    {
+      "id": "Tenant side hermes-0152",
       "min": [
         -139.08,
         8.17,
@@ -3008,7 +3346,7 @@
       ]
     },
     {
-      "id": "Tenant side hermes-0137",
+      "id": "Tenant side hermes-0153",
       "min": [
         -119.08,
         8.17,
@@ -3021,7 +3359,7 @@
       ]
     },
     {
-      "id": "Tenant back hermes-0138",
+      "id": "Tenant back hermes-0154",
       "min": [
         -139.0,
         8.17,
@@ -3034,7 +3372,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0139",
+      "id": "Storefront glass-0155",
       "min": [
         -139.0,
         8.17,
@@ -3047,7 +3385,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0140",
+      "id": "Storefront glass-0156",
       "min": [
         -127.0,
         8.17,
@@ -3060,7 +3398,7 @@
       ]
     },
     {
-      "id": "Store fascia-0141",
+      "id": "Store fascia-0157",
       "min": [
         -139.0,
         12.02,
@@ -3073,7 +3411,7 @@
       ]
     },
     {
-      "id": "Retail display base-0142",
+      "id": "Retail display base-0158",
       "min": [
         -137.9,
         8.17,
@@ -3086,7 +3424,7 @@
       ]
     },
     {
-      "id": "Retail display base-0143",
+      "id": "Retail display base-0159",
       "min": [
         -137.9,
         8.17,
@@ -3099,7 +3437,7 @@
       ]
     },
     {
-      "id": "Retail display base-0144",
+      "id": "Retail display base-0160",
       "min": [
         -125.1,
         8.17,
@@ -3112,7 +3450,7 @@
       ]
     },
     {
-      "id": "Retail display base-0145",
+      "id": "Retail display base-0161",
       "min": [
         -125.1,
         8.17,
@@ -3125,7 +3463,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0146",
+      "id": "Cashier desk-0162",
       "min": [
         -127.0,
         8.17,
@@ -3138,7 +3476,59 @@
       ]
     },
     {
-      "id": "Tenant side apple-0147",
+      "id": "Upholstered seat-0163",
+      "min": [
+        -136.8,
+        8.39,
+        67.5
+      ],
+      "max": [
+        -133.2,
+        8.870000000000001,
+        68.5
+      ]
+    },
+    {
+      "id": "Window display base-0164",
+      "min": [
+        -137.0,
+        8.17,
+        46.8
+      ],
+      "max": [
+        -133.0,
+        8.49,
+        49.2
+      ]
+    },
+    {
+      "id": "Upholstered seat-0165",
+      "min": [
+        -124.8,
+        8.39,
+        67.5
+      ],
+      "max": [
+        -121.2,
+        8.870000000000001,
+        68.5
+      ]
+    },
+    {
+      "id": "Window display base-0166",
+      "min": [
+        -125.0,
+        8.17,
+        46.8
+      ],
+      "max": [
+        -121.0,
+        8.49,
+        49.2
+      ]
+    },
+    {
+      "id": "Tenant side apple-0167",
       "min": [
         124.92,
         8.17,
@@ -3151,7 +3541,7 @@
       ]
     },
     {
-      "id": "Tenant side apple-0148",
+      "id": "Tenant side apple-0168",
       "min": [
         184.92,
         8.17,
@@ -3164,7 +3554,7 @@
       ]
     },
     {
-      "id": "Tenant back apple-0149",
+      "id": "Tenant back apple-0169",
       "min": [
         125.0,
         8.17,
@@ -3177,7 +3567,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0150",
+      "id": "Storefront glass-0170",
       "min": [
         125.0,
         8.17,
@@ -3190,7 +3580,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0151",
+      "id": "Storefront glass-0171",
       "min": [
         157.0,
         8.17,
@@ -3203,7 +3593,7 @@
       ]
     },
     {
-      "id": "Store fascia-0152",
+      "id": "Store fascia-0172",
       "min": [
         125.0,
         12.02,
@@ -3213,271 +3603,271 @@
         185.0,
         12.919999999999998,
         -25.87
-      ]
-    },
-    {
-      "id": "Retail display base-0153",
-      "min": [
-        133.3,
-        8.17,
-        -67.69000000000001
-      ],
-      "max": [
-        138.3,
-        8.47,
-        -66.39
-      ]
-    },
-    {
-      "id": "Retail display base-0154",
-      "min": [
-        133.3,
-        8.17,
-        -39.61
-      ],
-      "max": [
-        138.3,
-        8.47,
-        -38.31
-      ]
-    },
-    {
-      "id": "Retail display base-0155",
-      "min": [
-        171.7,
-        8.17,
-        -67.69000000000001
-      ],
-      "max": [
-        176.7,
-        8.47,
-        -66.39
-      ]
-    },
-    {
-      "id": "Retail display base-0156",
-      "min": [
-        171.7,
-        8.17,
-        -39.61
-      ],
-      "max": [
-        176.7,
-        8.47,
-        -38.31
-      ]
-    },
-    {
-      "id": "Cashier desk-0157",
-      "min": [
-        161.0,
-        8.17,
-        -77.9
-      ],
-      "max": [
-        177.8,
-        9.270000000000001,
-        -76.1
-      ]
-    },
-    {
-      "id": "Device demonstration table-0158",
-      "min": [
-        132.5,
-        8.94,
-        -66.1
-      ],
-      "max": [
-        141.5,
-        9.1,
-        -63.9
-      ]
-    },
-    {
-      "id": "Device demonstration table-0159",
-      "min": [
-        132.5,
-        8.94,
-        -54.1
-      ],
-      "max": [
-        141.5,
-        9.1,
-        -51.9
-      ]
-    },
-    {
-      "id": "Device demonstration table-0160",
-      "min": [
-        132.5,
-        8.94,
-        -42.1
-      ],
-      "max": [
-        141.5,
-        9.1,
-        -39.9
-      ]
-    },
-    {
-      "id": "Device demonstration table-0161",
-      "min": [
-        168.5,
-        8.94,
-        -66.1
-      ],
-      "max": [
-        177.5,
-        9.1,
-        -63.9
-      ]
-    },
-    {
-      "id": "Device demonstration table-0162",
-      "min": [
-        168.5,
-        8.94,
-        -54.1
-      ],
-      "max": [
-        177.5,
-        9.1,
-        -51.9
-      ]
-    },
-    {
-      "id": "Device demonstration table-0163",
-      "min": [
-        168.5,
-        8.94,
-        -42.1
-      ],
-      "max": [
-        177.5,
-        9.1,
-        -39.9
-      ]
-    },
-    {
-      "id": "Tenant side piglet-0164",
-      "min": [
-        124.92,
-        8.17,
-        26.0
-      ],
-      "max": [
-        125.08,
-        12.97,
-        80.0
-      ]
-    },
-    {
-      "id": "Tenant side piglet-0165",
-      "min": [
-        184.92,
-        8.17,
-        26.0
-      ],
-      "max": [
-        185.08,
-        12.97,
-        80.0
-      ]
-    },
-    {
-      "id": "Tenant back piglet-0166",
-      "min": [
-        125.0,
-        8.17,
-        79.92
-      ],
-      "max": [
-        185.0,
-        12.97,
-        80.08
-      ]
-    },
-    {
-      "id": "Storefront glass-0167",
-      "min": [
-        125.0,
-        8.17,
-        25.96
-      ],
-      "max": [
-        153.0,
-        11.97,
-        26.04
-      ]
-    },
-    {
-      "id": "Storefront glass-0168",
-      "min": [
-        157.0,
-        8.17,
-        25.96
-      ],
-      "max": [
-        185.0,
-        11.97,
-        26.04
-      ]
-    },
-    {
-      "id": "Store fascia-0169",
-      "min": [
-        125.0,
-        12.02,
-        25.87
-      ],
-      "max": [
-        185.0,
-        12.919999999999998,
-        26.13
-      ]
-    },
-    {
-      "id": "Retail display base-0170",
-      "min": [
-        133.3,
-        8.17,
-        38.31
-      ],
-      "max": [
-        138.3,
-        8.47,
-        39.61
-      ]
-    },
-    {
-      "id": "Retail display base-0171",
-      "min": [
-        133.3,
-        8.17,
-        66.39
-      ],
-      "max": [
-        138.3,
-        8.47,
-        67.69000000000001
-      ]
-    },
-    {
-      "id": "Retail display base-0172",
-      "min": [
-        171.7,
-        8.17,
-        38.31
-      ],
-      "max": [
-        176.7,
-        8.47,
-        39.61
       ]
     },
     {
       "id": "Retail display base-0173",
       "min": [
+        133.3,
+        8.17,
+        -67.69000000000001
+      ],
+      "max": [
+        138.3,
+        8.47,
+        -66.39
+      ]
+    },
+    {
+      "id": "Retail display base-0174",
+      "min": [
+        133.3,
+        8.17,
+        -39.61
+      ],
+      "max": [
+        138.3,
+        8.47,
+        -38.31
+      ]
+    },
+    {
+      "id": "Retail display base-0175",
+      "min": [
+        171.7,
+        8.17,
+        -67.69000000000001
+      ],
+      "max": [
+        176.7,
+        8.47,
+        -66.39
+      ]
+    },
+    {
+      "id": "Retail display base-0176",
+      "min": [
+        171.7,
+        8.17,
+        -39.61
+      ],
+      "max": [
+        176.7,
+        8.47,
+        -38.31
+      ]
+    },
+    {
+      "id": "Cashier desk-0177",
+      "min": [
+        161.0,
+        8.17,
+        -77.9
+      ],
+      "max": [
+        177.8,
+        9.270000000000001,
+        -76.1
+      ]
+    },
+    {
+      "id": "Device demonstration table-0178",
+      "min": [
+        132.5,
+        8.94,
+        -66.1
+      ],
+      "max": [
+        141.5,
+        9.1,
+        -63.9
+      ]
+    },
+    {
+      "id": "Device demonstration table-0179",
+      "min": [
+        132.5,
+        8.94,
+        -54.1
+      ],
+      "max": [
+        141.5,
+        9.1,
+        -51.9
+      ]
+    },
+    {
+      "id": "Device demonstration table-0180",
+      "min": [
+        132.5,
+        8.94,
+        -42.1
+      ],
+      "max": [
+        141.5,
+        9.1,
+        -39.9
+      ]
+    },
+    {
+      "id": "Device demonstration table-0181",
+      "min": [
+        168.5,
+        8.94,
+        -66.1
+      ],
+      "max": [
+        177.5,
+        9.1,
+        -63.9
+      ]
+    },
+    {
+      "id": "Device demonstration table-0182",
+      "min": [
+        168.5,
+        8.94,
+        -54.1
+      ],
+      "max": [
+        177.5,
+        9.1,
+        -51.9
+      ]
+    },
+    {
+      "id": "Device demonstration table-0183",
+      "min": [
+        168.5,
+        8.94,
+        -42.1
+      ],
+      "max": [
+        177.5,
+        9.1,
+        -39.9
+      ]
+    },
+    {
+      "id": "Tenant side piglet-0184",
+      "min": [
+        124.92,
+        8.17,
+        26.0
+      ],
+      "max": [
+        125.08,
+        12.97,
+        80.0
+      ]
+    },
+    {
+      "id": "Tenant side piglet-0185",
+      "min": [
+        184.92,
+        8.17,
+        26.0
+      ],
+      "max": [
+        185.08,
+        12.97,
+        80.0
+      ]
+    },
+    {
+      "id": "Tenant back piglet-0186",
+      "min": [
+        125.0,
+        8.17,
+        79.92
+      ],
+      "max": [
+        185.0,
+        12.97,
+        80.08
+      ]
+    },
+    {
+      "id": "Storefront glass-0187",
+      "min": [
+        125.0,
+        8.17,
+        25.96
+      ],
+      "max": [
+        153.0,
+        11.97,
+        26.04
+      ]
+    },
+    {
+      "id": "Storefront glass-0188",
+      "min": [
+        157.0,
+        8.17,
+        25.96
+      ],
+      "max": [
+        185.0,
+        11.97,
+        26.04
+      ]
+    },
+    {
+      "id": "Store fascia-0189",
+      "min": [
+        125.0,
+        12.02,
+        25.87
+      ],
+      "max": [
+        185.0,
+        12.919999999999998,
+        26.13
+      ]
+    },
+    {
+      "id": "Retail display base-0190",
+      "min": [
+        133.3,
+        8.17,
+        38.31
+      ],
+      "max": [
+        138.3,
+        8.47,
+        39.61
+      ]
+    },
+    {
+      "id": "Retail display base-0191",
+      "min": [
+        133.3,
+        8.17,
+        66.39
+      ],
+      "max": [
+        138.3,
+        8.47,
+        67.69000000000001
+      ]
+    },
+    {
+      "id": "Retail display base-0192",
+      "min": [
+        171.7,
+        8.17,
+        38.31
+      ],
+      "max": [
+        176.7,
+        8.47,
+        39.61
+      ]
+    },
+    {
+      "id": "Retail display base-0193",
+      "min": [
         171.7,
         8.17,
         66.39
@@ -3489,7 +3879,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0174",
+      "id": "Cashier desk-0194",
       "min": [
         161.0,
         8.17,
@@ -3502,7 +3892,7 @@
       ]
     },
     {
-      "id": "Tenant side hifi-0175",
+      "id": "Tenant side hifi-0195",
       "min": [
         -187.08,
         14.97,
@@ -3515,7 +3905,7 @@
       ]
     },
     {
-      "id": "Tenant side hifi-0176",
+      "id": "Tenant side hifi-0196",
       "min": [
         -119.08,
         14.97,
@@ -3528,7 +3918,7 @@
       ]
     },
     {
-      "id": "Tenant back hifi-0177",
+      "id": "Tenant back hifi-0197",
       "min": [
         -187.0,
         14.97,
@@ -3541,7 +3931,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0178",
+      "id": "Storefront glass-0198",
       "min": [
         -187.0,
         14.97,
@@ -3554,7 +3944,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0179",
+      "id": "Storefront glass-0199",
       "min": [
         -151.0,
         14.97,
@@ -3567,7 +3957,7 @@
       ]
     },
     {
-      "id": "Store fascia-0180",
+      "id": "Store fascia-0200",
       "min": [
         -187.0,
         18.82,
@@ -3580,7 +3970,7 @@
       ]
     },
     {
-      "id": "Retail display base-0181",
+      "id": "Retail display base-0201",
       "min": [
         -177.26,
         14.97,
@@ -3593,7 +3983,7 @@
       ]
     },
     {
-      "id": "Retail display base-0182",
+      "id": "Retail display base-0202",
       "min": [
         -177.26,
         14.97,
@@ -3606,7 +3996,7 @@
       ]
     },
     {
-      "id": "Retail display base-0183",
+      "id": "Retail display base-0203",
       "min": [
         -133.74,
         14.97,
@@ -3619,7 +4009,7 @@
       ]
     },
     {
-      "id": "Retail display base-0184",
+      "id": "Retail display base-0204",
       "min": [
         -133.74,
         14.97,
@@ -3632,7 +4022,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0185",
+      "id": "Cashier desk-0205",
       "min": [
         -146.20000000000002,
         14.97,
@@ -3645,7 +4035,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0186",
+      "id": "Upholstered seat-0206",
       "min": [
         -177.0,
         15.190000000000001,
@@ -3658,7 +4048,7 @@
       ]
     },
     {
-      "id": "Stone coffee table-0187",
+      "id": "Stone coffee table-0207",
       "min": [
         -175.6,
         15.285000000000002,
@@ -3671,7 +4061,7 @@
       ]
     },
     {
-      "id": "Floorstanding speaker-0188",
+      "id": "Floorstanding speaker-0208",
       "min": [
         -178.325,
         14.97,
@@ -3684,7 +4074,7 @@
       ]
     },
     {
-      "id": "Floorstanding speaker-0189",
+      "id": "Floorstanding speaker-0209",
       "min": [
         -170.325,
         14.97,
@@ -3697,7 +4087,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0190",
+      "id": "Upholstered seat-0210",
       "min": [
         -177.0,
         15.190000000000001,
@@ -3710,7 +4100,7 @@
       ]
     },
     {
-      "id": "Stone coffee table-0191",
+      "id": "Stone coffee table-0211",
       "min": [
         -175.6,
         15.285000000000002,
@@ -3723,7 +4113,7 @@
       ]
     },
     {
-      "id": "Floorstanding speaker-0192",
+      "id": "Floorstanding speaker-0212",
       "min": [
         -178.325,
         14.97,
@@ -3736,7 +4126,7 @@
       ]
     },
     {
-      "id": "Floorstanding speaker-0193",
+      "id": "Floorstanding speaker-0213",
       "min": [
         -170.325,
         14.97,
@@ -3749,7 +4139,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0194",
+      "id": "Upholstered seat-0214",
       "min": [
         -135.0,
         15.190000000000001,
@@ -3762,7 +4152,7 @@
       ]
     },
     {
-      "id": "Stone coffee table-0195",
+      "id": "Stone coffee table-0215",
       "min": [
         -133.6,
         15.285000000000002,
@@ -3775,7 +4165,7 @@
       ]
     },
     {
-      "id": "Floorstanding speaker-0196",
+      "id": "Floorstanding speaker-0216",
       "min": [
         -136.325,
         14.97,
@@ -3788,7 +4178,7 @@
       ]
     },
     {
-      "id": "Floorstanding speaker-0197",
+      "id": "Floorstanding speaker-0217",
       "min": [
         -128.325,
         14.97,
@@ -3801,7 +4191,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0198",
+      "id": "Upholstered seat-0218",
       "min": [
         -135.0,
         15.190000000000001,
@@ -3814,7 +4204,7 @@
       ]
     },
     {
-      "id": "Stone coffee table-0199",
+      "id": "Stone coffee table-0219",
       "min": [
         -133.6,
         15.285000000000002,
@@ -3827,7 +4217,7 @@
       ]
     },
     {
-      "id": "Floorstanding speaker-0200",
+      "id": "Floorstanding speaker-0220",
       "min": [
         -136.325,
         14.97,
@@ -3840,7 +4230,7 @@
       ]
     },
     {
-      "id": "Floorstanding speaker-0201",
+      "id": "Floorstanding speaker-0221",
       "min": [
         -128.325,
         14.97,
@@ -3853,7 +4243,7 @@
       ]
     },
     {
-      "id": "Tenant side furniture-0202",
+      "id": "Tenant side furniture-0222",
       "min": [
         -187.08,
         14.97,
@@ -3866,7 +4256,7 @@
       ]
     },
     {
-      "id": "Tenant side furniture-0203",
+      "id": "Tenant side furniture-0223",
       "min": [
         -119.08,
         14.97,
@@ -3879,7 +4269,7 @@
       ]
     },
     {
-      "id": "Tenant back furniture-0204",
+      "id": "Tenant back furniture-0224",
       "min": [
         -187.0,
         14.97,
@@ -3892,7 +4282,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0205",
+      "id": "Storefront glass-0225",
       "min": [
         -187.0,
         14.97,
@@ -3905,7 +4295,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0206",
+      "id": "Storefront glass-0226",
       "min": [
         -151.0,
         14.97,
@@ -3918,7 +4308,7 @@
       ]
     },
     {
-      "id": "Store fascia-0207",
+      "id": "Store fascia-0227",
       "min": [
         -187.0,
         18.82,
@@ -3931,7 +4321,7 @@
       ]
     },
     {
-      "id": "Retail display base-0208",
+      "id": "Retail display base-0228",
       "min": [
         -177.26,
         14.97,
@@ -3944,7 +4334,7 @@
       ]
     },
     {
-      "id": "Retail display base-0209",
+      "id": "Retail display base-0229",
       "min": [
         -177.26,
         14.97,
@@ -3957,7 +4347,7 @@
       ]
     },
     {
-      "id": "Retail display base-0210",
+      "id": "Retail display base-0230",
       "min": [
         -133.74,
         14.97,
@@ -3970,7 +4360,7 @@
       ]
     },
     {
-      "id": "Retail display base-0211",
+      "id": "Retail display base-0231",
       "min": [
         -133.74,
         14.97,
@@ -3983,7 +4373,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0212",
+      "id": "Cashier desk-0232",
       "min": [
         -146.20000000000002,
         14.97,
@@ -3996,7 +4386,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0213",
+      "id": "Upholstered seat-0233",
       "min": [
         -177.0,
         15.190000000000001,
@@ -4009,7 +4399,7 @@
       ]
     },
     {
-      "id": "Stone coffee table-0214",
+      "id": "Stone coffee table-0234",
       "min": [
         -175.6,
         15.285000000000002,
@@ -4022,7 +4412,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0215",
+      "id": "Upholstered seat-0235",
       "min": [
         -177.0,
         15.190000000000001,
@@ -4035,7 +4425,7 @@
       ]
     },
     {
-      "id": "Stone coffee table-0216",
+      "id": "Stone coffee table-0236",
       "min": [
         -175.6,
         15.285000000000002,
@@ -4048,7 +4438,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0217",
+      "id": "Upholstered seat-0237",
       "min": [
         -135.0,
         15.190000000000001,
@@ -4061,7 +4451,7 @@
       ]
     },
     {
-      "id": "Stone coffee table-0218",
+      "id": "Stone coffee table-0238",
       "min": [
         -133.6,
         15.285000000000002,
@@ -4074,7 +4464,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0219",
+      "id": "Upholstered seat-0239",
       "min": [
         -135.0,
         15.190000000000001,
@@ -4087,7 +4477,7 @@
       ]
     },
     {
-      "id": "Stone coffee table-0220",
+      "id": "Stone coffee table-0240",
       "min": [
         -133.6,
         15.285000000000002,
@@ -4100,7 +4490,7 @@
       ]
     },
     {
-      "id": "Tenant side healthy-0221",
+      "id": "Tenant side healthy-0241",
       "min": [
         -186.08,
         -7.200000000000001,
@@ -4113,7 +4503,7 @@
       ]
     },
     {
-      "id": "Tenant side healthy-0222",
+      "id": "Tenant side healthy-0242",
       "min": [
         -124.08,
         -7.200000000000001,
@@ -4126,7 +4516,7 @@
       ]
     },
     {
-      "id": "Tenant back healthy-0223",
+      "id": "Tenant back healthy-0243",
       "min": [
         -186.0,
         -7.200000000000001,
@@ -4139,7 +4529,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0224",
+      "id": "Storefront glass-0244",
       "min": [
         -186.0,
         -7.200000000000001,
@@ -4152,7 +4542,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0225",
+      "id": "Storefront glass-0245",
       "min": [
         -153.0,
         -7.200000000000001,
@@ -4165,7 +4555,7 @@
       ]
     },
     {
-      "id": "Store fascia-0226",
+      "id": "Store fascia-0246",
       "min": [
         -186.0,
         -3.3500000000000005,
@@ -4178,7 +4568,7 @@
       ]
     },
     {
-      "id": "Retail display base-0227",
+      "id": "Retail display base-0247",
       "min": [
         -177.34,
         -7.2,
@@ -4191,7 +4581,7 @@
       ]
     },
     {
-      "id": "Retail display base-0228",
+      "id": "Retail display base-0248",
       "min": [
         -177.34,
         -7.2,
@@ -4204,7 +4594,7 @@
       ]
     },
     {
-      "id": "Retail display base-0229",
+      "id": "Retail display base-0249",
       "min": [
         -137.66,
         -7.2,
@@ -4217,7 +4607,7 @@
       ]
     },
     {
-      "id": "Retail display base-0230",
+      "id": "Retail display base-0250",
       "min": [
         -137.66,
         -7.2,
@@ -4230,7 +4620,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0231",
+      "id": "Cashier desk-0251",
       "min": [
         -148.8,
         -7.2,
@@ -4243,7 +4633,7 @@
       ]
     },
     {
-      "id": "Food preparation counter-0232",
+      "id": "Food preparation counter-0252",
       "min": [
         -176.5,
         -7.2,
@@ -4256,7 +4646,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0233",
+      "id": "Cafe tabletop-0253",
       "min": [
         -171.72,
         -6.48,
@@ -4269,7 +4659,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0234",
+      "id": "Cafe tabletop-0254",
       "min": [
         -171.72,
         -6.48,
@@ -4282,7 +4672,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0235",
+      "id": "Cafe tabletop-0255",
       "min": [
         -139.48,
         -6.48,
@@ -4295,7 +4685,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0236",
+      "id": "Cafe tabletop-0256",
       "min": [
         -139.48,
         -6.48,
@@ -4308,7 +4698,7 @@
       ]
     },
     {
-      "id": "Tenant side moleskine-0237",
+      "id": "Tenant side moleskine-0257",
       "min": [
         -186.08,
         -7.200000000000001,
@@ -4321,7 +4711,7 @@
       ]
     },
     {
-      "id": "Tenant side moleskine-0238",
+      "id": "Tenant side moleskine-0258",
       "min": [
         -158.08,
         -7.200000000000001,
@@ -4334,7 +4724,7 @@
       ]
     },
     {
-      "id": "Tenant back moleskine-0239",
+      "id": "Tenant back moleskine-0259",
       "min": [
         -186.0,
         -7.200000000000001,
@@ -4347,7 +4737,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0240",
+      "id": "Storefront glass-0260",
       "min": [
         -186.0,
         -7.200000000000001,
@@ -4360,7 +4750,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0241",
+      "id": "Storefront glass-0261",
       "min": [
         -170.0,
         -7.200000000000001,
@@ -4373,7 +4763,7 @@
       ]
     },
     {
-      "id": "Store fascia-0242",
+      "id": "Store fascia-0262",
       "min": [
         -186.0,
         -3.3500000000000005,
@@ -4386,7 +4776,7 @@
       ]
     },
     {
-      "id": "Retail display base-0243",
+      "id": "Retail display base-0263",
       "min": [
         -183.46,
         -7.2,
@@ -4399,7 +4789,7 @@
       ]
     },
     {
-      "id": "Retail display base-0244",
+      "id": "Retail display base-0264",
       "min": [
         -183.46,
         -7.2,
@@ -4412,7 +4802,7 @@
       ]
     },
     {
-      "id": "Retail display base-0245",
+      "id": "Retail display base-0265",
       "min": [
         -165.54,
         -7.2,
@@ -4425,7 +4815,7 @@
       ]
     },
     {
-      "id": "Retail display base-0246",
+      "id": "Retail display base-0266",
       "min": [
         -165.54,
         -7.2,
@@ -4438,7 +4828,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0247",
+      "id": "Cashier desk-0267",
       "min": [
         -169.2,
         -7.2,
@@ -4451,7 +4841,7 @@
       ]
     },
     {
-      "id": "Tenant side chocolate-0248",
+      "id": "Tenant side chocolate-0268",
       "min": [
         -152.08,
         -7.200000000000001,
@@ -4464,7 +4854,7 @@
       ]
     },
     {
-      "id": "Tenant side chocolate-0249",
+      "id": "Tenant side chocolate-0269",
       "min": [
         -124.08,
         -7.200000000000001,
@@ -4477,7 +4867,7 @@
       ]
     },
     {
-      "id": "Tenant back chocolate-0250",
+      "id": "Tenant back chocolate-0270",
       "min": [
         -152.0,
         -7.200000000000001,
@@ -4490,7 +4880,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0251",
+      "id": "Storefront glass-0271",
       "min": [
         -152.0,
         -7.200000000000001,
@@ -4503,7 +4893,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0252",
+      "id": "Storefront glass-0272",
       "min": [
         -136.0,
         -7.200000000000001,
@@ -4516,7 +4906,7 @@
       ]
     },
     {
-      "id": "Store fascia-0253",
+      "id": "Store fascia-0273",
       "min": [
         -152.0,
         -3.3500000000000005,
@@ -4529,7 +4919,7 @@
       ]
     },
     {
-      "id": "Retail display base-0254",
+      "id": "Retail display base-0274",
       "min": [
         -149.46,
         -7.2,
@@ -4542,7 +4932,7 @@
       ]
     },
     {
-      "id": "Retail display base-0255",
+      "id": "Retail display base-0275",
       "min": [
         -149.46,
         -7.2,
@@ -4555,7 +4945,7 @@
       ]
     },
     {
-      "id": "Retail display base-0256",
+      "id": "Retail display base-0276",
       "min": [
         -131.54,
         -7.2,
@@ -4568,7 +4958,7 @@
       ]
     },
     {
-      "id": "Retail display base-0257",
+      "id": "Retail display base-0277",
       "min": [
         -131.54,
         -7.2,
@@ -4581,7 +4971,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0258",
+      "id": "Cashier desk-0278",
       "min": [
         -135.2,
         -7.2,
@@ -4594,7 +4984,7 @@
       ]
     },
     {
-      "id": "Food preparation counter-0259",
+      "id": "Food preparation counter-0279",
       "min": [
         -150.88,
         -7.2,
@@ -4607,7 +4997,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0260",
+      "id": "Cafe tabletop-0280",
       "min": [
         -145.88,
         -6.48,
@@ -4620,7 +5010,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0261",
+      "id": "Cafe tabletop-0281",
       "min": [
         -145.88,
         -6.48,
@@ -4633,7 +5023,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0262",
+      "id": "Cafe tabletop-0282",
       "min": [
         -131.32,
         -6.48,
@@ -4646,7 +5036,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0263",
+      "id": "Cafe tabletop-0283",
       "min": [
         -131.32,
         -6.48,
@@ -4659,7 +5049,7 @@
       ]
     },
     {
-      "id": "Tenant side auto-gallery-0264",
+      "id": "Tenant side auto-gallery-0284",
       "min": [
         124.92,
         14.97,
@@ -4672,7 +5062,7 @@
       ]
     },
     {
-      "id": "Tenant side auto-gallery-0265",
+      "id": "Tenant side auto-gallery-0285",
       "min": [
         184.92,
         14.97,
@@ -4685,7 +5075,7 @@
       ]
     },
     {
-      "id": "Tenant back auto-gallery-0266",
+      "id": "Tenant back auto-gallery-0286",
       "min": [
         125.0,
         14.97,
@@ -4698,7 +5088,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0267",
+      "id": "Storefront glass-0287",
       "min": [
         125.0,
         14.97,
@@ -4711,7 +5101,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0268",
+      "id": "Storefront glass-0288",
       "min": [
         157.0,
         14.97,
@@ -4724,7 +5114,7 @@
       ]
     },
     {
-      "id": "Store fascia-0269",
+      "id": "Store fascia-0289",
       "min": [
         125.0,
         18.82,
@@ -4737,7 +5127,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0270",
+      "id": "Cashier desk-0290",
       "min": [
         161.0,
         14.97,
@@ -4763,7 +5153,7 @@
       ]
     },
     {
-      "id": "Vehicle configuration kiosk-0272",
+      "id": "Vehicle configuration kiosk-0292",
       "min": [
         140.5,
         14.97,
@@ -4789,7 +5179,7 @@
       ]
     },
     {
-      "id": "Vehicle configuration kiosk-0274",
+      "id": "Vehicle configuration kiosk-0294",
       "min": [
         174.5,
         14.97,
@@ -4815,7 +5205,7 @@
       ]
     },
     {
-      "id": "Vehicle configuration kiosk-0276",
+      "id": "Vehicle configuration kiosk-0296",
       "min": [
         140.5,
         14.97,
@@ -4841,7 +5231,7 @@
       ]
     },
     {
-      "id": "Vehicle configuration kiosk-0278",
+      "id": "Vehicle configuration kiosk-0298",
       "min": [
         174.5,
         14.97,
@@ -4854,7 +5244,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0279",
+      "id": "Cafe tabletop-0299",
       "min": [
         134.4,
         15.690000000000001,
@@ -4867,7 +5257,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0280",
+      "id": "Cafe tabletop-0300",
       "min": [
         174.4,
         15.690000000000001,
@@ -4880,7 +5270,7 @@
       ]
     },
     {
-      "id": "Tenant side shoe-salon-0281",
+      "id": "Tenant side shoe-salon-0301",
       "min": [
         124.92,
         14.97,
@@ -4893,7 +5283,7 @@
       ]
     },
     {
-      "id": "Tenant side shoe-salon-0282",
+      "id": "Tenant side shoe-salon-0302",
       "min": [
         184.92,
         14.97,
@@ -4906,7 +5296,7 @@
       ]
     },
     {
-      "id": "Tenant back shoe-salon-0283",
+      "id": "Tenant back shoe-salon-0303",
       "min": [
         125.0,
         14.97,
@@ -4919,7 +5309,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0284",
+      "id": "Storefront glass-0304",
       "min": [
         125.0,
         14.97,
@@ -4932,7 +5322,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0285",
+      "id": "Storefront glass-0305",
       "min": [
         157.0,
         14.97,
@@ -4945,7 +5335,7 @@
       ]
     },
     {
-      "id": "Store fascia-0286",
+      "id": "Store fascia-0306",
       "min": [
         125.0,
         18.82,
@@ -4958,7 +5348,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0287",
+      "id": "Cashier desk-0307",
       "min": [
         161.0,
         14.97,
@@ -4971,7 +5361,7 @@
       ]
     },
     {
-      "id": "Shoe display cabinet-0288",
+      "id": "Shoe display cabinet-0308",
       "min": [
         132.5,
         14.97,
@@ -4984,7 +5374,7 @@
       ]
     },
     {
-      "id": "Shoe display cabinet-0289",
+      "id": "Shoe display cabinet-0309",
       "min": [
         132.5,
         14.97,
@@ -4997,7 +5387,7 @@
       ]
     },
     {
-      "id": "Shoe display cabinet-0290",
+      "id": "Shoe display cabinet-0310",
       "min": [
         132.5,
         14.97,
@@ -5010,7 +5400,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0291",
+      "id": "Upholstered seat-0311",
       "min": [
         133.0,
         15.190000000000001,
@@ -5023,7 +5413,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0292",
+      "id": "Upholstered seat-0312",
       "min": [
         133.0,
         15.190000000000001,
@@ -5036,7 +5426,7 @@
       ]
     },
     {
-      "id": "Shoe display cabinet-0293",
+      "id": "Shoe display cabinet-0313",
       "min": [
         172.5,
         14.97,
@@ -5049,7 +5439,7 @@
       ]
     },
     {
-      "id": "Shoe display cabinet-0294",
+      "id": "Shoe display cabinet-0314",
       "min": [
         172.5,
         14.97,
@@ -5062,7 +5452,7 @@
       ]
     },
     {
-      "id": "Shoe display cabinet-0295",
+      "id": "Shoe display cabinet-0315",
       "min": [
         172.5,
         14.97,
@@ -5075,7 +5465,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0296",
+      "id": "Upholstered seat-0316",
       "min": [
         173.0,
         15.190000000000001,
@@ -5088,7 +5478,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0297",
+      "id": "Upholstered seat-0317",
       "min": [
         173.0,
         15.190000000000001,
@@ -5101,7 +5491,59 @@
       ]
     },
     {
-      "id": "Tenant side alterations-0298",
+      "id": "Upholstered seat-0318",
+      "min": [
+        135.2,
+        15.190000000000001,
+        58.5
+      ],
+      "max": [
+        138.8,
+        15.670000000000002,
+        59.5
+      ]
+    },
+    {
+      "id": "Window display base-0319",
+      "min": [
+        135.0,
+        14.97,
+        28.8
+      ],
+      "max": [
+        139.0,
+        15.290000000000001,
+        31.2
+      ]
+    },
+    {
+      "id": "Upholstered seat-0320",
+      "min": [
+        171.2,
+        15.190000000000001,
+        58.5
+      ],
+      "max": [
+        174.8,
+        15.670000000000002,
+        59.5
+      ]
+    },
+    {
+      "id": "Window display base-0321",
+      "min": [
+        171.0,
+        14.97,
+        28.8
+      ],
+      "max": [
+        175.0,
+        15.290000000000001,
+        31.2
+      ]
+    },
+    {
+      "id": "Tenant side alterations-0322",
       "min": [
         -187.08,
         21.77,
@@ -5114,7 +5556,7 @@
       ]
     },
     {
-      "id": "Tenant side alterations-0299",
+      "id": "Tenant side alterations-0323",
       "min": [
         -167.08,
         21.77,
@@ -5127,7 +5569,7 @@
       ]
     },
     {
-      "id": "Tenant back alterations-0300",
+      "id": "Tenant back alterations-0324",
       "min": [
         -187.0,
         21.77,
@@ -5140,7 +5582,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0301",
+      "id": "Storefront glass-0325",
       "min": [
         -187.0,
         21.77,
@@ -5153,7 +5595,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0302",
+      "id": "Storefront glass-0326",
       "min": [
         -175.0,
         21.77,
@@ -5166,7 +5608,7 @@
       ]
     },
     {
-      "id": "Store fascia-0303",
+      "id": "Store fascia-0327",
       "min": [
         -187.0,
         25.62,
@@ -5179,7 +5621,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0304",
+      "id": "Cashier desk-0328",
       "min": [
         -175.0,
         21.77,
@@ -5192,7 +5634,7 @@
       ]
     },
     {
-      "id": "Garment rail foot-0305",
+      "id": "Garment rail foot-0329",
       "min": [
         -184.35,
         21.77,
@@ -5205,7 +5647,7 @@
       ]
     },
     {
-      "id": "Garment rail foot-0306",
+      "id": "Garment rail foot-0330",
       "min": [
         -184.35,
         21.77,
@@ -5218,7 +5660,7 @@
       ]
     },
     {
-      "id": "Garment rail foot-0307",
+      "id": "Garment rail foot-0331",
       "min": [
         -172.35,
         21.77,
@@ -5231,7 +5673,7 @@
       ]
     },
     {
-      "id": "Garment rail foot-0308",
+      "id": "Garment rail foot-0332",
       "min": [
         -172.35,
         21.77,
@@ -5244,7 +5686,7 @@
       ]
     },
     {
-      "id": "Tailor cutting table-0309",
+      "id": "Tailor cutting table-0333",
       "min": [
         -184.0,
         22.575,
@@ -5257,7 +5699,7 @@
       ]
     },
     {
-      "id": "Fitting alcove side-0310",
+      "id": "Fitting alcove side-0334",
       "min": [
         -170.65,
         21.77,
@@ -5270,7 +5712,7 @@
       ]
     },
     {
-      "id": "Fitting curtain-0311",
+      "id": "Fitting curtain-0335",
       "min": [
         -173.6,
         21.77,
@@ -5283,7 +5725,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0312",
+      "id": "Cafe tabletop-0336",
       "min": [
         -182.6,
         22.490000000000002,
@@ -5296,7 +5738,7 @@
       ]
     },
     {
-      "id": "Tenant side watch-care-0313",
+      "id": "Tenant side watch-care-0337",
       "min": [
         -163.08,
         21.77,
@@ -5309,7 +5751,7 @@
       ]
     },
     {
-      "id": "Tenant side watch-care-0314",
+      "id": "Tenant side watch-care-0338",
       "min": [
         -143.08,
         21.77,
@@ -5322,7 +5764,7 @@
       ]
     },
     {
-      "id": "Tenant back watch-care-0315",
+      "id": "Tenant back watch-care-0339",
       "min": [
         -163.0,
         21.77,
@@ -5335,7 +5777,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0316",
+      "id": "Storefront glass-0340",
       "min": [
         -163.0,
         21.77,
@@ -5348,7 +5790,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0317",
+      "id": "Storefront glass-0341",
       "min": [
         -151.0,
         21.77,
@@ -5361,7 +5803,7 @@
       ]
     },
     {
-      "id": "Store fascia-0318",
+      "id": "Store fascia-0342",
       "min": [
         -163.0,
         25.62,
@@ -5374,7 +5816,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0319",
+      "id": "Cashier desk-0343",
       "min": [
         -151.0,
         21.77,
@@ -5387,7 +5829,7 @@
       ]
     },
     {
-      "id": "Watchmaker bench-0320",
+      "id": "Watchmaker bench-0344",
       "min": [
         -159.7,
         22.625,
@@ -5400,7 +5842,7 @@
       ]
     },
     {
-      "id": "Watchmaker bench-0321",
+      "id": "Watchmaker bench-0345",
       "min": [
         -149.7,
         22.625,
@@ -5413,7 +5855,7 @@
       ]
     },
     {
-      "id": "Secure parts cabinet-0322",
+      "id": "Secure parts cabinet-0346",
       "min": [
         -159.5,
         21.77,
@@ -5426,7 +5868,7 @@
       ]
     },
     {
-      "id": "Tenant side concierge-0323",
+      "id": "Tenant side concierge-0347",
       "min": [
         -139.08,
         21.77,
@@ -5439,7 +5881,7 @@
       ]
     },
     {
-      "id": "Tenant side concierge-0324",
+      "id": "Tenant side concierge-0348",
       "min": [
         -119.08,
         21.77,
@@ -5452,7 +5894,7 @@
       ]
     },
     {
-      "id": "Tenant back concierge-0325",
+      "id": "Tenant back concierge-0349",
       "min": [
         -139.0,
         21.77,
@@ -5465,7 +5907,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0326",
+      "id": "Storefront glass-0350",
       "min": [
         -139.0,
         21.77,
@@ -5478,7 +5920,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0327",
+      "id": "Storefront glass-0351",
       "min": [
         -127.0,
         21.77,
@@ -5491,7 +5933,7 @@
       ]
     },
     {
-      "id": "Store fascia-0328",
+      "id": "Store fascia-0352",
       "min": [
         -139.0,
         25.62,
@@ -5504,7 +5946,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0329",
+      "id": "Cashier desk-0353",
       "min": [
         -127.0,
         21.77,
@@ -5517,7 +5959,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0330",
+      "id": "Upholstered seat-0354",
       "min": [
         -136.2,
         21.990000000000002,
@@ -5530,7 +5972,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0331",
+      "id": "Cafe tabletop-0355",
       "min": [
         -134.79999999999998,
         22.490000000000002,
@@ -5543,7 +5985,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0332",
+      "id": "Upholstered seat-0356",
       "min": [
         -125.8,
         21.990000000000002,
@@ -5556,7 +5998,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0333",
+      "id": "Cafe tabletop-0357",
       "min": [
         -124.39999999999999,
         22.490000000000002,
@@ -5569,7 +6011,7 @@
       ]
     },
     {
-      "id": "Concierge service counter-0334",
+      "id": "Concierge service counter-0358",
       "min": [
         -134.0,
         21.77,
@@ -5582,7 +6024,7 @@
       ]
     },
     {
-      "id": "Tenant side member-lounge-0335",
+      "id": "Tenant side member-lounge-0359",
       "min": [
         -186.08,
         21.77,
@@ -5595,7 +6037,7 @@
       ]
     },
     {
-      "id": "Tenant side member-lounge-0336",
+      "id": "Tenant side member-lounge-0360",
       "min": [
         -156.08,
         21.77,
@@ -5608,7 +6050,7 @@
       ]
     },
     {
-      "id": "Tenant back member-lounge-0337",
+      "id": "Tenant back member-lounge-0361",
       "min": [
         -186.0,
         21.77,
@@ -5621,7 +6063,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0338",
+      "id": "Storefront glass-0362",
       "min": [
         -186.0,
         21.77,
@@ -5634,7 +6076,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0339",
+      "id": "Storefront glass-0363",
       "min": [
         -169.0,
         21.77,
@@ -5647,7 +6089,7 @@
       ]
     },
     {
-      "id": "Store fascia-0340",
+      "id": "Store fascia-0364",
       "min": [
         -186.0,
         25.62,
@@ -5660,7 +6102,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0341",
+      "id": "Cashier desk-0365",
       "min": [
         -168.0,
         21.77,
@@ -5673,7 +6115,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0342",
+      "id": "Upholstered seat-0366",
       "min": [
         -180.8,
         21.990000000000002,
@@ -5686,7 +6128,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0343",
+      "id": "Cafe tabletop-0367",
       "min": [
         -179.4,
         22.490000000000002,
@@ -5699,7 +6141,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0344",
+      "id": "Upholstered seat-0368",
       "min": [
         -165.2,
         21.990000000000002,
@@ -5712,7 +6154,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0345",
+      "id": "Cafe tabletop-0369",
       "min": [
         -163.79999999999998,
         22.490000000000002,
@@ -5725,7 +6167,7 @@
       ]
     },
     {
-      "id": "Concierge service counter-0346",
+      "id": "Concierge service counter-0370",
       "min": [
         -178.5,
         21.77,
@@ -5738,7 +6180,7 @@
       ]
     },
     {
-      "id": "Tenant side personal-styling-0347",
+      "id": "Tenant side personal-styling-0371",
       "min": [
         -150.08,
         21.77,
@@ -5751,7 +6193,7 @@
       ]
     },
     {
-      "id": "Tenant side personal-styling-0348",
+      "id": "Tenant side personal-styling-0372",
       "min": [
         -120.08,
         21.77,
@@ -5764,7 +6206,7 @@
       ]
     },
     {
-      "id": "Tenant back personal-styling-0349",
+      "id": "Tenant back personal-styling-0373",
       "min": [
         -150.0,
         21.77,
@@ -5777,7 +6219,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0350",
+      "id": "Storefront glass-0374",
       "min": [
         -150.0,
         21.77,
@@ -5790,7 +6232,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0351",
+      "id": "Storefront glass-0375",
       "min": [
         -133.0,
         21.77,
@@ -5803,7 +6245,7 @@
       ]
     },
     {
-      "id": "Store fascia-0352",
+      "id": "Store fascia-0376",
       "min": [
         -150.0,
         25.62,
@@ -5816,7 +6258,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0353",
+      "id": "Cashier desk-0377",
       "min": [
         -132.0,
         21.77,
@@ -5829,7 +6271,7 @@
       ]
     },
     {
-      "id": "Garment rail foot-0354",
+      "id": "Garment rail foot-0378",
       "min": [
         -145.35,
         21.77,
@@ -5842,7 +6284,7 @@
       ]
     },
     {
-      "id": "Garment rail foot-0355",
+      "id": "Garment rail foot-0379",
       "min": [
         -145.35,
         21.77,
@@ -5855,7 +6297,7 @@
       ]
     },
     {
-      "id": "Garment rail foot-0356",
+      "id": "Garment rail foot-0380",
       "min": [
         -127.35,
         21.77,
@@ -5868,7 +6310,7 @@
       ]
     },
     {
-      "id": "Garment rail foot-0357",
+      "id": "Garment rail foot-0381",
       "min": [
         -127.35,
         21.77,
@@ -5881,7 +6323,7 @@
       ]
     },
     {
-      "id": "Tailor cutting table-0358",
+      "id": "Tailor cutting table-0382",
       "min": [
         -144.5,
         22.575,
@@ -5894,7 +6336,7 @@
       ]
     },
     {
-      "id": "Fitting alcove side-0359",
+      "id": "Fitting alcove side-0383",
       "min": [
         -125.45,
         21.77,
@@ -5907,7 +6349,7 @@
       ]
     },
     {
-      "id": "Fitting curtain-0360",
+      "id": "Fitting curtain-0384",
       "min": [
         -129.4,
         21.77,
@@ -5920,7 +6362,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0361",
+      "id": "Cafe tabletop-0385",
       "min": [
         -143.1,
         22.490000000000002,
@@ -5933,7 +6375,7 @@
       ]
     },
     {
-      "id": "Tenant side beauty-spa-0362",
+      "id": "Tenant side beauty-spa-0386",
       "min": [
         124.92,
         21.77,
@@ -5946,7 +6388,7 @@
       ]
     },
     {
-      "id": "Tenant side beauty-spa-0363",
+      "id": "Tenant side beauty-spa-0387",
       "min": [
         184.92,
         21.77,
@@ -5959,7 +6401,7 @@
       ]
     },
     {
-      "id": "Tenant back beauty-spa-0364",
+      "id": "Tenant back beauty-spa-0388",
       "min": [
         125.0,
         21.77,
@@ -5972,7 +6414,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0365",
+      "id": "Storefront glass-0389",
       "min": [
         125.0,
         21.77,
@@ -5985,7 +6427,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0366",
+      "id": "Storefront glass-0390",
       "min": [
         157.0,
         21.77,
@@ -5998,7 +6440,7 @@
       ]
     },
     {
-      "id": "Store fascia-0367",
+      "id": "Store fascia-0391",
       "min": [
         125.0,
         25.62,
@@ -6011,7 +6453,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0368",
+      "id": "Cashier desk-0392",
       "min": [
         161.0,
         21.77,
@@ -6024,7 +6466,7 @@
       ]
     },
     {
-      "id": "Treatment privacy divider-0369",
+      "id": "Treatment privacy divider-0393",
       "min": [
         139.925,
         21.77,
@@ -6037,7 +6479,7 @@
       ]
     },
     {
-      "id": "Treatment couch-0370",
+      "id": "Treatment couch-0394",
       "min": [
         135.35,
         22.345,
@@ -6050,7 +6492,7 @@
       ]
     },
     {
-      "id": "Treatment storage-0371",
+      "id": "Treatment storage-0395",
       "min": [
         133.5,
         21.77,
@@ -6063,7 +6505,7 @@
       ]
     },
     {
-      "id": "Treatment privacy divider-0372",
+      "id": "Treatment privacy divider-0396",
       "min": [
         139.925,
         21.77,
@@ -6076,7 +6518,7 @@
       ]
     },
     {
-      "id": "Treatment couch-0373",
+      "id": "Treatment couch-0397",
       "min": [
         135.35,
         22.345,
@@ -6089,7 +6531,7 @@
       ]
     },
     {
-      "id": "Treatment storage-0374",
+      "id": "Treatment storage-0398",
       "min": [
         133.5,
         21.77,
@@ -6102,7 +6544,7 @@
       ]
     },
     {
-      "id": "Treatment privacy divider-0375",
+      "id": "Treatment privacy divider-0399",
       "min": [
         177.925,
         21.77,
@@ -6115,7 +6557,7 @@
       ]
     },
     {
-      "id": "Treatment couch-0376",
+      "id": "Treatment couch-0400",
       "min": [
         173.35,
         22.345,
@@ -6128,7 +6570,7 @@
       ]
     },
     {
-      "id": "Treatment storage-0377",
+      "id": "Treatment storage-0401",
       "min": [
         171.5,
         21.77,
@@ -6141,7 +6583,7 @@
       ]
     },
     {
-      "id": "Treatment privacy divider-0378",
+      "id": "Treatment privacy divider-0402",
       "min": [
         177.925,
         21.77,
@@ -6154,7 +6596,7 @@
       ]
     },
     {
-      "id": "Treatment couch-0379",
+      "id": "Treatment couch-0403",
       "min": [
         173.35,
         22.345,
@@ -6167,7 +6609,7 @@
       ]
     },
     {
-      "id": "Treatment storage-0380",
+      "id": "Treatment storage-0404",
       "min": [
         171.5,
         21.77,
@@ -6180,7 +6622,7 @@
       ]
     },
     {
-      "id": "Tenant side culture-gallery-0381",
+      "id": "Tenant side culture-gallery-0405",
       "min": [
         124.92,
         21.77,
@@ -6193,7 +6635,7 @@
       ]
     },
     {
-      "id": "Tenant side culture-gallery-0382",
+      "id": "Tenant side culture-gallery-0406",
       "min": [
         184.92,
         21.77,
@@ -6206,7 +6648,7 @@
       ]
     },
     {
-      "id": "Tenant back culture-gallery-0383",
+      "id": "Tenant back culture-gallery-0407",
       "min": [
         125.0,
         21.77,
@@ -6219,7 +6661,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0384",
+      "id": "Storefront glass-0408",
       "min": [
         125.0,
         21.77,
@@ -6232,7 +6674,7 @@
       ]
     },
     {
-      "id": "Storefront glass-0385",
+      "id": "Storefront glass-0409",
       "min": [
         157.0,
         21.77,
@@ -6245,7 +6687,7 @@
       ]
     },
     {
-      "id": "Store fascia-0386",
+      "id": "Store fascia-0410",
       "min": [
         125.0,
         25.62,
@@ -6258,7 +6700,7 @@
       ]
     },
     {
-      "id": "Cashier desk-0387",
+      "id": "Cashier desk-0411",
       "min": [
         161.0,
         21.77,
@@ -6271,7 +6713,7 @@
       ]
     },
     {
-      "id": "Gallery display wall-0388",
+      "id": "Gallery display wall-0412",
       "min": [
         130.0,
         21.77,
@@ -6284,7 +6726,7 @@
       ]
     },
     {
-      "id": "Gallery display wall-0389",
+      "id": "Gallery display wall-0413",
       "min": [
         130.0,
         21.77,
@@ -6297,7 +6739,7 @@
       ]
     },
     {
-      "id": "Gallery display wall-0390",
+      "id": "Gallery display wall-0414",
       "min": [
         170.0,
         21.77,
@@ -6310,7 +6752,7 @@
       ]
     },
     {
-      "id": "Gallery display wall-0391",
+      "id": "Gallery display wall-0415",
       "min": [
         170.0,
         21.77,
@@ -6323,7 +6765,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0392",
+      "id": "Upholstered seat-0416",
       "min": [
         140.5,
         21.990000000000002,
@@ -6336,7 +6778,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0393",
+      "id": "Upholstered seat-0417",
       "min": [
         164.5,
         21.990000000000002,
@@ -6349,7 +6791,7 @@
       ]
     },
     {
-      "id": "Roof raised garden-0394",
+      "id": "Roof raised garden-0418",
       "min": [
         -161.0,
         52.37,
@@ -6362,7 +6804,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0395",
+      "id": "Upholstered seat-0419",
       "min": [
         -154.5,
         52.589999999999996,
@@ -6375,7 +6817,7 @@
       ]
     },
     {
-      "id": "Roof raised garden-0396",
+      "id": "Roof raised garden-0420",
       "min": [
         -161.0,
         52.37,
@@ -6388,7 +6830,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0397",
+      "id": "Upholstered seat-0421",
       "min": [
         -154.5,
         52.589999999999996,
@@ -6401,7 +6843,7 @@
       ]
     },
     {
-      "id": "Roof raised garden-0398",
+      "id": "Roof raised garden-0422",
       "min": [
         -161.0,
         52.37,
@@ -6414,7 +6856,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0399",
+      "id": "Upholstered seat-0423",
       "min": [
         -154.5,
         52.589999999999996,
@@ -6427,7 +6869,7 @@
       ]
     },
     {
-      "id": "Roof raised garden-0400",
+      "id": "Roof raised garden-0424",
       "min": [
         139.0,
         52.37,
@@ -6440,7 +6882,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0401",
+      "id": "Upholstered seat-0425",
       "min": [
         145.5,
         52.589999999999996,
@@ -6453,7 +6895,7 @@
       ]
     },
     {
-      "id": "Roof raised garden-0402",
+      "id": "Roof raised garden-0426",
       "min": [
         139.0,
         52.37,
@@ -6466,7 +6908,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0403",
+      "id": "Upholstered seat-0427",
       "min": [
         145.5,
         52.589999999999996,
@@ -6479,7 +6921,7 @@
       ]
     },
     {
-      "id": "Roof raised garden-0404",
+      "id": "Roof raised garden-0428",
       "min": [
         139.0,
         52.37,
@@ -6492,7 +6934,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0405",
+      "id": "Upholstered seat-0429",
       "min": [
         145.5,
         52.589999999999996,
@@ -6505,7 +6947,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0406",
+      "id": "Upholstered seat-0430",
       "min": [
         -87.5,
         52.589999999999996,
@@ -6518,7 +6960,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0407",
+      "id": "Cafe tabletop-0431",
       "min": [
         -80.6,
         53.089999999999996,
@@ -6531,7 +6973,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0408",
+      "id": "Upholstered seat-0432",
       "min": [
         -42.5,
         52.589999999999996,
@@ -6544,7 +6986,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0409",
+      "id": "Cafe tabletop-0433",
       "min": [
         -35.6,
         53.089999999999996,
@@ -6557,7 +6999,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0410",
+      "id": "Upholstered seat-0434",
       "min": [
         -2.5,
         52.589999999999996,
@@ -6570,7 +7012,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0411",
+      "id": "Cafe tabletop-0435",
       "min": [
         4.4,
         53.089999999999996,
@@ -6583,7 +7025,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0412",
+      "id": "Upholstered seat-0436",
       "min": [
         37.5,
         52.589999999999996,
@@ -6596,7 +7038,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0413",
+      "id": "Cafe tabletop-0437",
       "min": [
         44.4,
         53.089999999999996,
@@ -6609,7 +7051,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0414",
+      "id": "Upholstered seat-0438",
       "min": [
         82.5,
         52.589999999999996,
@@ -6622,7 +7064,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0415",
+      "id": "Cafe tabletop-0439",
       "min": [
         89.4,
         53.089999999999996,
@@ -6635,7 +7077,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0416",
+      "id": "Upholstered seat-0440",
       "min": [
         -87.5,
         52.589999999999996,
@@ -6648,7 +7090,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0417",
+      "id": "Cafe tabletop-0441",
       "min": [
         -80.6,
         53.089999999999996,
@@ -6661,7 +7103,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0418",
+      "id": "Upholstered seat-0442",
       "min": [
         -42.5,
         52.589999999999996,
@@ -6674,7 +7116,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0419",
+      "id": "Cafe tabletop-0443",
       "min": [
         -35.6,
         53.089999999999996,
@@ -6687,7 +7129,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0420",
+      "id": "Upholstered seat-0444",
       "min": [
         -2.5,
         52.589999999999996,
@@ -6700,7 +7142,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0421",
+      "id": "Cafe tabletop-0445",
       "min": [
         4.4,
         53.089999999999996,
@@ -6713,7 +7155,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0422",
+      "id": "Upholstered seat-0446",
       "min": [
         37.5,
         52.589999999999996,
@@ -6726,7 +7168,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0423",
+      "id": "Cafe tabletop-0447",
       "min": [
         44.4,
         53.089999999999996,
@@ -6739,7 +7181,7 @@
       ]
     },
     {
-      "id": "Upholstered seat-0424",
+      "id": "Upholstered seat-0448",
       "min": [
         82.5,
         52.589999999999996,
@@ -6752,7 +7194,7 @@
       ]
     },
     {
-      "id": "Cafe tabletop-0425",
+      "id": "Cafe tabletop-0449",
       "min": [
         89.4,
         53.089999999999996,
@@ -6765,7 +7207,7 @@
       ]
     },
     {
-      "id": "Roof edge glass-0426",
+      "id": "Roof edge glass-0450",
       "min": [
         -189.06,
         52.37,
@@ -6778,7 +7220,7 @@
       ]
     },
     {
-      "id": "Roof edge glass-0427",
+      "id": "Roof edge glass-0451",
       "min": [
         188.94,
         52.37,
@@ -6791,7 +7233,7 @@
       ]
     },
     {
-      "id": "Roof edge glass-0428",
+      "id": "Roof edge glass-0452",
       "min": [
         -189.0,
         52.37,
@@ -6804,7 +7246,7 @@
       ]
     },
     {
-      "id": "Roof edge glass-0429",
+      "id": "Roof edge glass-0453",
       "min": [
         -189.0,
         52.37,
@@ -6817,8 +7259,8 @@
       ]
     }
   ],
-  "meshes": 43,
-  "triangles": 1177356,
+  "meshes": 340,
+  "triangles": 1387876,
   "roofY": 52.37,
   "limits": "Physical concept fit-outs; purchases, food service and staff workflow not connected. Brand labels imply no affiliation."
 }

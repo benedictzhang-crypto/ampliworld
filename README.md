@@ -22,6 +22,19 @@ does not mean 600 km² of detailed, continuously simulated city.
 
 ## Where the project stands
 
+### Modular mall, virtual purchases and wearable inventory — 8 October 2026
+
+The recent 26 tenant rooms now export individual Blender/GLB modules. Six pilot
+clothing/accessory units support compatible tenant/assortment changes and three
+alternative finish palettes without changing the structural shell or neighbours.
+Original virtual merchandise can be purchased at the correct physical store,
+kept in a wardrobe and equipped on the walking avatar. The exploration wallet,
+receipts, outfit and unit overrides persist in browser-local storage; they are
+not real payments, server-authoritative commerce or debits to resident accounts.
+See [retail/refit capabilities, tests and limits](docs/MALL_RETAIL_AND_REFIT.md).
+The mall is still a prototype: older central units need migration and the full
+retail/service operation is not complete.
+
 ### Mall tenant interiors and research-backed coverage — 7 October 2026
 
 Follow-up: nine more rooms add an auto city gallery, shoe salon, alterations,

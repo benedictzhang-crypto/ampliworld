@@ -9,6 +9,7 @@ SHELL=json.loads((ROOT/'public/assets/3d/ampliworld/GC-MALL-002/mall-manifest.js
 OUT=ROOT/'public/assets/3d/ampliworld/GC-MALL-TENANTS-001';OUT.mkdir(parents=True,exist_ok=True)
 from mathutils import Vector
 shops=[];fixtures=[]
+unit_objects={}
 def newmat(name,c,rough=.5,metal=0,alpha=1):
     m=bpy.data.materials.new(name);m.use_nodes=True;m.diffuse_color=(*c,alpha)
     p=m.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(*c,1);p.inputs['Roughness'].default_value=rough;p.inputs['Metallic'].default_value=metal;p.inputs['Alpha'].default_value=alpha
@@ -110,6 +111,7 @@ for floor in SPATIAL['floors']:
         text('LIFTS  /  WC',x,y+.99,46.81,.12,True)
 compact_scene()
 for s in PLAN['shops']:
+    previous_objects=set(bpy.context.scene.objects)
     y=-7.2 if s['level']=='B1' else next(f['y'] for f in SPATIAL['floors'] if f['id']==s['level'])
     x,z,w,d=s['x'],s['z'],s['w'],s['d'];front=-1 if z>0 else 1;door=z-front*d/2;back=z+front*d/2
     # front points outward toward the central east-west gallery.
@@ -184,7 +186,25 @@ for s in PLAN['shops']:
             xx=x-10+k*3;sphere('Plush body','Rose cloth',xx,y+1.12,z,.24);sphere('Plush head','Rose cloth',xx,y+1.43,z,.21)
             for dx in [-.14,.14]:sphere('Plush ear','Rose cloth',xx+dx,y+1.62,z,.095)
     runpy.run_path(str(Path(__file__).with_name('mall-service-interiors.py')),init_globals=globals())
-    shops.append({**s,'floorY':y,'entry':[x,y,door+front*2],'inside':[x,y,door-front*3]})
+    runpy.run_path(str(Path(__file__).with_name('mall-fitout-detail.py')),init_globals=globals())
+    unit_id='AUR-'+s['level']+'-'+s['id'].upper()
+    # Namespace each unit's materials BEFORE batching: replacement no longer
+    # requires touching neighbouring shops or the mall's structural shell.
+    for obj in set(bpy.context.scene.objects)-previous_objects:
+        if obj.type!='MESH':continue
+        obj.data=obj.data.copy()
+        for slot in obj.material_slots:
+            if not slot.material:continue
+            source=slot.material
+            role=''
+            if s['id'] in ['chanel-tailoring','balenciaga','dior','hermes','loewe','shoe-salon']:
+                if obj.name.startswith(('Leather bag','Bag handle','Folded knitwear','Tailored jacket','Jacket sleeve','Suit trousers','Suit button','Shoe leather','Shoe sole','Shoe heel')):role='Inventory::'
+                if obj.name.startswith('Wayfinding '+s['name']):role='Signage::'
+            key=unit_id+'::'+role+source.name
+            if key not in materials:
+                clone=source.copy();clone.name=key;materials[key]=clone
+            slot.material=materials[key]
+    shops.append({**s,'unitId':unit_id,'revision':2,'asset':'/assets/3d/ampliworld/GC-MALL-TENANTS-001/units/'+s['id']+'.glb','floorY':y,'entry':[x,y,door+front*2],'inside':[x,y,door-front*3]})
     compact_scene()
 # Roof: retained promenade, discrete gardens and seated outlooks, not a full opaque slab.
 ry=SPATIAL['roofY']
@@ -202,6 +222,17 @@ for x in [-189,189]:box('Roof edge glass','Tenant glass',x,ry+.65,0,.12,1.3,166,
 for z in [-84,84]:box('Roof edge glass','Tenant glass',0,ry+.65,z,378,1.3,.12,True,0)
 compact_scene()
 bpy.ops.export_scene.gltf(filepath=str(OUT/'tenants.glb'),export_format='GLB',export_apply=True,export_draco_mesh_compression_enable=True,export_draco_mesh_compression_level=6,export_draco_position_quantization=18)
+(OUT/'units').mkdir(exist_ok=True)
+def export_selected(path,objects):
+    bpy.ops.object.select_all(action='DESELECT')
+    for obj in objects:obj.select_set(True)
+    bpy.ops.export_scene.gltf(filepath=str(path),use_selection=True,export_format='GLB',export_apply=True,export_draco_mesh_compression_enable=True,export_draco_mesh_compression_level=6,export_draco_position_quantization=18)
+for unit in shops:
+    objects=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.active_material and o.active_material.name.startswith(unit['unitId']+'::')]
+    unit['meshes']=len(objects)
+    unit['triangles']=sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in objects)
+    export_selected(OUT/'units'/(unit['id']+'.glb'),objects)
+export_selected(OUT/'shared.glb',[o for o in bpy.context.scene.objects if o.type=='MESH' and o.active_material and not o.active_material.name.startswith('AUR-')])
 for mesh in list(bpy.data.meshes):
     mesh.use_fake_user=False
     if mesh.users==0:bpy.data.meshes.remove(mesh)

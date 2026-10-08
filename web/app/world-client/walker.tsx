@@ -5,6 +5,8 @@ import { Box3, Group, Ray, Vector3 } from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { walkerCameraOffset } from './walk-camera-profile';
 import type { LiftCarrier } from './mall-circulation';
+import {PRODUCT_BY_SKU,type WearSlot} from './mall-retail-catalog';
+import {OutfitExtras} from './retail-products';
 import {
   BODY_HEIGHT,
   BODY_RADIUS,
@@ -51,6 +53,8 @@ export function Walker({
   look,
   carrier,
   surfaceVelocity,
+  outfit = {},
+  paused = false,
 }: {
   controls: React.RefObject<OrbitControlsImpl | null>;
   onPosition: (x: number, z: number, y?: number) => void;
@@ -63,6 +67,8 @@ export function Walker({
   look?: React.RefObject<{ pitch: number }>;
   carrier?: React.RefObject<LiftCarrier>;
   surfaceVelocity?: (x:number,z:number,y:number)=>number;
+  outfit?: Partial<Record<WearSlot,string>>;
+  paused?: boolean;
 }) {
   const body = useRef<Group>(null),
     leftLeg = useRef<Group>(null),
@@ -128,7 +134,7 @@ export function Walker({
     invalidate();
   }, [relocation, camera, controls, invalidate, onPosition, state]);
   useEffect(() => {
-    if (!active) {
+    if (!active || paused) {
       keys.current.clear();
       state.jumpQueued = false;
       return;
@@ -236,9 +242,9 @@ export function Walker({
       gl.domElement.removeEventListener('pointercancel', pointerUp);
       delete gl.domElement.dataset.player;
     };
-  }, [active, camera, controls, gl, invalidate, state, look]);
+  }, [active, paused, camera, controls, gl, invalidate, state, look]);
   useFrame((frame, elapsed) => {
-    if (!active || !body.current || !controls.current) return;
+    if (!active || paused || !body.current || !controls.current) return;
     const dt = Math.min(elapsed, 0.1),
       p = body.current.position,
       k = keys.current;
@@ -407,7 +413,7 @@ export function Walker({
     <group ref={body} position={initialPosition} visible={active}>
       <mesh position={[0, 1.22, 0]} castShadow>
         <capsuleGeometry args={[0.25, 0.38, 4, 10]} />
-        <meshStandardMaterial color="#c3a36a" />
+        <meshStandardMaterial color={PRODUCT_BY_SKU[outfit.top??'']?.color??'#c3a36a'} />
       </mesh>
       <mesh position={[0, 1.75, 0]} castShadow>
         <sphereGeometry args={[0.22, 14, 10]} />
@@ -434,12 +440,13 @@ export function Walker({
         <group key={x} ref={ref} position={[x, 0.89, 0]}>
           <mesh position={[0, -0.39, 0]} castShadow>
             <capsuleGeometry args={[0.1, 0.57, 4, 8]} />
-            <meshStandardMaterial color="#293b44" />
+            <meshStandardMaterial color={PRODUCT_BY_SKU[outfit.bottom??'']?.color??'#293b44'} />
           </mesh>
           <mesh position={[0, -0.825, 0.045]} castShadow>
             <boxGeometry args={[0.23, 0.13, 0.37]} />
-            <meshStandardMaterial color="#172831" />
+            <meshStandardMaterial color={PRODUCT_BY_SKU[outfit.shoes??'']?.color??'#172831'} />
           </mesh>
+          {outfit.shoes&&<><mesh position={[0,-.879,.045]}><boxGeometry args={[.24,.03,.38]}/><meshStandardMaterial color={PRODUCT_BY_SKU[outfit.shoes]?.trim??'#ddd'}/></mesh>{[.09,.15,.21].map(z=><mesh key={z} position={[0,-.75,z]}><boxGeometry args={[.14,.012,.025]}/><meshStandardMaterial color={PRODUCT_BY_SKU[outfit.shoes??'']?.trim??'#ddd'}/></mesh>)}</>}
         </group>
       ))}
       {[
@@ -449,7 +456,7 @@ export function Walker({
         <group key={x} ref={ref} position={[x, 1.44, 0]}>
           <mesh position={[0, -0.26, 0]} castShadow>
             <capsuleGeometry args={[0.085, 0.36, 4, 8]} />
-            <meshStandardMaterial color="#c3a36a" />
+            <meshStandardMaterial color={PRODUCT_BY_SKU[outfit.top??'']?.color??'#c3a36a'} />
           </mesh>
           <mesh position={[0, -0.53, 0]}>
             <sphereGeometry args={[0.087, 10, 6]} />
@@ -457,6 +464,7 @@ export function Walker({
           </mesh>
         </group>
       ))}
+      <OutfitExtras top={PRODUCT_BY_SKU[outfit.top??'']} bag={PRODUCT_BY_SKU[outfit.bag??'']} hat={PRODUCT_BY_SKU[outfit.hat??'']}/>
     </group>
   );
 }

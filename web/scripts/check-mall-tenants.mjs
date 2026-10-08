@@ -28,6 +28,13 @@ for(const s of m.shops){
   }
 }
 assert.ok(TOUR_DESTINATIONS.some(d=>d.id==='GC-MALL-ROOF-GARDEN'));
-assert.ok(m.meshes<=60&&m.triangles<1800000);
+assert.ok(m.meshes<=650&&m.triangles<1800000);
+assert.equal(new Set(m.shops.map(s=>s.unitId)).size,26,'Stable unique physical units');
+assert.equal(new Set(m.shops.map(s=>s.asset)).size,26,'Independently replaceable assets');
+for(const s of m.shops){
+  assert.ok(s.meshes<=32&&s.triangles<350000,s.id+' per-unit budget');
+  assert.ok(readFileSync(new URL(root+'GC-MALL-TENANTS-001/units/'+s.id+'.glb',import.meta.url)).length>1000,s.id+' exported');
+}
+assert.ok(readFileSync(new URL(root+'GC-MALL-TENANTS-001/shared.glb',import.meta.url)).length>1000);
 assert.ok(readFileSync(new URL(root+'GC-MALL-TENANTS-001/tenants.glb',import.meta.url)).length<20*1024*1024);
 console.log('PASS: 26 real footprints, nine service/retail additions, four solid display cars, existing 4S arrival, combined collision-safe entrances and render budget.');

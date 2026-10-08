@@ -34,6 +34,8 @@ import {MallLeisure,MALL_LEISURE_COLLIDERS,mallLeisureLocation} from '../world-c
 import {MallSports,MALL_SPORTS_COLLIDERS,mallSportsLocation} from '../world-client/mall-sports';
 import {MallTenants,MALL_TENANT_COLLIDERS,mallTenantLocation} from '../world-client/mall-tenants';
 import {MallDirectory} from '../world-client/mall-directory';
+import {MallRetailPanel} from '../world-client/mall-retail-panel';
+import {useMallRetail} from '../world-client/use-mall-retail';
 import mallSpatial from '../world-client/mall-spatial-plan.json';
 import {
   createMallLifts,
@@ -132,6 +134,9 @@ function vehicleBodyCollider(s: CarState) {
 }
 
 export function DistrictClient() {
+  const retail=useMallRetail();
+  const [retailOpen,setRetailOpen]=useState(false);
+  const [retailSelection,setRetailSelection]=useState<{unit:string;sku:string;nonce:number}|null>(null);
   const population = usePopulation();
   const [selectedResident, setSelectedResident] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -550,6 +555,7 @@ export function DistrictClient() {
   };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if(document.querySelector('dialog[open]'))return;
       if (
         e.code === 'KeyE' &&
         !e.repeat &&
@@ -697,7 +703,7 @@ export function DistrictClient() {
                   <AssetIsland name="mall interior"><MallFitout /></AssetIsland>
                   <AssetIsland name="mall leisure"><MallLeisure /></AssetIsland>
                   <AssetIsland name="mall sports"><MallSports /></AssetIsland>
-                  <AssetIsland name="mall tenants"><MallTenants /></AssetIsland>
+                  <AssetIsland name="mall tenants"><MallTenants state={retail.state} onInspect={(unit,sku)=>setRetailSelection({unit,sku,nonce:Date.now()})}/></AssetIsland>
                   <CivicPlaces
                     x={housingX}
                     z={housingZ}
@@ -766,7 +772,7 @@ export function DistrictClient() {
                     driving &&
                     activeCar === 'city' &&
                     !ride &&
-                    !planOpen
+                    !planOpen && !retailOpen
                   }
                   look={look}
                   controls={controls}
@@ -787,7 +793,7 @@ export function DistrictClient() {
                     driving &&
                     activeCar === 'park' &&
                     !ride &&
-                    !planOpen
+                    !planOpen && !retailOpen
                   }
                   look={look}
                   controls={controls}
@@ -811,7 +817,7 @@ export function DistrictClient() {
               <OrbitControls
                 ref={controls}
                 makeDefault
-                enabled={!planOpen && !ride}
+                enabled={!planOpen && !ride && !retailOpen}
                 onChange={() => {
                   if (walking || wide || !controls.current) return;
                   const target = controls.current.target,
@@ -831,6 +837,8 @@ export function DistrictClient() {
               />
               <SetupCamera walking={walking} controls={controls} wide={wide} />
               <Walker
+                outfit={retail.state.equipped}
+                paused={retailOpen}
                 active={coreReady && walking && !driving && !ride && !planOpen}
                 look={look}
                 relocation={relocation}
@@ -1022,7 +1030,8 @@ export function DistrictClient() {
             车辆起点
           </Button>
           <Button onClick={() => setPlanOpen(true)}>城市平面图</Button>
-          <MallDirectory onVisit={(d)=>teleportTo(d.arrivalX,d.arrivalZ,d.arrivalY)}/>
+          <MallDirectory state={retail.state} onVisit={(d)=>teleportTo(d.arrivalX,d.arrivalZ,d.arrivalY)}/>
+          <MallRetailPanel {...retail} selection={retailSelection} position={[position[0],playerFloor.current,position[1]]} onVisit={(x,z,y)=>teleportTo(x,z,y)} onOpenChange={setRetailOpen}/>
           <Button
             onClick={() =>
               teleportTo(
@@ -1123,7 +1132,7 @@ export function DistrictClient() {
                 ? `已停入 ${parkedGarageBay(activeReport)!.id} · E 下车`
                 : vehicleMessage
               : walking
-                ? mallTenantLocation(position[0],position[1],playerFloor.current)??mallSportsLocation(position[0],position[1],playerFloor.current)??mallLeisureLocation(position[0],position[1],playerFloor.current)??mallFitoutLocation(position[0],position[1],playerFloor.current)??districtLocation(position[0], position[1])
+                ? mallTenantLocation(position[0],position[1],playerFloor.current,retail.state)??mallSportsLocation(position[0],position[1],playerFloor.current)??mallLeisureLocation(position[0],position[1],playerFloor.current)??mallFitoutLocation(position[0],position[1],playerFloor.current)??districtLocation(position[0], position[1])
                 : '俯瞰不会改变角色位置 · 返回继续原地行走'}
           </small>
         </div>

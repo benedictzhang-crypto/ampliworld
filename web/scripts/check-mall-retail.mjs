@@ -1,0 +1,37 @@
+import assert from 'node:assert/strict';
+import {initialRetailState,transact,wallet,owns,unitSettings,parseRetailSave,STARTING_WALLET,nearUnit} from '../app/world-client/mall-retail-state.ts';
+import {PRODUCT_BY_SKU,COLLECTIONS} from '../app/world-client/mall-retail-catalog.ts';
+let s=initialRetailState();
+const unit='chanel-tailoring',position=[-177,8.17,-230];
+assert.equal(wallet(s),1000000);
+const buy={type:'buy',unit,sku:'ivory-jacket',position};
+assert.ok(nearUnit(unit,position));assert.ok(!nearUnit(unit,[-177,.17,-230]));
+assert.equal(transact(s,{...buy,position:[0,0,0]}).state,s,'Cannot buy remotely');
+assert.equal(transact(s,{...buy,sku:'invented'}).state,s);
+assert.equal(transact(s,{type:'equip',sku:buy.sku}).state,s,'Must own before equipping');
+const original=JSON.stringify(s);s=transact(s,buy).state;
+assert.equal(wallet(s),STARTING_WALLET-PRODUCT_BY_SKU[buy.sku].price);
+assert.equal(original,JSON.stringify(initialRetailState()),'Input not mutated');
+assert.equal(transact(s,buy).state,s,'Double click cannot charge again');
+s=transact(s,{type:'equip',sku:buy.sku}).state;assert.equal(s.equipped.top,buy.sku);
+s=transact(s,{type:'fitout',unit,name:'New Maison',collection:'travel',palette:'noir'}).state;
+assert.equal(unitSettings(s,unit).name,'New Maison');assert.equal(unitSettings(s,unit).collection,'travel');
+assert.equal(unitSettings(s,'dior').palette,'original','Neighbour unaffected');
+assert.equal(transact(s,{...buy,sku:'noir-jacket'}).state,s,'Old assortment rejected');
+s=transact(s,{...buy,sku:'cobalt-bag'}).state;
+s=transact(s,{type:'equip',sku:'cobalt-bag'}).state;assert.ok(s.equipped.top&&s.equipped.bag);
+const restored=parseRetailSave(JSON.stringify(s));assert.deepEqual(restored,s,'Reload retains wallet, ownership, outfit and fitout');
+const balance=wallet(s);s=transact(s,{type:'restore-unit',unit}).state;
+assert.equal(unitSettings(s,unit).name,'CHANEL · Tailoring');assert.equal(wallet(s),balance);assert.ok(owns(s,'cobalt-bag'));
+s=transact(s,{type:'unequip',slot:'bag'}).state;assert.equal(s.equipped.bag,undefined);
+assert.deepEqual(parseRetailSave('broken'),initialRetailState());
+assert.deepEqual(parseRetailSave(JSON.stringify({version:999})),initialRetailState());
+assert.equal(parseRetailSave(JSON.stringify({...s,equipped:{hat:'not-real',top:'noir-jacket'}})).equipped.top,undefined);
+const poor={...initialRetailState(),receipts:[{id:1,unit,sku:'white-sneakers',price:STARTING_WALLET}]};
+assert.equal(transact(poor,buy).state,poor,'Insufficient balance rejected');
+for(const collection of Object.keys(COLLECTIONS)){
+ s=transact(s,{type:'fitout',unit,name:'Pilot',collection,palette:'sage'}).state;
+ for(const sku of COLLECTIONS[collection])for(let i=0;i<5;i++)s=transact(s,{...buy,sku}).state;
+ assert.ok(wallet(s)>=0);assert.equal(new Set(s.receipts.map(r=>r.sku)).size,s.receipts.length);
+}
+console.log('PASS: proximity/floor checks, atomic local purchase, stock, duplicate protection, insufficient funds, ownership-only equipment, renovation isolation, receipt retention and reload migration.');
