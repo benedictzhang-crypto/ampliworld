@@ -33,6 +33,7 @@ import { MallFitout, MALL_FITOUT_COLLIDERS, mallFitoutLocation } from '../world-
 import {MallLeisure,MALL_LEISURE_COLLIDERS,mallLeisureLocation} from '../world-client/mall-leisure';
 import {MallSports,MALL_SPORTS_COLLIDERS,mallSportsLocation} from '../world-client/mall-sports';
 import {MallTenants,MALL_TENANT_COLLIDERS,mallTenantLocation} from '../world-client/mall-tenants';
+import {InteriorZone} from '../world-client/interior-zone';
 import {MallDirectory} from '../world-client/mall-directory';
 import {MallRetailPanel} from '../world-client/mall-retail-panel';
 import {useMallRetail} from '../world-client/use-mall-retail';
@@ -137,6 +138,7 @@ export function DistrictClient() {
   const retail=useMallRetail();
   const [retailOpen,setRetailOpen]=useState(false);
   const [retailSelection,setRetailSelection]=useState<{unit:string;sku:string;nonce:number}|null>(null);
+  const inspectRetail=useCallback((unit:string,sku:string)=>setRetailSelection({unit,sku,nonce:Date.now()}),[]);
   const population = usePopulation();
   const [selectedResident, setSelectedResident] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -700,10 +702,10 @@ export function DistrictClient() {
               {assetStage >= 2 && (
                 <>
                   <AssetIsland name="mall"><Mall /></AssetIsland>
-                  <AssetIsland name="mall interior"><MallFitout /></AssetIsland>
-                  <AssetIsland name="mall leisure"><MallLeisure /></AssetIsland>
-                  <AssetIsland name="mall sports"><MallSports /></AssetIsland>
-                  <AssetIsland name="mall tenants"><MallTenants state={retail.state} onInspect={(unit,sku)=>setRetailSelection({unit,sku,nonce:Date.now()})}/></AssetIsland>
+                  <InteriorZone min={[-195,-10,-280]} max={[115,51,-97]}><AssetIsland name="mall interior"><MallFitout /></AssetIsland></InteriorZone>
+                  <InteriorZone min={[-195,30,-280]} max={[110,53,-97]}><AssetIsland name="mall leisure"><MallLeisure /></AssetIsland></InteriorZone>
+                  <InteriorZone min={[113,-1,-275]} max={[195,8,-100]}><AssetIsland name="mall sports"><MallSports /></AssetIsland></InteriorZone>
+                  <AssetIsland name="mall tenants"><MallTenants state={retail.state} onInspect={inspectRetail}/></AssetIsland>
                   <CivicPlaces
                     x={housingX}
                     z={housingZ}

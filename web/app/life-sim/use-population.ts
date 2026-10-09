@@ -1,6 +1,6 @@
 'use client';
 
-import {useCallback,useEffect,useRef,useState} from 'react';
+import {useCallback,useEffect,useRef,useState,useMemo} from 'react';
 import type {LifeWorld} from './engine';
 
 type PopulationResponse={world?:LifeWorld;error?:string};
@@ -85,7 +85,7 @@ export function usePopulation(){
     const timer=setInterval(()=>{if(!document.hidden)void advance(15);},5000);
     return()=>clearInterval(timer);
   },[playing,advance]);
-  return {world,error,busy,playing,setPlaying,advance,submitEvent,submitMarket,load,loadArea};
+  return useMemo(()=>({world,error,busy,playing,setPlaying,advance,submitEvent,submitMarket,load,loadArea}),[world,error,busy,playing,advance,submitEvent,submitMarket,load,loadArea]);
 }
 
 export type PopulationController=ReturnType<typeof usePopulation>;

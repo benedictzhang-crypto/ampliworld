@@ -22,6 +22,16 @@ does not mean 600 km² of detailed, continuously simulated city.
 
 ## Where the project stands
 
+### Persistent world, selective rendering — 9 October 2026
+
+World state and collisions remain present when visual interiors are unloaded.
+Mall tenants now stream by camera floor and distance (six-unit cap, staged
+admission); the vehicle and walker use spatially indexed collision candidates.
+Resident panels no longer recompute on each player coordinate report.
+Local matched-view checks reduced walk-spawn triangles from 9.15M to 6.09M;
+this is workload reduction, **not** a universal FPS or stutter-free guarantee.
+See [performance checks and remaining limits](docs/PERFORMANCE_STREAMING.md).
+
 ### Modular mall, virtual purchases and wearable inventory — 8 October 2026
 
 The recent 26 tenant rooms now export individual Blender/GLB modules. Six pilot

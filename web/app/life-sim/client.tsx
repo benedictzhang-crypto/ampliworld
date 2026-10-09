@@ -1,7 +1,7 @@
 'use client';
 import {Localized,useLanguage} from '../language';
 import {englishNameFor} from './english-names';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, memo, useMemo } from 'react';
 import { useThree } from '@react-three/fiber';
 import { Color, InstancedMesh, Object3D } from 'three';
 import {
@@ -17,7 +17,7 @@ import type {PopulationController} from './use-population';
 import './population.css';
 const VISIBLE_RESIDENT_CAPACITY=1200;
 /** Snapshot visualization only: authoritative movement remains in the simulation engine. */
-export function PopulationLayer({
+function PopulationLayerView({
   world,
   onSelect,
   groundHeight,
@@ -134,7 +134,7 @@ const agentGoalLabels:Record<AgentGoal,[string,string]>={
   'fresh-food':['新鲜饮食','Fresh food'],wellbeing:['心情与幸福','Wellbeing'],
   'household-supply':['家庭补给','Household supply'],portfolio:['投资组合','Portfolio'],exploration:['探索与出行','Exploration'],
 };
-export function PopulationPanel({
+function PopulationPanelView({
   controller,
   selected,
   onSelect,
@@ -184,7 +184,7 @@ export function PopulationPanel({
       0,
     ) ?? 0;
   const occupations=Array.from(new Map((world?.residents||[]).map(r=>[r.profile?.occupation||r.job,{id:r.profile?.occupation||r.job,label:r.job}])).values());
-  const rankedResidents=[...(world?.residents||[])].sort((a,b)=>residentNetWorth(a,world!.minute,world!.market)-residentNetWorth(b,world!.minute,world!.market)||a.id.localeCompare(b.id));
+  const rankedResidents=useMemo(()=>[...(world?.residents||[])].sort((a,b)=>residentNetWorth(a,world!.minute,world!.market)-residentNetWorth(b,world!.minute,world!.market)||a.id.localeCompare(b.id)),[world]);
   const memoryText=(item:{minute:number;text:string})=>{
     if(language!=='en')return item.text;
     const match=item.text.match(/^与(.+?)交谈：([\s\S]*)$/);
@@ -568,3 +568,5 @@ export function PopulationPanel({
     </aside></Localized>
   );
 }
+export const PopulationLayer=memo(PopulationLayerView);
+export const PopulationPanel=memo(PopulationPanelView);

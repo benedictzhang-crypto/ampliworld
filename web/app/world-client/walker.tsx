@@ -7,6 +7,7 @@ import { walkerCameraOffset } from './walk-camera-profile';
 import type { LiftCarrier } from './mall-circulation';
 import {PRODUCT_BY_SKU,type WearSlot} from './mall-retail-catalog';
 import {OutfitExtras} from './retail-products';
+import {SpatialBoxIndex} from './spatial-box-index';
 import {
   BODY_HEIGHT,
   BODY_RADIUS,
@@ -76,6 +77,7 @@ export function Walker({
     leftArm = useRef<Group>(null),
     rightArm = useRef<Group>(null);
   const keys = useRef(new Set<string>());
+  const collisionIndex=useMemo(()=>active?new SpatialBoxIndex(obstacles):null,[obstacles,active]);
   const state = useMemo(
     () => ({
       forward: new Vector3(),
@@ -94,6 +96,8 @@ export function Walker({
       lastReport: 0,
       desiredRadius: 9,
       gaze: new Vector3(),
+      nearBody: [] as Box3[],
+      nearCamera: [] as Box3[],
     }),
     [],
   );
@@ -244,7 +248,7 @@ export function Walker({
     };
   }, [active, paused, camera, controls, gl, invalidate, state, look]);
   useFrame((frame, elapsed) => {
-    if (!active || paused || !body.current || !controls.current) return;
+    if (!active || paused || !body.current || !controls.current || !collisionIndex) return;
     const dt = Math.min(elapsed, 0.1),
       p = body.current.position,
       k = keys.current;
@@ -260,6 +264,7 @@ export function Walker({
       k.clear();
     }
     const previousFeet = state.feet;
+    const nearby=collisionIndex.query(p.x-4,p.z-4,p.x+4,p.z+4,state.nearBody);
     const wasGrounded = state.grounded;
     state.forward.subVectors(controls.current.target, camera.position).setY(0);
     if (state.forward.lengthSq() < 0.00001) state.forward.set(0, 0, -1);
@@ -285,9 +290,9 @@ export function Walker({
     let nx=p.x,nz=p.z,stepFloor=state.feet;
     for(let i=0;i<steps;i++){
       const x=Math.max(-limits[0],Math.min(limits[0],nx+stepX));
-      if(!blocked(obstacles,x,nz,stepFloor)&&groundHeight(x,nz,stepFloor)<=stepFloor+.29){nx=x;if(state.grounded)stepFloor=groundHeight(nx,nz,stepFloor);}
+      if(!blocked(nearby,x,nz,stepFloor)&&groundHeight(x,nz,stepFloor)<=stepFloor+.29){nx=x;if(state.grounded)stepFloor=groundHeight(nx,nz,stepFloor);}
       const z=Math.max(-limits[1],Math.min(limits[1],nz+stepZ));
-      if(!blocked(obstacles,nx,z,stepFloor)&&groundHeight(nx,z,stepFloor)<=stepFloor+.29){nz=z;if(state.grounded)stepFloor=groundHeight(nx,nz,stepFloor);}
+      if(!blocked(nearby,nx,z,stepFloor)&&groundHeight(nx,z,stepFloor)<=stepFloor+.29){nz=z;if(state.grounded)stepFloor=groundHeight(nx,nz,stepFloor);}
     }
     state.delta.set(nx - p.x, 0, nz - p.z);
     const travelled = state.delta.length();
@@ -299,7 +304,7 @@ export function Walker({
       dt,
     );
     let floor = groundHeight(nx, nz, state.feet);
-    for (const box of obstacles)
+    for (const box of nearby)
       if (overlaps(box, nx, nz, 0.24) && box.max.y <= state.feet + 0.29)
         floor = Math.max(floor, box.max.y);
     if (state.jumpQueued && state.grounded) {
@@ -312,7 +317,7 @@ export function Walker({
       state.velocity -= GRAVITY * dt;
       state.feet += state.velocity * dt;
     } else state.feet = floor;
-    for (const box of obstacles) {
+    for (const box of nearby) {
       if (!overlaps(box, nx, nz, 0.24)) continue;
       if (
         state.velocity > 0 &&
@@ -370,7 +375,9 @@ export function Walker({
     state.ray.origin.copy(controls.current.target);
     state.ray.direction.copy(state.offset).normalize();
     let safeDistance = state.offset.length();
-    for (const box of obstacles)
+    const target=controls.current.target;
+    const cameraBoxes=collisionIndex.query(Math.min(target.x,camera.position.x)-.2,Math.min(target.z,camera.position.z)-.2,Math.max(target.x,camera.position.x)+.2,Math.max(target.z,camera.position.z)+.2,state.nearCamera);
+    for (const box of cameraBoxes)
       if (state.ray.intersectBox(box, state.hit)) {
         const d = state.hit.distanceTo(controls.current.target) - 0.18;
         if (d < safeDistance) safeDistance = Math.max(0.1, d);
@@ -381,11 +388,13 @@ export function Walker({
     camera.lookAt(controls.current.target);
     if (look) camera.rotateX(look.current.pitch);
     if (
-      frame.clock.elapsedTime - state.lastReport > 0.06 ||
+      frame.clock.elapsedTime - state.lastReport > 0.12 ||
       wasGrounded !== state.grounded
     ) {
       onPosition(nx, nz, body.current.position.y);
       state.lastReport = frame.clock.elapsedTime;
+      gl.domElement.dataset.collisionCandidates=String(nearby.length);
+      gl.domElement.dataset.collisionTotal=String(obstacles.length);
       gl.domElement.dataset.player = JSON.stringify({
         x: nx,
         z: nz,

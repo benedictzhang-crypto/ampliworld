@@ -5,6 +5,7 @@ import { Clone, useGLTF } from '@react-three/drei';
 import { Box3, Group, Ray, Vector3 } from 'three';
 import { clipVehicleCamera } from './vehicle-safety';
 import {coreCarMustStop} from '../life-sim/traffic';
+import {SpatialBoxIndex} from './spatial-box-index';
 import type { OrbitControls } from 'three-stdlib';
 export { carBlocked, stepVehicleMotion } from './vehicle-physics';
 export type { CarState } from './vehicle-physics';
@@ -37,6 +38,7 @@ export function DriveableCar({
     keys = useRef(new Set<string>());
   const { camera, gl, invalidate } = useThree();
   const display = useMemo(() => scene.clone(true), [scene]);
+  const collisionIndex=useMemo(()=>active?new SpatialBoxIndex(obstacles):null,[obstacles,active]);
   const wheels = useMemo(
     () =>
       ['wheel-fl', 'wheel-fr', 'wheel-rl', 'wheel-rr'].map((n) =>
@@ -51,6 +53,8 @@ export function DriveableCar({
       direction: new Vector3(),
       hit: new Vector3(),
       ray: new Ray(),
+      nearby: [] as Box3[],
+      cameraBoxes: [] as Box3[],
       yawOffset: 0,
       report: 0,
       reported: { x: NaN, z: NaN, y: NaN, yaw: NaN, speed: NaN },
@@ -173,7 +177,7 @@ export function DriveableCar({
               Number(k.has('KeyD') || k.has('ArrowRight'))) *
             0.32;
       }
-    if (active && controls.current) {
+    if (active && controls.current && collisionIndex) {
       const throttle =
         Number(k.has('KeyW') || k.has('ArrowUp')) -
         Number(k.has('KeyS') || k.has('ArrowDown'));
@@ -183,11 +187,13 @@ export function DriveableCar({
       const approachSpeed=s.speed+throttle*15*dt;
       const redStop=(s.y??0)>-1&&coreCarMustStop(s.x,s.z,s.x-Math.sin(s.yaw)*approachSpeed*dt,s.z-Math.cos(s.yaw)*approachSpeed*dt,Date.now()/1000);
       if(redStop)s.speed=0;
+      // 160 km/h * 0.06 s + half-diagonal fits inside this conservative radius.
+      const nearby=collisionIndex.query(s.x-8,s.z-8,s.x+8,s.z+8,scratch.nearby);
       stepVehicleMotion(
         s,
         { throttle:redStop?0:throttle, steer, brake: redStop||k.has('Space') },
         dt,
-        obstacles,
+        nearby,
         groundHeight,
       );
       const y = groundHeight(s.x, s.z, s.y);
@@ -202,7 +208,8 @@ export function DriveableCar({
       let boom = scratch.direction.length();
       scratch.direction.normalize();
       scratch.ray.set(scratch.target, scratch.direction);
-      for (const box of obstacles)
+      const cameraBoxes=collisionIndex.query(Math.min(scratch.target.x,scratch.eye.x,camera.position.x)-.3,Math.min(scratch.target.z,scratch.eye.z,camera.position.z)-.3,Math.max(scratch.target.x,scratch.eye.x,camera.position.x)+.3,Math.max(scratch.target.z,scratch.eye.z,camera.position.z)+.3,scratch.cameraBoxes);
+      for (const box of cameraBoxes)
         if (scratch.ray.intersectBox(box, scratch.hit))
           boom = Math.min(
             boom,
@@ -215,7 +222,7 @@ export function DriveableCar({
       clipVehicleCamera(
         camera.position,
         scratch.target,
-        obstacles,
+        cameraBoxes,
         scratch.ray,
         scratch.direction,
         scratch.hit,
